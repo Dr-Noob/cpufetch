@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "02h.h"
+#include "cpuid.h"
 
 #define MASK1 0xFF;
 #define MASK2 0xFF00;
@@ -22,18 +23,6 @@ struct TLB {
 
 //http://www.sandpile.org/x86/cpuid.htm
 //http://www.hugi.scene.org/online/coding/hugi%2016%20-%20corawhd4.htm
-
-/*** EXEC CPUID INSTRUCTION ***/
-static inline void native_cpuid(unsigned int *eax, unsigned int *ebx,
-                                unsigned int *ecx, unsigned int *edx)
-{
-        asm volatile("cpuid"
-            : "=a" (*eax),
-              "=b" (*ebx),
-              "=c" (*ecx),
-              "=d" (*edx)
-            : "0" (*eax), "2" (*ecx));
-}
 
 /*** ACCORDING TO CPUID TABLE ***/
 //TO BE IMPLEMENTED
@@ -328,7 +317,7 @@ struct level2* fillLevel2(struct level2* data) {
 
   unsigned eax, ebx, ecx, edx;
   eax = 2;
-  native_cpuid(&eax, &ebx, &ecx, &edx);
+  cpuid(&eax, &ebx, &ecx, &edx);
 
   unsigned int desc[16];
 
