@@ -51,8 +51,8 @@ int main() {
   printf(TITLE_AES"%s\n",aes);
   printf(TITLE_SHA"%s\n",sha);
   printf(TITLE_L1"%s\n",l1);
-  printf(TITLE_L3"%s\n",l2);
-  printf(TITLE_L2"%s\n",l3);
+  printf(TITLE_L2"%s\n",l2);
+  printf(TITLE_L3"%s\n",l3);
   printf(TITLE_PEAK"%s\n","??? GFLOP/s");
 
   free(cpuName);

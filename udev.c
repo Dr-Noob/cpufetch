@@ -115,19 +115,33 @@ char* getString_L1(struct cache* cach) {
 }
 
 char* getString_L2(struct cache* cach) {
-  //Max 4 digits and 2 for 'KB'
-  int size = (4+2+1);
-  char* string = malloc(sizeof(char)*size);
-  snprintf(string,size,"%dKB",cach->L2/1024);
-  return string;
+  if(cach->L2 == NO_CACHE) {
+    char* string = malloc(sizeof(char)*5);
+    snprintf(string,5,"None");
+    return string;
+  }
+  else {
+    //Max 4 digits and 2 for 'KB'
+    int size = (4+2+1);
+    char* string = malloc(sizeof(char)*size);
+    snprintf(string,size,"%dKB",cach->L2/1024);
+    return string;
+  }
 }
 
 char* getString_L3(struct cache* cach) {
-  //Max 4 digits and 2 for 'KB'
-  int size = (4+2+1);
-  char* string = malloc(sizeof(char)*size);
-  snprintf(string,size,"%dKB",cach->L3/1024);
-  return string;
+  if(cach->L3 == NO_CACHE) {
+    char* string = malloc(sizeof(char)*5);
+    snprintf(string,5,"None");
+    return string;
+  }
+  else {
+    //Max 4 digits and 2 for 'KB'
+    int size = (4+2+1);
+    char* string = malloc(sizeof(char)*size);
+    snprintf(string,size,"%dKB",cach->L3/1024);
+    return string;
+  }
 }
 
 char* getString_MaxFrequency(struct frequency* freq) {
