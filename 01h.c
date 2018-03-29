@@ -218,17 +218,17 @@ char* getString_FMA(struct cpuInfo* cpu) {
 char* getString_AES(struct cpuInfo* cpu) {
   char* string = malloc(sizeof(char)*3+1);
   if(cpu->AES == BOOLEAN_TRUE)
-    snprintf(string,3+1,"Yes");
+    snprintf(string,3+1,STRING_YES);
   else
-    snprintf(string,2+1,"No");
+    snprintf(string,2+1,STRING_NO);
   return string;
 }
 
 char* getString_SHA(struct cpuInfo* cpu) {
   char* string = malloc(sizeof(char)*3+1);
   if(cpu->SHA == BOOLEAN_TRUE)
-    snprintf(string,3+1,"Yes");
+    snprintf(string,3+1,STRING_YES);
   else
-    snprintf(string,2+1,"No");
+    snprintf(string,2+1,STRING_NO);
   return string;
 }

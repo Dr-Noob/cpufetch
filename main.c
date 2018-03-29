@@ -10,7 +10,7 @@ SAMPLE OUTPUT
 
 Name:        Intel Core i7-4790K
 Arch:        64 Bits
-Frecuency:   4.0 GHz
+Frequency:   4.0 GHz
 NºCores:     4 cores(8 threads)
 AXV:         AVX,AVX2
 SSE:         SSE,SSE2,SSE4.1,SSE4.2

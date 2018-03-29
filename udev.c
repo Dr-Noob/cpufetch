@@ -61,18 +61,27 @@ int getCache(char* path) {
   int fd = fileno(file);
   int bytes_read = 0;
   int offset = 0;
-  int block = 1;
+  int block = DEFAULT_BLOCK_SIZE;
   char* buf = malloc(sizeof(char)*DEFAULT_FILE_SIZE);
 	memset(buf, 0, sizeof(char)*DEFAULT_FILE_SIZE);
 
-	while (  (bytes_read = read(fd, buf+offset, block)) > 0 ) {
+  do {
+    bytes_read = read(fd, buf+offset, block);
     offset += bytes_read;
-  }
+  } while(bytes_read > 0);
 
+  //Move size from kb to bytes
   int ret = getSize(buf,offset)*1024;
 	free(buf);
+  fclose(file);
   return ret;
 }
+
+/***
+
+Returns CPU frequency in Hz
+
+***/
 
 int getFrequency(char* path) {
   FILE *file = fopen(path, "r");
@@ -100,7 +109,7 @@ int getFrequency(char* path) {
     printf("error in getFrequency\n");
     return NO_CACHE;
   }
-  return ret/1000;
+  return ret;
 }
 
 /*** GET_STRING ***/
@@ -110,21 +119,21 @@ char* getString_L1(struct cache* cach) {
   //and 14 for '(Instructions)'
   int size = (2*(2+2)+6+14+1);
   char* string = malloc(sizeof(char)*size);
-  snprintf(string,size,"%dKB(Data)%dKB(Instructions)",cach->L1d/1024,cach->L1i/1024);
+  snprintf(string,size,"%d"STRING_KILOBYTES"(Data)%d"STRING_KILOBYTES"(Instructions)",cach->L1d/1024,cach->L1i/1024);
   return string;
 }
 
 char* getString_L2(struct cache* cach) {
   if(cach->L2 == NO_CACHE) {
     char* string = malloc(sizeof(char)*5);
-    snprintf(string,5,"None");
+    snprintf(string,5,STRING_NONE);
     return string;
   }
   else {
     //Max 4 digits and 2 for 'KB'
     int size = (4+2+1);
     char* string = malloc(sizeof(char)*size);
-    snprintf(string,size,"%dKB",cach->L2/1024);
+    snprintf(string,size,"%d"STRING_KILOBYTES,cach->L2/1024);
     return string;
   }
 }
@@ -132,27 +141,30 @@ char* getString_L2(struct cache* cach) {
 char* getString_L3(struct cache* cach) {
   if(cach->L3 == NO_CACHE) {
     char* string = malloc(sizeof(char)*5);
-    snprintf(string,5,"None");
+    snprintf(string,5,STRING_NONE);
     return string;
   }
   else {
     //Max 4 digits and 2 for 'KB'
     int size = (4+2+1);
     char* string = malloc(sizeof(char)*size);
-    snprintf(string,size,"%dKB",cach->L3/1024);
+    snprintf(string,size,"%d"STRING_KILOBYTES,cach->L3/1024);
     return string;
   }
 }
 
 char* getString_MaxFrequency(struct frequency* freq) {
-  //Max 4 digits and 3 for 'MHz' plus 1 for '\0'
+  //Max 3 digits and 3 for '(M/G)Hz' plus 1 for '\0'
   int size = (4+3+1);
   char* string = malloc(sizeof(char)*size);
-  snprintf(string,size,"%dMHz",freq->max);
+  if(freq->max >= 1000000)
+    snprintf(string,size,"%.2f"STRING_GIGAHERZ,(float)(freq->max)/1000000);
+  else
+    snprintf(string,size,"%.2f"STRING_MEGAHERZ,(float)(freq->max)/100000);
   return string;
 }
 
-/*** CREATE DEBUGING AND FREES ***/
+/*** CREATES AND FREES ***/
 
 struct cache* new_cache(struct cache* cach) {
   cach = malloc(sizeof(struct cache));
@@ -170,6 +182,16 @@ struct frequency* new_frequency(struct frequency* freq) {
   return freq;
 }
 
+void freeCache(struct cache* cach) {
+  free(cach);
+}
+
+void freeFrequency(struct frequency* freq) {
+  free(freq);
+}
+
+/*** DEBUGING ***/
+
 void debugCache(struct cache* cach) {
   printf("L1i=%dB\n",cach->L1i);
   printf("L1d=%dB\n",cach->L1d);
@@ -180,12 +202,4 @@ void debugCache(struct cache* cach) {
 void debugFrequency(struct frequency* freq) {
   printf("max f=%dMhz\n",freq->max);
   printf("min f=%dMhz\n",freq->min);
-}
-
-void freeCache(struct cache* cach) {
-  free(cach);
-}
-
-void freeFrequency(struct frequency* freq) {
-  free(freq);
 }

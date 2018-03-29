@@ -21,6 +21,13 @@
 
 #define NO_CACHE -1
 #define DEFAULT_FILE_SIZE 4096
+#define DEFAULT_BLOCK_SIZE 128
+
+/*** STRINGS ***/
+#define STRING_NONE "None"
+#define STRING_MEGAHERZ "MHz"
+#define STRING_GIGAHERZ "GHz"
+#define STRING_KILOBYTES "KB"
 
 /*** STRUCTS ***/
 

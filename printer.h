@@ -7,7 +7,7 @@
 
 #define TITLE_NAME      "Name: "
 #define TITLE_ARCH      "Arch: "
-#define TITLE_FREQUENCY "Frecuency: "
+#define TITLE_FREQUENCY "Frequency: "
 #define TITLE_NCORES    "N.Cores: "
 #define TITLE_AVX       "AVX: "
 #define TITLE_SSE       "SSE: "

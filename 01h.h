@@ -1,6 +1,8 @@
 #ifndef __01h__
 #define __01h__
 
+#define STRING_YES  "Yes"
+#define STRING_NO   "No"
 struct cpuInfo;
 
 struct cpuInfo* getCPUInfo();
