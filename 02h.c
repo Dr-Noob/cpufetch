@@ -359,7 +359,7 @@ struct level2* fillLevel2(struct level2* data) {
   return data;
 }
 
-void debugCache(struct cache* cach) {
+void debugCachex(struct cache* cach) {
   printf("L1d=%d\n", cach->L1d);
   printf("L1i=%d\n", cach->L1i);
   printf("L2=%d\n", cach->L2);
@@ -372,7 +372,7 @@ void debugTLB(struct TLB* tlb) {
 }
 
 void debugLevel2(struct level2* data) {
-  debugCache(data->cache);
+  debugCachex(data->cache);
   debugTLB(data->tlb);
 }
 

@@ -1,6 +1,6 @@
 #include "extended.h"
 
-char* getCPUName() {
+char* getString_CPUName() {
   unsigned eax, ebx, ecx, edx;
 
   //First, check we can use extended

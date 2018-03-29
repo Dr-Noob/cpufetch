@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+
 #include "01h.h"
 #include "cpuid.h"
 
@@ -36,6 +38,7 @@ struct cpuInfo {
   int AES;
   int SHA;
 
+  int nCores;
   int maxLevels;
   int maxExtendedLevels;
 };
@@ -61,6 +64,7 @@ struct cpuInfo* getCPUInfo() {
   struct cpuInfo* cpu = malloc(sizeof(struct cpuInfo));
   initializeCpuInfo(cpu);
 
+  cpu->nCores = sysconf( _SC_NPROCESSORS_ONLN );
   unsigned eax, ebx, ecx, edx;
   eax = 0x0000000;
   cpuid(&eax, &ebx, &ecx, &edx);
@@ -88,6 +92,7 @@ struct cpuInfo* getCPUInfo() {
   }
   if (cpu->maxLevels >= 0x00000007){
     eax = 0x00000007;
+    ecx = 0x00000000;
     cpuid(&eax, &ebx, &ecx, &edx);
     cpu->AVX2         = (ebx & ((int)1 <<  5)) != 0;
     cpu->SHA          = (ebx & ((int)1 << 29)) != 0;
@@ -128,4 +133,102 @@ void debugCpuInfo(struct cpuInfo* cpu) {
 
   printf("AES=%s\n", cpu->AES ? "true" : "false");
   printf("SHA=%s\n", cpu->SHA ? "true" : "false");
+}
+
+/*** STRING FUNCTIONS ***/
+
+char* getString_NumberCores(struct cpuInfo* cpu) {
+  char* string = malloc(sizeof(char)*2+1);
+  snprintf(string,2+1,"%d",cpu->nCores);
+  return string;
+}
+
+char* getString_AVX(struct cpuInfo* cpu) {
+  //If all AVX are available, it will use up to 15
+  char* string = malloc(sizeof(char)*15+1);
+  if(cpu->AVX == BOOLEAN_FALSE)
+    snprintf(string,2+1,"No");
+  else if(cpu->AVX2 == BOOLEAN_FALSE)
+    snprintf(string,3+1,"AVX");
+  else if(cpu->AVX512 == BOOLEAN_FALSE)
+    snprintf(string,8+1,"AVX,AVX2");
+  else
+    snprintf(string,15+1,"AVX,AVX2,AVX512");
+
+  return string;
+}
+
+char* getString_SSE(struct cpuInfo* cpu) {
+  char* string = malloc(sizeof(char)*33+1);
+  int last = 0;
+  int SSE_sl = 4;
+  int SSE2_sl = 5;
+  int SSE3_sl = 5;
+  int SSSE3_sl = 6;
+  int SSE4a_sl = 6;
+  int SSE4_1_sl = 7;
+  int SSE4_2_sl = 7;
+
+  if(cpu->SSE == BOOLEAN_TRUE) {
+      snprintf(string+last,SSE_sl+1,"SSE,");
+      last+=SSE_sl;
+  }
+  if(cpu->SSE2 == BOOLEAN_TRUE) {
+      snprintf(string+last,SSE2_sl+1,"SSE2,");
+      last+=SSE2_sl;
+  }
+  if(cpu->SSE3 == BOOLEAN_TRUE) {
+      snprintf(string+last,SSE3_sl+1,"SSE3,");
+      last+=SSE3_sl;
+  }
+  if(cpu->SSSE3 == BOOLEAN_TRUE) {
+      snprintf(string+last,SSSE3_sl+1,"SSSE3,");
+      last+=SSSE3_sl;
+  }
+  if(cpu->SSE4a == BOOLEAN_TRUE) {
+      snprintf(string+last,SSE4a_sl+1,"SSE4a,");
+      last+=SSE4a_sl;
+  }
+  if(cpu->SSE4_1 == BOOLEAN_TRUE) {
+      snprintf(string+last,SSE4_1_sl+1,"SSE4_1,");
+      last+=SSE4_1_sl;
+  }
+  if(cpu->SSE4_2 == BOOLEAN_TRUE) {
+      snprintf(string+last,SSE4_2_sl+1,"SSE4_2,");
+      last+=SSE4_2_sl;
+  }
+
+  //Purge last comma
+  string[last-1] = '\0';
+  return string;
+}
+
+char* getString_FMA(struct cpuInfo* cpu) {
+  char* string = malloc(sizeof(char)*9+1);
+  if(cpu->FMA3 == BOOLEAN_FALSE)
+    snprintf(string,2+1,"No");
+  else if(cpu->FMA4 == BOOLEAN_FALSE)
+    snprintf(string,4+1,"FMA3");
+  else
+    snprintf(string,9+1,"FMA3,FMA4");
+
+  return string;
+}
+
+char* getString_AES(struct cpuInfo* cpu) {
+  char* string = malloc(sizeof(char)*3+1);
+  if(cpu->AES == BOOLEAN_TRUE)
+    snprintf(string,3+1,"Yes");
+  else
+    snprintf(string,2+1,"No");
+  return string;
+}
+
+char* getString_SHA(struct cpuInfo* cpu) {
+  char* string = malloc(sizeof(char)*3+1);
+  if(cpu->SHA == BOOLEAN_TRUE)
+    snprintf(string,3+1,"Yes");
+  else
+    snprintf(string,2+1,"No");
+  return string;
 }
