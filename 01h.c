@@ -16,6 +16,8 @@
 ***/
 
 struct cpuInfo {
+  /*** BOOLEAN VALUES ***/
+
   /* (256 bits) */
   int AVX;
   int AVX2;
@@ -38,8 +40,13 @@ struct cpuInfo {
   int AES;
   int SHA;
 
-  int nCores;
+  /*** Number of threads ***/
+  int nThreads;
+  /*** Threads per core(Intel HyperThreading) ***/
+  int HT;
+  /*** Max CPUIDs levels ***/
   int maxLevels;
+  /*** Max CPUIDs extended levels ***/
   int maxExtendedLevels;
 };
 
@@ -64,8 +71,8 @@ struct cpuInfo* getCPUInfo() {
   struct cpuInfo* cpu = malloc(sizeof(struct cpuInfo));
   initializeCpuInfo(cpu);
 
-  cpu->nCores = sysconf( _SC_NPROCESSORS_ONLN );
   unsigned eax, ebx, ecx, edx;
+
   eax = 0x0000000;
   cpuid(&eax, &ebx, &ecx, &edx);
   cpu->maxLevels = eax;
@@ -73,7 +80,27 @@ struct cpuInfo* getCPUInfo() {
   cpuid(&eax, &ebx, &ecx, &edx);
   cpu->maxExtendedLevels = eax;
 
+  //Fill cores and threads
+  cpu->nThreads = sysconf(_SC_NPROCESSORS_ONLN);
+
   //Always check we can fetch data
+  if (cpu->maxLevels >= 0x0000000B) {
+    eax = 0x0000000B;
+    ecx = 0x00000000;
+    cpuid(&eax, &ebx, &ecx, &edx);
+    cpu->HT = ebx & 0xF;
+    if(cpu->HT == 0) {
+      //AMD should not work with this, returning 0
+      //Suppose we have 1
+      cpu->HT = 1;
+    }
+  }
+  else {
+    //We can afford this check, assume 1
+    cpu->HT = 1;
+  }
+
+  //Fill instructions support
   if (cpu->maxLevels >= 0x00000001){
     eax = 0x00000001;
     cpuid(&eax, &ebx, &ecx, &edx);
@@ -154,7 +181,7 @@ char* getPeakPerformance(struct cpuInfo* cpu, long freq) {
   //7 for GFLOP/s and 6 for digits,eg 412.14
   int size = 7+6+1+1;
   char* string = malloc(sizeof(char)*size);
-  float flops = cpu->nCores*freq*2;
+  float flops = (cpu->nThreads/cpu->HT)*freq*2;
 
   if(cpu->FMA3 || cpu->FMA4)
     flops = flops*2;
@@ -175,10 +202,21 @@ char* getPeakPerformance(struct cpuInfo* cpu, long freq) {
   return string;
 }
 
+//4 cores(8 threads)
 char* getString_NumberCores(struct cpuInfo* cpu) {
-  char* string = malloc(sizeof(char)*2+1);
-  snprintf(string,2+1,"%d",cpu->nCores);
-  return string;
+  if(cpu->HT > 1) {
+    //2(N.Cores)7(' cores(')2(N.Threads)9(' threads)')
+    int size = 2+7+2+9+1;
+    char* string = malloc(sizeof(char)*size);
+    snprintf(string,size,"%d cores(%d threads)",cpu->nThreads,cpu->nThreads/cpu->HT);
+    return string;
+  }
+  else {
+    char* string = malloc(sizeof(char)*2+1);
+    snprintf(string,2+1,"%d cores",cpu->nThreads);
+    return string;
+  }
+
 }
 
 char* getString_AVX(struct cpuInfo* cpu) {
