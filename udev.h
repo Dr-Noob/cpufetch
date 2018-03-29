@@ -47,5 +47,6 @@ struct frequency* new_frequency(struct frequency* freq);
 void debugFrequency(struct frequency* freq);
 void freeFrequency(struct frequency* freq);
 char* getString_MaxFrequency(struct frequency* freq);
+long getFrequency(struct frequency* freq);
 
 #endif

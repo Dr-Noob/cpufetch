@@ -9,6 +9,7 @@ struct cpuInfo* getCPUInfo();
 void debugCpuInfo(struct cpuInfo* cpu);
 
 char* getString_NumberCores(struct cpuInfo* cpu);
+char* getPeakPerformance(struct cpuInfo* cpu, long freq);
 char* getString_AVX(struct cpuInfo* cpu);
 char* getString_SSE(struct cpuInfo* cpu);
 char* getString_FMA(struct cpuInfo* cpu);

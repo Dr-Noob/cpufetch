@@ -13,8 +13,8 @@ struct cache {
 };
 
 struct frequency {
-  int max;
-  int min;
+  long max;
+  long min;
 };
 
 /***
@@ -83,7 +83,7 @@ Returns CPU frequency in Hz
 
 ***/
 
-int getFrequency(char* path) {
+long getFrequencyFromFile(char* path) {
   FILE *file = fopen(path, "r");
 
   if(file == NULL) {
@@ -106,10 +106,14 @@ int getFrequency(char* path) {
   int ret = atoi(buf);
   free(buf);
   if(ret == 0) {
-    printf("error in getFrequency\n");
+    printf("error in getFrequencyFromFile\n");
     return NO_CACHE;
   }
-  return ret;
+  return (long)ret*1000;
+}
+
+long getFrequency(struct frequency* freq) {
+  return freq->max;
 }
 
 /*** GET_STRING ***/
@@ -157,10 +161,10 @@ char* getString_MaxFrequency(struct frequency* freq) {
   //Max 3 digits and 3 for '(M/G)Hz' plus 1 for '\0'
   int size = (4+3+1);
   char* string = malloc(sizeof(char)*size);
-  if(freq->max >= 1000000)
-    snprintf(string,size,"%.2f"STRING_GIGAHERZ,(float)(freq->max)/1000000);
+  if(freq->max >= 1000000000)
+    snprintf(string,size,"%.2f"STRING_GIGAHERZ,(float)(freq->max)/1000000000);
   else
-    snprintf(string,size,"%.2f"STRING_MEGAHERZ,(float)(freq->max)/100000);
+    snprintf(string,size,"%.2f"STRING_MEGAHERZ,(float)(freq->max)/1000000);
   return string;
 }
 
@@ -177,8 +181,8 @@ struct cache* new_cache(struct cache* cach) {
 
 struct frequency* new_frequency(struct frequency* freq) {
   freq = malloc(sizeof(struct frequency));
-  freq->max = getFrequency(_PATH_FREQUENCY_MAX);
-  freq->min = getFrequency(_PATH_FREQUENCY_MIN);
+  freq->max = getFrequencyFromFile(_PATH_FREQUENCY_MAX);
+  freq->min = getFrequencyFromFile(_PATH_FREQUENCY_MIN);
   return freq;
 }
 

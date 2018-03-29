@@ -137,6 +137,44 @@ void debugCpuInfo(struct cpuInfo* cpu) {
 
 /*** STRING FUNCTIONS ***/
 
+char* getPeakPerformance(struct cpuInfo* cpu, long freq) {
+  /***
+  PP = PeakPerformance
+  SP = SinglePrecision
+
+  PP(SP) =
+  N_CORES                             *
+  FREQUENCY                           *
+  2(Two vector units)                 *
+  2(If cpu has fma)                   *
+  16(If AVX512), 8(If AVX), 4(If SSE) *
+
+  ***/
+
+  //7 for GFLOP/s and 6 for digits,eg 412.14
+  int size = 7+6+1+1;
+  char* string = malloc(sizeof(char)*size);
+  float flops = cpu->nCores*freq*2;
+
+  if(cpu->FMA3 || cpu->FMA4)
+    flops = flops*2;
+
+  if(cpu->AVX512)
+    flops = flops*16;
+  else if(cpu->AVX || cpu->AVX2)
+    flops = flops*8;
+  else if(cpu->SSE)
+    flops = flops*4;
+
+  if(flops >= (double)1000000000000.0)
+    snprintf(string,size,"%.2f TFLOP/s",flops/1000000000000);
+  else if(flops >= 1000000000.0)
+    snprintf(string,size,"%.2f GFLOP/s",flops/1000000000);
+  else
+    snprintf(string,size,"%.2f MFLOP/s",flops/1000000);
+  return string;
+}
+
 char* getString_NumberCores(struct cpuInfo* cpu) {
   char* string = malloc(sizeof(char)*2+1);
   snprintf(string,2+1,"%d",cpu->nCores);

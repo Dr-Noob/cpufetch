@@ -53,7 +53,7 @@ int main() {
   printf(TITLE_L1"%s\n",l1);
   printf(TITLE_L2"%s\n",l2);
   printf(TITLE_L3"%s\n",l3);
-  printf(TITLE_PEAK"%s\n","??? GFLOP/s");
+  printf(TITLE_PEAK"%s\n",getPeakPerformance(cpu,getFrequency(freq)));
 
   free(cpuName);
   free(maxFrequency);
