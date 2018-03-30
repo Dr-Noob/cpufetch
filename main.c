@@ -26,8 +26,12 @@ Peak FLOPS:  512 GFLOP/s(in simple precision)
 
 int main() {
   struct cpuInfo* cpu = getCPUInfo(cpu);
+  if(cpu == NULL)
+    return EXIT_FAILURE;
+
   struct cache* cach = new_cache(cach);
   struct frequency* freq = new_frequency(freq);
+  struct ascii* ascii = set_ascii(getCPUVendorInternal(cpu));
 
   char* cpuName = getString_CPUName();
   char* maxFrequency = getString_MaxFrequency(freq);
@@ -41,19 +45,65 @@ int main() {
   char* l2 = getString_L2(cach);
   char* l3 = getString_L3(cach);
 
+  print_ascii(ascii,__COUNTER__);
+  printf("\n");
+  
+  print_ascii(ascii,__COUNTER__);
+  printf("\n");
+
+  print_ascii(ascii,__COUNTER__);
+  printf("\n");
+
+  print_ascii(ascii,__COUNTER__);
   printf(TITLE_NAME"%s\n",cpuName);
+
+  print_ascii(ascii,__COUNTER__);
   printf(TITLE_ARCH"%s\n","x86_64");
+
+  print_ascii(ascii,__COUNTER__);
   printf(TITLE_FREQUENCY"%s\n",maxFrequency);
+
+  print_ascii(ascii,__COUNTER__);
   printf(TITLE_NCORES"%s\n",nCores);
+
+  print_ascii(ascii,__COUNTER__);
   printf(TITLE_AVX"%s\n",avx);
+
+  print_ascii(ascii,__COUNTER__);
   printf(TITLE_SSE"%s\n",sse);
+
+  print_ascii(ascii,__COUNTER__);
   printf(TITLE_FMA"%s\n",fma);
+
+  print_ascii(ascii,__COUNTER__);
   printf(TITLE_AES"%s\n",aes);
+
+  print_ascii(ascii,__COUNTER__);
   printf(TITLE_SHA"%s\n",sha);
+
+  print_ascii(ascii,__COUNTER__);
   printf(TITLE_L1"%s\n",l1);
+
+  print_ascii(ascii,__COUNTER__);
   printf(TITLE_L2"%s\n",l2);
+
+  print_ascii(ascii,__COUNTER__);
   printf(TITLE_L3"%s\n",l3);
+
+  print_ascii(ascii,__COUNTER__);
   printf(TITLE_PEAK"%s\n",getPeakPerformance(cpu,getFrequency(freq)));
+
+  print_ascii(ascii,__COUNTER__);
+  printf("\n");
+
+  print_ascii(ascii,__COUNTER__);
+  printf("\n");
+
+  print_ascii(ascii,__COUNTER__);
+  printf("\n");
+
+  print_ascii(ascii,__COUNTER__);
+  printf("\n");
 
   free(cpuName);
   free(maxFrequency);

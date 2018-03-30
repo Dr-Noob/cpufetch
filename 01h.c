@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "01h.h"
 #include "cpuid.h"
@@ -40,6 +41,7 @@ struct cpuInfo {
   int AES;
   int SHA;
 
+  VENDOR cpu_vendor;
   /*** Number of threads ***/
   int nThreads;
   /*** Threads per core(Intel HyperThreading) ***/
@@ -67,16 +69,54 @@ void initializeCpuInfo(struct cpuInfo* cpu) {
   cpu->SHA    = BOOLEAN_FALSE;
 }
 
+#define MASK 0xFF
+VENDOR getCPUVendor(unsigned eax,unsigned ebx,unsigned ecx,unsigned edx) {
+  char name[13];
+  name[__COUNTER__] = ebx       & MASK;
+  name[__COUNTER__] = (ebx>>8)  & MASK;
+  name[__COUNTER__] = (ebx>>16) & MASK;
+  name[__COUNTER__] = (ebx>>24) & MASK;
+
+  name[__COUNTER__] = edx       & MASK;
+  name[__COUNTER__] = (edx>>8)  & MASK;
+  name[__COUNTER__] = (edx>>16) & MASK;
+  name[__COUNTER__] = (edx>>24) & MASK;
+
+  name[__COUNTER__] = ecx       & MASK;
+  name[__COUNTER__] = (ecx>>8)  & MASK;
+  name[__COUNTER__] = (ecx>>16) & MASK;
+  name[__COUNTER__] = (ecx>>24) & MASK;
+
+  name[__COUNTER__] = '\0';
+
+  if(strcmp(VENDOR_INTEL_STRING,name) == 0)
+    return VENDOR_INTEL;
+
+  else if (strcmp(VENDOR_AMD_STRING,name) == 0)
+    return VENDOR_AMD;
+
+  return VENDOR_INVALID;
+}
+
 struct cpuInfo* getCPUInfo() {
   struct cpuInfo* cpu = malloc(sizeof(struct cpuInfo));
   initializeCpuInfo(cpu);
 
   unsigned eax, ebx, ecx, edx;
 
+  //Get max cpuid level
   eax = 0x0000000;
   cpuid(&eax, &ebx, &ecx, &edx);
   cpu->maxLevels = eax;
 
+  //Fill vendor
+  cpu->cpu_vendor = getCPUVendor(eax,ebx,ecx,edx);
+  if(cpu->cpu_vendor == VENDOR_INVALID) {
+    printf("ERROR: CPU vendor is neither AMD nor INTEL\n");
+    return NULL;
+  }
+
+  //Get max extended level
   cpuid(&eax, &ebx, &ecx, &edx);
   cpu->maxExtendedLevels = eax;
 
@@ -202,7 +242,10 @@ char* getPeakPerformance(struct cpuInfo* cpu, long freq) {
   return string;
 }
 
-//4 cores(8 threads)
+VENDOR getCPUVendorInternal(struct cpuInfo* cpu) {
+  return cpu->cpu_vendor;
+}
+
 char* getString_NumberCores(struct cpuInfo* cpu) {
   if(cpu->HT > 1) {
     //2(N.Cores)7(' cores(')2(N.Threads)9(' threads)')
@@ -213,7 +256,7 @@ char* getString_NumberCores(struct cpuInfo* cpu) {
   }
   else {
     char* string = malloc(sizeof(char)*2+1);
-    snprintf(string,2+1,"%d cores",cpu->nThreads);
+    snprintf(string,2+7+1,"%d cores",cpu->nThreads);
     return string;
   }
 

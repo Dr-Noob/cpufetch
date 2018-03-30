@@ -2,8 +2,8 @@ CXX=gcc
 
 CXXFLAGS=-g
 
-SOURCE=main.c 01h.c 02h.c extended.c cpuid.c udev.c
-HEADERS=01h.c 02h.h extended.h cpuid.h udev.h printer.h
+SOURCE=main.c 01h.c 02h.c extended.c cpuid.c udev.c printer.c
+HEADERS=01h.c 02h.h extended.h cpuid.h udev.h printer.h ascii.h
 
 OUTPUT=cpufetch
 

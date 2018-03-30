@@ -1,17 +1,22 @@
+#include <stdio.h>
+#include <string.h>
 #include "extended.h"
 
 char* getString_CPUName() {
   unsigned eax, ebx, ecx, edx;
+  char* name = malloc(sizeof(char)*64);
+  memset(name,0,64);
 
   //First, check we can use extended
   eax = 0x80000000;
   cpuid(&eax, &ebx, &ecx, &edx);
-  if(eax < 0x80000001)
-    return NULL;
+  if(eax < 0x80000001) {
+    sprintf(name,"Unknown");
+    return name;
+  }
+
 
   //We can, fetch name
-  char* name = malloc(sizeof(char)*64);
-
   eax = 0x80000002;
   cpuid(&eax, &ebx, &ecx, &edx);
 
