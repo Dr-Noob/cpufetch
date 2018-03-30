@@ -4,15 +4,16 @@
 
 char* getString_CPUName() {
   unsigned eax, ebx, ecx, edx;
-  char* name = malloc(sizeof(char)*64);
+  char name[64];
   memset(name,0,64);
 
   //First, check we can use extended
   eax = 0x80000000;
   cpuid(&eax, &ebx, &ecx, &edx);
   if(eax < 0x80000001) {
-    sprintf(name,"Unknown");
-    return name;
+    char* none = malloc(sizeof(char)*64);
+    sprintf(none,"Unknown");
+    return none;
   }
 
 
@@ -78,5 +79,12 @@ char* getString_CPUName() {
   name[__COUNTER__] = (edx>>24) & MASK;
 
   name[__COUNTER__] = '\0';
-  return name;
+
+  //Remove unused characters
+  int i = 0;
+  while(name[i] == ' ')i++;
+
+  char* name_withoutblank = malloc(sizeof(char)*64);
+  strcpy(name_withoutblank,name+i);
+  return name_withoutblank;
 }
