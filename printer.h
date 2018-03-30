@@ -9,6 +9,9 @@ struct ascii;
 struct ascii* set_ascii(VENDOR cpuVendor);
 void print_ascii(struct ascii* art, int n);
 
+#define BOOLEAN_TRUE 1
+#define BOOLEAN_FALSE 0
+
 #define TITLE_NAME      "Name:       "
 #define TITLE_ARCH      "Arch:       "
 #define TITLE_FREQUENCY "Frequency:  "

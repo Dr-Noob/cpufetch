@@ -5,13 +5,26 @@
 #include "printer.h"
 #include "ascii.h"
 
+#define COL_INTEL_1 "\x1b[34;1m"
+#define COL_INTEL_2 "\x1b[37;1m"
+#define COL_AMD_1 "\x1b[30;1m"
+#define COL_AMD_2 "\x1b[32;1m"
+#define RESET "\x1b[0m"
+
 struct ascii {
   char art[NUMBER_OF_LINES][LINE_SIZE];
+  char color1[10];
+  char color2[10];
+  VENDOR vendor;
 };
 
 struct ascii* set_ascii(VENDOR cpuVendor) {
   struct ascii* art = malloc(sizeof(struct ascii));
+  art->vendor = cpuVendor;
   if(cpuVendor == VENDOR_INTEL) {
+    strcpy(art->color1,COL_INTEL_1);
+    strcpy(art->color2,COL_INTEL_2);
+
     strcpy(art->art[0],INTEL1);
     strcpy(art->art[1],INTEL2);
     strcpy(art->art[2],INTEL3);
@@ -34,6 +47,9 @@ struct ascii* set_ascii(VENDOR cpuVendor) {
     strcpy(art->art[19],INTEL20);
   }
   else {
+    strcpy(art->color1,COL_AMD_1);
+    strcpy(art->color2,COL_AMD_2);
+
     strcpy(art->art[0],AMD1);
     strcpy(art->art[1],AMD2);
     strcpy(art->art[2],AMD3);
@@ -59,5 +75,54 @@ struct ascii* set_ascii(VENDOR cpuVendor) {
 }
 
 void print_ascii(struct ascii* art, int n) {
-  printf("%s",art->art[n]);
+  int flag = BOOLEAN_FALSE;
+
+  if(art->vendor == VENDOR_INTEL) {
+    /*** PRINT ASCII WITH SHADOW ***/
+    for(int i=0;i<LINE_SIZE;i++) {
+      if(flag) {
+        if(art->art[n][i] == ' ') {
+          flag = BOOLEAN_FALSE;
+          printf("%c",art->art[n][i]);
+        }
+        else
+          printf("%s%c" RESET,art->color1,art->art[n][i]);
+      }
+      else {
+        if(art->art[n][i] != ' ') {
+          flag = BOOLEAN_TRUE;
+          printf("%s%c" RESET,art->color2,art->art[n][i]);
+        }
+        else
+          printf("%c",art->art[n][i]);
+      }
+    }
+  }
+  else {
+    /*** PRINT TEXT AND LOGO IN DIFFERENT COLOR ***/
+    for(int i=0;i<LINE_SIZE;i++) {
+      if(art->art[n][i] == '@')
+        printf("%s%c" RESET,art->color1,art->art[n][i]);
+      else if(art->art[n][i] == '#')
+        printf("%s%c" RESET,art->color2,art->art[n][i]);
+      else
+        printf("%c",art->art[n][i]);
+    }
+  }
+
 }
+
+/*** PRINT ASCII SIMPLE ***/
+/*
+void print_ascii(struct ascii* art, int n) {
+  int flag = BOOLEAN_FALSE;
+
+  for(int i=0;i<LINE_SIZE;i++) {
+    if(art->art[n][i] != ' ')
+      printf(BLUE "%c" RESET,art->art[n][i]);
+    else
+      printf("%c",art->art[n][i]);
+  }
+
+}
+*/
