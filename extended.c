@@ -3,7 +3,11 @@
 #include "extended.h"
 
 char* getString_CPUName() {
-  unsigned eax, ebx, ecx, edx;
+  unsigned eax = 0;
+  unsigned ebx = 0;
+  unsigned ecx = 0;
+  unsigned edx = 0;
+  
   char name[64];
   memset(name,0,64);
 

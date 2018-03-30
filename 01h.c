@@ -72,6 +72,7 @@ void initializeCpuInfo(struct cpuInfo* cpu) {
 #define MASK 0xFF
 VENDOR getCPUVendor(unsigned eax,unsigned ebx,unsigned ecx,unsigned edx) {
   char name[13];
+  memset(name,0,13);
   name[__COUNTER__] = ebx       & MASK;
   name[__COUNTER__] = (ebx>>8)  & MASK;
   name[__COUNTER__] = (ebx>>16) & MASK;
@@ -87,8 +88,6 @@ VENDOR getCPUVendor(unsigned eax,unsigned ebx,unsigned ecx,unsigned edx) {
   name[__COUNTER__] = (ecx>>16) & MASK;
   name[__COUNTER__] = (ecx>>24) & MASK;
 
-  name[__COUNTER__] = '\0';
-
   if(strcmp(VENDOR_INTEL_STRING,name) == 0)
     return VENDOR_INTEL;
 
@@ -102,7 +101,10 @@ struct cpuInfo* getCPUInfo() {
   struct cpuInfo* cpu = malloc(sizeof(struct cpuInfo));
   initializeCpuInfo(cpu);
 
-  unsigned eax, ebx, ecx, edx;
+  unsigned eax = 0;
+  unsigned ebx = 0;
+  unsigned ecx = 0;
+  unsigned edx = 0;
 
   //Get max cpuid level
   eax = 0x0000000;
@@ -278,7 +280,6 @@ char* getString_AVX(struct cpuInfo* cpu) {
 }
 
 char* getString_SSE(struct cpuInfo* cpu) {
-  char* string = malloc(sizeof(char)*33+1);
   int last = 0;
   int SSE_sl = 4;
   int SSE2_sl = 5;
@@ -287,6 +288,7 @@ char* getString_SSE(struct cpuInfo* cpu) {
   int SSE4a_sl = 6;
   int SSE4_1_sl = 7;
   int SSE4_2_sl = 7;
+  char* string = malloc(sizeof(char)*SSE_sl+SSE2_sl+SSE3_sl+SSSE3_sl+SSE4a_sl+SSE4_1_sl+SSE4_2_sl+1);
 
   if(cpu->SSE == BOOLEAN_TRUE) {
       snprintf(string+last,SSE_sl+1,"SSE,");

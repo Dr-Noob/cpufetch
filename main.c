@@ -44,6 +44,7 @@ int main() {
   char* l1 = getString_L1(cach);
   char* l2 = getString_L2(cach);
   char* l3 = getString_L3(cach);
+  char* pp = getPeakPerformance(cpu,getFrequency(freq));
 
   print_ascii(ascii,__COUNTER__);
   printf("\n");
@@ -91,7 +92,7 @@ int main() {
   print_text(ascii,TITLE_L3,l3);
 
   print_ascii(ascii,__COUNTER__);
-  print_text(ascii,TITLE_PEAK,getPeakPerformance(cpu,getFrequency(freq)));
+  print_text(ascii,TITLE_PEAK,pp);
 
   print_ascii(ascii,__COUNTER__);
   printf("\n");
@@ -116,6 +117,7 @@ int main() {
   free(l1);
   free(l2);
   free(l3);
+  free(pp);
 
   free(cpu);
   free(ascii);

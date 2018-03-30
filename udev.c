@@ -109,6 +109,7 @@ long getFrequencyFromFile(char* path) {
     printf("error in getFrequencyFromFile\n");
     return NO_CACHE;
   }
+  fclose(file);
   return (long)ret*1000;
 }
 
