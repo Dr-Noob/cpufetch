@@ -74,6 +74,10 @@ struct ascii* set_ascii(VENDOR cpuVendor) {
   return art;
 }
 
+void print_text(struct ascii* art,char* title, char* text) {
+  printf("%s%s%s%s"RESET"\n",art->color1,title,art->color2,text);
+}
+
 void print_ascii(struct ascii* art, int n) {
   int flag = BOOLEAN_FALSE;
 

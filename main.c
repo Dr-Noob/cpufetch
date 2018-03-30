@@ -47,51 +47,51 @@ int main() {
 
   print_ascii(ascii,__COUNTER__);
   printf("\n");
-  
-  print_ascii(ascii,__COUNTER__);
-  printf("\n");
 
   print_ascii(ascii,__COUNTER__);
   printf("\n");
 
   print_ascii(ascii,__COUNTER__);
-  printf(TITLE_NAME"%s\n",cpuName);
+  printf("\n");
 
   print_ascii(ascii,__COUNTER__);
-  printf(TITLE_ARCH"%s\n","x86_64");
+  print_text(ascii,TITLE_NAME,cpuName);
 
   print_ascii(ascii,__COUNTER__);
-  printf(TITLE_FREQUENCY"%s\n",maxFrequency);
+  print_text(ascii,TITLE_ARCH,"x86_64");
 
   print_ascii(ascii,__COUNTER__);
-  printf(TITLE_NCORES"%s\n",nCores);
+  print_text(ascii,TITLE_FREQUENCY,maxFrequency);
 
   print_ascii(ascii,__COUNTER__);
-  printf(TITLE_AVX"%s\n",avx);
+  print_text(ascii,TITLE_NCORES,nCores);
 
   print_ascii(ascii,__COUNTER__);
-  printf(TITLE_SSE"%s\n",sse);
+  print_text(ascii,TITLE_AVX,avx);
 
   print_ascii(ascii,__COUNTER__);
-  printf(TITLE_FMA"%s\n",fma);
+  print_text(ascii,TITLE_SSE,sse);
 
   print_ascii(ascii,__COUNTER__);
-  printf(TITLE_AES"%s\n",aes);
+  print_text(ascii,TITLE_FMA,fma);
 
   print_ascii(ascii,__COUNTER__);
-  printf(TITLE_SHA"%s\n",sha);
+  print_text(ascii,TITLE_AES,aes);
 
   print_ascii(ascii,__COUNTER__);
-  printf(TITLE_L1"%s\n",l1);
+  print_text(ascii,TITLE_SHA,sha);
 
   print_ascii(ascii,__COUNTER__);
-  printf(TITLE_L2"%s\n",l2);
+  print_text(ascii,TITLE_L1,l1);
 
   print_ascii(ascii,__COUNTER__);
-  printf(TITLE_L3"%s\n",l3);
+  print_text(ascii,TITLE_L2,l2);
 
   print_ascii(ascii,__COUNTER__);
-  printf(TITLE_PEAK"%s\n",getPeakPerformance(cpu,getFrequency(freq)));
+  print_text(ascii,TITLE_L3,l3);
+
+  print_ascii(ascii,__COUNTER__);
+  print_text(ascii,TITLE_PEAK,getPeakPerformance(cpu,getFrequency(freq)));
 
   print_ascii(ascii,__COUNTER__);
   printf("\n");
@@ -118,7 +118,9 @@ int main() {
   free(l3);
 
   free(cpu);
+  free(ascii);
   freeCache(cach);
   freeFrequency(freq);
 
+  return EXIT_SUCCESS;
 }

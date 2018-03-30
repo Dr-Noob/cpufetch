@@ -8,6 +8,7 @@ struct ascii;
 
 struct ascii* set_ascii(VENDOR cpuVendor);
 void print_ascii(struct ascii* art, int n);
+void print_text(struct ascii* art,char* title, char* text);
 
 #define BOOLEAN_TRUE 1
 #define BOOLEAN_FALSE 0
