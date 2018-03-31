@@ -1,7 +1,7 @@
 #ifndef __PRINTER__
 #define __PRINTER__
 
-#include "01h.h"
+#include "standart.h"
 #include "ascii.h"
 
 struct ascii;

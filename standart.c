@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#include "01h.h"
+#include "standart.h"
 #include "cpuid.h"
 
 #define BOOLEAN_TRUE 1

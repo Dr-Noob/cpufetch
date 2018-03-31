@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "printer.h"
-#include "01h.h"
+#include "standart.h"
 #include "udev.h"
 #include "extended.h"
 
