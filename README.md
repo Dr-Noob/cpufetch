@@ -3,7 +3,7 @@
 Prints a fancy summary of the CPU with some advanced information
 
 ### Platforms
-This tool works on both 64 bits and 32 bits, but it's __Linux only__ because of its [implementation details](#implementation)
+This tool works on both 64 bits and 32 bits, but it's __Linux only__ because of its [implementation details](#implementation). AMD support is not guaranteed so information may not be correct
 
 ### Usage and installation
 
@@ -47,7 +47,7 @@ Output is detailed as follows:
 ### Implementation
 
 `cpufetch` makes use of two techniques to fetch data:
-* __cpuid__: CPU name, number of threads per core and instructions features are fetched via _cpuid_. See [this](http://www.sandpile.org/x86/cpuid.htm) for more information.
+* __cpuid__: CPU name, number of threads per core and instructions features are fetched via _cpuid_. See [this](http://www.sandpile.org/x86/cpuid.htm) and [Intel  Processor Identification and the CPUID Instruction](https://www.scss.tcd.ie/~jones/CS4021/processor-identification-cpuid-instruction-note.pdf) for more information.
 * __udev__: Cache and frequency are fetched via _udev_, by looking at specific files from `/sys/devices/system/cpu`
 
 ### Bugs or improvements

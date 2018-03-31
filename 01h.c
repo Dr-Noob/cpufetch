@@ -250,14 +250,14 @@ VENDOR getCPUVendorInternal(struct cpuInfo* cpu) {
 
 char* getString_NumberCores(struct cpuInfo* cpu) {
   if(cpu->HT > 1) {
-    //2(N.Cores)7(' cores(')2(N.Threads)9(' threads)')
-    int size = 2+7+2+9+1;
+    //2(N.Cores)7(' cores(')3(N.Threads)9(' threads)')
+    int size = 2+7+3+9+1;
     char* string = malloc(sizeof(char)*size);
-    snprintf(string,size,"%d cores(%d threads)",cpu->nThreads,cpu->nThreads/cpu->HT);
+    snprintf(string,size,"%d cores(%d threads)",cpu->nThreads/cpu->HT,cpu->nThreads);
     return string;
   }
   else {
-    char* string = malloc(sizeof(char)*2+1);
+    char* string = malloc(sizeof(char)*2+7+1);
     snprintf(string,2+7+1,"%d cores",cpu->nThreads);
     return string;
   }
