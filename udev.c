@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <assert.h>
 
 #include "udev.h"
 
@@ -29,13 +30,13 @@ int getSize(char* buf, int size) {
   char* end = strstr (buf,"K");
   if(end == NULL) {
     printf("ERROR in getSize(strstr)\n");
-    return NO_CACHE;
+    return UNKNOWN;
   }
   *end = 0;
   int cachsize = atoi(buf);
   if(cachsize == 0) {
     printf("ERROR in getSize(atoi)\n");
-    return NO_CACHE;
+    return UNKNOWN;
   }
   return cachsize;
 }
@@ -43,7 +44,7 @@ int getSize(char* buf, int size) {
 /***
 
 Returns size(in bytes) of cache described by path or
-NO_CACHE if the cache doest no exists
+UNKNOWN if the cache doest no exists
 
 ***/
 
@@ -54,7 +55,7 @@ int getCache(char* path) {
 
 	if(file == NULL) {
     //Doest not exist
-		return NO_CACHE;
+		return UNKNOWN;
 	}
 
   //File exists, read it
@@ -88,7 +89,7 @@ long getFrequencyFromFile(char* path) {
 
   if(file == NULL) {
     //Doest not exist
-    return NO_CACHE;
+    return UNKNOWN;
   }
 
   //File exists, read it
@@ -107,7 +108,7 @@ long getFrequencyFromFile(char* path) {
   free(buf);
   if(ret == 0) {
     printf("error in getFrequencyFromFile\n");
-    return NO_CACHE;
+    return UNKNOWN;
   }
   fclose(file);
   return (long)ret*1000;
@@ -129,7 +130,7 @@ char* getString_L1(struct cache* cach) {
 }
 
 char* getString_L2(struct cache* cach) {
-  if(cach->L2 == NO_CACHE) {
+  if(cach->L2 == UNKNOWN) {
     char* string = malloc(sizeof(char)*5);
     snprintf(string,5,STRING_NONE);
     return string;
@@ -144,7 +145,7 @@ char* getString_L2(struct cache* cach) {
 }
 
 char* getString_L3(struct cache* cach) {
-  if(cach->L3 == NO_CACHE) {
+  if(cach->L3 == UNKNOWN) {
     char* string = malloc(sizeof(char)*5);
     snprintf(string,5,STRING_NONE);
     return string;
@@ -161,8 +162,11 @@ char* getString_L3(struct cache* cach) {
 char* getString_MaxFrequency(struct frequency* freq) {
   //Max 3 digits and 3 for '(M/G)Hz' plus 1 for '\0'
   int size = (4+3+1);
+  assert(strlen(STRING_UNKNOWN)+1 <= size);
   char* string = malloc(sizeof(char)*size);
-  if(freq->max >= 1000000000)
+  if(freq->max == UNKNOWN)
+    snprintf(string,strlen(STRING_UNKNOWN)+1,STRING_UNKNOWN);
+  else if(freq->max >= 1000000000)
     snprintf(string,size,"%.2f"STRING_GIGAHERZ,(float)(freq->max)/1000000000);
   else
     snprintf(string,size,"%.2f"STRING_MEGAHERZ,(float)(freq->max)/1000000);
@@ -171,8 +175,8 @@ char* getString_MaxFrequency(struct frequency* freq) {
 
 /*** CREATES AND FREES ***/
 
-struct cache* new_cache(struct cache* cach) {
-  cach = malloc(sizeof(struct cache));
+struct cache* new_cache() {
+  struct cache* cach = malloc(sizeof(struct cache));
   cach->L1i = getCache(_PATH_CACHE_L1i);
   cach->L1d = getCache(_PATH_CACHE_L1d);
   cach->L2 = getCache(_PATH_CACHE_L2);
@@ -180,8 +184,8 @@ struct cache* new_cache(struct cache* cach) {
   return cach;
 }
 
-struct frequency* new_frequency(struct frequency* freq) {
-  freq = malloc(sizeof(struct frequency));
+struct frequency* new_frequency() {
+  struct frequency* freq = malloc(sizeof(struct frequency));
   freq->max = getFrequencyFromFile(_PATH_FREQUENCY_MAX);
   freq->min = getFrequencyFromFile(_PATH_FREQUENCY_MIN);
   return freq;
@@ -205,6 +209,6 @@ void debugCache(struct cache* cach) {
 }
 
 void debugFrequency(struct frequency* freq) {
-  printf("max f=%dMhz\n",freq->max);
-  printf("min f=%dMhz\n",freq->min);
+  printf("max f=%ldMhz\n",freq->max);
+  printf("min f=%ldMhz\n",freq->min);
 }

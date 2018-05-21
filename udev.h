@@ -19,15 +19,16 @@
 
 /*** CONSTANTS ***/
 
-#define NO_CACHE -1
+#define UNKNOWN -1
 #define DEFAULT_FILE_SIZE 4096
 #define DEFAULT_BLOCK_SIZE 128
 
 /*** STRINGS ***/
-#define STRING_NONE "None"
-#define STRING_MEGAHERZ "MHz"
-#define STRING_GIGAHERZ "GHz"
-#define STRING_KILOBYTES "KB"
+#define STRING_UNKNOWN    "Unknown"
+#define STRING_NONE       "None"
+#define STRING_MEGAHERZ   "MHz"
+#define STRING_GIGAHERZ   "GHz"
+#define STRING_KILOBYTES  "KB"
 
 /*** STRUCTS ***/
 
@@ -36,14 +37,14 @@ struct frequency;
 
 /*** FUNCTIONS ***/
 
-struct cache* new_cache(struct cache* cach);
+struct cache* new_cache();
 void debugCache(struct cache* cach);
 void freeCache(struct cache* cach);
 char* getString_L1(struct cache* cach);
 char* getString_L2(struct cache* cach);
 char* getString_L3(struct cache* cach);
 
-struct frequency* new_frequency(struct frequency* freq);
+struct frequency* new_frequency();
 void debugFrequency(struct frequency* freq);
 void freeFrequency(struct frequency* freq);
 char* getString_MaxFrequency(struct frequency* freq);

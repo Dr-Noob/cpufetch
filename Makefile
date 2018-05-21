@@ -1,6 +1,6 @@
 CXX=gcc
 
-CXXFLAGS=-g
+CXXFLAGS=-g -Wall -Werror -fstack-protector-all -pedantic -Wno-unused
 
 SOURCE=main.c standart.c extended.c cpuid.c udev.c printer.c
 HEADERS=standart.h extended.h cpuid.h udev.h printer.h ascii.h

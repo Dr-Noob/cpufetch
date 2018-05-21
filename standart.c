@@ -2,9 +2,11 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <assert.h>
 
 #include "standart.h"
 #include "cpuid.h"
+#include "udev.h"
 
 #define BOOLEAN_TRUE 1
 #define BOOLEAN_FALSE 0
@@ -99,6 +101,7 @@ VENDOR getCPUVendor(unsigned eax,unsigned ebx,unsigned ecx,unsigned edx) {
 
 struct cpuInfo* getCPUInfo() {
   struct cpuInfo* cpu = malloc(sizeof(struct cpuInfo));
+  memset(cpu,0,sizeof(struct cpuInfo));
   initializeCpuInfo(cpu);
 
   unsigned eax = 0;
@@ -222,7 +225,15 @@ char* getPeakPerformance(struct cpuInfo* cpu, long freq) {
 
   //7 for GFLOP/s and 6 for digits,eg 412.14
   int size = 7+6+1+1;
+  assert(strlen(STRING_UNKNOWN)+1 <= size);
   char* string = malloc(sizeof(char)*size);
+
+  //First check we have consistent data
+  if(freq == UNKNOWN) {
+    snprintf(string,strlen(STRING_UNKNOWN)+1,STRING_UNKNOWN);
+    return string;
+  }
+
   float flops = (cpu->nThreads/cpu->HT)*freq*2;
 
   if(cpu->FMA3 || cpu->FMA4)

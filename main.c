@@ -25,12 +25,12 @@ Peak FLOPS:  512 GFLOP/s(in simple precision)
 ***/
 
 int main() {
-  struct cpuInfo* cpu = getCPUInfo(cpu);
+  struct cpuInfo* cpu = getCPUInfo();
   if(cpu == NULL)
     return EXIT_FAILURE;
 
-  struct cache* cach = new_cache(cach);
-  struct frequency* freq = new_frequency(freq);
+  struct cache* cach = new_cache();
+  struct frequency* freq = new_frequency();
   struct ascii* ascii = set_ascii(getCPUVendorInternal(cpu));
 
   char* cpuName = getString_CPUName();
