@@ -7,24 +7,25 @@
 struct ascii;
 
 struct ascii* set_ascii(VENDOR cpuVendor);
-void print_ascii(struct ascii* art, int n);
-void print_text(struct ascii* art,char* title, char* text);
+void print_ascii(struct ascii* art);
+int setAttribute(struct ascii* art, int type, char* value);
 
 #define BOOLEAN_TRUE 1
 #define BOOLEAN_FALSE 0
 
-#define TITLE_NAME      "Name:       "
-#define TITLE_ARCH      "Arch:       "
-#define TITLE_FREQUENCY "Frequency:  "
-#define TITLE_NCORES    "N.Cores:    "
-#define TITLE_AVX       "AVX:        "
-#define TITLE_SSE       "SSE:        "
-#define TITLE_FMA       "FMA:        "
-#define TITLE_AES       "AES:        "
-#define TITLE_SHA       "SHA:        "
-#define TITLE_L1        "L1 Size:    "
-#define TITLE_L2        "L2 Size:    "
-#define TITLE_L3        "L3 Size:    "
-#define TITLE_PEAK      "Peak FLOPS: "
+#define ATTRIBUTE_COUNT 13
+#define ATTRIBUTE_NAME      0
+#define ATTRIBUTE_ARCH      1
+#define ATTRIBUTE_FREQUENCY 2
+#define ATTRIBUTE_NCORES    3
+#define ATTRIBUTE_AVX       4
+#define ATTRIBUTE_SSE       5
+#define ATTRIBUTE_FMA       6
+#define ATTRIBUTE_AES       7
+#define ATTRIBUTE_SHA       8
+#define ATTRIBUTE_L1        9
+#define ATTRIBUTE_L2        10
+#define ATTRIBUTE_L3        11
+#define ATTRIBUTE_PEAK      12
 
 #endif

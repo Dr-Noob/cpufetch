@@ -11,12 +11,49 @@
 #define COL_AMD_2 "\x1b[32;1m"
 #define RESET "\x1b[0m"
 
+#define TITLE_NAME      "Name:       "
+#define TITLE_ARCH      "Arch:       "
+#define TITLE_FREQUENCY "Frequency:  "
+#define TITLE_NCORES    "N.Cores:    "
+#define TITLE_AVX       "AVX:        "
+#define TITLE_SSE       "SSE:        "
+#define TITLE_FMA       "FMA:        "
+#define TITLE_AES       "AES:        "
+#define TITLE_SHA       "SHA:        "
+#define TITLE_L1        "L1 Size:    "
+#define TITLE_L2        "L2 Size:    "
+#define TITLE_L3        "L3 Size:    "
+#define TITLE_PEAK      "Peak FLOPS: "
+
+static const char* ATTRIBUTE_FIELDS [ATTRIBUTE_COUNT] =  {  TITLE_NAME, TITLE_ARCH, TITLE_FREQUENCY,
+                                                            TITLE_NCORES, TITLE_AVX, TITLE_SSE,
+                                                            TITLE_FMA, TITLE_AES, TITLE_SHA,
+                                                            TITLE_L1, TITLE_L2, TITLE_L3,
+                                                            TITLE_PEAK };
+
+static const int ATTRIBUTE_LIST[ATTRIBUTE_COUNT] =  { ATTRIBUTE_NAME, ATTRIBUTE_ARCH, ATTRIBUTE_FREQUENCY,
+                                                        ATTRIBUTE_NCORES, ATTRIBUTE_AVX, ATTRIBUTE_SSE,
+                                                        ATTRIBUTE_FMA, ATTRIBUTE_AES, ATTRIBUTE_SHA,
+                                                        ATTRIBUTE_L1, ATTRIBUTE_L2, ATTRIBUTE_L3,
+                                                        ATTRIBUTE_PEAK };
+
 struct ascii {
   char art[NUMBER_OF_LINES][LINE_SIZE];
   char color1[10];
   char color2[10];
+  char* atributes[ATTRIBUTE_COUNT];
   VENDOR vendor;
 };
+
+int setAttribute(struct ascii* art, int type, char* value) {
+  int i = 0;
+  while(i < ATTRIBUTE_COUNT && type != ATTRIBUTE_LIST[i])
+    i++;
+  if(i == ATTRIBUTE_COUNT)
+    return BOOLEAN_FALSE;
+  art->atributes[i] = value;
+  return BOOLEAN_TRUE;
+}
 
 struct ascii* set_ascii(VENDOR cpuVendor) {
   struct ascii* art = malloc(sizeof(struct ascii));
@@ -74,15 +111,12 @@ struct ascii* set_ascii(VENDOR cpuVendor) {
   return art;
 }
 
-void print_text(struct ascii* art,char* title, char* text) {
-  printf("%s%s%s%s"RESET"\n",art->color1,title,art->color2,text);
-}
-
-void print_ascii(struct ascii* art, int n) {
+void print_ascii_intel(struct ascii* art) {
   int flag = BOOLEAN_FALSE;
 
-  if(art->vendor == VENDOR_INTEL) {
-    /*** PRINT ASCII WITH SHADOW ***/
+  for(int n=0;n<NUMBER_OF_LINES;n++) {
+
+    /*** PRINT ASCII-ART ***/
     for(int i=0;i<LINE_SIZE;i++) {
       if(flag) {
         if(art->art[n][i] == ' ') {
@@ -101,9 +135,18 @@ void print_ascii(struct ascii* art, int n) {
           printf("%c",art->art[n][i]);
       }
     }
+
+    /*** PRINT ATTRIBUTE ***/
+    if(n>2 && n<NUMBER_OF_LINES-4)printf("%s%s%s%s"RESET"\n",art->color1,ATTRIBUTE_FIELDS[n-3],art->color2,art->atributes[n-3]);
+    else printf("\n");
   }
-  else {
-    /*** PRINT TEXT AND LOGO IN DIFFERENT COLOR ***/
+}
+
+void print_ascii_amd(struct ascii* art) {
+  int flag = BOOLEAN_FALSE;
+
+  for(int n=0;n<NUMBER_OF_LINES;n++) {
+    /*** PRINT ASCII-ART ***/
     for(int i=0;i<LINE_SIZE;i++) {
       if(art->art[n][i] == '@')
         printf("%s%c" RESET,art->color1,art->art[n][i]);
@@ -112,21 +155,17 @@ void print_ascii(struct ascii* art, int n) {
       else
         printf("%c",art->art[n][i]);
     }
+
+    /*** PRINT ATTRIBUTE ***/
+    if(n>2 && n<NUMBER_OF_LINES-4)printf("%s%s%s%s"RESET"\n",art->color1,ATTRIBUTE_FIELDS[n-3],art->color2,art->atributes[n-3]);
+    else printf("\n");
   }
 
 }
 
-/*** PRINT ASCII SIMPLE ***/
-/*
-void print_ascii(struct ascii* art, int n) {
-  int flag = BOOLEAN_FALSE;
-
-  for(int i=0;i<LINE_SIZE;i++) {
-    if(art->art[n][i] != ' ')
-      printf(BLUE "%c" RESET,art->art[n][i]);
-    else
-      printf("%c",art->art[n][i]);
-  }
-
+void print_ascii(struct ascii* art) {
+  if(art->vendor == VENDOR_INTEL)
+    print_ascii_intel(art);
+  else
+    print_ascii_amd(art);
 }
-*/

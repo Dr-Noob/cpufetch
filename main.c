@@ -31,7 +31,7 @@ int main() {
 
   struct cache* cach = new_cache();
   struct frequency* freq = new_frequency();
-  struct ascii* ascii = set_ascii(getCPUVendorInternal(cpu));
+  struct ascii* art = set_ascii(getCPUVendorInternal(cpu));
 
   char* cpuName = getString_CPUName();
   char* maxFrequency = getString_MaxFrequency(freq);
@@ -46,65 +46,21 @@ int main() {
   char* l3 = getString_L3(cach);
   char* pp = getPeakPerformance(cpu,getFrequency(freq));
 
-  print_ascii(ascii,__COUNTER__);
-  printf("\n");
+  setAttribute(art,ATTRIBUTE_NAME,cpuName);
+  setAttribute(art,ATTRIBUTE_ARCH,"x86_64");
+  setAttribute(art,ATTRIBUTE_FREQUENCY,maxFrequency);
+  setAttribute(art,ATTRIBUTE_NCORES,nCores);
+  setAttribute(art,ATTRIBUTE_AVX,avx);
+  setAttribute(art,ATTRIBUTE_SSE,sse);
+  setAttribute(art,ATTRIBUTE_FMA,fma);
+  setAttribute(art,ATTRIBUTE_AES,aes);
+  setAttribute(art,ATTRIBUTE_SHA,sha);
+  setAttribute(art,ATTRIBUTE_L1,l1);
+  setAttribute(art,ATTRIBUTE_L2,l2);
+  setAttribute(art,ATTRIBUTE_L3,l3);
+  setAttribute(art,ATTRIBUTE_PEAK,pp);
 
-  print_ascii(ascii,__COUNTER__);
-  printf("\n");
-
-  print_ascii(ascii,__COUNTER__);
-  printf("\n");
-
-  print_ascii(ascii,__COUNTER__);
-  print_text(ascii,TITLE_NAME,cpuName);
-
-  print_ascii(ascii,__COUNTER__);
-  print_text(ascii,TITLE_ARCH,"x86_64");
-
-  print_ascii(ascii,__COUNTER__);
-  print_text(ascii,TITLE_FREQUENCY,maxFrequency);
-
-  print_ascii(ascii,__COUNTER__);
-  print_text(ascii,TITLE_NCORES,nCores);
-
-  print_ascii(ascii,__COUNTER__);
-  print_text(ascii,TITLE_AVX,avx);
-
-  print_ascii(ascii,__COUNTER__);
-  print_text(ascii,TITLE_SSE,sse);
-
-  print_ascii(ascii,__COUNTER__);
-  print_text(ascii,TITLE_FMA,fma);
-
-  print_ascii(ascii,__COUNTER__);
-  print_text(ascii,TITLE_AES,aes);
-
-  print_ascii(ascii,__COUNTER__);
-  print_text(ascii,TITLE_SHA,sha);
-
-  print_ascii(ascii,__COUNTER__);
-  print_text(ascii,TITLE_L1,l1);
-
-  print_ascii(ascii,__COUNTER__);
-  print_text(ascii,TITLE_L2,l2);
-
-  print_ascii(ascii,__COUNTER__);
-  print_text(ascii,TITLE_L3,l3);
-
-  print_ascii(ascii,__COUNTER__);
-  print_text(ascii,TITLE_PEAK,pp);
-
-  print_ascii(ascii,__COUNTER__);
-  printf("\n");
-
-  print_ascii(ascii,__COUNTER__);
-  printf("\n");
-
-  print_ascii(ascii,__COUNTER__);
-  printf("\n");
-
-  print_ascii(ascii,__COUNTER__);
-  printf("\n");
+  print_ascii(art);
 
   free(cpuName);
   free(maxFrequency);
@@ -120,7 +76,7 @@ int main() {
   free(pp);
 
   free(cpu);
-  free(ascii);
+  free(art);
   freeCache(cach);
   freeFrequency(freq);
 
