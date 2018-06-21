@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "args.h"
 #include "printer.h"
 #include "standart.h"
 #include "udev.h"
@@ -24,14 +25,35 @@ Peak FLOPS:  512 GFLOP/s(in simple precision)
 
 ***/
 
-int main() {
+void help(int argc, char *argv[])
+{
+	printf("Usage: %s [--help] [--style STYLE]\n\
+       Options: \n\
+       --style Set logo style color\n\
+         default: Default style color\n\
+         dark:    Dark style color\n\n\
+       --help  Print this help and exit\n",
+			argv[0]);
+}
+
+int main(int argc, char* argv[]) {
+  if(!parseArgs(argc,argv))
+    return EXIT_FAILURE;
+
+  if(showHelp()) {
+    help(argc,argv);
+    return EXIT_SUCCESS;
+  }
+
   struct cpuInfo* cpu = getCPUInfo();
   if(cpu == NULL)
     return EXIT_FAILURE;
 
   struct cache* cach = new_cache();
   struct frequency* freq = new_frequency();
-  struct ascii* art = set_ascii(getCPUVendorInternal(cpu));
+  struct ascii* art = set_ascii(getCPUVendorInternal(cpu),getStyle());
+  if(art == NULL)
+    return EXIT_FAILURE;
 
   char* cpuName = getString_CPUName();
   char* maxFrequency = getString_MaxFrequency(freq);

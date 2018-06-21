@@ -5,10 +5,14 @@
 #include "printer.h"
 #include "ascii.h"
 
-#define COL_INTEL_1 "\x1b[34;1m"
-#define COL_INTEL_2 "\x1b[37;1m"
-#define COL_AMD_1 "\x1b[30;1m"
-#define COL_AMD_2 "\x1b[32;1m"
+#define COL_INTEL_DEFAULT_1 "\x1b[36;1m"
+#define COL_INTEL_DEFAULT_2 "\x1b[37;1m"
+#define COL_INTEL_DARK_1 "\x1b[34;1m"
+#define COL_INTEL_DARK_2 "\x1b[30m"
+#define COL_AMD_DEFAULT_1 "\x1b[37;1m"
+#define COL_AMD_DEFAULT_2 "\x1b[31;1m"
+#define COL_AMD_DARK_1 "\x1b[30;1m"
+#define COL_AMD_DARK_2 "\x1b[32;1m"
 #define RESET "\x1b[0m"
 
 #define TITLE_NAME      "Name:       "
@@ -55,13 +59,28 @@ int setAttribute(struct ascii* art, int type, char* value) {
   return BOOLEAN_TRUE;
 }
 
-struct ascii* set_ascii(VENDOR cpuVendor) {
+struct ascii* set_ascii(VENDOR cpuVendor, STYLE style) {
   struct ascii* art = malloc(sizeof(struct ascii));
   art->vendor = cpuVendor;
   if(cpuVendor == VENDOR_INTEL) {
-    strcpy(art->color1,COL_INTEL_1);
-    strcpy(art->color2,COL_INTEL_2);
+    /*** CHECK STYLE ***/
+    switch (style) {
+      case STYLE_EMPTY:
+      case STYLE_DEFAULT:
+        strcpy(art->color1,COL_INTEL_DEFAULT_1);
+        strcpy(art->color2,COL_INTEL_DEFAULT_2);
+        break;
+      case STYLE_DARK:
+        strcpy(art->color1,COL_INTEL_DARK_1);
+        strcpy(art->color2,COL_INTEL_DARK_2);
+        break;
+      default:
+        //TODO Bugs function
+        printf("Bug at line number %d in file %s\n", __LINE__, __FILE__);
+        return NULL;
+    }
 
+    /*** COPY ASCII-ART ***/
     strcpy(art->art[0],INTEL1);
     strcpy(art->art[1],INTEL2);
     strcpy(art->art[2],INTEL3);
@@ -84,8 +103,22 @@ struct ascii* set_ascii(VENDOR cpuVendor) {
     strcpy(art->art[19],INTEL20);
   }
   else {
-    strcpy(art->color1,COL_AMD_1);
-    strcpy(art->color2,COL_AMD_2);
+    /*** CHECK STYLE ***/
+    switch (style) {
+      case STYLE_EMPTY:
+      case STYLE_DEFAULT:
+        strcpy(art->color1,COL_AMD_DEFAULT_1);
+        strcpy(art->color2,COL_AMD_DEFAULT_2);
+        break;
+      case STYLE_DARK:
+        strcpy(art->color1,COL_AMD_DARK_1);
+        strcpy(art->color2,COL_AMD_DARK_2);
+        break;
+      default:
+        //TODO Bugs function
+        printf("Bug at line number %d in file %s\n", __LINE__, __FILE__);
+        return NULL;
+    }
 
     strcpy(art->art[0],AMD1);
     strcpy(art->art[1],AMD2);

@@ -4,12 +4,6 @@
 #include "standart.h"
 #include "ascii.h"
 
-struct ascii;
-
-struct ascii* set_ascii(VENDOR cpuVendor);
-void print_ascii(struct ascii* art);
-int setAttribute(struct ascii* art, int type, char* value);
-
 #define BOOLEAN_TRUE 1
 #define BOOLEAN_FALSE 0
 
@@ -27,5 +21,20 @@ int setAttribute(struct ascii* art, int type, char* value);
 #define ATTRIBUTE_L2        10
 #define ATTRIBUTE_L3        11
 #define ATTRIBUTE_PEAK      12
+
+typedef int STYLE;
+#define STYLES_COUNT 2
+
+#define STYLE_EMPTY -2
+#define STYLE_INVALID -1
+#define STYLE_DEFAULT 0
+#define STYLE_DARK 1
+
+struct ascii;
+
+static const int STYLES_CODE_LIST [STYLES_COUNT] = {STYLE_DEFAULT, STYLE_DARK};
+struct ascii* set_ascii(VENDOR cpuVendor, STYLE style);
+void print_ascii(struct ascii* art);
+int setAttribute(struct ascii* art, int type, char* value);
 
 #endif
