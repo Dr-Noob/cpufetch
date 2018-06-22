@@ -5,6 +5,7 @@
 #include "standart.h"
 #include "udev.h"
 #include "extended.h"
+#include "global.h"
 
 /***
 SAMPLE OUTPUT

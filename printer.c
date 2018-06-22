@@ -4,6 +4,7 @@
 
 #include "printer.h"
 #include "ascii.h"
+#include "global.h"
 
 #define COL_INTEL_DEFAULT_1 "\x1b[36;1m"
 #define COL_INTEL_DEFAULT_2 "\x1b[37;1m"
@@ -66,7 +67,7 @@ struct ascii* set_ascii(VENDOR cpuVendor, STYLE style) {
   /*** Check that number of lines of ascii art matches the number
   of spaces plus the number of lines filled with text ***/
   if(LINES_SPACE_UP+LINES_SPACE_DOWN+ATTRIBUTE_COUNT != NUMBER_OF_LINES) {
-    printf("Bug at line number %d in file %s\n", __LINE__, __FILE__);
+    printError("Number of lines do not match (%d vs %d)",LINES_SPACE_UP+LINES_SPACE_DOWN+ATTRIBUTE_COUNT,NUMBER_OF_LINES);
     return NULL;
   }
 
@@ -85,8 +86,7 @@ struct ascii* set_ascii(VENDOR cpuVendor, STYLE style) {
         strcpy(art->color2,COL_INTEL_DARK_2);
         break;
       default:
-        //TODO Bugs function
-        printf("Bug at line number %d in file %s\n", __LINE__, __FILE__);
+        printError("Found invalid style (%d)",style);
         return NULL;
     }
 
@@ -125,8 +125,7 @@ struct ascii* set_ascii(VENDOR cpuVendor, STYLE style) {
         strcpy(art->color2,COL_AMD_DARK_2);
         break;
       default:
-        //TODO Bugs function
-        printf("Bug at line number %d in file %s\n", __LINE__, __FILE__);
+        printError("Found invalid style (%d)",style);
         return NULL;
     }
 
