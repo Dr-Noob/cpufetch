@@ -49,9 +49,9 @@ struct cpuInfo {
   /*** Threads per core(Intel HyperThreading) ***/
   int HT;
   /*** Max CPUIDs levels ***/
-  int maxLevels;
+  unsigned maxLevels;
   /*** Max CPUIDs extended levels ***/
-  int maxExtendedLevels;
+  unsigned maxExtendedLevels;
 };
 
 void initializeCpuInfo(struct cpuInfo* cpu) {
@@ -224,7 +224,7 @@ char* getPeakPerformance(struct cpuInfo* cpu, long freq) {
   ***/
 
   //7 for GFLOP/s and 6 for digits,eg 412.14
-  int size = 7+6+1+1;
+  unsigned int size = 7+6+1+1;
   assert(strlen(STRING_UNKNOWN)+1 <= size);
   char* string = malloc(sizeof(char)*size);
 

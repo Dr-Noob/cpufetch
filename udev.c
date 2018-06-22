@@ -161,7 +161,7 @@ char* getString_L3(struct cache* cach) {
 
 char* getString_MaxFrequency(struct frequency* freq) {
   //Max 3 digits and 3 for '(M/G)Hz' plus 1 for '\0'
-  int size = (4+3+1);
+  unsigned int size = (4+3+1);
   assert(strlen(STRING_UNKNOWN)+1 <= size);
   char* string = malloc(sizeof(char)*size);
   if(freq->max == UNKNOWN)
