@@ -16,7 +16,6 @@
 #define RESET "\x1b[0m"
 
 #define TITLE_NAME      "Name:       "
-#define TITLE_ARCH      "Arch:       "
 #define TITLE_FREQUENCY "Frequency:  "
 #define TITLE_NCORES    "N.Cores:    "
 #define TITLE_AVX       "AVX:        "
@@ -29,13 +28,17 @@
 #define TITLE_L3        "L3 Size:    "
 #define TITLE_PEAK      "Peak FLOPS: "
 
-static const char* ATTRIBUTE_FIELDS [ATTRIBUTE_COUNT] =  {  TITLE_NAME, TITLE_ARCH, TITLE_FREQUENCY,
+/*** CENTER TEXT ***/
+#define LINES_SPACE_UP   4
+#define LINES_SPACE_DOWN 4
+
+static const char* ATTRIBUTE_FIELDS [ATTRIBUTE_COUNT] =  {  TITLE_NAME, TITLE_FREQUENCY,
                                                             TITLE_NCORES, TITLE_AVX, TITLE_SSE,
                                                             TITLE_FMA, TITLE_AES, TITLE_SHA,
                                                             TITLE_L1, TITLE_L2, TITLE_L3,
                                                             TITLE_PEAK };
 
-static const int ATTRIBUTE_LIST[ATTRIBUTE_COUNT] =  { ATTRIBUTE_NAME, ATTRIBUTE_ARCH, ATTRIBUTE_FREQUENCY,
+static const int ATTRIBUTE_LIST[ATTRIBUTE_COUNT] =  { ATTRIBUTE_NAME, ATTRIBUTE_FREQUENCY,
                                                         ATTRIBUTE_NCORES, ATTRIBUTE_AVX, ATTRIBUTE_SSE,
                                                         ATTRIBUTE_FMA, ATTRIBUTE_AES, ATTRIBUTE_SHA,
                                                         ATTRIBUTE_L1, ATTRIBUTE_L2, ATTRIBUTE_L3,
@@ -60,6 +63,13 @@ int setAttribute(struct ascii* art, int type, char* value) {
 }
 
 struct ascii* set_ascii(VENDOR cpuVendor, STYLE style) {
+  /*** Check that number of lines of ascii art matches the number
+  of spaces plus the number of lines filled with text ***/
+  if(LINES_SPACE_UP+LINES_SPACE_DOWN+ATTRIBUTE_COUNT != NUMBER_OF_LINES) {
+    printf("Bug at line number %d in file %s\n", __LINE__, __FILE__);
+    return NULL;
+  }
+
   struct ascii* art = malloc(sizeof(struct ascii));
   art->vendor = cpuVendor;
   if(cpuVendor == VENDOR_INTEL) {
@@ -170,7 +180,7 @@ void print_ascii_intel(struct ascii* art) {
     }
 
     /*** PRINT ATTRIBUTE ***/
-    if(n>2 && n<NUMBER_OF_LINES-4)printf("%s%s%s%s"RESET"\n",art->color1,ATTRIBUTE_FIELDS[n-3],art->color2,art->atributes[n-3]);
+    if(n>LINES_SPACE_UP-1 && n<NUMBER_OF_LINES-LINES_SPACE_DOWN)printf("%s%s%s%s"RESET"\n",art->color1,ATTRIBUTE_FIELDS[n-LINES_SPACE_UP],art->color2,art->atributes[n-LINES_SPACE_UP]);
     else printf("\n");
   }
 }

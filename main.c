@@ -10,7 +10,6 @@
 SAMPLE OUTPUT
 
 Name:        Intel Core i7-4790K
-Arch:        64 Bits
 Frequency:   4.0 GHz
 NºCores:     4 cores(8 threads)
 AXV:         AVX,AVX2
@@ -69,7 +68,6 @@ int main(int argc, char* argv[]) {
   char* pp = getPeakPerformance(cpu,getFrequency(freq));
 
   setAttribute(art,ATTRIBUTE_NAME,cpuName);
-  setAttribute(art,ATTRIBUTE_ARCH,"x86_64");
   setAttribute(art,ATTRIBUTE_FREQUENCY,maxFrequency);
   setAttribute(art,ATTRIBUTE_NCORES,nCores);
   setAttribute(art,ATTRIBUTE_AVX,avx);

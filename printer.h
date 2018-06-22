@@ -7,20 +7,19 @@
 #define BOOLEAN_TRUE 1
 #define BOOLEAN_FALSE 0
 
-#define ATTRIBUTE_COUNT 13
+#define ATTRIBUTE_COUNT 12
 #define ATTRIBUTE_NAME      0
-#define ATTRIBUTE_ARCH      1
-#define ATTRIBUTE_FREQUENCY 2
-#define ATTRIBUTE_NCORES    3
-#define ATTRIBUTE_AVX       4
-#define ATTRIBUTE_SSE       5
-#define ATTRIBUTE_FMA       6
-#define ATTRIBUTE_AES       7
-#define ATTRIBUTE_SHA       8
-#define ATTRIBUTE_L1        9
-#define ATTRIBUTE_L2        10
-#define ATTRIBUTE_L3        11
-#define ATTRIBUTE_PEAK      12
+#define ATTRIBUTE_FREQUENCY 1
+#define ATTRIBUTE_NCORES    2
+#define ATTRIBUTE_AVX       3
+#define ATTRIBUTE_SSE       4
+#define ATTRIBUTE_FMA       5
+#define ATTRIBUTE_AES       6
+#define ATTRIBUTE_SHA       7
+#define ATTRIBUTE_L1        8
+#define ATTRIBUTE_L2        9
+#define ATTRIBUTE_L3        10
+#define ATTRIBUTE_PEAK      11
 
 typedef int STYLE;
 #define STYLES_COUNT 2
