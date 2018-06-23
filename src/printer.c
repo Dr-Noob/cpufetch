@@ -179,13 +179,13 @@ void print_ascii_intel(struct ascii* art) {
     }
 
     /*** PRINT ATTRIBUTE ***/
-    if(n>LINES_SPACE_UP-1 && n<NUMBER_OF_LINES-LINES_SPACE_DOWN)printf("%s%s%s%s"RESET"\n",art->color1,ATTRIBUTE_FIELDS[n-LINES_SPACE_UP],art->color2,art->atributes[n-LINES_SPACE_UP]);
+    if(n>LINES_SPACE_UP-1 && n<NUMBER_OF_LINES-LINES_SPACE_DOWN)
+      printf("%s%s%s%s"RESET"\n",art->color1,ATTRIBUTE_FIELDS[n-LINES_SPACE_UP],art->color2,art->atributes[n-LINES_SPACE_UP]);
     else printf("\n");
   }
 }
 
 void print_ascii_amd(struct ascii* art) {
-  int flag = BOOLEAN_FALSE;
 
   for(int n=0;n<NUMBER_OF_LINES;n++) {
     /*** PRINT ASCII-ART ***/
@@ -199,7 +199,8 @@ void print_ascii_amd(struct ascii* art) {
     }
 
     /*** PRINT ATTRIBUTE ***/
-    if(n>2 && n<NUMBER_OF_LINES-4)printf("%s%s%s%s"RESET"\n",art->color1,ATTRIBUTE_FIELDS[n-3],art->color2,art->atributes[n-3]);
+    if(n>LINES_SPACE_UP-1 && n<NUMBER_OF_LINES-LINES_SPACE_DOWN)
+      printf("%s%s%s%s"RESET"\n",art->color1,ATTRIBUTE_FIELDS[n-LINES_SPACE_UP],art->color2,art->atributes[n-LINES_SPACE_UP]);
     else printf("\n");
   }
 

@@ -6,5 +6,6 @@
 int parseArgs(int argc, char* argv[]);
 STYLE getStyle();
 int showHelp();
+int showVersion();
 
 #endif

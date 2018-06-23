@@ -3,15 +3,18 @@
 #include <string.h>
 #include "args.h"
 
-#define ARG_STR_STYLE "style"
-#define ARG_STR_HELP  "help"
-#define ARG_CHAR_STYLE 's'
-#define ARG_CHAR_HELP  'h'
+#define ARG_STR_STYLE    "style"
+#define ARG_STR_HELP     "help"
+#define ARG_STR_VERSION  "version"
+#define ARG_CHAR_STYLE    's'
+#define ARG_CHAR_HELP     'h'
+#define ARG_CHAR_VERSION  'v'
 #define STYLE_STR_1 "default"
 #define STYLE_STR_2 "dark"
 
 struct args_struct {
   int help_flag;
+  int version_flag;
   STYLE style;
 };
 
@@ -36,6 +39,10 @@ int showHelp() {
   return args.help_flag;
 }
 
+int showVersion() {
+  return args.version_flag;
+}
+
 int parseArgs(int argc, char* argv[]) {
   int c;
   int digit_optind = 0;
@@ -46,8 +53,9 @@ int parseArgs(int argc, char* argv[]) {
   args.style = STYLE_EMPTY;
 
   static struct option long_options[] = {
-      {ARG_STR_STYLE, required_argument, 0, ARG_CHAR_STYLE},
-      {ARG_STR_HELP,  no_argument,       0, ARG_CHAR_HELP },
+      {ARG_STR_STYLE,    required_argument, 0, ARG_CHAR_STYLE   },
+      {ARG_STR_HELP,     no_argument,       0, ARG_CHAR_HELP    },
+      {ARG_STR_VERSION,  no_argument,       0, ARG_CHAR_VERSION },
       {0, 0, 0, 0}
   };
 
@@ -72,6 +80,13 @@ int parseArgs(int argc, char* argv[]) {
        }
        args.help_flag  = BOOLEAN_TRUE;
      }
+     else if (c == ARG_CHAR_VERSION) {
+       if(args.version_flag) {
+         printf("ERROR: Version option specified more than once\n");
+         return BOOLEAN_FALSE;
+       }
+       args.version_flag = BOOLEAN_TRUE;
+     }
      else if(c == '?') {
        printf("WARNING: Invalid options\n");
        args.help_flag  = BOOLEAN_TRUE;
@@ -86,6 +101,11 @@ int parseArgs(int argc, char* argv[]) {
 
   if (optind < argc) {
     printf("WARNING: Invalid options\n");
+    args.help_flag  = BOOLEAN_TRUE;
+  }
+
+  if((args.help_flag + args.version_flag + (args.style != STYLE_EMPTY)) > 1) {
+    printf("WARNING: You should specify just one option\n");
     args.help_flag  = BOOLEAN_TRUE;
   }
 

@@ -25,15 +25,21 @@ Peak FLOPS:  512 GFLOP/s(in simple precision)
 
 ***/
 
-void help(int argc, char *argv[])
-{
-	printf("Usage: %s [--help] [--style STYLE]\n\
+static const char* VERSION = "0.33";
+
+void help(int argc, char *argv[]) {
+	printf("Usage: %s [--version] [--help] [--style STYLE]\n\
        Options: \n\
-       --style Set logo style color\n\
-         default: Default style color\n\
-         dark:    Dark style color\n\n\
-       --help  Print this help and exit\n",
+       --style    Set logo style color\n\
+           default:   Default style color\n\
+           dark:      Dark style color\n\
+       --help     Print this help and exit\n\
+       --version  Print cpufetch version and exit\n",
 			argv[0]);
+}
+
+void version() {
+	printf("cpufetch v%s\n",VERSION);
 }
 
 int main(int argc, char* argv[]) {
@@ -44,6 +50,11 @@ int main(int argc, char* argv[]) {
     help(argc,argv);
     return EXIT_SUCCESS;
   }
+
+	if(showVersion()) {
+		version();
+		return EXIT_SUCCESS;
+	}
 
   struct cpuInfo* cpu = getCPUInfo();
   if(cpu == NULL)
