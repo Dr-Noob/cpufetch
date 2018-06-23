@@ -1,0 +1,30 @@
+.TH man 8 "22 Jun 2018" "0.32" "cpufetch man page"
+.SH NAME
+cpufetch \- Prints a fancy summary of the CPU with some advanced information
+.SH SYNOPSIS
+cpufetch [--help] [--style STYLE]
+.SH DESCRIPTION
+cpufetch will print CPU information, for which will query cpuid instructions and udev directories on Linux. It should display:
+.IP \[bu] 2
+Name
+.IP \[bu]
+Frequency
+.IP \[bu]
+Number of cores(Physical and Logical)
+.IP \[bu]
+AVX,SSE,FMA,AES and SHA support
+.IP \[bu]
+L1,L2 and L3 size
+.IP \[bu]
+Theoretical peak flops
+.SH OPTIONS
+.TP
+\fB\-\-help\fR
+Prints help
+.TP
+\fB\-\-style\fR
+Specify the color style of ascii logo
+.SH BUGS
+No known bugs. AMD CPUs may not be fully supported
+.SH AUTHOR
+Dr-Noob (https://github.com/Dr-Noob)
