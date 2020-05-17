@@ -31,7 +31,7 @@ Output is detailed as follows:
 | Name       | Name of the CPU   | Any valid CPU name |
 | Frequency  | Max frequency of the CPU(in GHz) | X.XX(GHz or MHz)
 | N.Cores    | Number of cores the CPU has. If CPU supports `Hyperthreading` or similar, this will show cores and threads separately | X(cores)X(threads)
-| AVX        | Type of AVX supported by the CPU or None. AVX instructions allows the CPU to vectorize the code with a witdh of 256 bits in single precision(or 512bits if AVX512 is supported) | AVX,AVX2,AVX512,None
+| AVX        | Type of AVX supported by the CPU or None. AVX instructions allows the CPU to vectorize the code with a witdh of 256 bits in single precision(or 512bits if AVX512 is supported) | AVX,AVX2,AVX512(F,PF,ER,CD,etc),None
 | SSE        | Same as AVX, but SSE family are 128bits witdh | SSE, SSE2, SSE3, SSSE3, SSE4a, SSE4_1, SSE4_2,None |
 | FMA        | Does this CPU support FMA(Fused Multiply Add)?This instruction allows the CPU to multiply and add a value on the same clock cycle | FMA3,FMA4,None |
 | AES        | Does this CPU support AES? This instruction is allows the CPU to make AES cypher efficiently | Yes or No |
