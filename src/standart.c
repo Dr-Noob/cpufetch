@@ -26,7 +26,14 @@ struct cpuInfo {
   int AVX2;
 
   /* (512 bits) */
-  int AVX512;
+  int AVX512F;
+  int AVX512CD;
+  int AVX512ER;
+  int AVX512PF;
+
+  int AVX512VL;
+  int AVX512DQ;
+  int AVX512BW;
 
   /* (128 bits) */
   int SSE;
@@ -55,20 +62,26 @@ struct cpuInfo {
 };
 
 void initializeCpuInfo(struct cpuInfo* cpu) {
-  cpu->AVX    = BOOLEAN_FALSE;
-  cpu->AVX2   = BOOLEAN_FALSE;
-  cpu->AVX512 = BOOLEAN_FALSE;
-  cpu->SSE    = BOOLEAN_FALSE;
-  cpu->SSE2   = BOOLEAN_FALSE;
-  cpu->SSE3   = BOOLEAN_FALSE;
-  cpu->SSSE3  = BOOLEAN_FALSE;
-  cpu->SSE4a  = BOOLEAN_FALSE;
-  cpu->SSE4_1 = BOOLEAN_FALSE;
-  cpu->SSE4_2 = BOOLEAN_FALSE;
-  cpu->FMA3   = BOOLEAN_FALSE;
-  cpu->FMA4   = BOOLEAN_FALSE;
-  cpu->AES    = BOOLEAN_FALSE;
-  cpu->SHA    = BOOLEAN_FALSE;
+  cpu->AVX         = BOOLEAN_FALSE;
+  cpu->AVX2        = BOOLEAN_FALSE;
+  cpu->AVX512F     = BOOLEAN_FALSE;
+  cpu->AVX512PF    = BOOLEAN_FALSE;
+  cpu->AVX512ER    = BOOLEAN_FALSE;
+  cpu->AVX512CD    = BOOLEAN_FALSE;
+  cpu->AVX512VL    = BOOLEAN_FALSE;
+  cpu->AVX512DQ    = BOOLEAN_FALSE;
+  cpu->AVX512BW    = BOOLEAN_FALSE;
+  cpu->SSE         = BOOLEAN_FALSE;
+  cpu->SSE2        = BOOLEAN_FALSE;
+  cpu->SSE3        = BOOLEAN_FALSE;
+  cpu->SSSE3       = BOOLEAN_FALSE;
+  cpu->SSE4a       = BOOLEAN_FALSE;
+  cpu->SSE4_1      = BOOLEAN_FALSE;
+  cpu->SSE4_2      = BOOLEAN_FALSE;
+  cpu->FMA3        = BOOLEAN_FALSE;
+  cpu->FMA4        = BOOLEAN_FALSE;
+  cpu->AES         = BOOLEAN_FALSE;
+  cpu->SHA         = BOOLEAN_FALSE;
 }
 
 #define MASK 0xFF
@@ -166,16 +179,23 @@ struct cpuInfo* getCPUInfo() {
     eax = 0x00000007;
     ecx = 0x00000000;
     cpuid(&eax, &ebx, &ecx, &edx);
-    cpu->AVX2         = (ebx & ((int)1 <<  5)) != 0;
     cpu->SHA          = (ebx & ((int)1 << 29)) != 0;
-    cpu->AVX512       = (((ebx & ((int)1 << 16)) != 0) ||
-                        ((ebx & ((int)1 << 28)) != 0) ||
-                        ((ebx & ((int)1 << 26)) != 0) ||
-                        ((ebx & ((int)1 << 27)) != 0) ||
-                        ((ebx & ((int)1 << 31)) != 0) ||
-                        ((ebx & ((int)1 << 30)) != 0) ||
-                        ((ebx & ((int)1 << 17)) != 0) ||
-                        ((ebx & ((int)1 << 21)) != 0));
+
+    cpu->AVX2         = (ebx & ((int)1 <<  5)) != 0;
+
+    cpu->AVX512F      = ((ebx & ((int)1 << 16)) != 0);
+    cpu->AVX512PF     = ((ebx & ((int)1 << 26)) != 0);
+    cpu->AVX512ER     = ((ebx & ((int)1 << 27)) != 0);
+    cpu->AVX512CD     = ((ebx & ((int)1 << 28)) != 0);
+
+    cpu->AVX512VL     = ((ebx & ((int)1 << 31)) != 0);
+    cpu->AVX512DQ     = ((ebx & ((int)1 << 17)) != 0);
+    cpu->AVX512BW     = ((ebx & ((int)1 << 30)) != 0);
+
+    //                    ((ebx & ((int)1 << 31)) != 0) ||
+    //                    ((ebx & ((int)1 << 30)) != 0) ||
+    //                    ((ebx & ((int)1 << 17)) != 0) ||
+    //                    ((ebx & ((int)1 << 21)) != 0));
   }
   if (cpu->maxExtendedLevels >= 0x80000001){
       eax = 0x80000001;
@@ -190,7 +210,15 @@ struct cpuInfo* getCPUInfo() {
 void debugCpuInfo(struct cpuInfo* cpu) {
   printf("AVX=%s\n", cpu->AVX ? "true" : "false");
   printf("AVX2=%s\n", cpu->AVX2 ? "true" : "false");
-  printf("AVX512=%s\n\n", cpu->AVX512 ? "true" : "false");
+
+  printf("AVX512F =%s\n\n", cpu->AVX512F  ? "true" : "false");
+  printf("AVX512PF=%s\n\n", cpu->AVX512PF ? "true" : "false");
+  printf("AVX512ER=%s\n\n", cpu->AVX512ER ? "true" : "false");
+  printf("AVX512CD=%s\n\n", cpu->AVX512CD ? "true" : "false");
+
+  printf("AVX512VL=%s\n\n", cpu->AVX512VL ? "true" : "false");
+  printf("AVX512DQ=%s\n\n", cpu->AVX512DQ ? "true" : "false");
+  printf("AVX512BW=%s\n\n", cpu->AVX512BW ? "true" : "false");
 
   printf("SSE=%s\n", cpu->SSE ? "true" : "false");
   printf("SSE2=%s\n", cpu->SSE2 ? "true" : "false");
@@ -239,7 +267,7 @@ char* getPeakPerformance(struct cpuInfo* cpu, long freq) {
   if(cpu->FMA3 || cpu->FMA4)
     flops = flops*2;
 
-  if(cpu->AVX512)
+  if(cpu->AVX512F)
     flops = flops*16;
   else if(cpu->AVX || cpu->AVX2)
     flops = flops*8;
@@ -277,16 +305,30 @@ char* getString_NumberCores(struct cpuInfo* cpu) {
 
 char* getString_AVX(struct cpuInfo* cpu) {
   //If all AVX are available, it will use up to 15
-  char* string = malloc(sizeof(char)*15+1);
-  if(cpu->AVX == BOOLEAN_FALSE)
-    snprintf(string,2+1,"No");
-  else if(cpu->AVX2 == BOOLEAN_FALSE)
-    snprintf(string,3+1,"AVX");
-  else if(cpu->AVX512 == BOOLEAN_FALSE)
-    snprintf(string,8+1,"AVX,AVX2");
-  else
-    snprintf(string,15+1,"AVX,AVX2,AVX512");
+  char* string = malloc(sizeof(char)*128);
+  memset(string, 0, 128);
+  char* curend = string;
+  if(cpu->AVX == BOOLEAN_TRUE)
+    curend += sprintf(curend,"AVX,");
+  if(cpu->AVX2 == BOOLEAN_TRUE)
+    curend += sprintf(curend,"AVX2,");
+  if(cpu->AVX512F == BOOLEAN_TRUE)
+    curend += sprintf(curend,"AVX512F,");
+  if(cpu->AVX512PF == BOOLEAN_TRUE)
+    curend += sprintf(curend,"AVX512PF,");
+  if(cpu->AVX512ER == BOOLEAN_TRUE)
+    curend += sprintf(curend,"AVX512ER,");
+  if(cpu->AVX512CD == BOOLEAN_TRUE)
+    curend += sprintf(curend,"AVX512CD,");
 
+  if(cpu->AVX512VL == BOOLEAN_TRUE)
+    curend += sprintf(curend,"AVX512VL,");
+  if(cpu->AVX512DQ == BOOLEAN_TRUE)
+    curend += sprintf(curend,"AVX512DQ,");
+  if(cpu->AVX512BW == BOOLEAN_TRUE)
+    curend += sprintf(curend,"AVX512BW,");
+
+  *(curend - 1) = 0;
   return string;
 }
 
