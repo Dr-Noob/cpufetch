@@ -328,7 +328,7 @@ char* getString_AVX(struct cpuInfo* cpu) {
   if(cpu->AVX512BW == BOOLEAN_TRUE)
     curend += sprintf(curend,"AVX512BW,");
 
-  *(curend - 1) = 0;
+  if(curend > string) *(curend - 1) = 0;
   return string;
 }
 
