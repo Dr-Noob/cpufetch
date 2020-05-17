@@ -12,7 +12,12 @@ OUTPUT=cpufetch
 $(OUTPUT): Makefile $(SOURCE) $(HEADERS)
 	$(CXX) $(CXXFLAGS) $(SANITY_FLAGS) $(SOURCE) -o $(OUTPUT)
 
-run:
+run: $(OUTPUT)
 	./$(OUTPUT)
+
+.PHONY: clean
 clean:
-	@rm $(OUTPUT)
+	rm $(OUTPUT)
+
+install: $(OUTPUT)
+	cp $(OUTPUT) /usr/local/bin/$(OUTPUT)
