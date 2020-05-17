@@ -192,10 +192,19 @@ struct cpuInfo* getCPUInfo() {
     cpu->AVX512DQ     = ((ebx & ((int)1 << 17)) != 0);
     cpu->AVX512BW     = ((ebx & ((int)1 << 30)) != 0);
 
-    //                    ((ebx & ((int)1 << 31)) != 0) ||
-    //                    ((ebx & ((int)1 << 30)) != 0) ||
-    //                    ((ebx & ((int)1 << 17)) != 0) ||
-    //                    ((ebx & ((int)1 << 21)) != 0));
+    // ((ebx & ((int)1 << 21)) != 0); //AVX512IMFA
+    // ((ecx & ((int)1 <<  1)) != 0); //AVX512VBMI
+    // ((ecx & ((int)1 <<  6)) != 0); //AVX512VBMI2
+    // ((ecx & ((int)1 <<  8)) != 0); //GFNI
+    // ((ecx & ((int)1 <<  9)) != 0); //VAES
+    // ((ecx & ((int)1 << 10)) != 0); //VPCLMULQDQ
+    // ((ecx & ((int)1 << 11)) != 0); //AVX512VNNI
+    // ((ecx & ((int)1 << 12)) != 0); //AVX512BITALG
+    // ((ecx & ((int)1 << 14)) != 0); //AVX512VPOPCNTDQ
+    // ((edx & ((int)1 <<  8)) != 0); //AVX512VP2INTERSECT
+    // ecx = 0x00000001;
+    // cpuid(&eax, &ebx, &ecx, &edx);
+    // ((eax & ((int)1 <<  5)) != 0); //AVX512BF16
   }
   if (cpu->maxExtendedLevels >= 0x80000001){
       eax = 0x80000001;
@@ -304,31 +313,31 @@ char* getString_NumberCores(struct cpuInfo* cpu) {
 }
 
 char* getString_AVX(struct cpuInfo* cpu) {
-  //If all AVX are available, it will use up to 15
   char* string = malloc(sizeof(char)*128);
   memset(string, 0, 128);
-  char* curend = string;
+  char* last = string;
   if(cpu->AVX == BOOLEAN_TRUE)
-    curend += sprintf(curend,"AVX,");
+    last += sprintf(last,"AVX,");
   if(cpu->AVX2 == BOOLEAN_TRUE)
-    curend += sprintf(curend,"AVX2,");
+    last += sprintf(last,"AVX2,");
   if(cpu->AVX512F == BOOLEAN_TRUE)
-    curend += sprintf(curend,"AVX512F,");
+    last += sprintf(last,"AVX512F,");
   if(cpu->AVX512PF == BOOLEAN_TRUE)
-    curend += sprintf(curend,"AVX512PF,");
+    last += sprintf(last,"AVX512PF,");
   if(cpu->AVX512ER == BOOLEAN_TRUE)
-    curend += sprintf(curend,"AVX512ER,");
+    last += sprintf(last,"AVX512ER,");
   if(cpu->AVX512CD == BOOLEAN_TRUE)
-    curend += sprintf(curend,"AVX512CD,");
+    last += sprintf(last,"AVX512CD,");
 
   if(cpu->AVX512VL == BOOLEAN_TRUE)
-    curend += sprintf(curend,"AVX512VL,");
+    last += sprintf(last,"AVX512VL,");
   if(cpu->AVX512DQ == BOOLEAN_TRUE)
-    curend += sprintf(curend,"AVX512DQ,");
+    last += sprintf(last,"AVX512DQ,");
   if(cpu->AVX512BW == BOOLEAN_TRUE)
-    curend += sprintf(curend,"AVX512BW,");
+    last += sprintf(last,"AVX512BW,");
 
-  if(curend > string) *(curend - 1) = 0;
+  // Remove trailing comma
+  if(last > string) *(last - 1) = 0;
   return string;
 }
 
