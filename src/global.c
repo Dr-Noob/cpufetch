@@ -13,4 +13,5 @@ void printError(const char *fmt, ...) {
   vsnprintf(buffer,buffer_size, fmt, args);
   va_end(args);
   fprintf(stderr,RED "ERROR: "RESET "%s\n",buffer);
+  fprintf(stderr,"Please, create a new issue with this error message and your CPU in https://github.com/Dr-Noob/cpufetch/issues\n");
 }

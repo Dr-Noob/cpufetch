@@ -25,7 +25,7 @@ Peak FLOPS:  512 GFLOP/s(in simple precision)
 
 ***/
 
-static const char* VERSION = "0.34";
+static const char* VERSION = "0.4";
 
 void print_help(int argc, char *argv[]) {
   printf("Usage: %s [--version] [--help] [--style STYLE]\n\
@@ -61,7 +61,13 @@ int main(int argc, char* argv[]) {
     return EXIT_FAILURE;
 
   struct cache* cach = get_cache_info();
+  if(cach == NULL)
+    return EXIT_FAILURE;
+  
   struct frequency* freq = get_frequency_info();
+  if(freq == NULL)
+    return EXIT_FAILURE;
+  
   struct ascii* art = set_ascii(get_cpu_vendor(cpu),getStyle());
   if(art == NULL)
     return EXIT_FAILURE;

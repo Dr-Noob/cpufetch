@@ -8,6 +8,7 @@
 #include "standart.h"
 #include "cpuid.h"
 #include "udev.h"
+#include "global.h"
 
 #define STRING_YES  "Yes"
 #define STRING_NO   "No"
@@ -44,6 +45,13 @@ struct cpuInfo {
   unsigned int maxLevels;
   // Max cpuids extended levels
   unsigned int maxExtendedLevels;
+};
+
+struct cache {
+  int L1i;
+  int L1d;
+  int L2;
+  int L3;
 };
 
 void init_cpu_info(struct cpuInfo* cpu) {
@@ -178,6 +186,70 @@ struct cpuInfo* get_cpu_info() {
   return cpu;
 }
 
+// see https://stackoverflow.com/questions/12594208/c-program-to-determine-levels-size-of-cache
+struct cache* get_cache_info() {
+  struct cache* cach = malloc(sizeof(struct cache));  
+  unsigned int eax, ebx, ecx, edx;
+  
+  // We suppose there are 4 caches (at most)
+  for(int i=0; i < 4; i++) {
+    eax = 4; // get cache info
+    ebx = 0;
+    ecx = i; // cache id
+    edx = 0;
+      
+    cpuid(&eax, &ebx, &ecx, &edx); 
+      
+    int cache_type = eax & 0x1F;
+      
+    // If its 0, we tried fetching a non existing cache
+    if (cache_type > 0) {
+      int cache_level = (eax >>= 5) & 0x7;
+      int cache_is_self_initializing = (eax >>= 3) & 0x1; // does not need SW initialization
+      int cache_is_fully_associative = (eax >>= 1) & 0x1;
+      unsigned int cache_sets = ecx + 1;
+      unsigned int cache_coherency_line_size = (ebx & 0xFFF) + 1;
+      unsigned int cache_physical_line_partitions = ((ebx >>= 12) & 0x3FF) + 1;
+      unsigned int cache_ways_of_associativity = ((ebx >>= 10) & 0x3FF) + 1;
+        
+      int cache_total_size = cache_ways_of_associativity * cache_physical_line_partitions * cache_coherency_line_size * cache_sets;  
+        
+      switch (cache_type) {
+        case 1: // Data Cache (We assume this is L1d)
+          if(cache_level != 1) {
+            printError("Found data cache at level %d (expected 1)", cache_level);
+            return NULL;
+          }
+          cach->L1d = cache_total_size; 
+          break;
+            
+        case 2: // Instruction Cache (We assume this is L1i)
+          if(cache_level != 1) {
+            printError("Found instruction cache at level %d (expected 1)", cache_level);
+            return NULL;
+          }
+          cach->L1i = cache_total_size;
+          break;
+          
+        case 3: // Unified Cache (This may be L2 or L3)
+          if(cache_level == 2) cach->L2 = cache_total_size;
+          else if(cache_level == 3) cach->L3 = cache_total_size;
+          else {
+            printError("Found unified cache at level %d (expected == 2 or 3)", cache_level);
+            return NULL;
+          }
+          break;
+          
+        default: // Unknown Type Cache
+          printError("Unknown Type Cache found at ID %d", i);
+          return NULL;
+      }
+    }      
+  }
+  
+  return cach;
+}
+
 VENDOR get_cpu_vendor(struct cpuInfo* cpu) {
   return cpu->cpu_vendor;
 }
@@ -200,6 +272,13 @@ void debug_cpu_info(struct cpuInfo* cpu) {
 
   printf("AES=%s\n", cpu->AES ? "true" : "false");
   printf("SHA=%s\n", cpu->SHA ? "true" : "false");
+}
+
+void debugCache(struct cache* cach) {
+  printf("L1i=%dB\n",cach->L1i);
+  printf("L1d=%dB\n",cach->L1d);
+  printf("L2=%dB\n",cach->L2);
+  printf("L3=%dB\n",cach->L3);
 }
 
 /*** STRING FUNCTIONS ***/
@@ -354,4 +433,47 @@ char* get_str_sha(struct cpuInfo* cpu) {
   else
     snprintf(string,2+1,STRING_NO);
   return string;
+}
+
+// String functions
+char* get_str_l1(struct cache* cach) {
+  //Max 2 digits,2 for 'KB',3 for '(D)' and '(I)'
+  int size = (2*(2+2)+6+1);
+  char* string = malloc(sizeof(char)*size);
+  snprintf(string,size,"%d"STRING_KILOBYTES"(D)%d"STRING_KILOBYTES"(I)",cach->L1d/1024,cach->L1i/1024);
+  return string;
+}
+
+char* get_str_l2(struct cache* cach) {
+  if(cach->L2 == UNKNOWN) {
+    char* string = malloc(sizeof(char)*5);
+    snprintf(string,5,STRING_NONE);
+    return string;
+  }
+  else {
+    //Max 4 digits and 2 for 'KB'
+    int size = (4+2+1);
+    char* string = malloc(sizeof(char)*size);
+    snprintf(string,size,"%d"STRING_KILOBYTES,cach->L2/1024);
+    return string;
+  }
+}
+
+char* get_str_l3(struct cache* cach) {
+  if(cach->L3 == UNKNOWN) {
+    char* string = malloc(sizeof(char)*5);
+    snprintf(string,5,STRING_NONE);
+    return string;
+  }
+  else {
+    //Max 4 digits and 2 for 'KB'
+    int size = (4+2+1);
+    char* string = malloc(sizeof(char)*size);
+    snprintf(string,size,"%d"STRING_KILOBYTES,cach->L3/1024);
+    return string;
+  }
+}
+
+void free_cache_struct(struct cache* cach) {
+  free(cach);
 }
