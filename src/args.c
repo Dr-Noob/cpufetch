@@ -43,6 +43,10 @@ int showVersion() {
   return args.version_flag;
 }
 
+bool verbose_enabled() {
+  return false;
+}
+
 int parseArgs(int argc, char* argv[]) {
   int c;
   int digit_optind = 0;

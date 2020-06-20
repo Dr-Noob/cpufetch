@@ -24,7 +24,7 @@ Peak FLOPS:  512 GFLOP/s(in simple precision)
 
 ***/
 
-static const char* VERSION = "0.41";
+static const char* VERSION = "0.42";
 
 void print_help(int argc, char *argv[]) {
   printf("Usage: %s [--version] [--help] [--style STYLE]\n\
@@ -54,6 +54,8 @@ int main(int argc, char* argv[]) {
     print_version();
     return EXIT_SUCCESS;
   }
+  
+  set_log_level(verbose_enabled());
 
   struct cpuInfo* cpu = get_cpu_info();
   if(cpu == NULL)

@@ -83,9 +83,7 @@ void init_cpu_info(struct cpuInfo* cpu) {
 }
 
 #define MASK 0xFF
-VENDOR get_cpu_vendor_internal(unsigned eax,unsigned ebx,unsigned ecx,unsigned edx) {
-  char name[13];
-  memset(name,0,13);
+void get_cpu_vendor_internal(char* name, unsigned eax,unsigned ebx,unsigned ecx,unsigned edx) {
   name[__COUNTER__] = ebx       & MASK;
   name[__COUNTER__] = (ebx>>8)  & MASK;
   name[__COUNTER__] = (ebx>>16) & MASK;
@@ -100,14 +98,6 @@ VENDOR get_cpu_vendor_internal(unsigned eax,unsigned ebx,unsigned ecx,unsigned e
   name[__COUNTER__] = (ecx>>8)  & MASK;
   name[__COUNTER__] = (ecx>>16) & MASK;
   name[__COUNTER__] = (ecx>>24) & MASK;
-
-  if(strcmp(VENDOR_INTEL_STRING,name) == 0)
-    return VENDOR_INTEL;
-
-  else if (strcmp(VENDOR_AMD_STRING,name) == 0)
-    return VENDOR_AMD;
-
-  return VENDOR_INVALID;
 }
 
 struct cpuInfo* get_cpu_info() {
@@ -120,18 +110,26 @@ struct cpuInfo* get_cpu_info() {
   unsigned int edx = 0;
 
   //Get max cpuid level
-  eax = 0x0000000;
   cpuid(&eax, &ebx, &ecx, &edx);
   cpu->maxLevels = eax;
 
   //Fill vendor
-  cpu->cpu_vendor = get_cpu_vendor_internal(eax,ebx,ecx,edx);
-  if(cpu->cpu_vendor == VENDOR_INVALID) {
-    printf("ERROR: CPU vendor is neither AMD nor INTEL\n");
+  char name[13];
+  memset(name,0,13);
+  get_cpu_vendor_internal(name, eax,ebx,ecx,edx);
+  
+  if(strcmp(VENDOR_INTEL_STRING,name) == 0)
+    cpu->cpu_vendor = VENDOR_INTEL;
+  else if (strcmp(VENDOR_AMD_STRING,name) == 0)
+    cpu->cpu_vendor = VENDOR_AMD;  
+  else {
+    cpu->cpu_vendor = VENDOR_INVALID;
+    printErr("Unknown CPU vendor: %s", name);
     return NULL;
   }
 
   //Get max extended level
+  eax = 0x8000000;
   cpuid(&eax, &ebx, &ecx, &edx);
   cpu->maxExtendedLevels = eax;
 
@@ -151,7 +149,7 @@ struct cpuInfo* get_cpu_info() {
     }
   }
   else {
-    //We cant afford this check, assume 1
+    printWarn("Can't read topology information from cpuid (needed level is 0x%.8X, max is 0x%.8X). Assuming HT is disabled", 0x0000000B, cpu->maxLevels);
     cpu->HT = 1;
   }
 
@@ -172,6 +170,9 @@ struct cpuInfo* get_cpu_info() {
     cpu->AVX    = (ecx & ((int)1 << 28)) != 0;
     cpu->FMA3   = (ecx & ((int)1 << 12)) != 0;
   }
+  else {
+    printWarn("Can't read features information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000001, cpu->maxLevels);
+  }
   if (cpu->maxLevels >= 0x00000007){
     eax = 0x00000007;
     ecx = 0x00000000;
@@ -187,11 +188,17 @@ struct cpuInfo* get_cpu_info() {
                         ((ebx & ((int)1 << 17)) != 0)  ||
                         ((ebx & ((int)1 << 21)) != 0));
   }
+  else {
+    printWarn("Can't read features information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000007, cpu->maxLevels);    
+  }
   if (cpu->maxExtendedLevels >= 0x80000001){
       eax = 0x80000001;
       cpuid(&eax, &ebx, &ecx, &edx);
       cpu->SSE4a = (ecx & ((int)1 <<  6)) != 0;
       cpu->FMA4  = (ecx & ((int)1 << 16)) != 0;
+  }
+  else {
+    printWarn("Can't read features information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x80000001, cpu->maxExtendedLevels);        
   }
 
   return cpu;
