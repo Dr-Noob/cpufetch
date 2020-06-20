@@ -8,8 +8,8 @@ char* get_str_cpu_name() {
   unsigned int ecx = 0;
   unsigned int edx = 0;
   
-  char name[64];
-  memset(name,0,64);
+  char *name = malloc(sizeof(char)*64);
+  memset(name, 0, 64);
 
   //First, check we can use extended
   eax = 0x80000000;
@@ -84,11 +84,14 @@ char* get_str_cpu_name() {
 
   name[__COUNTER__] = '\0';
 
-  //Remove unused characters
-  int i = 0;
-  while(name[i] == ' ')i++;
-
-  char* name_withoutblank = malloc(sizeof(char)*64);
-  strcpy(name_withoutblank,name+i);
-  return name_withoutblank;
+  //Remove unused characters  
+  char *str = name;
+  char *dest = name;
+  while (*str != '\0') {
+    while (*str == ' ' && *(str + 1) == ' ') str++;
+    *dest++ = *str++;
+  }
+  *dest = '\0';
+  
+  return name;
 }
