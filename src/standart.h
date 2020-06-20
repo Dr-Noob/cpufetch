@@ -9,6 +9,7 @@
 struct cpuInfo;
 struct frequency;
 struct cache;
+struct topology;
 
 typedef int VENDOR;
 
@@ -17,6 +18,7 @@ VENDOR get_cpu_vendor(struct cpuInfo* cpu);
 long get_freq(struct frequency* freq);
 struct cache* get_cache_info(struct cpuInfo* cpu);
 struct frequency* get_frequency_info(struct cpuInfo* cpu);
+struct topology* get_topology_info(struct cpuInfo* cpu);
 
 char* get_str_ncores(struct cpuInfo* cpu);
 char* get_str_avx(struct cpuInfo* cpu);
@@ -31,7 +33,9 @@ char* get_str_l3(struct cache* cach);
 
 char* get_str_freq(struct frequency* freq);
 
-char* get_str_peak_performance(struct cpuInfo* cpu, long freq);
+char* get_str_topology(struct topology* topo);
+
+char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, long freq);
 
 void free_cpuinfo_struct(struct cpuInfo* cpu);
 void free_cache_struct(struct cache* cach);

@@ -24,7 +24,7 @@ Peak FLOPS:  512 GFLOP/s(in simple precision)
 
 ***/
 
-static const char* VERSION = "0.42";
+static const char* VERSION = "0.43";
 
 void print_help(int argc, char *argv[]) {
   printf("Usage: %s [--version] [--help] [--style STYLE]\n\
@@ -69,13 +69,17 @@ int main(int argc, char* argv[]) {
   if(freq == NULL)
     return EXIT_FAILURE;
   
+  struct topology* topo = get_topology_info(cpu);
+  if(topo == NULL)
+    return EXIT_FAILURE;
+  
   struct ascii* art = set_ascii(get_cpu_vendor(cpu),getStyle());
   if(art == NULL)
     return EXIT_FAILURE;
 
   char* cpuName = get_str_cpu_name();
   char* maxFrequency = get_str_freq(freq);
-  char* nCores = get_str_ncores(cpu);
+  char* nCores = get_str_topology(topo);
   char* avx = get_str_avx(cpu);
   char* sse = get_str_sse(cpu);
   char* fma = get_str_fma(cpu);
@@ -84,7 +88,7 @@ int main(int argc, char* argv[]) {
   char* l1 = get_str_l1(cach);
   char* l2 = get_str_l2(cach);
   char* l3 = get_str_l3(cach);
-  char* pp = get_str_peak_performance(cpu,get_freq(freq));
+  char* pp = get_str_peak_performance(cpu,topo,get_freq(freq));
 
   setAttribute(art,ATTRIBUTE_NAME,cpuName);
   setAttribute(art,ATTRIBUTE_FREQUENCY,maxFrequency);

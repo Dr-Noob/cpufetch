@@ -44,9 +44,6 @@ struct cpuInfo {
 
   VENDOR cpu_vendor;
   
-  int nThreads;
-  // Threads per core
-  int HT;
   //  Max cpuids levels
   unsigned int maxLevels;
   // Max cpuids extended levels
@@ -63,6 +60,13 @@ struct cache {
 struct frequency {
   long base;
   long max;
+};
+
+struct topology {
+  int physical_cores;
+  int logical_cores;
+  int smt;
+  bool ht;
 };
 
 void init_cpu_info(struct cpuInfo* cpu) {
@@ -129,29 +133,12 @@ struct cpuInfo* get_cpu_info() {
   }
 
   //Get max extended level
-  eax = 0x8000000;
+  eax = 0x80000000;
+  ebx = 0;
+  ecx = 0;
+  edx = 0;
   cpuid(&eax, &ebx, &ecx, &edx);
-  cpu->maxExtendedLevels = eax;
-
-  //Fill cores and threads
-  cpu->nThreads = sysconf(_SC_NPROCESSORS_ONLN);
-
-  //Always check we can fetch data
-  if (cpu->maxLevels >= 0x0000000B) {
-    eax = 0x0000000B;
-    ecx = 0x00000000;
-    cpuid(&eax, &ebx, &ecx, &edx);
-    cpu->HT = ebx & 0xF;
-    if(cpu->HT == 0) {
-      //AMD should not work with this, returning 0
-      //Suppose we have 1
-      cpu->HT = 1;
-    }
-  }
-  else {
-    printWarn("Can't read topology information from cpuid (needed level is 0x%.8X, max is 0x%.8X). Assuming HT is disabled", 0x0000000B, cpu->maxLevels);
-    cpu->HT = 1;
-  }
+  cpu->maxExtendedLevels = eax;  
 
   //Fill instructions support
   if (cpu->maxLevels >= 0x00000001){
@@ -173,6 +160,7 @@ struct cpuInfo* get_cpu_info() {
   else {
     printWarn("Can't read features information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000001, cpu->maxLevels);
   }
+  
   if (cpu->maxLevels >= 0x00000007){
     eax = 0x00000007;
     ecx = 0x00000000;
@@ -191,6 +179,7 @@ struct cpuInfo* get_cpu_info() {
   else {
     printWarn("Can't read features information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000007, cpu->maxLevels);    
   }
+  
   if (cpu->maxExtendedLevels >= 0x80000001){
       eax = 0x80000001;
       cpuid(&eax, &ebx, &ecx, &edx);
@@ -202,6 +191,65 @@ struct cpuInfo* get_cpu_info() {
   }
 
   return cpu;
+}
+
+struct topology* get_topology_info(struct cpuInfo* cpu) {
+  struct topology* topo = malloc(sizeof(struct cache));
+  unsigned int eax, ebx, ecx, edx;
+  int type;
+  
+  if (cpu->maxLevels >= 0x00000001) {
+    eax = 0x00000001;
+    cpuid(&eax, &ebx, &ecx, &edx);
+    topo->ht = edx & (1 << 28);
+  }
+  else {
+    printWarn("Can't read HT information from cpuid (needed level is 0x%.8X, max is 0x%.8X). Assuming HT is disabled", 0x00000001, cpu->maxLevels); 
+    topo->ht = false;
+  }
+    
+  switch(cpu->cpu_vendor) {
+    case VENDOR_INTEL:  
+      if (cpu->maxLevels >= 0x0000000B) {
+        //TODO: This idea only works with no NUMA systems  
+        eax = 0x0000000B;
+        ecx = 0x00000000;
+        cpuid(&eax, &ebx, &ecx, &edx);
+        type = (ecx >> 8) & 0xFF;
+        if (type != 1) {
+          printBug("Unexpected type in cpuid 0x0000000B (expected 1, got %d)", type);     
+          return NULL;
+        }        
+        topo->smt = ebx & 0xFFFF;
+                
+  
+        eax = 0x0000000B;
+        ecx = 0x00000001;
+        cpuid(&eax, &ebx, &ecx, &edx); 
+        type = (ecx >> 8) & 0xFF;
+        if (type < 2) {       
+          printBug("Unexpected type in cpuid 0x0000000B (expected < 2, got %d)", type);     
+          return NULL;
+        }
+        topo->logical_cores = ebx & 0xFFFF;
+        topo->physical_cores = topo->logical_cores / topo->smt;
+      }
+      else {
+        printWarn("Can't read topology information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x0000000B, cpu->maxLevels); 
+        topo->physical_cores = 1;
+        topo->logical_cores = 1;
+        topo->smt = 1;
+      }
+      break;
+    case VENDOR_AMD:  
+      printBug("Unimplemented!");  
+      break;
+    default:
+      printBug("Cant get topology because VENDOR is empty");
+      return NULL;
+  }
+  
+  return topo;
 }
 
 // see https://stackoverflow.com/questions/12594208/c-program-to-determine-levels-size-of-cache
@@ -333,7 +381,7 @@ void debug_frequency(struct frequency* freq) {
 
 /*** STRING FUNCTIONS ***/
 
-char* get_str_peak_performance(struct cpuInfo* cpu, long freq) {
+char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, long freq) {
   /***
   PP = PeakPerformance
   SP = SinglePrecision
@@ -358,7 +406,7 @@ char* get_str_peak_performance(struct cpuInfo* cpu, long freq) {
     return string;
   }
 
-  float flops = (cpu->nThreads/cpu->HT)*(freq*1000000)*2;
+  float flops = topo->physical_cores*(freq*1000000)*2;
 
   if(cpu->FMA3 || cpu->FMA4)
     flops = flops*2;
@@ -379,20 +427,19 @@ char* get_str_peak_performance(struct cpuInfo* cpu, long freq) {
   return string;
 }
 
-char* get_str_ncores(struct cpuInfo* cpu) {
-  if(cpu->HT > 1) {
+char* get_str_topology(struct topology* topo) {
+  char* string;
+  if(topo->smt > 1) {
     //2(N.Cores)7(' cores(')3(N.Threads)9(' threads)')
     int size = 2+7+3+9+1;
-    char* string = malloc(sizeof(char)*size);
-    snprintf(string,size,"%d cores(%d threads)",cpu->nThreads/cpu->HT,cpu->nThreads);
-    return string;
+    string = malloc(sizeof(char)*size);
+    snprintf(string,size,"%d cores (%d threads)",topo->physical_cores,topo->logical_cores);
   }
   else {
-    char* string = malloc(sizeof(char)*2+7+1);
-    snprintf(string,2+7+1,"%d cores",cpu->nThreads);
-    return string;
+    string = malloc(sizeof(char)*2+7+1);
+    snprintf(string,2+7+1,"%d cores",topo->physical_cores);
   }
-
+  return string;
 }
 
 char* get_str_avx(struct cpuInfo* cpu) {
