@@ -3,7 +3,6 @@
 #include "args.h"
 #include "printer.h"
 #include "standart.h"
-#include "udev.h"
 #include "extended.h"
 #include "global.h"
 
@@ -25,7 +24,7 @@ Peak FLOPS:  512 GFLOP/s(in simple precision)
 
 ***/
 
-static const char* VERSION = "0.4";
+static const char* VERSION = "0.41";
 
 void print_help(int argc, char *argv[]) {
   printf("Usage: %s [--version] [--help] [--style STYLE]\n\
@@ -60,11 +59,11 @@ int main(int argc, char* argv[]) {
   if(cpu == NULL)
     return EXIT_FAILURE;
 
-  struct cache* cach = get_cache_info();
+  struct cache* cach = get_cache_info(cpu);
   if(cach == NULL)
     return EXIT_FAILURE;
   
-  struct frequency* freq = get_frequency_info();
+  struct frequency* freq = get_frequency_info(cpu);
   if(freq == NULL)
     return EXIT_FAILURE;
   

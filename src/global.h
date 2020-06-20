@@ -1,6 +1,7 @@
 #ifndef __GLOBAL__
 #define __GLOBAL__
 
-void printError(const char *fmt, ...);
+void printErr(const char *fmt, ...);
+void printBug(const char *fmt, ...);
 
 #endif

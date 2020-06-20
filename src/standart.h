@@ -6,13 +6,17 @@
 #define VENDOR_AMD     2
 #define VENDOR_INVALID 3
 
+struct cpuInfo;
+struct frequency;
+struct cache;
+
 typedef int VENDOR;
 
-struct cache* get_cache_info();
 struct cpuInfo* get_cpu_info();
 VENDOR get_cpu_vendor(struct cpuInfo* cpu);
-
-char* get_str_peak_performance(struct cpuInfo* cpu, long freq);
+long get_freq(struct frequency* freq);
+struct cache* get_cache_info(struct cpuInfo* cpu);
+struct frequency* get_frequency_info(struct cpuInfo* cpu);
 
 char* get_str_ncores(struct cpuInfo* cpu);
 char* get_str_avx(struct cpuInfo* cpu);
@@ -25,10 +29,16 @@ char* get_str_l1(struct cache* cach);
 char* get_str_l2(struct cache* cach);
 char* get_str_l3(struct cache* cach);
 
+char* get_str_freq(struct frequency* freq);
+
+char* get_str_peak_performance(struct cpuInfo* cpu, long freq);
+
 void free_cpuinfo_struct(struct cpuInfo* cpu);
 void free_cache_struct(struct cache* cach);
+void free_freq_struct(struct frequency* freq);
 
 void debug_cpu_info(struct cpuInfo* cpu);
-void debugCache(struct cache* cach);
+void debug_cache(struct cache* cach);
+void debug_frequency(struct frequency* freq);
 
 #endif

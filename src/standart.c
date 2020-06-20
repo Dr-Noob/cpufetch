@@ -7,14 +7,20 @@
 
 #include "standart.h"
 #include "cpuid.h"
-#include "udev.h"
 #include "global.h"
-
-#define STRING_YES  "Yes"
-#define STRING_NO   "No"
 
 #define VENDOR_INTEL_STRING "GenuineIntel"
 #define VENDOR_AMD_STRING   "AuthenticAMD"
+
+#define STRING_YES        "Yes"
+#define STRING_NO         "No"
+#define STRING_UNKNOWN    "Unknown"
+#define STRING_NONE       "None"
+#define STRING_MEGAHERZ   "MHz"
+#define STRING_GIGAHERZ   "GHz"
+#define STRING_KILOBYTES  "KB"
+
+#define UNKNOWN -1
 
 /*
  * cpuid reference: http://www.sandpile.org/x86/cpuid.htm
@@ -52,6 +58,11 @@ struct cache {
   int L1d;
   int L2;
   int L3;
+};
+
+struct frequency {
+  long base;
+  long max;
 };
 
 void init_cpu_info(struct cpuInfo* cpu) {
@@ -103,10 +114,10 @@ struct cpuInfo* get_cpu_info() {
   struct cpuInfo* cpu = malloc(sizeof(struct cpuInfo));
   init_cpu_info(cpu);
 
-  unsigned eax = 0;
-  unsigned ebx = 0;
-  unsigned ecx = 0;
-  unsigned edx = 0;
+  unsigned int eax = 0;
+  unsigned int ebx = 0;
+  unsigned int ecx = 0;
+  unsigned int edx = 0;
 
   //Get max cpuid level
   eax = 0x0000000;
@@ -187,7 +198,7 @@ struct cpuInfo* get_cpu_info() {
 }
 
 // see https://stackoverflow.com/questions/12594208/c-program-to-determine-levels-size-of-cache
-struct cache* get_cache_info() {
+struct cache* get_cache_info(struct cpuInfo* cpu) {
   struct cache* cach = malloc(sizeof(struct cache));  
   unsigned int eax, ebx, ecx, edx;
   
@@ -217,7 +228,7 @@ struct cache* get_cache_info() {
       switch (cache_type) {
         case 1: // Data Cache (We assume this is L1d)
           if(cache_level != 1) {
-            printError("Found data cache at level %d (expected 1)", cache_level);
+            printBug("Found data cache at level %d (expected 1)", cache_level);
             return NULL;
           }
           cach->L1d = cache_total_size; 
@@ -225,7 +236,7 @@ struct cache* get_cache_info() {
             
         case 2: // Instruction Cache (We assume this is L1i)
           if(cache_level != 1) {
-            printError("Found instruction cache at level %d (expected 1)", cache_level);
+            printBug("Found instruction cache at level %d (expected 1)", cache_level);
             return NULL;
           }
           cach->L1i = cache_total_size;
@@ -235,19 +246,46 @@ struct cache* get_cache_info() {
           if(cache_level == 2) cach->L2 = cache_total_size;
           else if(cache_level == 3) cach->L3 = cache_total_size;
           else {
-            printError("Found unified cache at level %d (expected == 2 or 3)", cache_level);
+            printBug("Found unified cache at level %d (expected == 2 or 3)", cache_level);
             return NULL;
           }
           break;
           
         default: // Unknown Type Cache
-          printError("Unknown Type Cache found at ID %d", i);
+          printBug("Unknown Type Cache found at ID %d", i);
           return NULL;
       }
     }      
   }
   
   return cach;
+}
+
+struct frequency* get_frequency_info(struct cpuInfo* cpu) {
+  struct frequency* freq = malloc(sizeof(struct frequency));
+  
+  if(cpu->maxLevels < 0x16) {
+    printErr("Can't read frequency information from cpuid (needed level is %d, max is %d)", 0x16, cpu->maxLevels);
+    freq->base = UNKNOWN;
+    freq->max = UNKNOWN;
+  }
+  else {
+    unsigned int eax = 0x16;
+    unsigned int ebx = 0;
+    unsigned int ecx = 0;
+    unsigned int edx = 0;
+    
+    cpuid(&eax, &ebx, &ecx, &edx);
+    
+    freq->base = eax;
+    freq->max = ebx;
+  }
+  
+  return freq;
+}
+
+long get_freq(struct frequency* freq) {
+  return freq->max;
 }
 
 VENDOR get_cpu_vendor(struct cpuInfo* cpu) {
@@ -274,11 +312,16 @@ void debug_cpu_info(struct cpuInfo* cpu) {
   printf("SHA=%s\n", cpu->SHA ? "true" : "false");
 }
 
-void debugCache(struct cache* cach) {
+void debug_cache(struct cache* cach) {
   printf("L1i=%dB\n",cach->L1i);
   printf("L1d=%dB\n",cach->L1d);
   printf("L2=%dB\n",cach->L2);
   printf("L3=%dB\n",cach->L3);
+}
+
+void debug_frequency(struct frequency* freq) {
+  printf("max f=%ldMhz\n",freq->max);
+  printf("base f=%ldMhz\n",freq->base);
 }
 
 /*** STRING FUNCTIONS ***/
@@ -308,7 +351,7 @@ char* get_str_peak_performance(struct cpuInfo* cpu, long freq) {
     return string;
   }
 
-  float flops = (cpu->nThreads/cpu->HT)*freq*2;
+  float flops = (cpu->nThreads/cpu->HT)*(freq*1000000)*2;
 
   if(cpu->FMA3 || cpu->FMA4)
     flops = flops*2;
@@ -474,6 +517,24 @@ char* get_str_l3(struct cache* cach) {
   }
 }
 
+char* get_str_freq(struct frequency* freq) {
+  //Max 3 digits and 3 for '(M/G)Hz' plus 1 for '\0'
+  unsigned int size = (4+3+1);
+  assert(strlen(STRING_UNKNOWN)+1 <= size);
+  char* string = malloc(sizeof(char)*size);
+  if(freq->max == UNKNOWN)
+    snprintf(string,strlen(STRING_UNKNOWN)+1,STRING_UNKNOWN);
+  else if(freq->max >= 1000)
+    snprintf(string,size,"%.2f"STRING_GIGAHERZ,(float)(freq->max)/1000);
+  else
+    snprintf(string,size,"%.2f"STRING_MEGAHERZ,(float)(freq->max));
+  return string;
+}
+
 void free_cache_struct(struct cache* cach) {
   free(cach);
+}
+
+void free_freq_struct(struct frequency* freq) {
+  free(freq);
 }

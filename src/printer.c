@@ -67,7 +67,7 @@ struct ascii* set_ascii(VENDOR cpuVendor, STYLE style) {
   /*** Check that number of lines of ascii art matches the number
   of spaces plus the number of lines filled with text ***/
   if(LINES_SPACE_UP+LINES_SPACE_DOWN+ATTRIBUTE_COUNT != NUMBER_OF_LINES) {
-    printError("Number of lines do not match (%d vs %d)",LINES_SPACE_UP+LINES_SPACE_DOWN+ATTRIBUTE_COUNT,NUMBER_OF_LINES);
+    printBug("Number of lines do not match (%d vs %d)",LINES_SPACE_UP+LINES_SPACE_DOWN+ATTRIBUTE_COUNT,NUMBER_OF_LINES);
     return NULL;
   }
 
@@ -86,7 +86,7 @@ struct ascii* set_ascii(VENDOR cpuVendor, STYLE style) {
         strcpy(art->color2,COL_INTEL_DARK_2);
         break;
       default:
-        printError("Found invalid style (%d)",style);
+        printBug("Found invalid style (%d)",style);
         return NULL;
     }
 
@@ -125,7 +125,7 @@ struct ascii* set_ascii(VENDOR cpuVendor, STYLE style) {
         strcpy(art->color2,COL_AMD_DARK_2);
         break;
       default:
-        printError("Found invalid style (%d)",style);
+        printBug("Found invalid style (%d)",style);
         return NULL;
     }
 
