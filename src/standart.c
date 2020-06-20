@@ -3,76 +3,68 @@
 #include <unistd.h>
 #include <string.h>
 #include <assert.h>
+#include <stdbool.h>
 
 #include "standart.h"
 #include "cpuid.h"
 #include "udev.h"
 
-#define BOOLEAN_TRUE 1
-#define BOOLEAN_FALSE 0
+#define STRING_YES  "Yes"
+#define STRING_NO   "No"
 
-/***
+#define VENDOR_INTEL_STRING "GenuineIntel"
+#define VENDOR_AMD_STRING   "AuthenticAMD"
 
-  MASTER PAGE
-  http://www.sandpile.org/x86/cpuid.htm
-
-***/
+/*
+ * cpuid reference: http://www.sandpile.org/x86/cpuid.htm
+ */
 
 struct cpuInfo {
-  /*** BOOLEAN VALUES ***/
-
-  /* (256 bits) */
-  int AVX;
-  int AVX2;
-
-  /* (512 bits) */
-  int AVX512;
-
-  /* (128 bits) */
-  int SSE;
-  int SSE2;
-  int SSE3;
-  int SSSE3;
-  int SSE4a;
-  int SSE4_1;
-  int SSE4_2;
-
-  int FMA3;
-  int FMA4;
-
-  int AES;
-  int SHA;
+  bool AVX;
+  bool AVX2;
+  bool AVX512;
+  bool SSE;
+  bool SSE2;
+  bool SSE3;
+  bool SSSE3;
+  bool SSE4a;
+  bool SSE4_1;
+  bool SSE4_2;
+  bool FMA3;
+  bool FMA4;
+  bool AES;
+  bool SHA;
 
   VENDOR cpu_vendor;
-  /*** Number of threads ***/
+  
   int nThreads;
-  /*** Threads per core(Intel HyperThreading) ***/
+  // Threads per core
   int HT;
-  /*** Max CPUIDs levels ***/
-  unsigned maxLevels;
-  /*** Max CPUIDs extended levels ***/
-  unsigned maxExtendedLevels;
+  //  Max cpuids levels
+  unsigned int maxLevels;
+  // Max cpuids extended levels
+  unsigned int maxExtendedLevels;
 };
 
-void initializeCpuInfo(struct cpuInfo* cpu) {
-  cpu->AVX    = BOOLEAN_FALSE;
-  cpu->AVX2   = BOOLEAN_FALSE;
-  cpu->AVX512 = BOOLEAN_FALSE;
-  cpu->SSE    = BOOLEAN_FALSE;
-  cpu->SSE2   = BOOLEAN_FALSE;
-  cpu->SSE3   = BOOLEAN_FALSE;
-  cpu->SSSE3  = BOOLEAN_FALSE;
-  cpu->SSE4a  = BOOLEAN_FALSE;
-  cpu->SSE4_1 = BOOLEAN_FALSE;
-  cpu->SSE4_2 = BOOLEAN_FALSE;
-  cpu->FMA3   = BOOLEAN_FALSE;
-  cpu->FMA4   = BOOLEAN_FALSE;
-  cpu->AES    = BOOLEAN_FALSE;
-  cpu->SHA    = BOOLEAN_FALSE;
+void init_cpu_info(struct cpuInfo* cpu) {
+  cpu->AVX    = false;
+  cpu->AVX2   = false;
+  cpu->AVX512 = false;
+  cpu->SSE    = false;
+  cpu->SSE2   = false;
+  cpu->SSE3   = false;
+  cpu->SSSE3  = false;
+  cpu->SSE4a  = false;
+  cpu->SSE4_1 = false;
+  cpu->SSE4_2 = false;
+  cpu->FMA3   = false;
+  cpu->FMA4   = false;
+  cpu->AES    = false;
+  cpu->SHA    = false;
 }
 
 #define MASK 0xFF
-VENDOR getCPUVendor(unsigned eax,unsigned ebx,unsigned ecx,unsigned edx) {
+VENDOR get_cpu_vendor_internal(unsigned eax,unsigned ebx,unsigned ecx,unsigned edx) {
   char name[13];
   memset(name,0,13);
   name[__COUNTER__] = ebx       & MASK;
@@ -99,10 +91,9 @@ VENDOR getCPUVendor(unsigned eax,unsigned ebx,unsigned ecx,unsigned edx) {
   return VENDOR_INVALID;
 }
 
-struct cpuInfo* getCPUInfo() {
+struct cpuInfo* get_cpu_info() {
   struct cpuInfo* cpu = malloc(sizeof(struct cpuInfo));
-  memset(cpu,0,sizeof(struct cpuInfo));
-  initializeCpuInfo(cpu);
+  init_cpu_info(cpu);
 
   unsigned eax = 0;
   unsigned ebx = 0;
@@ -115,7 +106,7 @@ struct cpuInfo* getCPUInfo() {
   cpu->maxLevels = eax;
 
   //Fill vendor
-  cpu->cpu_vendor = getCPUVendor(eax,ebx,ecx,edx);
+  cpu->cpu_vendor = get_cpu_vendor_internal(eax,ebx,ecx,edx);
   if(cpu->cpu_vendor == VENDOR_INVALID) {
     printf("ERROR: CPU vendor is neither AMD nor INTEL\n");
     return NULL;
@@ -141,7 +132,7 @@ struct cpuInfo* getCPUInfo() {
     }
   }
   else {
-    //We can afford this check, assume 1
+    //We cant afford this check, assume 1
     cpu->HT = 1;
   }
 
@@ -154,8 +145,8 @@ struct cpuInfo* getCPUInfo() {
     cpu->SSE3   = (ecx & ((int)1 <<  0)) != 0;
 
     cpu->SSSE3  = (ecx & ((int)1 <<  9)) != 0;
-    cpu->SSE4_1  = (ecx & ((int)1 << 19)) != 0;
-    cpu->SSE4_2  = (ecx & ((int)1 << 20)) != 0;
+    cpu->SSE4_1 = (ecx & ((int)1 << 19)) != 0;
+    cpu->SSE4_2 = (ecx & ((int)1 << 20)) != 0;
 
     cpu->AES    = (ecx & ((int)1 << 25)) != 0;
 
@@ -169,12 +160,12 @@ struct cpuInfo* getCPUInfo() {
     cpu->AVX2         = (ebx & ((int)1 <<  5)) != 0;
     cpu->SHA          = (ebx & ((int)1 << 29)) != 0;
     cpu->AVX512       = (((ebx & ((int)1 << 16)) != 0) ||
-                        ((ebx & ((int)1 << 28)) != 0) ||
-                        ((ebx & ((int)1 << 26)) != 0) ||
-                        ((ebx & ((int)1 << 27)) != 0) ||
-                        ((ebx & ((int)1 << 31)) != 0) ||
-                        ((ebx & ((int)1 << 30)) != 0) ||
-                        ((ebx & ((int)1 << 17)) != 0) ||
+                        ((ebx & ((int)1 << 28)) != 0)  ||
+                        ((ebx & ((int)1 << 26)) != 0)  ||
+                        ((ebx & ((int)1 << 27)) != 0)  ||
+                        ((ebx & ((int)1 << 31)) != 0)  ||
+                        ((ebx & ((int)1 << 30)) != 0)  ||
+                        ((ebx & ((int)1 << 17)) != 0)  ||
                         ((ebx & ((int)1 << 21)) != 0));
   }
   if (cpu->maxExtendedLevels >= 0x80000001){
@@ -187,7 +178,11 @@ struct cpuInfo* getCPUInfo() {
   return cpu;
 }
 
-void debugCpuInfo(struct cpuInfo* cpu) {
+VENDOR get_cpu_vendor(struct cpuInfo* cpu) {
+  return cpu->cpu_vendor;
+}
+
+void debug_cpu_info(struct cpuInfo* cpu) {
   printf("AVX=%s\n", cpu->AVX ? "true" : "false");
   printf("AVX2=%s\n", cpu->AVX2 ? "true" : "false");
   printf("AVX512=%s\n\n", cpu->AVX512 ? "true" : "false");
@@ -209,7 +204,7 @@ void debugCpuInfo(struct cpuInfo* cpu) {
 
 /*** STRING FUNCTIONS ***/
 
-char* getPeakPerformance(struct cpuInfo* cpu, long freq) {
+char* get_str_peak_performance(struct cpuInfo* cpu, long freq) {
   /***
   PP = PeakPerformance
   SP = SinglePrecision
@@ -255,11 +250,7 @@ char* getPeakPerformance(struct cpuInfo* cpu, long freq) {
   return string;
 }
 
-VENDOR getCPUVendorInternal(struct cpuInfo* cpu) {
-  return cpu->cpu_vendor;
-}
-
-char* getString_NumberCores(struct cpuInfo* cpu) {
+char* get_str_ncores(struct cpuInfo* cpu) {
   if(cpu->HT > 1) {
     //2(N.Cores)7(' cores(')3(N.Threads)9(' threads)')
     int size = 2+7+3+9+1;
@@ -275,14 +266,14 @@ char* getString_NumberCores(struct cpuInfo* cpu) {
 
 }
 
-char* getString_AVX(struct cpuInfo* cpu) {
+char* get_str_avx(struct cpuInfo* cpu) {
   //If all AVX are available, it will use up to 15
   char* string = malloc(sizeof(char)*15+1);
-  if(cpu->AVX == BOOLEAN_FALSE)
+  if(!cpu->AVX)
     snprintf(string,2+1,"No");
-  else if(cpu->AVX2 == BOOLEAN_FALSE)
+  else if(!cpu->AVX2)
     snprintf(string,3+1,"AVX");
-  else if(cpu->AVX512 == BOOLEAN_FALSE)
+  else if(!cpu->AVX512)
     snprintf(string,8+1,"AVX,AVX2");
   else
     snprintf(string,15+1,"AVX,AVX2,AVX512");
@@ -290,7 +281,7 @@ char* getString_AVX(struct cpuInfo* cpu) {
   return string;
 }
 
-char* getString_SSE(struct cpuInfo* cpu) {
+char* get_str_sse(struct cpuInfo* cpu) {
   int last = 0;
   int SSE_sl = 4;
   int SSE2_sl = 5;
@@ -301,31 +292,31 @@ char* getString_SSE(struct cpuInfo* cpu) {
   int SSE4_2_sl = 7;
   char* string = malloc(sizeof(char)*SSE_sl+SSE2_sl+SSE3_sl+SSSE3_sl+SSE4a_sl+SSE4_1_sl+SSE4_2_sl+1);
 
-  if(cpu->SSE == BOOLEAN_TRUE) {
+  if(!cpu->SSE) {
       snprintf(string+last,SSE_sl+1,"SSE,");
       last+=SSE_sl;
   }
-  if(cpu->SSE2 == BOOLEAN_TRUE) {
+  if(!cpu->SSE2) {
       snprintf(string+last,SSE2_sl+1,"SSE2,");
       last+=SSE2_sl;
   }
-  if(cpu->SSE3 == BOOLEAN_TRUE) {
+  if(!cpu->SSE3) {
       snprintf(string+last,SSE3_sl+1,"SSE3,");
       last+=SSE3_sl;
   }
-  if(cpu->SSSE3 == BOOLEAN_TRUE) {
+  if(!cpu->SSSE3) {
       snprintf(string+last,SSSE3_sl+1,"SSSE3,");
       last+=SSSE3_sl;
   }
-  if(cpu->SSE4a == BOOLEAN_TRUE) {
+  if(!cpu->SSE4a) {
       snprintf(string+last,SSE4a_sl+1,"SSE4a,");
       last+=SSE4a_sl;
   }
-  if(cpu->SSE4_1 == BOOLEAN_TRUE) {
+  if(!cpu->SSE4_1) {
       snprintf(string+last,SSE4_1_sl+1,"SSE4_1,");
       last+=SSE4_1_sl;
   }
-  if(cpu->SSE4_2 == BOOLEAN_TRUE) {
+  if(!cpu->SSE4_2) {
       snprintf(string+last,SSE4_2_sl+1,"SSE4_2,");
       last+=SSE4_2_sl;
   }
@@ -335,11 +326,11 @@ char* getString_SSE(struct cpuInfo* cpu) {
   return string;
 }
 
-char* getString_FMA(struct cpuInfo* cpu) {
+char* get_str_fma(struct cpuInfo* cpu) {
   char* string = malloc(sizeof(char)*9+1);
-  if(cpu->FMA3 == BOOLEAN_FALSE)
+  if(!cpu->FMA3)
     snprintf(string,2+1,"No");
-  else if(cpu->FMA4 == BOOLEAN_FALSE)
+  else if(!cpu->FMA4)
     snprintf(string,4+1,"FMA3");
   else
     snprintf(string,9+1,"FMA3,FMA4");
@@ -347,18 +338,18 @@ char* getString_FMA(struct cpuInfo* cpu) {
   return string;
 }
 
-char* getString_AES(struct cpuInfo* cpu) {
+char* get_str_aes(struct cpuInfo* cpu) {
   char* string = malloc(sizeof(char)*3+1);
-  if(cpu->AES == BOOLEAN_TRUE)
+  if(cpu->AES)
     snprintf(string,3+1,STRING_YES);
   else
     snprintf(string,2+1,STRING_NO);
   return string;
 }
 
-char* getString_SHA(struct cpuInfo* cpu) {
+char* get_str_sha(struct cpuInfo* cpu) {
   char* string = malloc(sizeof(char)*3+1);
-  if(cpu->SHA == BOOLEAN_TRUE)
+  if(cpu->SHA)
     snprintf(string,3+1,STRING_YES);
   else
     snprintf(string,2+1,STRING_NO);

@@ -6,6 +6,20 @@
 
 #include "udev.h"
 
+#define _PATH_SYS_SYSTEM    "/sys/devices/system"
+#define _PATH_SYS_CPU       _PATH_SYS_SYSTEM"/cpu"
+#define _PATH_ONE_CPU       _PATH_SYS_CPU"/cpu0"
+
+#define _PATH_FREQUENCY     _PATH_ONE_CPU"/cpufreq"
+#define _PATH_FREQUENCY_MAX _PATH_FREQUENCY"/cpuinfo_max_freq"
+#define _PATH_FREQUENCY_MIN _PATH_FREQUENCY"/cpuinfo_min_freq"
+
+#define _PATH_CPU_CACHE     _PATH_ONE_CPU"/cache"
+#define _PATH_CACHE_L1d     _PATH_CPU_CACHE"/index0/size"
+#define _PATH_CACHE_L1i     _PATH_CPU_CACHE"/index1/size"
+#define _PATH_CACHE_L2      _PATH_CPU_CACHE"/index2/size"
+#define _PATH_CACHE_L3      _PATH_CPU_CACHE"/index3/size"
+
 struct cache {
   int L1i;
   int L1d;
@@ -18,14 +32,8 @@ struct frequency {
   long min;
 };
 
-/***
-
-Parses buf which should be expressed in the way:
-xxxxK where 'x' are numbers and 'K' refers to kilobytes.
-Returns the size as a int in bytes
-
-***/
-
+// Parses buf which should be expressed in the way: xxxxK where 'x' are numbers and 'K' refers to kilobytes. 
+// Returns the size as a int in bytes
 int getSize(char* buf, int size) {
   char* end = strstr (buf,"K");
   if(end == NULL) {
@@ -41,22 +49,15 @@ int getSize(char* buf, int size) {
   return cachsize;
 }
 
-/***
-
-Returns size(in bytes) of cache described by path or
-UNKNOWN if the cache doest no exists
-
-***/
-
-//Sacar factor comun lectura
-//Block pasar de 1 a 1000
+// Returns size(in bytes) of cache described by path or UNKNOWN if the cache doest no exists
+//TODO: We use reads in various places, refactor
 int getCache(char* path) {
   FILE *file = fopen(path, "r");
 
-	if(file == NULL) {
+  if(file == NULL) {
     //Doest not exist
-		return UNKNOWN;
-	}
+    return UNKNOWN;
+  }
 
   //File exists, read it
   int fd = fileno(file);
@@ -64,7 +65,7 @@ int getCache(char* path) {
   int offset = 0;
   int block = DEFAULT_BLOCK_SIZE;
   char* buf = malloc(sizeof(char)*DEFAULT_FILE_SIZE);
-	memset(buf, 0, sizeof(char)*DEFAULT_FILE_SIZE);
+  memset(buf, 0, sizeof(char)*DEFAULT_FILE_SIZE);
 
   do {
     bytes_read = read(fd, buf+offset, block);
@@ -73,18 +74,14 @@ int getCache(char* path) {
 
   //Move size from kb to bytes
   int ret = getSize(buf,offset)*1024;
-	free(buf);
+  free(buf);
   fclose(file);
+  
   return ret;
 }
 
-/***
-
-Returns CPU frequency in Hz
-
-***/
-
-long getFrequencyFromFile(char* path) {
+// Returns CPU frequency in Hz
+long get_freq_from_file(char* path) {
   FILE *file = fopen(path, "r");
 
   if(file == NULL) {
@@ -107,20 +104,19 @@ long getFrequencyFromFile(char* path) {
   int ret = atoi(buf);
   free(buf);
   if(ret == 0) {
-    printf("error in getFrequencyFromFile\n");
+    printf("error in get_freq_from_file\n");
     return UNKNOWN;
   }
   fclose(file);
   return (long)ret*1000;
 }
 
-long getFrequency(struct frequency* freq) {
+long get_freq(struct frequency* freq) {
   return freq->max;
 }
 
-/*** GET_STRING ***/
-
-char* getString_L1(struct cache* cach) {
+// String functions
+char* get_str_l1(struct cache* cach) {
   //Max 2 digits,2 for 'KB',6 for '(Data)'
   //and 14 for '(Instructions)'
   int size = (2*(2+2)+6+14+1);
@@ -129,7 +125,7 @@ char* getString_L1(struct cache* cach) {
   return string;
 }
 
-char* getString_L2(struct cache* cach) {
+char* get_str_l2(struct cache* cach) {
   if(cach->L2 == UNKNOWN) {
     char* string = malloc(sizeof(char)*5);
     snprintf(string,5,STRING_NONE);
@@ -144,7 +140,7 @@ char* getString_L2(struct cache* cach) {
   }
 }
 
-char* getString_L3(struct cache* cach) {
+char* get_str_l3(struct cache* cach) {
   if(cach->L3 == UNKNOWN) {
     char* string = malloc(sizeof(char)*5);
     snprintf(string,5,STRING_NONE);
@@ -159,7 +155,7 @@ char* getString_L3(struct cache* cach) {
   }
 }
 
-char* getString_MaxFrequency(struct frequency* freq) {
+char* get_str_freq(struct frequency* freq) {
   //Max 3 digits and 3 for '(M/G)Hz' plus 1 for '\0'
   unsigned int size = (4+3+1);
   assert(strlen(STRING_UNKNOWN)+1 <= size);
@@ -173,33 +169,33 @@ char* getString_MaxFrequency(struct frequency* freq) {
   return string;
 }
 
-/*** CREATES AND FREES ***/
-
-struct cache* new_cache() {
+struct cache* get_cache_info() {
   struct cache* cach = malloc(sizeof(struct cache));
+  
   cach->L1i = getCache(_PATH_CACHE_L1i);
   cach->L1d = getCache(_PATH_CACHE_L1d);
   cach->L2 = getCache(_PATH_CACHE_L2);
   cach->L3 = getCache(_PATH_CACHE_L3);
+  
   return cach;
 }
 
-struct frequency* new_frequency() {
+struct frequency* get_frequency_info() {
   struct frequency* freq = malloc(sizeof(struct frequency));
-  freq->max = getFrequencyFromFile(_PATH_FREQUENCY_MAX);
-  freq->min = getFrequencyFromFile(_PATH_FREQUENCY_MIN);
+  
+  freq->max = get_freq_from_file(_PATH_FREQUENCY_MAX);
+  freq->min = get_freq_from_file(_PATH_FREQUENCY_MIN);
+  
   return freq;
 }
 
-void freeCache(struct cache* cach) {
+void free_cache_struct(struct cache* cach) {
   free(cach);
 }
 
-void freeFrequency(struct frequency* freq) {
+void free_freq_struct(struct frequency* freq) {
   free(freq);
 }
-
-/*** DEBUGING ***/
 
 void debugCache(struct cache* cach) {
   printf("L1i=%dB\n",cach->L1i);

@@ -25,21 +25,21 @@ Peak FLOPS:  512 GFLOP/s(in simple precision)
 
 ***/
 
-static const char* VERSION = "0.33";
+static const char* VERSION = "0.34";
 
-void help(int argc, char *argv[]) {
-	printf("Usage: %s [--version] [--help] [--style STYLE]\n\
-       Options: \n\
-       --style    Set logo style color\n\
-           default:   Default style color\n\
-           dark:      Dark style color\n\
-       --help     Print this help and exit\n\
-       --version  Print cpufetch version and exit\n",
-			argv[0]);
+void print_help(int argc, char *argv[]) {
+  printf("Usage: %s [--version] [--help] [--style STYLE]\n\
+Options: \n\
+  --style    Set logo style color\n\
+    default:   Default style color\n\
+    dark:      Dark style color\n\
+  --help     Print this help and exit\n\
+  --version  Print cpufetch version and exit\n",
+  argv[0]);
 }
 
-void version() {
-	printf("cpufetch v%s\n",VERSION);
+void print_version() {
+  printf("cpufetch v%s\n",VERSION);
 }
 
 int main(int argc, char* argv[]) {
@@ -47,37 +47,37 @@ int main(int argc, char* argv[]) {
     return EXIT_FAILURE;
 
   if(showHelp()) {
-    help(argc,argv);
+    print_help(argc, argv);
     return EXIT_SUCCESS;
   }
 
-	if(showVersion()) {
-		version();
-		return EXIT_SUCCESS;
-	}
+  if(showVersion()) {
+    print_version();
+    return EXIT_SUCCESS;
+  }
 
-  struct cpuInfo* cpu = getCPUInfo();
+  struct cpuInfo* cpu = get_cpu_info();
   if(cpu == NULL)
     return EXIT_FAILURE;
 
-  struct cache* cach = new_cache();
-  struct frequency* freq = new_frequency();
-  struct ascii* art = set_ascii(getCPUVendorInternal(cpu),getStyle());
+  struct cache* cach = get_cache_info();
+  struct frequency* freq = get_frequency_info();
+  struct ascii* art = set_ascii(get_cpu_vendor(cpu),getStyle());
   if(art == NULL)
     return EXIT_FAILURE;
 
-  char* cpuName = getString_CPUName();
-  char* maxFrequency = getString_MaxFrequency(freq);
-  char* nCores = getString_NumberCores(cpu);
-  char* avx = getString_AVX(cpu);
-  char* sse = getString_SSE(cpu);
-  char* fma = getString_FMA(cpu);
-  char* aes = getString_AES(cpu);
-  char* sha = getString_SHA(cpu);
-  char* l1 = getString_L1(cach);
-  char* l2 = getString_L2(cach);
-  char* l3 = getString_L3(cach);
-  char* pp = getPeakPerformance(cpu,getFrequency(freq));
+  char* cpuName = get_str_cpu_name();
+  char* maxFrequency = get_str_freq(freq);
+  char* nCores = get_str_ncores(cpu);
+  char* avx = get_str_avx(cpu);
+  char* sse = get_str_sse(cpu);
+  char* fma = get_str_fma(cpu);
+  char* aes = get_str_aes(cpu);
+  char* sha = get_str_sha(cpu);
+  char* l1 = get_str_l1(cach);
+  char* l2 = get_str_l2(cach);
+  char* l3 = get_str_l3(cach);
+  char* pp = get_str_peak_performance(cpu,get_freq(freq));
 
   setAttribute(art,ATTRIBUTE_NAME,cpuName);
   setAttribute(art,ATTRIBUTE_FREQUENCY,maxFrequency);
@@ -109,8 +109,8 @@ int main(int argc, char* argv[]) {
 
   free(cpu);
   free(art);
-  freeCache(cach);
-  freeFrequency(freq);
+  free_cache_struct(cach);
+  free_freq_struct(freq);
 
   return EXIT_SUCCESS;
 }

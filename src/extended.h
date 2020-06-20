@@ -5,6 +5,6 @@
 #include "cpuid.h"
 #include <stdlib.h>
 
-char* getString_CPUName();
+char* get_str_cpu_name();
 
 #endif

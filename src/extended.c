@@ -2,11 +2,11 @@
 #include <string.h>
 #include "extended.h"
 
-char* getString_CPUName() {
-  unsigned eax = 0;
-  unsigned ebx = 0;
-  unsigned ecx = 0;
-  unsigned edx = 0;
+char* get_str_cpu_name() {
+  unsigned int eax = 0;
+  unsigned int ebx = 0;
+  unsigned int ecx = 0;
+  unsigned int edx = 0;
   
   char name[64];
   memset(name,0,64);
