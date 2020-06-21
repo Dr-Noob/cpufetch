@@ -488,31 +488,31 @@ char* get_str_sse(struct cpuInfo* cpu) {
   int SSE4_2_sl = 7;
   char* string = malloc(sizeof(char)*SSE_sl+SSE2_sl+SSE3_sl+SSSE3_sl+SSE4a_sl+SSE4_1_sl+SSE4_2_sl+1);
 
-  if(!cpu->SSE) {
+  if(cpu->SSE) {
       snprintf(string+last,SSE_sl+1,"SSE,");
       last+=SSE_sl;
   }
-  if(!cpu->SSE2) {
+  if(cpu->SSE2) {
       snprintf(string+last,SSE2_sl+1,"SSE2,");
       last+=SSE2_sl;
   }
-  if(!cpu->SSE3) {
+  if(cpu->SSE3) {
       snprintf(string+last,SSE3_sl+1,"SSE3,");
       last+=SSE3_sl;
   }
-  if(!cpu->SSSE3) {
+  if(cpu->SSSE3) {
       snprintf(string+last,SSSE3_sl+1,"SSSE3,");
       last+=SSSE3_sl;
   }
-  if(!cpu->SSE4a) {
+  if(cpu->SSE4a) {
       snprintf(string+last,SSE4a_sl+1,"SSE4a,");
       last+=SSE4a_sl;
   }
-  if(!cpu->SSE4_1) {
+  if(cpu->SSE4_1) {
       snprintf(string+last,SSE4_1_sl+1,"SSE4_1,");
       last+=SSE4_1_sl;
   }
-  if(!cpu->SSE4_2) {
+  if(cpu->SSE4_2) {
       snprintf(string+last,SSE4_2_sl+1,"SSE4_2,");
       last+=SSE4_2_sl;
   }
