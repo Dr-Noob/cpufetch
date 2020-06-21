@@ -436,7 +436,7 @@ char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, long 
   
   // Intel USUALLY has two VPUs. I have never seen an AMD 
   // with two VPUs.
-  if(cpu->VENDOR == VENDOR_INTEL) flops = flops * 2; 
+  if(cpu->cpu_vendor == VENDOR_INTEL) flops = flops * 2; 
 
   if(cpu->FMA3 || cpu->FMA4)
     flops = flops*2;
