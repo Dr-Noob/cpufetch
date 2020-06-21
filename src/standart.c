@@ -255,7 +255,7 @@ struct topology* get_topology_info(struct cpuInfo* cpu) {
 
 // see https://stackoverflow.com/questions/12594208/c-program-to-determine-levels-size-of-cache
 struct cache* get_cache_info(struct cpuInfo* cpu) {
-  struct cache* cach = malloc(sizeof(struct cache));  
+  struct cache* cach = malloc(sizeof(struct cache));    
   unsigned int eax, ebx, ecx, edx;
   
   // We suppose there are 4 caches (at most)
@@ -311,7 +311,13 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
           printBug("Unknown Type Cache found at ID %d", i);
           return NULL;
       }
-    }      
+    }    
+    else if(i == 2) cach->L2 = UNKNOWN;
+    else if(i == 3) cach->L3 = UNKNOWN; 
+    else {
+      printBug("Could not find cache ID %d", i);
+      return NULL;    
+    }    
   }
   
   // Sanity checks. If we read values greater than this, they can't be valid ones
@@ -324,11 +330,11 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
     printBug("Invalid L1d size: %dKB\n", cach->L1d/1024);
     return NULL;
   }
-  if(cach->L2 > 2 * 1048576) {
+  if(cach->L2 != UNKNOWN && cach->L2 > 2 * 1048576) {
     printBug("Invalid L2 size: %dMB\n", cach->L2/(1048576));
     return NULL;
   }
-  if(cach->L3 > 100 * 1048576) {
+  if(cach->L3 != UNKNOWN && cach->L3 > 100 * 1048576) {
     printBug("Invalid L3 size: %dMB\n", cach->L3/(1048576));
     return NULL;
   }
@@ -426,7 +432,11 @@ char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, long 
     return string;
   }
 
-  float flops = topo->physical_cores*(freq*1000000)*2;
+  float flops = topo->physical_cores*(freq*1000000);
+  
+  // Intel USUALLY has two VPUs. I have never seen an AMD 
+  // with two VPUs.
+  if(cpu->VENDOR == VENDOR_INTEL) flops = flops * 2; 
 
   if(cpu->FMA3 || cpu->FMA4)
     flops = flops*2;
@@ -450,14 +460,15 @@ char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, long 
 char* get_str_topology(struct topology* topo) {
   char* string;
   if(topo->smt > 1) {
-    //2(N.Cores)7(' cores(')3(N.Threads)9(' threads)')
-    int size = 2+7+3+9+1;
+    //3 for digits, 8 for ' cores (', 3 for digits, 9 for ' threads)'
+    int size = 3+8+3+9+1;
     string = malloc(sizeof(char)*size);
-    snprintf(string,size,"%d cores (%d threads)",topo->physical_cores,topo->logical_cores);
+    snprintf(string, size, "%d cores (%d threads)",topo->physical_cores,topo->logical_cores);
   }
   else {
-    string = malloc(sizeof(char)*2+7+1);
-    snprintf(string,2+7+1,"%d cores",topo->physical_cores);
+    int size = 3+7+1;
+    string = malloc(sizeof(char)*size);
+    snprintf(string, size, "%d cores",topo->physical_cores);
   }
   return string;
 }
@@ -572,7 +583,7 @@ char* get_str_l2(struct cache* cach) {
   else {
     int sanity_ret;  
     char* string;
-    if(cach->L2/1024 > 1024) {
+    if(cach->L2/1024 >= 1024) {
       //1 for digit, 2 for 'MB'
       int size = (1+2+1);    
       string = malloc(sizeof(char)*size);
@@ -598,7 +609,7 @@ char* get_str_l3(struct cache* cach) {
   else {
     int sanity_ret;  
     char* string;
-    if(cach->L3/1024 > 1024) {
+    if(cach->L3/1024 >= 1024) {
       //1 for digit, 2 for 'MB'
       int size = (1+2+1);    
       string = malloc(sizeof(char)*size);
