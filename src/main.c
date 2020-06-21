@@ -32,6 +32,7 @@ Options: \n\
   --style    Set logo style color\n\
     default:   Default style color\n\
     dark:      Dark style color\n\
+    none:      Don't use colors\n\
   --help     Print this help and exit\n\
   --version  Print cpufetch version and exit\n",
   argv[0]);

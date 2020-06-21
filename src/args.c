@@ -11,6 +11,7 @@
 #define ARG_CHAR_VERSION  'v'
 #define STYLE_STR_1 "default"
 #define STYLE_STR_2 "dark"
+#define STYLE_STR_3 "none"
 
 struct args_struct {
   int help_flag;
@@ -18,7 +19,7 @@ struct args_struct {
   STYLE style;
 };
 
-static const char* SYTLES_STR_LIST[STYLES_COUNT] = { STYLE_STR_1, STYLE_STR_2 };
+static const char* SYTLES_STR_LIST[STYLES_COUNT] = { STYLE_STR_1, STYLE_STR_2, STYLE_STR_3 };
 static struct args_struct args;
 
 STYLE parseStyle(char* style) {
@@ -47,13 +48,13 @@ bool verbose_enabled() {
   return false;
 }
 
-int parseArgs(int argc, char* argv[]) {
+bool parseArgs(int argc, char* argv[]) {
   int c;
   int digit_optind = 0;
   int option_index = 0;
   opterr = 0;
 
-  args.help_flag = BOOLEAN_FALSE;
+  args.help_flag = false;
   args.style = STYLE_EMPTY;
 
   static struct option long_options[] = {
@@ -69,31 +70,31 @@ int parseArgs(int argc, char* argv[]) {
      if(c == ARG_CHAR_STYLE) {
        if(args.style != STYLE_EMPTY) {
          printf("ERROR: Style option specified more than once\n");
-         return BOOLEAN_FALSE;
+         return false;
        }
        args.style = parseStyle(optarg);
        if(args.style == STYLE_INVALID) {
           printf("ERROR: Invalid style '%s'\n",optarg);
-          return BOOLEAN_FALSE;
+          return false;
        }
      }
      else if(c == ARG_CHAR_HELP) {
        if(args.help_flag) {
          printf("ERROR: Help option specified more than once\n");
-         return BOOLEAN_FALSE;
+         return false;
        }
-       args.help_flag  = BOOLEAN_TRUE;
+       args.help_flag  = true;
      }
      else if (c == ARG_CHAR_VERSION) {
        if(args.version_flag) {
          printf("ERROR: Version option specified more than once\n");
-         return BOOLEAN_FALSE;
+         return false;
        }
-       args.version_flag = BOOLEAN_TRUE;
+       args.version_flag = true;
      }
      else if(c == '?') {
        printf("WARNING: Invalid options\n");
-       args.help_flag  = BOOLEAN_TRUE;
+       args.help_flag  = true;
        break;
      }
      else
@@ -105,13 +106,13 @@ int parseArgs(int argc, char* argv[]) {
 
   if (optind < argc) {
     printf("WARNING: Invalid options\n");
-    args.help_flag  = BOOLEAN_TRUE;
+    args.help_flag  = true;
   }
 
   if((args.help_flag + args.version_flag + (args.style != STYLE_EMPTY)) > 1) {
     printf("WARNING: You should specify just one option\n");
-    args.help_flag  = BOOLEAN_TRUE;
+    args.help_flag  = true;
   }
 
-  return BOOLEAN_TRUE;
+  return true;
 }
