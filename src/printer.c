@@ -51,6 +51,7 @@ struct ascii {
   char art[NUMBER_OF_LINES][LINE_SIZE];
   char color1[10];
   char color2[10];
+  char reset[10];
   char* atributes[ATTRIBUTE_COUNT];
   VENDOR vendor;
 };
@@ -73,48 +74,47 @@ struct ascii* set_ascii(VENDOR cpuVendor, STYLE style) {
     return NULL;
   }
 
+  char *COL_DEFAULT_1, *COL_DEFAULT_2, *COL_DARK_1, *COL_DARK_2;
   struct ascii* art = malloc(sizeof(struct ascii));
   art->vendor = cpuVendor;
+  strcpy(art->reset,RESET);
   
   if(cpuVendor == VENDOR_INTEL) {
-    switch (style) {      
-      case STYLE_EMPTY:
-      case STYLE_DEFAULT:
-        strcpy(art->color1,COL_INTEL_DEFAULT_1);
-        strcpy(art->color2,COL_INTEL_DEFAULT_2);
-        break;
-      case STYLE_DARK:
-        strcpy(art->color1,COL_INTEL_DARK_1);
-        strcpy(art->color2,COL_INTEL_DARK_2);
-        break;
-      case STYLE_NONE:
-        strcpy(art->color1,COL_NONE);
-        strcpy(art->color2,COL_NONE);
-        break;  
-      default:
-        printBug("Found invalid style (%d)",style);
-        return NULL;
-    }           
+    COL_DEFAULT_1 = COL_INTEL_DEFAULT_1;
+    COL_DEFAULT_2 = COL_INTEL_DEFAULT_2;
+    COL_DARK_1 = COL_INTEL_DARK_1;
+    COL_DARK_2 = COL_INTEL_DARK_2;
   }
   else {
-    switch (style) {
-      case STYLE_EMPTY:
-      case STYLE_DEFAULT:
-        strcpy(art->color1,COL_AMD_DEFAULT_1);
-        strcpy(art->color2,COL_AMD_DEFAULT_2);
-        break;
-      case STYLE_DARK:
-        strcpy(art->color1,COL_AMD_DARK_1);
-        strcpy(art->color2,COL_AMD_DARK_2);
-        break;
-      case STYLE_NONE:
+    COL_DEFAULT_1 = COL_AMD_DEFAULT_1;
+    COL_DEFAULT_2 = COL_AMD_DEFAULT_2;
+    COL_DARK_1 = COL_AMD_DARK_1;
+    COL_DARK_2 = COL_AMD_DARK_2;    
+  }
+  
+  switch(style) {
+    case STYLE_NONE:
         strcpy(art->color1,COL_NONE);
         strcpy(art->color2,COL_NONE);
-        break;  
-      default:
-        printBug("Found invalid style (%d)",style);
-        return NULL;
-    }
+        break; 
+    case STYLE_EMPTY:
+      #ifdef _WIN32
+        strcpy(art->color1,COL_NONE);
+        strcpy(art->color2,COL_NONE);  
+        art->reset[0] = '\0';
+        break;
+      #endif
+    case STYLE_DEFAULT:
+      strcpy(art->color1,COL_DEFAULT_1);
+      strcpy(art->color2,COL_DEFAULT_2);
+      break;
+    case STYLE_DARK:
+      strcpy(art->color1,COL_DARK_1);
+      strcpy(art->color2,COL_DARK_2);
+      break;
+    default:
+      printBug("Found invalid style (%d)",style);
+      return NULL;    
   }
   
   char tmp[NUMBER_OF_LINES*LINE_SIZE];
@@ -139,12 +139,12 @@ void print_ascii_intel(struct ascii* art) {
           printf("%c",art->art[n][i]);
         }
         else
-          printf("%s%c" RESET,art->color1,art->art[n][i]);
+          printf("%s%c%s", art->color1, art->art[n][i], art->reset);
       }
       else {
         if(art->art[n][i] != ' ') {
           flag = true;
-          printf("%s%c" RESET,art->color2,art->art[n][i]);
+          printf("%s%c%s", art->color2, art->art[n][i], art->reset);
         }
         else
           printf("%c",art->art[n][i]);
@@ -153,7 +153,7 @@ void print_ascii_intel(struct ascii* art) {
 
     /*** PRINT ATTRIBUTE ***/
     if(n>LINES_SPACE_UP-1 && n<NUMBER_OF_LINES-LINES_SPACE_DOWN)
-      printf("%s%s%s%s"RESET"\n",art->color1,ATTRIBUTE_FIELDS[n-LINES_SPACE_UP],art->color2,art->atributes[n-LINES_SPACE_UP]);
+      printf("%s%s%s%s%s\n",art->color1,ATTRIBUTE_FIELDS[n-LINES_SPACE_UP],art->color2,art->atributes[n-LINES_SPACE_UP],art->reset);
     else printf("\n");
   }
 }
@@ -164,16 +164,16 @@ void print_ascii_amd(struct ascii* art) {
     /*** PRINT ASCII-ART ***/
     for(int i=0;i<LINE_SIZE;i++) {
       if(art->art[n][i] == '@')
-        printf("%s%c" RESET,art->color1,art->art[n][i]);
+        printf("%s%c%s", art->color1, art->art[n][i], art->reset);
       else if(art->art[n][i] == '#')
-        printf("%s%c" RESET,art->color2,art->art[n][i]);
+        printf("%s%c%s", art->color2, art->art[n][i], art->reset);
       else
         printf("%c",art->art[n][i]);
     }
 
     /*** PRINT ATTRIBUTE ***/
     if(n>LINES_SPACE_UP-1 && n<NUMBER_OF_LINES-LINES_SPACE_DOWN)
-      printf("%s%s%s%s"RESET"\n",art->color1,ATTRIBUTE_FIELDS[n-LINES_SPACE_UP],art->color2,art->atributes[n-LINES_SPACE_UP]);
+      printf("%s%s%s%s%s\n",art->color1,ATTRIBUTE_FIELDS[n-LINES_SPACE_UP],art->color2,art->atributes[n-LINES_SPACE_UP], art->reset);
     else printf("\n");
   }
 
