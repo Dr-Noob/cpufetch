@@ -2,9 +2,19 @@
 #include <stdio.h>
 #include "global.h"
 
+#ifdef _WIN32
+
+#define RED   ""
+#define BOLD  ""
+#define RESET ""
+
+#else
+
 #define RED "\x1b[31;1m"
 #define BOLD "\x1b[;1m"
 #define RESET "\x1b[0m"
+
+#endif
 
 #define LOG_LEVEL_NORMAL  0
 #define LOG_LEVEL_VERBOSE 1

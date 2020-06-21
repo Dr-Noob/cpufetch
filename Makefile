@@ -1,6 +1,6 @@
 CXX=gcc
 
-CXXFLAGS=-g -Wall -Wextra -Werror -fstack-protector-all -pedantic -Wno-unused
+CXXFLAGS=-Wall -Wextra -Werror -fstack-protector-all -pedantic -Wno-unused
 SANITY_FLAGS=-Wfloat-equal -Wshadow -Wpointer-arith -Wstrict-overflow=5 -Wformat=2
 
 SRC_DIR=src/
@@ -9,10 +9,19 @@ HEADERS=$(SRC_DIR)standart.h $(SRC_DIR)extended.h $(SRC_DIR)cpuid.h $(SRC_DIR)pr
 
 OUTPUT=cpufetch
 
+all: $(OUTPUT)
+
+debug: CXXFLAGS += -g -O0
+debug: $(OUTPUT)	
+
+release: CXXFLAGS += -static -O3
+release: $(OUTPUT)
+
 $(OUTPUT): Makefile $(SOURCE) $(HEADERS)
 	$(CXX) $(CXXFLAGS) $(SANITY_FLAGS) $(SOURCE) -o $(OUTPUT)
 
 run:
 	./$(OUTPUT)
+
 clean:
 	@rm $(OUTPUT)

@@ -19,6 +19,7 @@
 #define STRING_MEGAHERZ   "MHz"
 #define STRING_GIGAHERZ   "GHz"
 #define STRING_KILOBYTES  "KB"
+#define STRING_MEGABYTES  "MB"
 
 #define UNKNOWN -1
 
@@ -313,6 +314,25 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
     }      
   }
   
+  // Sanity checks. If we read values greater than this, they can't be valid ones
+  // The values were chosen by me
+  if(cach->L1i > 64 * 1024) {
+    printBug("Invalid L1i size: %dKB\n", cach->L1i/1024);
+    return NULL;
+  }
+  if(cach->L1d > 64 * 1024) {
+    printBug("Invalid L1d size: %dKB\n", cach->L1d/1024);
+    return NULL;
+  }
+  if(cach->L2 > 2 * 1048576) {
+    printBug("Invalid L2 size: %dMB\n", cach->L2/(1048576));
+    return NULL;
+  }
+  if(cach->L3 > 100 * 1048576) {
+    printBug("Invalid L3 size: %dMB\n", cach->L3/(1048576));
+    return NULL;
+  }
+  
   return cach;
 }
 
@@ -534,39 +554,63 @@ char* get_str_sha(struct cpuInfo* cpu) {
 
 // String functions
 char* get_str_l1(struct cache* cach) {
-  //Max 2 digits,2 for 'KB',3 for '(D)' and '(I)'
-  int size = (2*(2+2)+6+1);
+  // 2*2 for digits, 4 for two 'KB' and 6 for '(D)' and '(I)'
+  int size = (2*2+4+6+1);
+  int sanity_ret;
   char* string = malloc(sizeof(char)*size);
-  snprintf(string,size,"%d"STRING_KILOBYTES"(D)%d"STRING_KILOBYTES"(I)",cach->L1d/1024,cach->L1i/1024);
+  sanity_ret = snprintf(string,size,"%d"STRING_KILOBYTES"(D)%d"STRING_KILOBYTES"(I)",cach->L1d/1024,cach->L1i/1024);
+  assert(sanity_ret > 0);
   return string;
 }
 
 char* get_str_l2(struct cache* cach) {
   if(cach->L2 == UNKNOWN) {
-    char* string = malloc(sizeof(char)*5);
-    snprintf(string,5,STRING_NONE);
+    char* string = malloc(sizeof(char) * 5);
+    snprintf(string, 5, STRING_NONE);
     return string;
   }
   else {
-    //Max 4 digits and 2 for 'KB'
-    int size = (4+2+1);
-    char* string = malloc(sizeof(char)*size);
-    snprintf(string,size,"%d"STRING_KILOBYTES,cach->L2/1024);
+    int sanity_ret;  
+    char* string;
+    if(cach->L2/1024 > 1024) {
+      //1 for digit, 2 for 'MB'
+      int size = (1+2+1);    
+      string = malloc(sizeof(char)*size);
+      sanity_ret = snprintf(string,size,"%d"STRING_MEGABYTES,cach->L2/(1048576));    
+    }
+    else {
+      //4 for digits, 2 for 'KB'
+      int size = (4+2+1);    
+      string = malloc(sizeof(char)*size);
+      sanity_ret = snprintf(string,size,"%d"STRING_KILOBYTES,cach->L2/1024);  
+    }    
+    assert(sanity_ret > 0);    
     return string;
   }
 }
 
 char* get_str_l3(struct cache* cach) {
   if(cach->L3 == UNKNOWN) {
-    char* string = malloc(sizeof(char)*5);
-    snprintf(string,5,STRING_NONE);
+    char* string = malloc(sizeof(char) * 5);
+    snprintf(string, 5, STRING_NONE);
     return string;
   }
   else {
-    //Max 4 digits and 2 for 'KB'
-    int size = (4+2+1);
-    char* string = malloc(sizeof(char)*size);
-    snprintf(string,size,"%d"STRING_KILOBYTES,cach->L3/1024);
+    int sanity_ret;  
+    char* string;
+    if(cach->L3/1024 > 1024) {
+      //1 for digit, 2 for 'MB'
+      int size = (1+2+1);    
+      string = malloc(sizeof(char)*size);
+      sanity_ret = snprintf(string,size,"%d"STRING_MEGABYTES,cach->L3/(1048576));    
+    }
+    else {
+      //4 for digits, 2 for 'KB'
+      int size = (4+2+1);    
+      string = malloc(sizeof(char)*size);
+      sanity_ret = snprintf(string,size,"%d"STRING_KILOBYTES,cach->L3/1024);  
+    }    
+    assert(sanity_ret > 0);    
     return string;
   }
 }
