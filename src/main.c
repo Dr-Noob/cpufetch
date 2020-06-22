@@ -27,7 +27,7 @@ Peak FLOPS:  512 GFLOP/s(in simple precision)
 
 static const char* VERSION = "0.49";
 
-void print_help(int argc, char *argv[]) {
+void print_help(char *argv[]) {
   printf("Usage: %s [--version] [--help] [--style STYLE]\n\
 Options: \n\
   --style    Set logo style color\n\
@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
     return EXIT_FAILURE;
 
   if(show_help()) {
-    print_help(argc, argv);
+    print_help(argv);
     return EXIT_SUCCESS;
   }
 

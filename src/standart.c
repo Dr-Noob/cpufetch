@@ -92,7 +92,7 @@ void init_cpu_info(struct cpuInfo* cpu) {
   cpu->SHA    = false;
 }
 
-void get_cpu_vendor_internal(char* name, uint32_t eax,uint32_t ebx,uint32_t ecx,uint32_t edx) {
+void get_cpu_vendor_internal(char* name, uint32_t ebx,uint32_t ecx,uint32_t edx) {
   name[__COUNTER__] = ebx       & MASK;
   name[__COUNTER__] = (ebx>>8)  & MASK;
   name[__COUNTER__] = (ebx>>16) & MASK;
@@ -124,7 +124,7 @@ struct cpuInfo* get_cpu_info() {
   //Fill vendor
   char name[13];
   memset(name,0,13);
-  get_cpu_vendor_internal(name, eax,ebx,ecx,edx);
+  get_cpu_vendor_internal(name, ebx, ecx, edx);
   
   if(strcmp(VENDOR_INTEL_STRING,name) == 0)
     cpu->cpu_vendor = VENDOR_INTEL;
