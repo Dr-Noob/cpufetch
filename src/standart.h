@@ -45,6 +45,7 @@ void print_levels(struct cpuInfo* cpu, char* cpu_name);
 
 void free_cpuinfo_struct(struct cpuInfo* cpu);
 void free_cache_struct(struct cache* cach);
+void free_topo_struct(struct topology* topo);
 void free_freq_struct(struct frequency* freq);
 
 void debug_cpu_info(struct cpuInfo* cpu);

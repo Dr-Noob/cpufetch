@@ -130,6 +130,7 @@ int main(int argc, char* argv[]) {
   free(cpu);
   free(art);
   free_cache_struct(cach);
+  free_topo_struct(topo);
   free_freq_struct(freq);
 
   return EXIT_SUCCESS;

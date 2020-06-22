@@ -198,7 +198,7 @@ struct cpuInfo* get_cpu_info() {
 }
 
 struct topology* get_topology_info(struct cpuInfo* cpu) {
-  struct topology* topo = malloc(sizeof(struct cache));
+  struct topology* topo = malloc(sizeof(struct topology));
   uint32_t eax = 0;
   uint32_t ebx = 0;
   uint32_t ecx = 0;
@@ -701,6 +701,10 @@ void print_levels(struct cpuInfo* cpu, char* cpu_name) {
   printf("%s\n", cpu_name);
   printf("- Max standart level: 0x%.8X\n", cpu->maxLevels);
   printf("- Max extended level: 0x%.8X\n", cpu->maxExtendedLevels);
+}
+
+void free_topo_struct(struct topology* topo) {
+  free(topo);
 }
 
 void free_cache_struct(struct cache* cach) {
