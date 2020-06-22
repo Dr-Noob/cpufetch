@@ -1,6 +1,8 @@
 #ifndef __CPUID__
 #define __CPUID__
 
-void cpuid(unsigned int *eax, unsigned int *ebx,unsigned int *ecx, unsigned int *edx);
+#include <stdint.h>
+
+void cpuid(uint32_t *eax, uint32_t *ebx, uint32_t *ecx, uint32_t *edx);
 
 #endif

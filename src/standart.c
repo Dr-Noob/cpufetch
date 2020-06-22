@@ -25,6 +25,8 @@
 #define STRING_KILOBYTES  "KB"
 #define STRING_MEGABYTES  "MB"
 
+#define MASK 0xFF
+
 /*
  * cpuid reference: http://www.sandpile.org/x86/cpuid.htm
  */
@@ -48,27 +50,27 @@ struct cpuInfo {
   VENDOR cpu_vendor;
   
   //  Max cpuids levels
-  unsigned int maxLevels;
+  uint32_t maxLevels;
   // Max cpuids extended levels
-  unsigned int maxExtendedLevels;
+  uint32_t maxExtendedLevels;
 };
 
 struct cache {
-  int L1i;
-  int L1d;
-  int L2;
-  int L3;
+  int32_t L1i;
+  int32_t L1d;
+  int32_t L2;
+  int32_t L3;
 };
 
 struct frequency {
-  long base;
-  long max;
+  int64_t base;
+  int64_t max;
 };
 
 struct topology {
-  int physical_cores;
-  int logical_cores;
-  int smt;
+  uint32_t physical_cores;
+  uint32_t logical_cores;
+  uint32_t smt;
   bool ht;
 };
 
@@ -89,8 +91,7 @@ void init_cpu_info(struct cpuInfo* cpu) {
   cpu->SHA    = false;
 }
 
-#define MASK 0xFF
-void get_cpu_vendor_internal(char* name, unsigned eax,unsigned ebx,unsigned ecx,unsigned edx) {
+void get_cpu_vendor_internal(char* name, uint32_t eax,uint32_t ebx,uint32_t ecx,uint32_t edx) {
   name[__COUNTER__] = ebx       & MASK;
   name[__COUNTER__] = (ebx>>8)  & MASK;
   name[__COUNTER__] = (ebx>>16) & MASK;
@@ -110,11 +111,10 @@ void get_cpu_vendor_internal(char* name, unsigned eax,unsigned ebx,unsigned ecx,
 struct cpuInfo* get_cpu_info() {
   struct cpuInfo* cpu = malloc(sizeof(struct cpuInfo));
   init_cpu_info(cpu);
-
-  unsigned int eax = 0;
-  unsigned int ebx = 0;
-  unsigned int ecx = 0;
-  unsigned int edx = 0;
+  uint32_t eax = 0;
+  uint32_t ebx = 0;
+  uint32_t ecx = 0;
+  uint32_t edx = 0;
 
   //Get max cpuid level
   cpuid(&eax, &ebx, &ecx, &edx);
@@ -198,8 +198,11 @@ struct cpuInfo* get_cpu_info() {
 
 struct topology* get_topology_info(struct cpuInfo* cpu) {
   struct topology* topo = malloc(sizeof(struct cache));
-  unsigned int eax, ebx, ecx, edx;
-  int type;
+  uint32_t eax = 0;
+  uint32_t ebx = 0;
+  uint32_t ecx = 0;
+  uint32_t edx = 0;
+  int32_t type;
   
   if (cpu->maxLevels >= 0x00000001) {
     eax = 0x00000001;
@@ -258,7 +261,10 @@ struct topology* get_topology_info(struct cpuInfo* cpu) {
 // see https://stackoverflow.com/questions/12594208/c-program-to-determine-levels-size-of-cache
 struct cache* get_cache_info(struct cpuInfo* cpu) {
   struct cache* cach = malloc(sizeof(struct cache));    
-  unsigned int eax, ebx, ecx, edx;
+  uint32_t eax = 0;
+  uint32_t ebx = 0;
+  uint32_t ecx = 0;
+  uint32_t edx = 0;
   
   // We suppose there are 4 caches (at most)
   for(int i=0; i < 4; i++) {
@@ -269,19 +275,19 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
       
     cpuid(&eax, &ebx, &ecx, &edx); 
       
-    int cache_type = eax & 0x1F;
+    int32_t cache_type = eax & 0x1F;
       
     // If its 0, we tried fetching a non existing cache
     if (cache_type > 0) {
-      int cache_level = (eax >>= 5) & 0x7;
-      int cache_is_self_initializing = (eax >>= 3) & 0x1; // does not need SW initialization
-      int cache_is_fully_associative = (eax >>= 1) & 0x1;
-      unsigned int cache_sets = ecx + 1;
-      unsigned int cache_coherency_line_size = (ebx & 0xFFF) + 1;
-      unsigned int cache_physical_line_partitions = ((ebx >>= 12) & 0x3FF) + 1;
-      unsigned int cache_ways_of_associativity = ((ebx >>= 10) & 0x3FF) + 1;
+      int32_t cache_level = (eax >>= 5) & 0x7;
+      int32_t cache_is_self_initializing = (eax >>= 3) & 0x1; // does not need SW initialization
+      int32_t cache_is_fully_associative = (eax >>= 1) & 0x1;
+      uint32_t cache_sets = ecx + 1;
+      uint32_t cache_coherency_line_size = (ebx & 0xFFF) + 1;
+      uint32_t cache_physical_line_partitions = ((ebx >>= 12) & 0x3FF) + 1;
+      uint32_t cache_ways_of_associativity = ((ebx >>= 10) & 0x3FF) + 1;
         
-      int cache_total_size = cache_ways_of_associativity * cache_physical_line_partitions * cache_coherency_line_size * cache_sets;  
+      int32_t cache_total_size = cache_ways_of_associativity * cache_physical_line_partitions * cache_coherency_line_size * cache_sets;  
         
       switch (cache_type) {
         case 1: // Data Cache (We assume this is L1d)
@@ -354,15 +360,15 @@ struct frequency* get_frequency_info(struct cpuInfo* cpu) {
       freq->max = UNKNOWN;
     #else
       printWarn("Can't read frequency information from cpuid (needed level is %d, max is %d). Using udev", 0x16, cpu->maxLevels);
-      freq->base = 0;
+      freq->base = UNKNOWN;
       freq->max = get_max_freq_from_file();
     #endif
   }
   else {
-    unsigned int eax = 0x16;
-    unsigned int ebx = 0;
-    unsigned int ecx = 0;
-    unsigned int edx = 0;
+    uint32_t eax = 0x16;
+    uint32_t ebx = 0;
+    uint32_t ecx = 0;
+    uint32_t edx = 0;
     
     cpuid(&eax, &ebx, &ecx, &edx);
     
@@ -373,7 +379,7 @@ struct frequency* get_frequency_info(struct cpuInfo* cpu) {
   return freq;
 }
 
-long get_freq(struct frequency* freq) {
+int64_t get_freq(struct frequency* freq) {
   return freq->max;
 }
 
@@ -409,13 +415,18 @@ void debug_cache(struct cache* cach) {
 }
 
 void debug_frequency(struct frequency* freq) {
-  printf("max f=%ldMhz\n",freq->max);
-  printf("base f=%ldMhz\n",freq->base);
+  #ifdef _WIN32
+    printf("maxf=%I64d Mhz\n",freq->max);
+    printf("basef=%I64d Mhz\n",freq->base);
+  #else
+    printf("maxf=%ld Mhz\n",freq->max);
+    printf("basef=%ld Mhz\n",freq->base);
+  #endif
 }
 
 /*** STRING FUNCTIONS ***/
 
-char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, long freq) {
+char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64_t freq) {
   /***
   PP = PeakPerformance
   SP = SinglePrecision
@@ -430,7 +441,7 @@ char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, long 
   ***/
 
   //7 for GFLOP/s and 6 for digits,eg 412.14
-  unsigned int size = 7+6+1+1;
+  uint32_t size = 7+6+1+1;
   assert(strlen(STRING_UNKNOWN)+1 <= size);
   char* string = malloc(sizeof(char)*size);
 
@@ -440,7 +451,7 @@ char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, long 
     return string;
   }
 
-  float flops = topo->physical_cores*(freq*1000000);
+  double flops = topo->physical_cores*(freq*1000000);
   
   // Intel USUALLY has two VPUs. I have never seen an AMD 
   // with two VPUs.
@@ -469,12 +480,12 @@ char* get_str_topology(struct topology* topo) {
   char* string;
   if(topo->smt > 1) {
     //3 for digits, 8 for ' cores (', 3 for digits, 9 for ' threads)'
-    int size = 3+8+3+9+1;
+    uint32_t size = 3+8+3+9+1;
     string = malloc(sizeof(char)*size);
     snprintf(string, size, "%d cores (%d threads)",topo->physical_cores,topo->logical_cores);
   }
   else {
-    int size = 3+7+1;
+    uint32_t size = 3+7+1;
     string = malloc(sizeof(char)*size);
     snprintf(string, size, "%d cores",topo->physical_cores);
   }
@@ -497,14 +508,14 @@ char* get_str_avx(struct cpuInfo* cpu) {
 }
 
 char* get_str_sse(struct cpuInfo* cpu) {
-  int last = 0;
-  int SSE_sl = 4;
-  int SSE2_sl = 5;
-  int SSE3_sl = 5;
-  int SSSE3_sl = 6;
-  int SSE4a_sl = 6;
-  int SSE4_1_sl = 7;
-  int SSE4_2_sl = 7;
+  uint32_t last = 0;
+  uint32_t SSE_sl = 4;
+  uint32_t SSE2_sl = 5;
+  uint32_t SSE3_sl = 5;
+  uint32_t SSSE3_sl = 6;
+  uint32_t SSE4a_sl = 6;
+  uint32_t SSE4_1_sl = 7;
+  uint32_t SSE4_2_sl = 7;
   char* string = malloc(sizeof(char)*SSE_sl+SSE2_sl+SSE3_sl+SSSE3_sl+SSE4a_sl+SSE4_1_sl+SSE4_2_sl+1);
 
   if(cpu->SSE) {
@@ -574,8 +585,8 @@ char* get_str_sha(struct cpuInfo* cpu) {
 // String functions
 char* get_str_l1(struct cache* cach) {
   // 2*2 for digits, 4 for two 'KB' and 6 for '(D)' and '(I)'
-  int size = (2*2+4+6+1);
-  int sanity_ret;
+  uint32_t size = (2*2+4+6+1);
+  int32_t sanity_ret;
   char* string = malloc(sizeof(char)*size);
   sanity_ret = snprintf(string,size,"%d"STRING_KILOBYTES"(D)%d"STRING_KILOBYTES"(I)",cach->L1d/1024,cach->L1i/1024);
   assert(sanity_ret > 0);
@@ -589,17 +600,17 @@ char* get_str_l2(struct cache* cach) {
     return string;
   }
   else {
-    int sanity_ret;  
+    int32_t sanity_ret;  
     char* string;
     if(cach->L2/1024 >= 1024) {
       //1 for digit, 2 for 'MB'
-      int size = (1+2+1);    
+      uint32_t size = (1+2+1);    
       string = malloc(sizeof(char)*size);
       sanity_ret = snprintf(string,size,"%d"STRING_MEGABYTES,cach->L2/(1048576));    
     }
     else {
       //4 for digits, 2 for 'KB'
-      int size = (4+2+1);    
+      uint32_t size = (4+2+1);    
       string = malloc(sizeof(char)*size);
       sanity_ret = snprintf(string,size,"%d"STRING_KILOBYTES,cach->L2/1024);  
     }    
@@ -615,17 +626,17 @@ char* get_str_l3(struct cache* cach) {
     return string;
   }
   else {
-    int sanity_ret;  
+    int32_t sanity_ret;  
     char* string;
     if(cach->L3/1024 >= 1024) {
       //1 for digit, 2 for 'MB'
-      int size = (1+2+1);    
+      uint32_t size = (1+2+1);    
       string = malloc(sizeof(char)*size);
       sanity_ret = snprintf(string,size,"%d"STRING_MEGABYTES,cach->L3/(1048576));    
     }
     else {
       //4 for digits, 2 for 'KB'
-      int size = (4+2+1);    
+      uint32_t size = (4+2+1);    
       string = malloc(sizeof(char)*size);
       sanity_ret = snprintf(string,size,"%d"STRING_KILOBYTES,cach->L3/1024);  
     }    
@@ -636,7 +647,7 @@ char* get_str_l3(struct cache* cach) {
 
 char* get_str_freq(struct frequency* freq) {
   //Max 3 digits and 3 for '(M/G)Hz' plus 1 for '\0'
-  unsigned int size = (4+3+1);
+  uint32_t size = (4+3+1);
   assert(strlen(STRING_UNKNOWN)+1 <= size);
   char* string = malloc(sizeof(char)*size);
   if(freq->max == UNKNOWN)

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <errno.h>
 
 #include "global.h"
@@ -18,16 +19,15 @@
 #define DEFAULT_FILE_SIZE 4096
 
 long get_freq_from_file(char* path) {
-  FILE *file = fopen(path, "r");
+  int fd = open(path, O_RDONLY);
 
-  if(file == NULL) {
-    perror("fopen");
+  if(fd == -1) {
+    perror("open");
     printBug("Could not open '%s'", path);
     return UNKNOWN;
   }
 
   //File exists, read it
-  int fd = fileno(file);
   int bytes_read = 0;
   int offset = 0;
   int block = 1;
@@ -57,7 +57,10 @@ long get_freq_from_file(char* path) {
   }
   
   free(buf);
-  fclose(file);
+  if (close(fd) == -1) {
+    perror("close");
+    printErr("Closing '%s' failed\n", path);    
+  }
   
   return ret/1000;
 }

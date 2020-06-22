@@ -1,9 +1,7 @@
 #include "cpuid.h"
 
-void cpuid(unsigned int *eax, unsigned int *ebx,
-                         unsigned int *ecx, unsigned int *edx)
-{
-        asm volatile("cpuid"
+void cpuid(uint32_t *eax, uint32_t *ebx, uint32_t *ecx, uint32_t *edx) {
+        __asm volatile("cpuid"
             : "=a" (*eax),
               "=b" (*ebx),
               "=c" (*ecx),

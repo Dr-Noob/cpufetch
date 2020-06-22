@@ -3,10 +3,10 @@
 #include "extended.h"
 
 char* get_str_cpu_name() {
-  unsigned int eax = 0;
-  unsigned int ebx = 0;
-  unsigned int ecx = 0;
-  unsigned int edx = 0;
+  uint32_t eax = 0;
+  uint32_t ebx = 0;
+  uint32_t ecx = 0;
+  uint32_t edx = 0;
   
   char *name = malloc(sizeof(char)*64);
   memset(name, 0, 64);
@@ -19,7 +19,6 @@ char* get_str_cpu_name() {
     sprintf(none,"Unknown");
     return none;
   }
-
 
   //We can, fetch name
   eax = 0x80000002;

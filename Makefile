@@ -1,6 +1,6 @@
 CXX=gcc
 
-CXXFLAGS=-Wall -Wextra -Werror -fstack-protector-all -pedantic -Wno-unused
+CXXFLAGS=-Wall -Wextra -Werror -fstack-protector-all -pedantic -Wno-unused -std=c99
 SANITY_FLAGS=-Wfloat-equal -Wshadow -Wpointer-arith -Wstrict-overflow=5 -Wformat=2
 
 SRC_DIR=src/

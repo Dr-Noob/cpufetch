@@ -3,6 +3,7 @@
 
 #define MASK 0xFF
 #include "cpuid.h"
+#include <stdint.h>
 #include <stdlib.h>
 
 char* get_str_cpu_name();
