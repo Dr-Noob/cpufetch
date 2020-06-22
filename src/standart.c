@@ -5,13 +5,16 @@
 #include <assert.h>
 #include <stdbool.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#include "udev.h"
+#endif
+
 #include "standart.h"
 #include "cpuid.h"
 #include "global.h"
-
-#ifndef _WIN32
-#include "udev.h"
-#endif
 
 #define VENDOR_INTEL_STRING "GenuineIntel"
 #define VENDOR_AMD_STRING   "AuthenticAMD"
@@ -69,9 +72,11 @@ struct frequency {
 };
 
 struct topology {
+  int64_t total_cores;
   uint32_t physical_cores;
   uint32_t logical_cores;
-  uint32_t smt;
+  uint32_t smt;  
+  uint32_t sockets;  
   bool ht;
 };
 
@@ -275,6 +280,21 @@ struct topology* get_topology_info(struct cpuInfo* cpu) {
       printBug("Cant get topology because VENDOR is empty");
       return NULL;
   }
+  
+  // Ask the OS the total number of cores it sees
+  // If we have one socket, it will be same as the cpuid,
+  // but in dual socket it will not!
+  #ifdef _WIN32
+    SYSTEM_INFO info;
+    GetSystemInfo(&info);
+    topo->total_cores = info.dwNumberOfProcessors;
+  #else
+    if((topo->total_cores = sysconf(_SC_NPROCESSORS_ONLN)) == -1) {
+      perror("sysconf");
+      topo->total_cores = topo->logical_cores; // fallback
+    }    
+  #endif  
+  topo->sockets = topo->total_cores / topo->smt / topo->physical_cores; // Idea borrowed from lscpu
   
   return topo;
 }

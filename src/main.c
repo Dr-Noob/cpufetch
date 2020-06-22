@@ -25,7 +25,7 @@ Peak FLOPS:  512 GFLOP/s(in simple precision)
 
 ***/
 
-static const char* VERSION = "0.49";
+static const char* VERSION = "0.410";
 
 void print_help(char *argv[]) {
   printf("Usage: %s [--version] [--help] [--style STYLE]\n\
