@@ -29,6 +29,7 @@
 
 /*
  * cpuid reference: http://www.sandpile.org/x86/cpuid.htm
+ * cpuid amd: https://www.amd.com/system/files/TechDocs/25481.pdf
  */
 
 struct cpuInfo {
@@ -258,17 +259,34 @@ struct topology* get_topology_info(struct cpuInfo* cpu) {
   return topo;
 }
 
-// see https://stackoverflow.com/questions/12594208/c-program-to-determine-levels-size-of-cache
 struct cache* get_cache_info(struct cpuInfo* cpu) {
   struct cache* cach = malloc(sizeof(struct cache));    
   uint32_t eax = 0;
   uint32_t ebx = 0;
   uint32_t ecx = 0;
   uint32_t edx = 0;
+  uint32_t level;
+
+  // We use standart 0x00000004 for Intel
+  // We use extended 0x8000001D for AMD
+  if(cpu->cpu_vendor == VENDOR_INTEL) {
+    level = 0x00000004;
+    if(cpu->maxLevels < level) {
+      printErr("Can't read cache information from cpuid (needed level is %d, max is %d)", level, cpu->maxLevels);    
+      return NULL;
+    }
+  }
+  else {
+    level = 0x8000001D;
+    if(cpu->maxExtendedLevels < level) {
+      printErr("Can't read cache information from cpuid (needed extended level is %d, max is %d)", level, cpu->maxExtendedLevels);    
+      return NULL;
+    }
+  }
   
   // We suppose there are 4 caches (at most)
   for(int i=0; i < 4; i++) {
-    eax = 4; // get cache info
+    eax = level; // get cache info
     ebx = 0;
     ecx = i; // cache id
     edx = 0;
