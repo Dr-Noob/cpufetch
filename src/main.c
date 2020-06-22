@@ -25,7 +25,7 @@ Peak FLOPS:  512 GFLOP/s(in simple precision)
 
 ***/
 
-static const char* VERSION = "0.47";
+static const char* VERSION = "0.48";
 
 void print_help(int argc, char *argv[]) {
   printf("Usage: %s [--version] [--help] [--style STYLE]\n\
@@ -34,8 +34,9 @@ Options: \n\
     default:   Default style color\n\
     dark:      Dark style color\n\
     none:      Don't use colors\n\
-  --help     Print this help and exit\n\
-  --version  Print cpufetch version and exit\n",
+  --help     Prints this help and exit\n\
+  --levels   Prints CPU model and cpuid levels (debug purposes)\n\
+  --version  Prints cpufetch version and exit\n",
   argv[0]);
 }
 
@@ -44,15 +45,15 @@ void print_version() {
 }
 
 int main(int argc, char* argv[]) {
-  if(!parseArgs(argc,argv))
+  if(!parse_args(argc,argv))
     return EXIT_FAILURE;
 
-  if(showHelp()) {
+  if(show_help()) {
     print_help(argc, argv);
     return EXIT_SUCCESS;
   }
 
-  if(showVersion()) {
+  if(show_version()) {
     print_version();
     return EXIT_SUCCESS;
   }
@@ -62,6 +63,13 @@ int main(int argc, char* argv[]) {
   struct cpuInfo* cpu = get_cpu_info();
   if(cpu == NULL)
     return EXIT_FAILURE;
+  char* cpuName = get_str_cpu_name();
+  
+  if(show_levels()) {
+    print_version();
+    print_levels(cpu, cpuName);
+    return EXIT_SUCCESS;    
+  }
 
   struct cache* cach = get_cache_info(cpu);
   if(cach == NULL)
@@ -75,11 +83,10 @@ int main(int argc, char* argv[]) {
   if(topo == NULL)
     return EXIT_FAILURE;
   
-  struct ascii* art = set_ascii(get_cpu_vendor(cpu),getStyle());
+  struct ascii* art = set_ascii(get_cpu_vendor(cpu),get_style());
   if(art == NULL)
     return EXIT_FAILURE;
-
-  char* cpuName = get_str_cpu_name();
+  
   char* maxFrequency = get_str_freq(freq);
   char* nCores = get_str_topology(topo);
   char* avx = get_str_avx(cpu);

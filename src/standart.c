@@ -659,6 +659,12 @@ char* get_str_freq(struct frequency* freq) {
   return string;
 }
 
+void print_levels(struct cpuInfo* cpu, char* cpu_name) {
+  printf("%s\n", cpu_name);
+  printf("- Max standart level: 0x%.8X\n", cpu->maxLevels);
+  printf("- Max extended level: 0x%.8X\n", cpu->maxExtendedLevels);
+}
+
 void free_cache_struct(struct cache* cach) {
   free(cach);
 }
