@@ -6,6 +6,8 @@
 #define VENDOR_AMD     2
 #define VENDOR_INVALID 3
 
+#define UNKNOWN -1
+
 struct cpuInfo;
 struct frequency;
 struct cache;

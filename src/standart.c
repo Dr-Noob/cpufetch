@@ -9,6 +9,10 @@
 #include "cpuid.h"
 #include "global.h"
 
+#ifndef _WIN32
+#include "udev.h"
+#endif
+
 #define VENDOR_INTEL_STRING "GenuineIntel"
 #define VENDOR_AMD_STRING   "AuthenticAMD"
 
@@ -20,8 +24,6 @@
 #define STRING_GIGAHERZ   "GHz"
 #define STRING_KILOBYTES  "KB"
 #define STRING_MEGABYTES  "MB"
-
-#define UNKNOWN -1
 
 /*
  * cpuid reference: http://www.sandpile.org/x86/cpuid.htm
@@ -346,9 +348,15 @@ struct frequency* get_frequency_info(struct cpuInfo* cpu) {
   struct frequency* freq = malloc(sizeof(struct frequency));
   
   if(cpu->maxLevels < 0x16) {
-    printErr("Can't read frequency information from cpuid (needed level is %d, max is %d)", 0x16, cpu->maxLevels);
-    freq->base = UNKNOWN;
-    freq->max = UNKNOWN;
+    #ifdef _WIN32
+      printErr("Can't read frequency information from cpuid (needed level is %d, max is %d)", 0x16, cpu->maxLevels);
+      freq->base = UNKNOWN;
+      freq->max = UNKNOWN;
+    #else
+      printWarn("Can't read frequency information from cpuid (needed level is %d, max is %d). Using udev", 0x16, cpu->maxLevels);
+      freq->base = 0;
+      freq->max = get_max_freq_from_file();
+    #endif
   }
   else {
     unsigned int eax = 0x16;
@@ -359,7 +367,7 @@ struct frequency* get_frequency_info(struct cpuInfo* cpu) {
     cpuid(&eax, &ebx, &ecx, &edx);
     
     freq->base = eax;
-    freq->max = ebx;
+    freq->max = ebx;    
   }
   
   return freq;
@@ -436,7 +444,7 @@ char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, long 
   
   // Intel USUALLY has two VPUs. I have never seen an AMD 
   // with two VPUs.
-  if(cpu->VENDOR == VENDOR_INTEL) flops = flops * 2; 
+  if(cpu->cpu_vendor == VENDOR_INTEL) flops = flops * 2; 
 
   if(cpu->FMA3 || cpu->FMA4)
     flops = flops*2;
