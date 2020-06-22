@@ -227,8 +227,7 @@ struct topology* get_topology_info(struct cpuInfo* cpu) {
           printBug("Unexpected type in cpuid 0x0000000B (expected 1, got %d)", type);     
           return NULL;
         }        
-        topo->smt = ebx & 0xFFFF;
-                
+        topo->smt = ebx & 0xFFFF;                
   
         eax = 0x0000000B;
         ecx = 0x00000001;
@@ -249,7 +248,28 @@ struct topology* get_topology_info(struct cpuInfo* cpu) {
       }
       break;
     case VENDOR_AMD:  
-      printBug("Unimplemented!");  
+      if (cpu->maxExtendedLevels >= 0x80000008) {
+        eax = 0x80000008;  
+        cpuid(&eax, &ebx, &ecx, &edx);        
+        topo->logical_cores = (ecx & 0xFF) + 1;
+ 
+        if (cpu->maxExtendedLevels >= 0x8000001E) {
+          eax = 0x8000001E;  
+          cpuid(&eax, &ebx, &ecx, &edx);
+          topo->smt = ((ebx >> 8) & 0x03) + 1;          
+        }
+        else {
+          printWarn("Can't read topology information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x8000001E, cpu->maxLevels); 
+          topo->smt = 1;    
+        }
+        topo->physical_cores = topo->logical_cores / topo->smt;
+      }
+      else {
+        printWarn("Can't read topology information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x80000008, cpu->maxLevels); 
+        topo->physical_cores = 1;
+        topo->logical_cores = 1;
+        topo->smt = 1;    
+      }
       break;
     default:
       printBug("Cant get topology because VENDOR is empty");
