@@ -4,7 +4,7 @@
 #include "standart.h"
 #include "ascii.h"
 
-#define ATTRIBUTE_COUNT    12
+#define ATTRIBUTE_COUNT    13
 #define ATTRIBUTE_NAME      0
 #define ATTRIBUTE_FREQUENCY 1
 #define ATTRIBUTE_NCORES    2
@@ -13,10 +13,11 @@
 #define ATTRIBUTE_FMA       5
 #define ATTRIBUTE_AES       6
 #define ATTRIBUTE_SHA       7
-#define ATTRIBUTE_L1        8
-#define ATTRIBUTE_L2        9
-#define ATTRIBUTE_L3        10
-#define ATTRIBUTE_PEAK      11
+#define ATTRIBUTE_L1i       8
+#define ATTRIBUTE_L1d       9
+#define ATTRIBUTE_L2        10
+#define ATTRIBUTE_L3        11
+#define ATTRIBUTE_PEAK      12
 
 typedef int STYLE;
 #define STYLES_COUNT 3

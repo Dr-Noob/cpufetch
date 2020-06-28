@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
 #include <assert.h>
 #include <stdbool.h>
@@ -202,6 +201,7 @@ struct cpuInfo* get_cpu_info() {
   return cpu;
 }
 
+// 80/2/20
 struct topology* get_topology_info(struct cpuInfo* cpu) {
   struct topology* topo = malloc(sizeof(struct topology));
   uint32_t eax = 0;
@@ -222,8 +222,7 @@ struct topology* get_topology_info(struct cpuInfo* cpu) {
     
   switch(cpu->cpu_vendor) {
     case VENDOR_INTEL:  
-      if (cpu->maxLevels >= 0x0000000B) {
-        //TODO: This idea only works with no NUMA systems  
+      if (cpu->maxLevels >= 0x0000000B) { 
         eax = 0x0000000B;
         ecx = 0x00000000;
         cpuid(&eax, &ebx, &ecx, &edx);
@@ -640,67 +639,110 @@ char* get_str_sha(struct cpuInfo* cpu) {
   return string;
 }
 
-// String functions
-char* get_str_l1(struct cache* cach) {
-  // 2*2 for digits, 4 for two 'KB' and 6 for '(D)' and '(I)'
-  uint32_t size = (2*2+4+6+1);
+int32_t get_value_as_smallest_unit(char ** str, uint32_t value) {
+  int32_t sanity_ret;    
+  *str = malloc(sizeof(char)* 7); //4 for digits, 2 for units
+
+  if(value/1024 >= 1024)
+    sanity_ret = snprintf(*str, 6,"%d"STRING_MEGABYTES,value/(1<<20));    
+  else
+    sanity_ret = snprintf(*str, 6,"%d"STRING_KILOBYTES,value/(1<<10));  
+  
+  return sanity_ret;
+}
+
+// String functions 
+char* get_str_cache_two(int32_t cache_size, uint32_t physical_cores) {
+  // 4 for digits, 2 for units, 2 for ' (', 3 digits, 2 for units and 7 for ' Total)'
+  uint32_t max_size = 4+2 + 2 + 4+2 + 7 + 1;
   int32_t sanity_ret;
-  char* string = malloc(sizeof(char)*size);
-  sanity_ret = snprintf(string,size,"%d"STRING_KILOBYTES"(D)%d"STRING_KILOBYTES"(I)",cach->L1d/1024,cach->L1i/1024);
-  assert(sanity_ret > 0);
+  char* string = malloc(sizeof(char) * max_size);  
+  char* tmp1;
+  char* tmp2;  
+  int32_t tmp1_len = get_value_as_smallest_unit(&tmp1, cache_size);
+  int32_t tmp2_len = get_value_as_smallest_unit(&tmp2, cache_size * physical_cores);
+  
+  if(tmp1_len < 0) {
+    printBug("get_value_as_smallest_unit: snprintf returned a negative value for input: %d\n", cache_size);
+    return NULL;    
+  }
+  if(tmp2_len < 0) {
+    printBug("get_value_as_smallest_unit: snprintf returned a negative value for input: %d\n", cache_size * physical_cores);
+    return NULL;    
+  }
+      
+  uint32_t size = tmp1_len + 2 + tmp2_len + 7 + 1;
+  sanity_ret = snprintf(string, size, "%s (%s Total)", tmp1, tmp2);  
+  
+  if(sanity_ret < 0) {
+    printBug("get_str_cache_two: snprintf returned a negative value for input: '%s' and '%s'\n", tmp1, tmp2);
+    return NULL;    
+  }
+  
+  free(tmp1);
+  free(tmp2);
   return string;
 }
 
-char* get_str_l2(struct cache* cach) {
+char* get_str_cache_one(int32_t cache_size) {
+  // 4 for digits, 2 for units, 2 for ' (', 3 digits, 2 for units and 7 for ' Total)'
+  uint32_t max_size = 4+2 + 1;
+  int32_t sanity_ret;
+  char* string = malloc(sizeof(char) * max_size);  
+  char* tmp;
+  int32_t tmp_len = get_value_as_smallest_unit(&tmp, cache_size);
+  
+  if(tmp_len < 0) {
+    printBug("get_value_as_smallest_unit: snprintf returned a negative value for input: %d\n", cache_size);
+    return NULL;    
+  }
+      
+  uint32_t size = tmp_len + 1;
+  sanity_ret = snprintf(string, size, "%s", tmp);
+  
+  if(sanity_ret < 0) {
+    printBug("get_str_cache_one: snprintf returned a negative value for input: '%s'\n", tmp);
+    return NULL;    
+  }
+  free(tmp);
+  return string;
+}
+
+char* get_str_cache(int32_t cache_size, struct topology* topo, bool llc) {
+  if(llc) { 
+    if(topo->sockets == 1)
+      return get_str_cache_one(cache_size);
+    else
+      return get_str_cache_two(cache_size, topo->sockets);
+  }
+  else 
+    return get_str_cache_two(cache_size, topo->physical_cores);
+}
+
+char* get_str_l1i(struct cache* cach, struct topology* topo) {
+  return get_str_cache(cach->L1i, topo, false);
+}
+
+char* get_str_l1d(struct cache* cach, struct topology* topo) {
+  return get_str_cache(cach->L1d, topo, false);
+}
+
+char* get_str_l2(struct cache* cach, struct topology* topo) {
   if(cach->L2 == UNKNOWN) {
     char* string = malloc(sizeof(char) * 5);
     snprintf(string, 5, STRING_NONE);
     return string;
   }
-  else {
-    int32_t sanity_ret;  
-    char* string;
-    if(cach->L2/1024 >= 1024) {
-      //1 for digit, 2 for 'MB'
-      uint32_t size = (1+2+1);    
-      string = malloc(sizeof(char)*size);
-      sanity_ret = snprintf(string,size,"%d"STRING_MEGABYTES,cach->L2/(1048576));    
-    }
-    else {
-      //4 for digits, 2 for 'KB'
-      uint32_t size = (4+2+1);    
-      string = malloc(sizeof(char)*size);
-      sanity_ret = snprintf(string,size,"%d"STRING_KILOBYTES,cach->L2/1024);  
-    }    
-    assert(sanity_ret > 0);    
-    return string;
-  }
+  return get_str_cache(cach->L2, topo, false);
 }
 
-char* get_str_l3(struct cache* cach) {
+char* get_str_l3(struct cache* cach, struct topology* topo) {
   if(cach->L3 == UNKNOWN) {
     char* string = malloc(sizeof(char) * 5);
     snprintf(string, 5, STRING_NONE);
     return string;
   }
-  else {
-    int32_t sanity_ret;  
-    char* string;
-    if(cach->L3/1024 >= 1024) {
-      //1 for digit, 2 for 'MB'
-      uint32_t size = (1+2+1);    
-      string = malloc(sizeof(char)*size);
-      sanity_ret = snprintf(string,size,"%d"STRING_MEGABYTES,cach->L3/(1048576));    
-    }
-    else {
-      //4 for digits, 2 for 'KB'
-      uint32_t size = (4+2+1);    
-      string = malloc(sizeof(char)*size);
-      sanity_ret = snprintf(string,size,"%d"STRING_KILOBYTES,cach->L3/1024);  
-    }    
-    assert(sanity_ret > 0);    
-    return string;
-  }
+  return get_str_cache(cach->L3, topo, true);
 }
 
 char* get_str_freq(struct frequency* freq) {

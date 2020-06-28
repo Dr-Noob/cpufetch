@@ -31,9 +31,10 @@ char* get_str_fma(struct cpuInfo* cpu);
 char* get_str_aes(struct cpuInfo* cpu);
 char* get_str_sha(struct cpuInfo* cpu);
 
-char* get_str_l1(struct cache* cach);
-char* get_str_l2(struct cache* cach);
-char* get_str_l3(struct cache* cach);
+char* get_str_l1i(struct cache* cach, struct topology* topo);
+char* get_str_l1d(struct cache* cach, struct topology* topo);
+char* get_str_l2(struct cache* cach, struct topology* topo);
+char* get_str_l3(struct cache* cach, struct topology* topo);
 
 char* get_str_freq(struct frequency* freq);
 

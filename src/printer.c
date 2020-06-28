@@ -26,25 +26,26 @@
 #define TITLE_FMA       "FMA:        "
 #define TITLE_AES       "AES:        "
 #define TITLE_SHA       "SHA:        "
-#define TITLE_L1        "L1 Size:    "
+#define TITLE_L1i       "L1i Size:   "
+#define TITLE_L1d       "L1d Size:   "
 #define TITLE_L2        "L2 Size:    "
 #define TITLE_L3        "L3 Size:    "
 #define TITLE_PEAK      "Peak FLOPS: "
 
 /*** CENTER TEXT ***/
-#define LINES_SPACE_UP   4
+#define LINES_SPACE_UP   3
 #define LINES_SPACE_DOWN 4
 
 static const char* ATTRIBUTE_FIELDS [ATTRIBUTE_COUNT] =  {  TITLE_NAME, TITLE_FREQUENCY,
                                                             TITLE_NCORES, TITLE_AVX, TITLE_SSE,
                                                             TITLE_FMA, TITLE_AES, TITLE_SHA,
-                                                            TITLE_L1, TITLE_L2, TITLE_L3,
+                                                            TITLE_L1i, TITLE_L1d, TITLE_L2, TITLE_L3,
                                                             TITLE_PEAK };
 
 static const int ATTRIBUTE_LIST[ATTRIBUTE_COUNT] =  { ATTRIBUTE_NAME, ATTRIBUTE_FREQUENCY,
                                                         ATTRIBUTE_NCORES, ATTRIBUTE_AVX, ATTRIBUTE_SSE,
                                                         ATTRIBUTE_FMA, ATTRIBUTE_AES, ATTRIBUTE_SHA,
-                                                        ATTRIBUTE_L1, ATTRIBUTE_L2, ATTRIBUTE_L3,
+                                                        ATTRIBUTE_L1i, ATTRIBUTE_L1d, ATTRIBUTE_L2, ATTRIBUTE_L3,
                                                         ATTRIBUTE_PEAK };
 
 struct ascii {
