@@ -6,7 +6,7 @@
 #include <errno.h>
 
 #include "global.h"
-#include "standart.h"
+#include "cpuid.h"
 
 #define _PATH_SYS_SYSTEM    "/sys/devices/system"
 #define _PATH_SYS_CPU       _PATH_SYS_SYSTEM"/cpu"

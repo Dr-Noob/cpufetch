@@ -36,6 +36,23 @@
 #define LINES_SPACE_UP   3
 #define LINES_SPACE_DOWN 4
 
+#define ATTRIBUTE_COUNT    13
+#define ATTRIBUTE_NAME      0
+#define ATTRIBUTE_FREQUENCY 1
+#define ATTRIBUTE_NCORES    2
+#define ATTRIBUTE_AVX       3
+#define ATTRIBUTE_SSE       4
+#define ATTRIBUTE_FMA       5
+#define ATTRIBUTE_AES       6
+#define ATTRIBUTE_SHA       7
+#define ATTRIBUTE_L1i       8
+#define ATTRIBUTE_L1d       9
+#define ATTRIBUTE_L2        10
+#define ATTRIBUTE_L3        11
+#define ATTRIBUTE_PEAK      12
+
+static const int STYLES_CODE_LIST [STYLES_COUNT] = {STYLE_DEFAULT, STYLE_DARK};
+
 static const char* ATTRIBUTE_FIELDS [ATTRIBUTE_COUNT] =  {  TITLE_NAME, TITLE_FREQUENCY,
                                                             TITLE_NCORES, TITLE_AVX, TITLE_SSE,
                                                             TITLE_FMA, TITLE_AES, TITLE_SHA,
@@ -185,4 +202,62 @@ void print_ascii(struct ascii* art) {
     print_ascii_intel(art);
   else
     print_ascii_amd(art);
+}
+
+bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* freq, struct topology* topo, STYLE s) {
+  struct ascii* art = set_ascii(get_cpu_vendor(cpu),s);
+  if(art == NULL)
+    return false;
+  
+  char* cpu_name = get_str_cpu_name(cpu);
+  char* max_frequency = get_str_freq(freq);
+  char* nCores = get_str_topology(topo);
+  char* avx = get_str_avx(cpu);
+  char* sse = get_str_sse(cpu);
+  char* fma = get_str_fma(cpu);
+  char* aes = get_str_aes(cpu);
+  char* sha = get_str_sha(cpu);
+  char* l1i = get_str_l1i(cach, topo);
+  char* l1d = get_str_l1d(cach, topo);
+  char* l2 = get_str_l2(cach, topo);
+  char* l3 = get_str_l3(cach, topo);
+  char* pp = get_str_peak_performance(cpu,topo,get_freq(freq));
+
+  setAttribute(art,ATTRIBUTE_NAME,cpu_name);
+  setAttribute(art,ATTRIBUTE_FREQUENCY,max_frequency);
+  setAttribute(art,ATTRIBUTE_NCORES,nCores);
+  setAttribute(art,ATTRIBUTE_AVX,avx);
+  setAttribute(art,ATTRIBUTE_SSE,sse);
+  setAttribute(art,ATTRIBUTE_FMA,fma);
+  setAttribute(art,ATTRIBUTE_AES,aes);
+  setAttribute(art,ATTRIBUTE_SHA,sha);
+  setAttribute(art,ATTRIBUTE_L1i,l1i);
+  setAttribute(art,ATTRIBUTE_L1d,l1d);
+  setAttribute(art,ATTRIBUTE_L2,l2);
+  setAttribute(art,ATTRIBUTE_L3,l3);
+  setAttribute(art,ATTRIBUTE_PEAK,pp);
+
+  print_ascii(art);
+
+  free(cpu_name);
+  free(max_frequency);
+  free(nCores);
+  free(avx);
+  free(sse);
+  free(fma);
+  free(aes);
+  free(sha);
+  free(l1i);
+  free(l1d);
+  free(l2);
+  free(l3);
+  free(pp);
+
+  free(cpu);
+  free(art);
+  free_cache_struct(cach);
+  free_topo_struct(topo);
+  free_freq_struct(freq);   
+  
+  return true;
 }

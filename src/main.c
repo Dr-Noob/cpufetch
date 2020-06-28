@@ -3,8 +3,7 @@
 
 #include "args.h"
 #include "printer.h"
-#include "standart.h"
-#include "extended.h"
+#include "cpuid.h"
 #include "global.h"
 
 /***
@@ -68,11 +67,10 @@ int main(int argc, char* argv[]) {
   struct cpuInfo* cpu = get_cpu_info();
   if(cpu == NULL)
     return EXIT_FAILURE;
-  char* cpuName = get_str_cpu_name();
   
   if(show_levels()) {
     print_version();
-    print_levels(cpu, cpuName);
+    print_levels(cpu, get_str_cpu_name(cpu));
     return EXIT_SUCCESS;    
   }
 
@@ -88,58 +86,8 @@ int main(int argc, char* argv[]) {
   if(topo == NULL)
     return EXIT_FAILURE;
   
-  struct ascii* art = set_ascii(get_cpu_vendor(cpu),get_style());
-  if(art == NULL)
+  if(print_cpufetch(cpu, cach, freq, topo, get_style()))  
+    return EXIT_SUCCESS;
+  else
     return EXIT_FAILURE;
-  
-  char* maxFrequency = get_str_freq(freq);
-  char* nCores = get_str_topology(topo);
-  char* avx = get_str_avx(cpu);
-  char* sse = get_str_sse(cpu);
-  char* fma = get_str_fma(cpu);
-  char* aes = get_str_aes(cpu);
-  char* sha = get_str_sha(cpu);
-  char* l1i = get_str_l1i(cach, topo);
-  char* l1d = get_str_l1d(cach, topo);
-  char* l2 = get_str_l2(cach, topo);
-  char* l3 = get_str_l3(cach, topo);
-  char* pp = get_str_peak_performance(cpu,topo,get_freq(freq));
-
-  setAttribute(art,ATTRIBUTE_NAME,cpuName);
-  setAttribute(art,ATTRIBUTE_FREQUENCY,maxFrequency);
-  setAttribute(art,ATTRIBUTE_NCORES,nCores);
-  setAttribute(art,ATTRIBUTE_AVX,avx);
-  setAttribute(art,ATTRIBUTE_SSE,sse);
-  setAttribute(art,ATTRIBUTE_FMA,fma);
-  setAttribute(art,ATTRIBUTE_AES,aes);
-  setAttribute(art,ATTRIBUTE_SHA,sha);
-  setAttribute(art,ATTRIBUTE_L1i,l1i);
-  setAttribute(art,ATTRIBUTE_L1d,l1d);
-  setAttribute(art,ATTRIBUTE_L2,l2);
-  setAttribute(art,ATTRIBUTE_L3,l3);
-  setAttribute(art,ATTRIBUTE_PEAK,pp);
-
-  print_ascii(art);
-
-  free(cpuName);
-  free(maxFrequency);
-  free(nCores);
-  free(avx);
-  free(sse);
-  free(fma);
-  free(aes);
-  free(sha);
-  free(l1i);
-  free(l1d);
-  free(l2);
-  free(l3);
-  free(pp);
-
-  free(cpu);
-  free(art);
-  free_cache_struct(cach);
-  free_topo_struct(topo);
-  free_freq_struct(freq);
-
-  return EXIT_SUCCESS;
 }
