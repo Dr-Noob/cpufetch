@@ -196,6 +196,7 @@ void print_ascii_intel(struct ascii* art, uint32_t la) {
 
 void print_ascii_amd(struct ascii* art, uint32_t la) {
   int attr_to_print = -1;
+  uint32_t space_right;
   uint32_t space_up = (NUMBER_OF_LINES - art->n_attributes_set)/2;
   uint32_t space_down = NUMBER_OF_LINES - art->n_attributes_set - space_up;
   
@@ -211,7 +212,8 @@ void print_ascii_amd(struct ascii* art, uint32_t la) {
 
     if(n > space_up-1 && n < NUMBER_OF_LINES-space_down) {
       attr_to_print = get_next_attribute(art, attr_to_print);
-      printf("%s%s%s%s%s\n",art->color1, ATTRIBUTE_FIELDS[attr_to_print], art->color2, art->attributes[attr_to_print], art->reset);
+      space_right = 1 + (la - strlen(ATTRIBUTE_FIELDS[attr_to_print]));      
+      printf("%s%s%*s%s%s%s\n",art->color1, ATTRIBUTE_FIELDS[attr_to_print], space_right, "", art->color2, art->attributes[attr_to_print], art->reset);
     }
     else printf("\n");
   }
