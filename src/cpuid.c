@@ -445,19 +445,19 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
   // Sanity checks. If we read values greater than this, they can't be valid ones
   // The values were chosen by me
   if(cach->L1i > 64 * 1024) {
-    printBug("Invalid L1i size: %dKB\n", cach->L1i/1024);
+    printBug("Invalid L1i size: %dKB", cach->L1i/1024);
     return NULL;
   }
   if(cach->L1d > 64 * 1024) {
-    printBug("Invalid L1d size: %dKB\n", cach->L1d/1024);
+    printBug("Invalid L1d size: %dKB", cach->L1d/1024);
     return NULL;
   }
   if(cach->L2 != UNKNOWN && cach->L2 > 2 * 1048576) {
-    printBug("Invalid L2 size: %dMB\n", cach->L2/(1048576));
+    printBug("Invalid L2 size: %dMB", cach->L2/(1048576));
     return NULL;
   }
   if(cach->L3 != UNKNOWN && cach->L3 > 100 * 1048576) {
-    printBug("Invalid L3 size: %dMB\n", cach->L3/(1048576));
+    printBug("Invalid L3 size: %dMB", cach->L3/(1048576));
     return NULL;
   }
   
@@ -491,6 +491,10 @@ struct frequency* get_frequency_info(struct cpuInfo* cpu) {
   }
   
   return freq;
+}
+
+uint32_t get_nsockets(struct topology* topo) {
+  return topo->sockets;    
 }
 
 int64_t get_freq(struct frequency* freq) {
@@ -590,18 +594,34 @@ char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64
   return string;
 }
 
-char* get_str_topology(struct topology* topo) {
+char* get_str_topology(struct topology* topo, bool dual_socket) {
   char* string;
   if(topo->smt > 1) {
     //3 for digits, 8 for ' cores (', 3 for digits, 9 for ' threads)'
     uint32_t size = 3+8+3+9+1;
     string = malloc(sizeof(char)*size);
-    snprintf(string, size, "%d cores (%d threads)",topo->physical_cores,topo->logical_cores);
+    if(dual_socket)
+      snprintf(string, size, "%d cores (%d threads)",topo->physical_cores * topo->sockets, topo->logical_cores * topo->sockets);
+    else
+      snprintf(string, size, "%d cores (%d threads)",topo->physical_cores,topo->logical_cores);
   }
   else {
     uint32_t size = 3+7+1;
     string = malloc(sizeof(char)*size);
-    snprintf(string, size, "%d cores",topo->physical_cores);
+    if(dual_socket)
+      snprintf(string, size, "%d cores",topo->physical_cores * topo->sockets);
+    else
+      snprintf(string, size, "%d cores",topo->physical_cores);
+  }
+  return string;
+}
+
+char* get_str_sockets(struct topology* topo) {
+  char* string = malloc(sizeof(char) * 2);
+  int32_t sanity_ret = snprintf(string, 2, "%d", topo->sockets);
+  if(sanity_ret < 0) {
+    printBug("get_str_sockets: snprintf returned a negative value for input: '%d'", topo->sockets);
+    return NULL;    
   }
   return string;
 }
@@ -702,12 +722,12 @@ char* get_str_sha(struct cpuInfo* cpu) {
 
 int32_t get_value_as_smallest_unit(char ** str, uint32_t value) {
   int32_t sanity_ret;    
-  *str = malloc(sizeof(char)* 7); //4 for digits, 2 for units
+  *str = malloc(sizeof(char)* 11); //8 for digits, 2 for units
 
   if(value/1024 >= 1024)
-    sanity_ret = snprintf(*str, 6,"%d"STRING_MEGABYTES,value/(1<<20));    
+    sanity_ret = snprintf(*str, 10,"%.4g"STRING_MEGABYTES, (double)value/(1<<20));    
   else
-    sanity_ret = snprintf(*str, 6,"%d"STRING_KILOBYTES,value/(1<<10));  
+    sanity_ret = snprintf(*str, 10,"%.4g"STRING_KILOBYTES, (double)value/(1<<10));  
   
   return sanity_ret;
 }
@@ -754,7 +774,7 @@ char* get_str_cache_one(int32_t cache_size) {
   int32_t tmp_len = get_value_as_smallest_unit(&tmp, cache_size);
   
   if(tmp_len < 0) {
-    printBug("get_value_as_smallest_unit: snprintf returned a negative value for input: %d\n", cache_size);
+    printBug("get_value_as_smallest_unit: snprintf returned a negative value for input: %d", cache_size);
     return NULL;    
   }
       
@@ -762,7 +782,7 @@ char* get_str_cache_one(int32_t cache_size) {
   sanity_ret = snprintf(string, size, "%s", tmp);
   
   if(sanity_ret < 0) {
-    printBug("get_str_cache_one: snprintf returned a negative value for input: '%s'\n", tmp);
+    printBug("get_str_cache_one: snprintf returned a negative value for input: '%s'", tmp);
     return NULL;    
   }
   free(tmp);
@@ -770,14 +790,18 @@ char* get_str_cache_one(int32_t cache_size) {
 }
 
 char* get_str_cache(int32_t cache_size, struct topology* topo, bool llc) {
-  if(llc) { 
-    if(topo->sockets == 1)
+  if(topo->sockets == 1) {
+    if(llc)
       return get_str_cache_one(cache_size);
     else
-      return get_str_cache_two(cache_size, topo->sockets);
+      return get_str_cache_two(cache_size, topo->physical_cores);
   }
-  else 
-    return get_str_cache_two(cache_size, topo->physical_cores);
+  else {
+    if(llc)
+      return get_str_cache_two(cache_size, topo->sockets);
+    else
+      return get_str_cache_two(cache_size, topo->physical_cores * topo->sockets);
+  }
 }
 
 char* get_str_l1i(struct cache* cach, struct topology* topo) {

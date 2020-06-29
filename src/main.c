@@ -6,30 +6,7 @@
 #include "cpuid.h"
 #include "global.h"
 
-/***
-                              ################                
-                      #######                #######          
-                 ####                              ####       
-             ###                                     ####     
-        ###                                             ###   Name:       Intel(R) Xeon(R) CPU E5-2698 v4 @ 2.20GHz
-        ###                                             ###   Sockets:    2
-                                                              Cores:      20 (40 threads)
-                                                              Frequency:  3.60 GHz
-   ##   ###   #########   ######   ######    ###        ###   AVX:        AVX,AVX2
-  ##    ###   ###    ###  ###    ####  ####  ###        ###   SSE:        SSE,SSE2,SSE3,SSSE3,SSE4_1,SSE4_2
- ##     ###   ###    ###  ###    ###    ###  ###       ###    FMA:        FMA3
-##       ##   ###    ###   #####  #########   ##  ###         L1d Size:   32KB  (1MB Total)
-##                                                ##          L1i Size:   32KB  (1MB Total)
-###                                                           L2  Size:   256KB (4MB Total)
- ###                                                          L3  Size:   50M   (100MB Total)
- ####                                        ####             Peak Perf.: 2.30 TFLOP/s
-   #####                               ##########             
-     ##########               ################                
-         ###############################    
-
-***/
-
-static const char* VERSION = "0.411";
+static const char* VERSION = "0.5";
 
 void print_help(char *argv[]) {
   printf("Usage: %s [--version] [--help] [--style STYLE]\n\

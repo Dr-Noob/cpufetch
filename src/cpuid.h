@@ -19,6 +19,7 @@ typedef int32_t VENDOR;
 
 struct cpuInfo* get_cpu_info();
 VENDOR get_cpu_vendor(struct cpuInfo* cpu);
+uint32_t get_nsockets(struct topology* topo);
 int64_t get_freq(struct frequency* freq);
 struct cache* get_cache_info(struct cpuInfo* cpu);
 struct frequency* get_frequency_info(struct cpuInfo* cpu);
@@ -39,7 +40,8 @@ char* get_str_l3(struct cache* cach, struct topology* topo);
 
 char* get_str_freq(struct frequency* freq);
 
-char* get_str_topology(struct topology* topo);
+char* get_str_sockets(struct topology* topo);
+char* get_str_topology(struct topology* topo, bool dual_socket);
 
 char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64_t freq);
 
