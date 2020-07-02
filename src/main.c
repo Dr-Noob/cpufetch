@@ -6,12 +6,15 @@
 #include "cpuid.h"
 #include "global.h"
 
-static const char* VERSION = "0.51";
+static const char* VERSION = "0.52";
 
 void print_help(char *argv[]) {
-  printf("Usage: %s [--version] [--help] [--style STYLE]\n\
+  printf("Usage: %s [--version] [--help] [--levels] [--style STYLE] [--color 'R,G,B:R,G,B']\n\
 Options: \n\
   --color    Set text color. Two colors (in RGB format) must be specified in the form: R,G,B:R,G,B\n\
+  --style    Set the style of the ASCII art:\n\
+    * fancy \n\
+    * retro \n\
   --help     Prints this help and exit\n\
   --levels   Prints CPU model and cpuid levels (debug purposes)\n\
   --version  Prints cpufetch version and exit\n",
@@ -60,7 +63,7 @@ int main(int argc, char* argv[]) {
   if(topo == NULL)
     return EXIT_FAILURE;
   
-  if(print_cpufetch(cpu, cach, freq, topo, get_color1(), get_color2()))  
+  if(print_cpufetch(cpu, cach, freq, topo, get_style(), get_color1(), get_color2()))  
     return EXIT_SUCCESS;
   else
     return EXIT_FAILURE;

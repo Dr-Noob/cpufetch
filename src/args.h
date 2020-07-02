@@ -4,14 +4,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-bool parse_args(int argc, char* argv[]);
-bool show_help();
-bool show_levels();
-bool show_version();
-bool verbose_enabled();
-struct color* get_color1();
-struct color* get_color2();
-
 struct color {
   int32_t R;
   int32_t G;
@@ -19,5 +11,14 @@ struct color {
 };
 
 #include "printer.h"
+
+bool parse_args(int argc, char* argv[]);
+bool show_help();
+bool show_levels();
+bool show_version();
+bool verbose_enabled();
+struct color* get_color1();
+struct color* get_color2();
+STYLE get_style();
 
 #endif

@@ -5,24 +5,36 @@
 #include "args.h"
 #include "global.h"
 
+#define ARG_STR_STYLE    "style"
 #define ARG_STR_COLOR    "color"
 #define ARG_STR_HELP     "help"
 #define ARG_STR_LEVELS   "levels"
 #define ARG_STR_VERSION  "version"
-#define ARG_CHAR_COLOR    'c'
-#define ARG_CHAR_HELP     'h'
-#define ARG_CHAR_LEVELS   'l'
-#define ARG_CHAR_VERSION  'v'
+
+#define ARG_CHAR_STYLE   's'
+#define ARG_CHAR_COLOR   'c'
+#define ARG_CHAR_HELP    'h'
+#define ARG_CHAR_LEVELS  'l'
+#define ARG_CHAR_VERSION 'v'
+
+#define STYLE_STR_1      "fancy"
+#define STYLE_STR_2      "retro"
 
 struct args_struct {
   bool levels_flag;
   bool help_flag;
   bool version_flag;
+  STYLE style;
   struct color* color1;
   struct color* color2;
 };
 
+static const char* SYTLES_STR_LIST[STYLES_COUNT] = { STYLE_STR_1, STYLE_STR_2 };
 static struct args_struct args;
+
+STYLE get_style() {
+  return args.style;
+}
 
 struct color* get_color1() {
   return args.color1;
@@ -46,6 +58,16 @@ bool show_levels() {
 
 bool verbose_enabled() {
   return false;
+}
+
+STYLE parse_style(char* style) {
+  int i = 0;
+  while(i != STYLES_COUNT && strcmp(SYTLES_STR_LIST[i],style) != 0)
+    i++;
+
+  if(i == STYLES_COUNT)
+    return STYLE_INVALID;
+  return i;
 }
 
 bool parse_color(char* optarg, struct color** c1, struct color** c2) {
@@ -97,8 +119,10 @@ bool parse_args(int argc, char* argv[]) {
   bool color_flag = false;
   args.levels_flag = false;
   args.help_flag = false;
+  args.style = STYLE_EMPTY;
 
   static struct option long_options[] = {
+      {ARG_STR_STYLE,    required_argument, 0, ARG_CHAR_STYLE   },
       {ARG_STR_COLOR,    required_argument, 0, ARG_CHAR_COLOR   },
       {ARG_STR_HELP,     no_argument,       0, ARG_CHAR_HELP    },
       {ARG_STR_LEVELS,   no_argument,       0, ARG_CHAR_LEVELS  },
@@ -117,6 +141,17 @@ bool parse_args(int argc, char* argv[]) {
        color_flag  = true;       
        if(!parse_color(optarg, &args.color1, &args.color2)) {
          printErr("Color parsing failed");
+         return false;
+       }
+     }
+     else if(c == ARG_CHAR_STYLE) {
+       if(args.style != STYLE_EMPTY) {
+         printErr("Style option specified more than once");
+         return false;
+       }
+       args.style = parse_style(optarg);
+       if(args.style == STYLE_INVALID) {
+         printErr("Invalid style '%s'\n",optarg);
          return false;
        }
      }

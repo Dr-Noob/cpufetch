@@ -7,23 +7,20 @@
 #include "ascii.h"
 #include "global.h"
 
-/* style: retro (#)
-          fancy ( )
-          default -> fancy
-  color: default -> amd / intel
-         blue
-         blue_dark
-*/
-
-#define COL_NONE            ""
-#define COL_INTEL_DEFAULT_1 "\x1b[36;1m"
-#define COL_INTEL_DEFAULT_2 "\x1b[37;1m"
-#define COL_AMD_DEFAULT_1   "\x1b[37;1m"
-#define COL_AMD_DEFAULT_2   "\x1b[31;1m"
-#define RESET               "\x1b[m"
-
-#define COL_BACK_1      "\x1b[32;44m"
-#define COL_BACK_2      "\x1b[32;47m"
+#define COL_NONE          ""
+#define COL_INTEL_FANCY_1 "\x1b[46;1m"
+#define COL_INTEL_FANCY_2 "\x1b[47;1m"
+#define COL_INTEL_FANCY_3 "\x1b[36;1m"
+#define COL_INTEL_FANCY_4 "\x1b[37;1m"
+#define COL_INTEL_RETRO_1 "\x1b[36;1m"
+#define COL_INTEL_RETRO_2 "\x1b[37;1m"
+#define COL_AMD_FANCY_1   "\x1b[37;1m"
+#define COL_AMD_FANCY_2   "\x1b[31;1m"
+#define COL_AMD_FANCY_3   "\x1b[37;1m"
+#define COL_AMD_FANCY_4   "\x1b[31;1m"
+#define COL_AMD_RETRO_1   "\x1b[37;1m"
+#define COL_AMD_RETRO_2   "\x1b[31;1m"
+#define RESET             "\x1b[m"
 
 #define TITLE_NAME        "Name:"
 #define TITLE_FREQUENCY   "Frequency:"
@@ -74,8 +71,11 @@ static const int ATTRIBUTE_LIST[MAX_ATTRIBUTE_COUNT] =  { ATTRIBUTE_NAME, ATTRIB
 
 struct ascii {
   char art[NUMBER_OF_LINES][LINE_SIZE];
-  char color1[100];
-  char color2[100];
+  char color1_ascii[100];
+  char color2_ascii[100];
+  char color1_text[100];
+  char color2_text[100];
+  char ascii_chars[2];
   char reset[100];
   char* attributes[MAX_ATTRIBUTE_COUNT];
   uint32_t n_attributes_set;
@@ -87,17 +87,22 @@ void setAttribute(struct ascii* art, int type, char* value) {
   art->n_attributes_set++;
 }
 
-char* rgb_to_ansi(struct color* c, bool bold) {
+char* rgb_to_ansi(struct color* c, bool background, bool bold) {
   char* str = malloc(sizeof(char) * 100);
-  if(bold)
-    snprintf(str, 48, "\x1b[1m\x1b[38;2;%.3d;%.3d;%.3dm", c->R, c->G, c->B);
-  else
-    snprintf(str, 44, "\x1b[38;2;%.3d;%.3d;%.3dm", c->R, c->G, c->B);
+  if(background) {
+    snprintf(str, 44, "\x1b[48;2;%.3d;%.3d;%.3dm", c->R, c->G, c->B);
+  }
+  else {
+    if(bold)
+      snprintf(str, 48, "\x1b[1m\x1b[38;2;%.3d;%.3d;%.3dm", c->R, c->G, c->B);
+    else
+      snprintf(str, 44, "\x1b[38;2;%.3d;%.3d;%.3dm", c->R, c->G, c->B);
+  }
   
   return str;
 }
 
-struct ascii* set_ascii(VENDOR cpuVendor, struct color* c1, struct color* c2) {
+struct ascii* set_ascii(VENDOR cpuVendor, STYLE style, struct color* c1, struct color* c2) {
   // Sanity checks //
   for(int i=0; i < MAX_ATTRIBUTE_COUNT; i++) {
     if(ATTRIBUTE_FIELDS[i] == NULL) {
@@ -110,7 +115,7 @@ struct ascii* set_ascii(VENDOR cpuVendor, struct color* c1, struct color* c2) {
     }
   }
   
-  char *COL_1, *COL_2;
+  char *COL_FANCY_1, *COL_FANCY_2, *COL_FANCY_3, *COL_FANCY_4, *COL_RETRO_1, *COL_RETRO_2;
   struct ascii* art = malloc(sizeof(struct ascii));
   art->n_attributes_set = 0;
   art->vendor = cpuVendor;
@@ -118,33 +123,74 @@ struct ascii* set_ascii(VENDOR cpuVendor, struct color* c1, struct color* c2) {
     art->attributes[i] = NULL;
   strcpy(art->reset,RESET);
   
-  if(c1 != NULL && c2 != NULL) {
-    COL_1 = rgb_to_ansi(c1, true);
-    COL_2 = rgb_to_ansi(c2, false);    
+  if(cpuVendor == VENDOR_INTEL) {
+    COL_FANCY_1 = COL_INTEL_FANCY_1;
+    COL_FANCY_2 = COL_INTEL_FANCY_2;
+    COL_FANCY_3 = COL_INTEL_FANCY_3;
+    COL_FANCY_4 = COL_INTEL_FANCY_4;
+    COL_RETRO_1 = COL_INTEL_RETRO_1;
+    COL_RETRO_2 = COL_INTEL_RETRO_2;    
+    art->ascii_chars[0] = '#';
   }
   else {
-    if(cpuVendor == VENDOR_INTEL) {
-      COL_1 = COL_INTEL_DEFAULT_1;
-      COL_2 = COL_INTEL_DEFAULT_2;
-    }
-    else {
-      COL_1 = COL_AMD_DEFAULT_1;
-      COL_2 = COL_AMD_DEFAULT_2; 
-    }
+    COL_FANCY_1 = COL_AMD_FANCY_1;
+    COL_FANCY_2 = COL_AMD_FANCY_2;
+    COL_FANCY_3 = COL_AMD_FANCY_3;
+    COL_FANCY_4 = COL_AMD_FANCY_4;
+    COL_RETRO_1 = COL_AMD_RETRO_1;
+    COL_RETRO_2 = COL_AMD_RETRO_2;       
+    art->ascii_chars[0] = '@';    
   }
+  art->ascii_chars[1] = '#';
   
-  #ifdef _WIN32
-    strcpy(art->color1,COL_NONE);
-    strcpy(art->color2,COL_NONE);  
-    art->reset[0] = '\0';  
-  #else
-    strcpy(art->color1,COL_1);
-    strcpy(art->color2,COL_2);
-  #endif  
-    
-  if(c1 != NULL && c2 != NULL) {
-    free(COL_1);
-    free(COL_2);
+  switch(style) {
+    case STYLE_EMPTY:
+      #ifdef _WIN32
+        strcpy(art->color1_ascii,COL_NONE);
+        strcpy(art->color2_ascii,COL_NONE);  
+        strcpy(art->color1_text,COL_NONE);  
+        strcpy(art->color2_text,COL_NONE);  
+        art->reset[0] = '\0';
+        break;
+      #endif
+    case STYLE_FANCY:
+      if(c1 != NULL && c2 != NULL) {
+        COL_FANCY_1 = rgb_to_ansi(c1, true, true);
+        COL_FANCY_2 = rgb_to_ansi(c2, true, true);
+        COL_FANCY_3 = rgb_to_ansi(c1, false, true);
+        COL_FANCY_4 = rgb_to_ansi(c2, false, true);        
+      } 
+      art->ascii_chars[0] = ' ';
+      art->ascii_chars[1] = ' ';
+      strcpy(art->color1_ascii,COL_FANCY_1);
+      strcpy(art->color2_ascii,COL_FANCY_2);  
+      strcpy(art->color1_text,COL_FANCY_3);  
+      strcpy(art->color2_text,COL_FANCY_4);  
+      if(c1 != NULL && c2 != NULL) {
+        free(COL_FANCY_1);
+        free(COL_FANCY_2);
+        free(COL_FANCY_3);
+        free(COL_FANCY_4);
+      }
+      break;
+    case STYLE_RETRO:  
+      if(c1 != NULL && c2 != NULL) {
+        COL_RETRO_1 = rgb_to_ansi(c1, false, true);
+        COL_RETRO_2 = rgb_to_ansi(c2, false, true);   
+      }   
+      strcpy(art->color1_ascii,COL_RETRO_1);
+      strcpy(art->color2_ascii,COL_RETRO_2);  
+      strcpy(art->color1_text,COL_RETRO_1);  
+      strcpy(art->color2_text,COL_RETRO_2); 
+      if(c1 != NULL && c2 != NULL) {
+        free(COL_RETRO_1);
+        free(COL_RETRO_2);
+      }
+      break;
+    case STYLE_INVALID:  
+    default:
+      printBug("Found invalid style (%d)",style);
+      return NULL;    
   }
   
   char tmp[NUMBER_OF_LINES*LINE_SIZE];
@@ -162,7 +208,7 @@ uint32_t get_next_attribute(struct ascii* art, uint32_t last_attr) {
   return last_attr;
 }
 
-void print_ascii_intel(struct ascii* art, uint32_t la) {
+void print_ascii_intel(struct ascii* art, STYLE s, uint32_t la) {
   bool flag = false;
   int attr_to_print = -1;
   uint32_t space_right;
@@ -175,15 +221,15 @@ void print_ascii_intel(struct ascii* art, uint32_t la) {
       if(flag) {
         if(art->art[n][i] == ' ') {
           flag = false;
-          printf("%c",' ');
+          printf("%s%c%s", art->color2_ascii, art->ascii_chars[1], art->reset);          
         }
         else
-          printf("%s%c%s",  art->color1, '#', art->reset);
+          printf("%s%c%s",  art->color1_ascii, art->ascii_chars[0], art->reset);
       }
       else {
         if(art->art[n][i] != ' ' && art->art[n][i] != '\0') {
           flag = true;
-          printf("%s%c%s", art->color2, '#', art->reset);
+          printf("%c",' ');
         }
         else
           printf("%c",' ');
@@ -193,13 +239,13 @@ void print_ascii_intel(struct ascii* art, uint32_t la) {
     if(n > space_up-1 && n < NUMBER_OF_LINES-space_down) {      
       attr_to_print = get_next_attribute(art, attr_to_print);
       space_right = 1 + (la - strlen(ATTRIBUTE_FIELDS[attr_to_print]));      
-      printf("%s%s%*s%s%s%s\n",art->color1, ATTRIBUTE_FIELDS[attr_to_print], space_right, "", art->color2, art->attributes[attr_to_print], art->reset);
+      printf("%s%s%s%*s%s%s%s\n",art->color1_text, ATTRIBUTE_FIELDS[attr_to_print], art->reset, space_right, "", art->color2_text, art->attributes[attr_to_print], art->reset);
     }
     else printf("\n");
   }
 }
 
-void print_ascii_amd(struct ascii* art, uint32_t la) {
+void print_ascii_amd(struct ascii* art, STYLE s, uint32_t la) {
   int attr_to_print = -1;
   uint32_t space_right;
   uint32_t space_up = (NUMBER_OF_LINES - art->n_attributes_set)/2;
@@ -208,9 +254,9 @@ void print_ascii_amd(struct ascii* art, uint32_t la) {
   for(uint32_t n=0;n<NUMBER_OF_LINES;n++) {
     for(int i=0;i<LINE_SIZE;i++) {
       if(art->art[n][i] == '@')
-        printf("%s%c%s", art->color1, art->art[n][i], art->reset);
+        printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
       else if(art->art[n][i] == '#')
-        printf("%s%c%s", art->color2, art->art[n][i], art->reset);
+        printf("%s%c%s", art->color2_ascii, art->ascii_chars[1], art->reset);
       else
         printf("%c",art->art[n][i]);
     }
@@ -218,7 +264,7 @@ void print_ascii_amd(struct ascii* art, uint32_t la) {
     if(n > space_up-1 && n < NUMBER_OF_LINES-space_down) {
       attr_to_print = get_next_attribute(art, attr_to_print);
       space_right = 1 + (la - strlen(ATTRIBUTE_FIELDS[attr_to_print]));      
-      printf("%s%s%*s%s%s%s\n",art->color1, ATTRIBUTE_FIELDS[attr_to_print], space_right, "", art->color2, art->attributes[attr_to_print], art->reset);
+      printf("%s%s%s%*s%s%s%s\n",art->color1_text, ATTRIBUTE_FIELDS[attr_to_print], art->reset, space_right, "", art->color2_text, art->attributes[attr_to_print], art->reset);
     }
     else printf("\n");
   }
@@ -239,16 +285,16 @@ uint32_t longest_attribute_length(struct ascii* art) {
   return max;
 }
 
-void print_ascii(struct ascii* art) {
+void print_ascii(struct ascii* art, STYLE s) {
   uint32_t longest_attribute = longest_attribute_length(art);
   if(art->vendor == VENDOR_INTEL)
-    print_ascii_intel(art, longest_attribute);
+    print_ascii_intel(art, s, longest_attribute);
   else
-    print_ascii_amd(art, longest_attribute);
+    print_ascii_amd(art, s, longest_attribute);
 }
 
-bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* freq, struct topology* topo, struct color* c1, struct color* c2) {
-  struct ascii* art = set_ascii(get_cpu_vendor(cpu), c1, c2);
+bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* freq, struct topology* topo, STYLE s, struct color* c1, struct color* c2) {
+  struct ascii* art = set_ascii(get_cpu_vendor(cpu), s, c1, c2);
   if(art == NULL)
     return false;
   
@@ -293,7 +339,7 @@ bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* f
     return false;    
   }
 
-  print_ascii(art);
+  print_ascii(art, s);
 
   free(cpu_name);
   free(max_frequency);
