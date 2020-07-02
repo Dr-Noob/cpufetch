@@ -6,15 +6,12 @@
 #include "cpuid.h"
 #include "global.h"
 
-static const char* VERSION = "0.5";
+static const char* VERSION = "0.51";
 
 void print_help(char *argv[]) {
   printf("Usage: %s [--version] [--help] [--style STYLE]\n\
 Options: \n\
-  --style    Set logo style color\n\
-    default:   Default style color\n\
-    dark:      Dark style color\n\
-    none:      Don't use colors\n\
+  --color    Set text color. Two colors (in RGB format) must be specified in the form: R,G,B:R,G,B\n\
   --help     Prints this help and exit\n\
   --levels   Prints CPU model and cpuid levels (debug purposes)\n\
   --version  Prints cpufetch version and exit\n",
@@ -63,7 +60,7 @@ int main(int argc, char* argv[]) {
   if(topo == NULL)
     return EXIT_FAILURE;
   
-  if(print_cpufetch(cpu, cach, freq, topo, get_style()))  
+  if(print_cpufetch(cpu, cach, freq, topo, get_color1(), get_color2()))  
     return EXIT_SUCCESS;
   else
     return EXIT_FAILURE;

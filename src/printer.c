@@ -7,16 +7,23 @@
 #include "ascii.h"
 #include "global.h"
 
+/* style: retro (#)
+          fancy ( )
+          default -> fancy
+  color: default -> amd / intel
+         blue
+         blue_dark
+*/
+
 #define COL_NONE            ""
 #define COL_INTEL_DEFAULT_1 "\x1b[36;1m"
 #define COL_INTEL_DEFAULT_2 "\x1b[37;1m"
-#define COL_INTEL_DARK_1    "\x1b[34;1m"
-#define COL_INTEL_DARK_2    "\x1b[30m"
 #define COL_AMD_DEFAULT_1   "\x1b[37;1m"
 #define COL_AMD_DEFAULT_2   "\x1b[31;1m"
-#define COL_AMD_DARK_1      "\x1b[30;1m"
-#define COL_AMD_DARK_2      "\x1b[32;1m"
-#define RESET               "\x1b[0m"
+#define RESET               "\x1b[m"
+
+#define COL_BACK_1      "\x1b[32;44m"
+#define COL_BACK_2      "\x1b[32;47m"
 
 #define TITLE_NAME        "Name:"
 #define TITLE_FREQUENCY   "Frequency:"
@@ -51,8 +58,6 @@
 #define ATTRIBUTE_L3             13
 #define ATTRIBUTE_PEAK           14
 
-static const int STYLES_CODE_LIST [STYLES_COUNT] = {STYLE_DEFAULT, STYLE_DARK};
-
 static const char* ATTRIBUTE_FIELDS [MAX_ATTRIBUTE_COUNT] = { TITLE_NAME, TITLE_FREQUENCY, TITLE_SOCKETS,
                                                               TITLE_NCORES, TITLE_NCORES_DUAL, 
                                                               TITLE_AVX, TITLE_SSE,
@@ -69,9 +74,9 @@ static const int ATTRIBUTE_LIST[MAX_ATTRIBUTE_COUNT] =  { ATTRIBUTE_NAME, ATTRIB
 
 struct ascii {
   char art[NUMBER_OF_LINES][LINE_SIZE];
-  char color1[10];
-  char color2[10];
-  char reset[10];
+  char color1[100];
+  char color2[100];
+  char reset[100];
   char* attributes[MAX_ATTRIBUTE_COUNT];
   uint32_t n_attributes_set;
   VENDOR vendor;
@@ -82,7 +87,17 @@ void setAttribute(struct ascii* art, int type, char* value) {
   art->n_attributes_set++;
 }
 
-struct ascii* set_ascii(VENDOR cpuVendor, STYLE style) {
+char* rgb_to_ansi(struct color* c, bool bold) {
+  char* str = malloc(sizeof(char) * 100);
+  if(bold)
+    snprintf(str, 48, "\x1b[1m\x1b[38;2;%.3d;%.3d;%.3dm", c->R, c->G, c->B);
+  else
+    snprintf(str, 44, "\x1b[38;2;%.3d;%.3d;%.3dm", c->R, c->G, c->B);
+  
+  return str;
+}
+
+struct ascii* set_ascii(VENDOR cpuVendor, struct color* c1, struct color* c2) {
   // Sanity checks //
   for(int i=0; i < MAX_ATTRIBUTE_COUNT; i++) {
     if(ATTRIBUTE_FIELDS[i] == NULL) {
@@ -95,7 +110,7 @@ struct ascii* set_ascii(VENDOR cpuVendor, STYLE style) {
     }
   }
   
-  char *COL_DEFAULT_1, *COL_DEFAULT_2, *COL_DARK_1, *COL_DARK_2;
+  char *COL_1, *COL_2;
   struct ascii* art = malloc(sizeof(struct ascii));
   art->n_attributes_set = 0;
   art->vendor = cpuVendor;
@@ -103,42 +118,33 @@ struct ascii* set_ascii(VENDOR cpuVendor, STYLE style) {
     art->attributes[i] = NULL;
   strcpy(art->reset,RESET);
   
-  if(cpuVendor == VENDOR_INTEL) {
-    COL_DEFAULT_1 = COL_INTEL_DEFAULT_1;
-    COL_DEFAULT_2 = COL_INTEL_DEFAULT_2;
-    COL_DARK_1 = COL_INTEL_DARK_1;
-    COL_DARK_2 = COL_INTEL_DARK_2;
+  if(c1 != NULL && c2 != NULL) {
+    COL_1 = rgb_to_ansi(c1, true);
+    COL_2 = rgb_to_ansi(c2, false);    
   }
   else {
-    COL_DEFAULT_1 = COL_AMD_DEFAULT_1;
-    COL_DEFAULT_2 = COL_AMD_DEFAULT_2;
-    COL_DARK_1 = COL_AMD_DARK_1;
-    COL_DARK_2 = COL_AMD_DARK_2;    
+    if(cpuVendor == VENDOR_INTEL) {
+      COL_1 = COL_INTEL_DEFAULT_1;
+      COL_2 = COL_INTEL_DEFAULT_2;
+    }
+    else {
+      COL_1 = COL_AMD_DEFAULT_1;
+      COL_2 = COL_AMD_DEFAULT_2; 
+    }
   }
   
-  switch(style) {
-    case STYLE_NONE:
-        strcpy(art->color1,COL_NONE);
-        strcpy(art->color2,COL_NONE);
-        break; 
-    case STYLE_EMPTY:
-      #ifdef _WIN32
-        strcpy(art->color1,COL_NONE);
-        strcpy(art->color2,COL_NONE);  
-        art->reset[0] = '\0';
-        break;
-      #endif
-    case STYLE_DEFAULT:
-      strcpy(art->color1,COL_DEFAULT_1);
-      strcpy(art->color2,COL_DEFAULT_2);
-      break;
-    case STYLE_DARK:
-      strcpy(art->color1,COL_DARK_1);
-      strcpy(art->color2,COL_DARK_2);
-      break;
-    default:
-      printBug("Found invalid style (%d)",style);
-      return NULL;    
+  #ifdef _WIN32
+    strcpy(art->color1,COL_NONE);
+    strcpy(art->color2,COL_NONE);  
+    art->reset[0] = '\0';  
+  #else
+    strcpy(art->color1,COL_1);
+    strcpy(art->color2,COL_2);
+  #endif  
+    
+  if(c1 != NULL && c2 != NULL) {
+    free(COL_1);
+    free(COL_2);
   }
   
   char tmp[NUMBER_OF_LINES*LINE_SIZE];
@@ -169,21 +175,20 @@ void print_ascii_intel(struct ascii* art, uint32_t la) {
       if(flag) {
         if(art->art[n][i] == ' ') {
           flag = false;
-          printf("%c",art->art[n][i]);
+          printf("%c",' ');
         }
         else
-          printf("%s%c%s", art->color1, art->art[n][i], art->reset);
+          printf("%s%c%s",  art->color1, '#', art->reset);
       }
       else {
-        if(art->art[n][i] != ' ') {
+        if(art->art[n][i] != ' ' && art->art[n][i] != '\0') {
           flag = true;
-          printf("%s%c%s", art->color2, art->art[n][i], art->reset);
+          printf("%s%c%s", art->color2, '#', art->reset);
         }
         else
-          printf("%c",art->art[n][i]);
+          printf("%c",' ');
       }
     }
-
     
     if(n > space_up-1 && n < NUMBER_OF_LINES-space_down) {      
       attr_to_print = get_next_attribute(art, attr_to_print);
@@ -242,8 +247,8 @@ void print_ascii(struct ascii* art) {
     print_ascii_amd(art, longest_attribute);
 }
 
-bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* freq, struct topology* topo, STYLE s) {
-  struct ascii* art = set_ascii(get_cpu_vendor(cpu), s);
+bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* freq, struct topology* topo, struct color* c1, struct color* c2) {
+  struct ascii* art = set_ascii(get_cpu_vendor(cpu), c1, c2);
   if(art == NULL)
     return false;
   
