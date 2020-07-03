@@ -151,10 +151,13 @@ char* get_str_cpu_name_internal() {
     name[c++] = (edx>>24) & MASK;        
   }
   name[c] = '\0';
-
+  
   //Remove unused characters  
   char *str = name;
   char *dest = name;
+  // Remove spaces before name
+  while (*str != '\0' && *str == ' ')str++; 
+  // Remove spaces between the name and after it
   while (*str != '\0') {
     while (*str == ' ' && *(str + 1) == ' ') str++;
     *dest++ = *str++;
@@ -403,7 +406,7 @@ struct topology* get_topology_info(struct cpuInfo* cpu) {
       printBug("Cant get topology because VENDOR is empty");
       return NULL;
   }
-     
+  
   if(topo->smt_enabled)
     topo->sockets = topo->total_cores / topo->smt / topo->physical_cores; // Idea borrowed from lscpu
   else
