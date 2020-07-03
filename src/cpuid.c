@@ -1,15 +1,17 @@
+#ifdef _WIN32
+#include <windows.h>
+#else
+#define _GNU_SOURCE
+#include <sched.h>
+#include <unistd.h>
+#include "udev.h"
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 #include <stdbool.h>
-
-#ifdef _WIN32
-#include <windows.h>
-#else
-#include <unistd.h>
-#include "udev.h"
-#endif
 
 #include "cpuid.h"
 #include "cpuid_asm.h"
@@ -79,7 +81,8 @@ struct topology {
   uint32_t logical_cores;
   uint32_t smt;  
   uint32_t sockets;  
-  bool ht;
+  bool smt_available;
+  bool smt_enabled;
 };
 
 void init_cpu_info(struct cpuInfo* cpu) {
@@ -258,7 +261,47 @@ struct cpuInfo* get_cpu_info() {
   return cpu;
 }
 
-// 80/2/20
+bool bind_to_cpu(int cpu_id) {
+  #ifdef _WIN32 // TODO
+    return false;
+  #else    
+    cpu_set_t currentCPU;
+    CPU_ZERO(&currentCPU);
+    CPU_SET(cpu_id, &currentCPU);
+    if (sched_setaffinity (0, sizeof(currentCPU), &currentCPU) == -1) {
+      perror("sched_setaffinity");
+      return false;
+    }
+    return true;
+  #endif  
+}
+
+uint32_t apic_id(int cpu_id) {
+  uint32_t eax = 0x0000000B;
+  uint32_t ebx = 0;
+  uint32_t ecx = 0;
+  uint32_t edx = 0;
+
+  cpuid(&eax, &ebx, &ecx, &edx);
+  
+  return edx;
+}
+
+bool is_smt_enabled(struct topology* topo) {
+  uint32_t id;
+  
+  for(int i = 0; i < topo->total_cores; i++) {
+    if(!bind_to_cpu(i)) {
+      printErr("Failed binding to CPU %d", i);
+      return false;
+    }
+    id = apic_id(i) & 1; // get the last bit
+    if(id == 1) return true;
+  }
+  
+  return false;
+}
+
 struct topology* get_topology_info(struct cpuInfo* cpu) {
   struct topology* topo = malloc(sizeof(struct topology));
   uint32_t eax = 0;
@@ -270,12 +313,27 @@ struct topology* get_topology_info(struct cpuInfo* cpu) {
   if (cpu->maxLevels >= 0x00000001) {
     eax = 0x00000001;
     cpuid(&eax, &ebx, &ecx, &edx);
-    topo->ht = edx & (1 << 28);
+    topo->smt_available = edx & (1 << 28);
   }
   else {
-    printWarn("Can't read HT information from cpuid (needed level is 0x%.8X, max is 0x%.8X). Assuming HT is disabled", 0x00000001, cpu->maxLevels); 
-    topo->ht = false;
+    printWarn("Can't read HT information from cpuid (needed level is 0x%.8X, max is 0x%.8X). Assuming HT is not available", 0x00000001, cpu->maxLevels); 
+    topo->smt_available = false;
+    topo->smt_enabled = false;
   }
+  
+  // Ask the OS the total number of cores it sees
+  // If we have one socket, it will be same as the cpuid,
+  // but in dual socket it will not!
+  #ifdef _WIN32
+    SYSTEM_INFO info;
+    GetSystemInfo(&info);
+    topo->total_cores = info.dwNumberOfProcessors;
+  #else
+    if((topo->total_cores = sysconf(_SC_NPROCESSORS_ONLN)) == -1) {
+      perror("sysconf");
+      topo->total_cores = topo->logical_cores; // fallback
+    }    
+  #endif 
     
   switch(cpu->cpu_vendor) {
     case VENDOR_INTEL:  
@@ -300,12 +358,14 @@ struct topology* get_topology_info(struct cpuInfo* cpu) {
         }
         topo->logical_cores = ebx & 0xFFFF;
         topo->physical_cores = topo->logical_cores / topo->smt;
+        topo->smt_enabled = is_smt_enabled(topo);
       }
       else {
         printWarn("Can't read topology information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x0000000B, cpu->maxLevels); 
         topo->physical_cores = 1;
         topo->logical_cores = 1;
         topo->smt = 1;
+        topo->smt_enabled = false;
       }
       break;
     case VENDOR_AMD:  
@@ -320,37 +380,34 @@ struct topology* get_topology_info(struct cpuInfo* cpu) {
           topo->smt = ((ebx >> 8) & 0x03) + 1;          
         }
         else {
-          printWarn("Can't read topology information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x8000001E, cpu->maxLevels); 
+          printWarn("Can't read topology information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x8000001E, cpu->maxExtendedLevels); 
           topo->smt = 1;    
         }
-        topo->physical_cores = topo->logical_cores / topo->smt;
+        topo->physical_cores = topo->logical_cores / topo->smt;        
       }
       else {
-        printWarn("Can't read topology information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x80000008, cpu->maxLevels); 
+        printWarn("Can't read topology information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x80000008, cpu->maxExtendedLevels); 
         topo->physical_cores = 1;
         topo->logical_cores = 1;
         topo->smt = 1;    
+      }
+      if (cpu->maxLevels >= 0x0000000B) {
+        topo->smt_enabled = is_smt_enabled(topo);
+      }
+      else {
+        printWarn("Can't read topology information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x80000008, cpu->maxLevels);   
+        topo->smt_enabled = false;
       }
       break;
     default:
       printBug("Cant get topology because VENDOR is empty");
       return NULL;
   }
-  
-  // Ask the OS the total number of cores it sees
-  // If we have one socket, it will be same as the cpuid,
-  // but in dual socket it will not!
-  #ifdef _WIN32
-    SYSTEM_INFO info;
-    GetSystemInfo(&info);
-    topo->total_cores = info.dwNumberOfProcessors;
-  #else
-    if((topo->total_cores = sysconf(_SC_NPROCESSORS_ONLN)) == -1) {
-      perror("sysconf");
-      topo->total_cores = topo->logical_cores; // fallback
-    }    
-  #endif  
-  topo->sockets = topo->total_cores / topo->smt / topo->physical_cores; // Idea borrowed from lscpu
+     
+  if(topo->smt_enabled)
+    topo->sockets = topo->total_cores / topo->smt / topo->physical_cores; // Idea borrowed from lscpu
+  else
+    topo->sockets = topo->total_cores / topo->physical_cores;
   
   return topo;
 }
@@ -594,16 +651,33 @@ char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64
   return string;
 }
 
-char* get_str_topology(struct topology* topo, bool dual_socket) {
+// TODO: Refactoring
+char* get_str_topology(struct cpuInfo* cpu, struct topology* topo, bool dual_socket) {
   char* string;
   if(topo->smt > 1) {
-    //3 for digits, 8 for ' cores (', 3 for digits, 9 for ' threads)'
-    uint32_t size = 3+8+3+9+1;
+    //3 for digits, 21 for ' cores (SMT disabled)' which is the longest possible output
+    uint32_t size = 3+21+1;
     string = malloc(sizeof(char)*size);
-    if(dual_socket)
-      snprintf(string, size, "%d cores (%d threads)",topo->physical_cores * topo->sockets, topo->logical_cores * topo->sockets);
-    else
-      snprintf(string, size, "%d cores (%d threads)",topo->physical_cores,topo->logical_cores);
+    if(dual_socket) {
+      if(topo->smt_enabled)
+        snprintf(string, size, "%d cores (%d threads)",topo->physical_cores * topo->sockets, topo->logical_cores * topo->sockets);
+      else {
+        if(cpu->cpu_vendor == VENDOR_AMD)
+          snprintf(string, size, "%d cores (SMT disabled)",topo->physical_cores * topo->sockets);
+        else
+          snprintf(string, size, "%d cores (HT disabled)",topo->physical_cores * topo->sockets);
+      }
+    }
+    else {
+      if(topo->smt_enabled)
+        snprintf(string, size, "%d cores (%d threads)",topo->physical_cores,topo->logical_cores);
+      else {
+        if(cpu->cpu_vendor == VENDOR_AMD)
+          snprintf(string, size, "%d cores (SMT disabled)",topo->physical_cores);
+        else
+          snprintf(string, size, "%d cores (HT disabled)",topo->physical_cores);
+      }
+    }
   }
   else {
     uint32_t size = 3+7+1;

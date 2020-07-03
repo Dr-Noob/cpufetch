@@ -309,8 +309,8 @@ bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* f
   char* cpu_name = get_str_cpu_name(cpu);
   char* sockets = get_str_sockets(topo);
   char* max_frequency = get_str_freq(freq);
-  char* n_cores = get_str_topology(topo, false);
-  char* n_cores_dual = get_str_topology(topo, true);
+  char* n_cores = get_str_topology(cpu, topo, false);
+  char* n_cores_dual = get_str_topology(cpu, topo, true);
   char* avx = get_str_avx(cpu);
   char* sse = get_str_sse(cpu);
   char* fma = get_str_fma(cpu);
