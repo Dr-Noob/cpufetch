@@ -517,6 +517,10 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
     printBug("Invalid L3 size: %dMB", cach->L3/(1048576));
     return NULL;
   }
+  if(cach->L2 == UNKNOWN) {
+    printBug("Could not find L2 cache");
+    return NULL;    
+  }
   
   return cach;
 }
@@ -887,20 +891,16 @@ char* get_str_l1d(struct cache* cach, struct topology* topo) {
 }
 
 char* get_str_l2(struct cache* cach, struct topology* topo) {
-  if(cach->L2 == UNKNOWN) {
-    char* string = malloc(sizeof(char) * 5);
-    snprintf(string, 5, STRING_NONE);
-    return string;
-  }
-  return get_str_cache(cach->L2, topo, false);
+  assert(cach->L2 != UNKNOWN);
+  if(cach->L3 == UNKNOWN) 
+    return get_str_cache(cach->L2, topo, true);
+  else
+    return get_str_cache(cach->L2, topo, false);
 }
 
 char* get_str_l3(struct cache* cach, struct topology* topo) {
-  if(cach->L3 == UNKNOWN) {
-    char* string = malloc(sizeof(char) * 5);
-    snprintf(string, 5, STRING_NONE);
-    return string;
-  }
+  if(cach->L3 == UNKNOWN)
+    return NULL;  
   return get_str_cache(cach->L3, topo, true);
 }
 

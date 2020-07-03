@@ -14,8 +14,8 @@
 #define COL_INTEL_FANCY_4 "\x1b[37;1m"
 #define COL_INTEL_RETRO_1 "\x1b[36;1m"
 #define COL_INTEL_RETRO_2 "\x1b[37;1m"
-#define COL_AMD_FANCY_1   "\x1b[37;1m"
-#define COL_AMD_FANCY_2   "\x1b[31;1m"
+#define COL_AMD_FANCY_1   "\x1b[47;1m"
+#define COL_AMD_FANCY_2   "\x1b[41;1m"
 #define COL_AMD_FANCY_3   "\x1b[37;1m"
 #define COL_AMD_FANCY_4   "\x1b[31;1m"
 #define COL_AMD_RETRO_1   "\x1b[37;1m"
@@ -332,8 +332,7 @@ bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* f
   setAttribute(art,ATTRIBUTE_SHA,sha);
   setAttribute(art,ATTRIBUTE_L1i,l1i);
   setAttribute(art,ATTRIBUTE_L1d,l1d);
-  setAttribute(art,ATTRIBUTE_L2,l2);
-  setAttribute(art,ATTRIBUTE_L3,l3);
+  setAttribute(art,ATTRIBUTE_L2,l2);  
   setAttribute(art,ATTRIBUTE_PEAK,pp);
   
   uint32_t socket_num = get_nsockets(topo);
@@ -341,7 +340,9 @@ bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* f
     setAttribute(art, ATTRIBUTE_SOCKETS, sockets);
     setAttribute(art, ATTRIBUTE_NCORES_DUAL, n_cores_dual);
   }
-  
+  if(l3 != NULL) {
+    setAttribute(art,ATTRIBUTE_L3,l3);    
+  }
   if(art->n_attributes_set > NUMBER_OF_LINES) {
     printBug("The number of attributes set is bigger than the max that can be displayed");
     return false;    
