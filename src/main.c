@@ -6,12 +6,14 @@
 #include "cpuid.h"
 #include "global.h"
 
-static const char* VERSION = "0.52";
+static const char* VERSION = "0.53";
 
 void print_help(char *argv[]) {
-  printf("Usage: %s [--version] [--help] [--levels] [--style STYLE] [--color 'R,G,B:R,G,B']\n\
+  printf("Usage: %s [--version] [--help] [--levels] [--style fancy|retro] [--color 'R,G,B:R,G,B:R,G,B:R,G,B']\n\
 Options: \n\
-  --color    Set text color. Two colors (in RGB format) must be specified in the form: R,G,B:R,G,B\n\
+  --color    Set text color. 4 colors (in RGB format) must be specified in the form: R,G,B:R,G,B:...\n\
+             These colors correspond to the ASCII art color (2 colors) and for the text colors (next 2)\n\
+             Suggested color (Intel): --color 15,125,194:230,230,230:40,150,220:230,230,230\n\
   --style    Set the style of the ASCII art:\n\
     * fancy \n\
     * retro \n\
@@ -63,7 +65,7 @@ int main(int argc, char* argv[]) {
   if(topo == NULL)
     return EXIT_FAILURE;
   
-  if(print_cpufetch(cpu, cach, freq, topo, get_style(), get_color1(), get_color2()))  
+  if(print_cpufetch(cpu, cach, freq, topo, get_style(), get_colors()))  
     return EXIT_SUCCESS;
   else
     return EXIT_FAILURE;

@@ -13,6 +13,6 @@ typedef int STYLE;
 #define STYLE_FANCY    0
 #define STYLE_RETRO    1
 
-bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* freq, struct topology* topo, STYLE s, struct color* c1, struct color* c2);
+bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* freq, struct topology* topo, STYLE s, struct colors* cs);
 
 #endif

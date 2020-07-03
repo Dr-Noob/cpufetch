@@ -10,6 +10,13 @@ struct color {
   int32_t B;
 };
 
+struct colors {
+  struct color* c1;
+  struct color* c2;
+  struct color* c3;
+  struct color* c4;
+};
+
 #include "printer.h"
 
 bool parse_args(int argc, char* argv[]);
@@ -17,8 +24,8 @@ bool show_help();
 bool show_levels();
 bool show_version();
 bool verbose_enabled();
-struct color* get_color1();
-struct color* get_color2();
+void free_colors_struct(struct colors* cs);
+struct colors* get_colors();
 STYLE get_style();
 
 #endif

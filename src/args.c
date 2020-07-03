@@ -25,8 +25,7 @@ struct args_struct {
   bool help_flag;
   bool version_flag;
   STYLE style;
-  struct color* color1;
-  struct color* color2;
+  struct colors* colors;
 };
 
 static const char* SYTLES_STR_LIST[STYLES_COUNT] = { STYLE_STR_1, STYLE_STR_2 };
@@ -36,12 +35,8 @@ STYLE get_style() {
   return args.style;
 }
 
-struct color* get_color1() {
-  return args.color1;
-}
-
-struct color* get_color2() {
-  return args.color2;
+struct colors* get_colors() {
+  return args.colors;
 }
 
 bool show_help() {
@@ -70,18 +65,38 @@ STYLE parse_style(char* style) {
   return i;
 }
 
-bool parse_color(char* optarg, struct color** c1, struct color** c2) {
-  *c1 = malloc(sizeof(struct color));
-  *c2 = malloc(sizeof(struct color));
+void free_colors_struct(struct colors* cs) {
+  free(cs->c1);
+  free(cs->c2);
+  free(cs->c3);
+  free(cs->c4);
+  free(cs);
+}
+
+bool parse_color(char* optarg, struct colors** cs) {
+  *cs = malloc(sizeof(struct colors));        
+  (*cs)->c1 = malloc(sizeof(struct color));
+  (*cs)->c2 = malloc(sizeof(struct color));
+  (*cs)->c3 = malloc(sizeof(struct color));
+  (*cs)->c4 = malloc(sizeof(struct color));
+  struct color** c1 = &((*cs)->c1);
+  struct color** c2 = &((*cs)->c2);
+  struct color** c3 = &((*cs)->c3);
+  struct color** c4 = &((*cs)->c4);
   int32_t ret;
   
-  ret = sscanf(optarg, "%d,%d,%d:%d,%d,%d", &(*c1)->R, &(*c1)->G, &(*c1)->B, &(*c2)->R, &(*c2)->G, &(*c2)->B);
+  ret = sscanf(optarg, "%d,%d,%d:%d,%d,%d:%d,%d,%d:%d,%d,%d", 
+               &(*c1)->R, &(*c1)->G, &(*c1)->B,
+               &(*c2)->R, &(*c2)->G, &(*c2)->B,
+               &(*c3)->R, &(*c3)->G, &(*c3)->B,
+               &(*c4)->R, &(*c4)->G, &(*c4)->B);
   
-  if(ret != 6) {
-    printErr("Expected to read 6 values for color 1 but read %d", ret);
+  if(ret != 12) {
+    printErr("Expected to read 12 values for color but read %d", ret);
     return false;    
   }
   
+  /*
   if((*c1)->R < 0 || (*c1)->R > 255) {
     printErr("Red in color 1 is invalid. Must be in range (0, 255)");
     return false;
@@ -105,7 +120,7 @@ bool parse_color(char* optarg, struct color** c1, struct color** c2) {
   if((*c2)->B < 0 || (*c2)->B > 255) {
     printErr("Blue in color 2 is invalid. Must be in range (0, 255)");
     return false;
-  }
+  }*/
   
   return true;      
 }
@@ -120,6 +135,7 @@ bool parse_args(int argc, char* argv[]) {
   args.levels_flag = false;
   args.help_flag = false;
   args.style = STYLE_EMPTY;
+  args.colors = NULL;
 
   static struct option long_options[] = {
       {ARG_STR_STYLE,    required_argument, 0, ARG_CHAR_STYLE   },
@@ -139,7 +155,7 @@ bool parse_args(int argc, char* argv[]) {
          return false;
        }
        color_flag  = true;       
-       if(!parse_color(optarg, &args.color1, &args.color2)) {
+       if(!parse_color(optarg, &args.colors)) {
          printErr("Color parsing failed");
          return false;
        }
