@@ -147,6 +147,13 @@ struct ascii* set_ascii(VENDOR cpuVendor, STYLE style, struct colors* cs) {
   }
   art->ascii_chars[1] = '#';
   
+  #ifdef _WIN32
+  strcpy(art->color1_ascii,COL_NONE);
+  strcpy(art->color2_ascii,COL_NONE);  
+  strcpy(art->color1_text,COL_NONE);  
+  strcpy(art->color2_text,COL_NONE);  
+  art->reset[0] = '\0';
+  #else  
   switch(style) {
     case STYLE_EMPTY:
       #ifdef _WIN32
@@ -200,6 +207,7 @@ struct ascii* set_ascii(VENDOR cpuVendor, STYLE style, struct colors* cs) {
       printBug("Found invalid style (%d)",style);
       return NULL;    
   }
+  #endif
   
   char tmp[NUMBER_OF_LINES*LINE_SIZE];
   if(cpuVendor == VENDOR_INTEL) strcpy(tmp, INTEL_ASCII);    

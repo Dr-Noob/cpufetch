@@ -13,7 +13,16 @@
 struct cpuInfo;
 struct frequency;
 struct cache;
-struct topology;
+
+struct topology {
+  int64_t total_cores;
+  uint32_t physical_cores;
+  uint32_t logical_cores;
+  uint32_t smt_available; // Number of SMT that is currently enabled 
+  uint32_t smt_supported; // Number of SMT that CPU supports (equal to smt_available if SMT is enabled)
+  uint32_t sockets;  
+  struct apic* apic;
+};
 
 typedef int32_t VENDOR;
 
