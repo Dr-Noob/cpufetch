@@ -76,11 +76,11 @@ struct frequency {
 };
 
 struct apic {
-  int32_t pkg_mask;
-  int32_t pkg_mask_shift;
-  int32_t core_mask;
-  int32_t smt_mask_width;
-  int32_t smt_mask;
+  uint32_t pkg_mask;
+  uint32_t pkg_mask_shift;
+  uint32_t core_mask;
+  uint32_t smt_mask_width;
+  uint32_t smt_mask;
 };
 
 struct topology {
@@ -296,7 +296,6 @@ bool bind_to_cpu(int cpu_id) {
   #endif  
 }
 
-// Check 0xB or 0x1
 uint32_t get_apic_id(bool x2apic_id) {
   uint32_t eax = 0;
   uint32_t ebx = 0;
@@ -338,7 +337,7 @@ bool fill_topo_masks_x2apic(struct topology** topo) {
     level_type = (ecx >> 8) & 0xFF;
     level_shift = eax & 0xFFF; 
     
-    switch(level_type) {
+    switch(level_type) {      
       case 1: // SMT
         (*topo)->apic->smt_mask = ~(0xFFFFFFFF << level_shift);
         (*topo)->apic->smt_mask_width = level_shift;
@@ -375,9 +374,64 @@ bool fill_topo_masks_x2apic(struct topology** topo) {
   return true;
 }
 
+unsigned char bit_scan_reverse(uint32_t* index, uint64_t mask) {
+  for(uint64_t i = (8 * sizeof(uint64_t)); i > 0; i--) {
+    if((mask & (1LL << (i-1))) != 0) {
+      *index = (uint64_t) (i-1);
+      break;
+    }
+  }
+  return (unsigned char)( mask != 0);
+}
+
+uint32_t create_mask(uint32_t num_entries, uint32_t *mask_width) {
+  uint32_t i;
+  uint64_t k;
+
+  // NearestPo2(numEntries) is the nearest power of 2 integer that is not less than numEntries
+  // The most significant bit of (numEntries * 2 -1) matches the above definition
+
+  k = (uint64_t)(num_entries) * 2 -1;
+
+  if (bit_scan_reverse(&i, k) == 0) {
+    if (mask_width) *mask_width = 0;
+    return 0;
+  }
+
+  if (mask_width) *mask_width = i;
+  if (i == 31) return (uint32_t ) -1;
+
+  return (1 << i) -1;
+}
+
 bool fill_topo_masks_apic(struct topology** topo) {
-  // TODO
-  return false;  
+  uint32_t eax = 0x00000001;
+  uint32_t ebx = 0;
+  uint32_t ecx = 0;
+  uint32_t edx = 0;
+  uint32_t core_plus_smt_id_max_cnt;
+  uint32_t core_id_max_cnt;
+  uint32_t smt_id_per_core_max_cnt;
+  uint32_t SMTIDPerCoreMaxCnt;
+  
+  cpuid(&eax, &ebx, &ecx, &edx);
+  
+  core_plus_smt_id_max_cnt = (ebx >> 16) & 0xFF; // MAL?
+  
+  eax = 0x00000004;
+  ecx = 0;
+  cpuid(&eax, &ebx, &ecx, &edx);
+  
+  core_id_max_cnt = (eax >> 26) + 1;
+  smt_id_per_core_max_cnt = core_plus_smt_id_max_cnt / core_id_max_cnt; 
+            
+  (*topo)->apic->smt_mask = create_mask(smt_id_per_core_max_cnt, &((*topo)->apic->smt_mask_width));    
+  (*topo)->apic->core_mask = create_mask(core_id_max_cnt,&((*topo)->apic->pkg_mask_shift));
+  (*topo)->apic->pkg_mask_shift += (*topo)->apic->smt_mask_width;
+  (*topo)->apic->core_mask <<= (*topo)->apic->smt_mask_width;
+  (*topo)->apic->pkg_mask = (-1) ^ ((*topo)->apic->core_mask | (*topo)->apic->smt_mask);
+  
+  return true;
 }
 
 bool build_topo_from_apic(uint32_t* apic_pkg, uint32_t* apic_core, uint32_t* apic_smt, struct topology** topo) {
@@ -432,7 +486,21 @@ bool get_topology_from_apic(struct cpuInfo* cpu, struct topology** topo) {
     apic_smt[i] = apic_id & (*topo)->apic->smt_mask;
   }
   
-  bool ret = build_topo_from_apic(apic_pkg, apic_core, apic_smt, topo);    
+  /* DEBUG
+  for(int i=0; i < (*topo)->total_cores; i++)
+    printf("[%2d] 0x%.8X\n", i, apic_pkg[i]);
+  printf("\n");
+  for(int i=0; i < (*topo)->total_cores; i++)
+    printf("[%2d] 0x%.8X\n", i, apic_core[i]);
+  printf("\n");
+  for(int i=0; i < (*topo)->total_cores; i++)
+    printf("[%2d] 0x%.8X\n", i, apic_smt[i]);*/
+    
+  
+  bool ret = build_topo_from_apic(apic_pkg, apic_core, apic_smt, topo);   
+  
+  // Assumption: If we cant get smt_available, we assume it is equal to smt_supported...
+  if(!x2apic_id) (*topo)->smt_supported = (*topo)->smt_available;
   
   return ret;
 } 
@@ -452,7 +520,7 @@ struct topology* get_topology_info(struct cpuInfo* cpu) {
   // Ask the OS the total number of cores it sees
   // If we have one socket, it will be same as the cpuid,
   // but in dual socket it will not!
-  // TODO: Replace by apic
+  // TODO: Replace by apic?
   #ifdef _WIN32
     SYSTEM_INFO info;
     GetSystemInfo(&info);
