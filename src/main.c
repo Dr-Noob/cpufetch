@@ -6,10 +6,10 @@
 #include "cpuid.h"
 #include "global.h"
 
-static const char* VERSION = "0.57";
+static const char* VERSION = "0.59";
 
 void print_help(char *argv[]) {
-  printf("Usage: %s [--version] [--help] [--levels] [--style fancy|retro] [--color 'R,G,B:R,G,B:R,G,B:R,G,B']\n\
+  printf("Usage: %s [--version] [--help] [--levels] [--style fancy|retro|legacy] [--color 'R,G,B:R,G,B:R,G,B:R,G,B']\n\
 Options: \n\
   --color    Set text color. 4 colors (in RGB format) must be specified in the form: R,G,B:R,G,B:...\n\
              These colors correspond to the ASCII art color (2 colors) and for the text colors (next 2)\n\
@@ -17,6 +17,7 @@ Options: \n\
   --style    Set the style of the ASCII art:\n\
     * fancy \n\
     * retro \n\
+    * legacy \n\
   --help     Prints this help and exit\n\
   --levels   Prints CPU model and cpuid levels (debug purposes)\n\
   --version  Prints cpufetch version and exit\n",

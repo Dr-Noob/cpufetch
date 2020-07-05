@@ -147,23 +147,23 @@ struct ascii* set_ascii(VENDOR cpuVendor, STYLE style, struct colors* cs) {
   }
   art->ascii_chars[1] = '#';
   
-  #ifdef _WIN32
-  strcpy(art->color1_ascii,COL_NONE);
-  strcpy(art->color2_ascii,COL_NONE);  
-  strcpy(art->color1_text,COL_NONE);  
-  strcpy(art->color2_text,COL_NONE);  
-  art->reset[0] = '\0';
-  #else  
+  // If style is emtpy, set the default style
+  if(style == STYLE_EMPTY) {
+    #ifdef _WIN32
+      style = STYLE_LEGACY;
+    #else
+      style = STYLE_FANCY;
+    #endif
+  }
+  
   switch(style) {
-    case STYLE_EMPTY:
-      #ifdef _WIN32
-        strcpy(art->color1_ascii,COL_NONE);
-        strcpy(art->color2_ascii,COL_NONE);  
-        strcpy(art->color1_text,COL_NONE);  
-        strcpy(art->color2_text,COL_NONE);  
-        art->reset[0] = '\0';
-        break;
-      #endif
+    case STYLE_LEGACY:
+      strcpy(art->color1_ascii,COL_NONE);
+      strcpy(art->color2_ascii,COL_NONE);  
+      strcpy(art->color1_text,COL_NONE);  
+      strcpy(art->color2_text,COL_NONE);  
+      art->reset[0] = '\0';
+      break;
     case STYLE_FANCY:
       if(cs != NULL) {
         COL_FANCY_1 = rgb_to_ansi(cs->c1, true, true);
@@ -207,7 +207,6 @@ struct ascii* set_ascii(VENDOR cpuVendor, STYLE style, struct colors* cs) {
       printBug("Found invalid style (%d)",style);
       return NULL;    
   }
-  #endif
   
   char tmp[NUMBER_OF_LINES*LINE_SIZE];
   if(cpuVendor == VENDOR_INTEL) strcpy(tmp, INTEL_ASCII);    

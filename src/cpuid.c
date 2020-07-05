@@ -288,7 +288,7 @@ struct topology* get_topology_info(struct cpuInfo* cpu) {
       topo->total_cores = topo->logical_cores; // fallback
     }    
   #endif 
-    
+  
   switch(cpu->cpu_vendor) {
     case VENDOR_INTEL:
       if (cpu->maxLevels >= 0x00000004) { 
