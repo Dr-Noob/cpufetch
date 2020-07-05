@@ -75,14 +75,22 @@ struct frequency {
   int64_t max;
 };
 
+struct apic {
+  int32_t pkg_mask;
+  int32_t pkg_mask_shift;
+  int32_t core_mask;
+  int32_t smt_mask_width;
+  int32_t smt_mask;
+};
+
 struct topology {
   int64_t total_cores;
   uint32_t physical_cores;
   uint32_t logical_cores;
-  uint32_t smt;  
+  uint32_t smt_available; // Number of SMT that is currently enabled 
+  uint32_t smt_supported; // Number of SMT that CPU supports (equal to smt_available if SMT is enabled)
   uint32_t sockets;  
-  bool smt_available;
-  bool smt_enabled;
+  struct apic* apic;
 };
 
 void init_cpu_info(struct cpuInfo* cpu) {
@@ -100,6 +108,15 @@ void init_cpu_info(struct cpuInfo* cpu) {
   cpu->FMA4   = false;
   cpu->AES    = false;
   cpu->SHA    = false;
+}
+
+void init_topology_struct(struct topology** topo) {
+  (*topo)->total_cores = 0;
+  (*topo)->physical_cores = 0;
+  (*topo)->logical_cores = 0;
+  (*topo)->smt_available = 0;
+  (*topo)->smt_supported = 0;
+  (*topo)->sockets = 0;
 }
 
 void get_cpu_vendor_internal(char* name, uint32_t ebx,uint32_t ecx,uint32_t edx) {
@@ -279,54 +296,163 @@ bool bind_to_cpu(int cpu_id) {
   #endif  
 }
 
-uint32_t apic_id(int cpu_id) {
-  uint32_t eax = 0x0000000B;
+// Check 0xB or 0x1
+uint32_t get_apic_id(bool x2apic_id) {
+  uint32_t eax = 0;
   uint32_t ebx = 0;
   uint32_t ecx = 0;
   uint32_t edx = 0;
-
-  cpuid(&eax, &ebx, &ecx, &edx);
   
-  return edx;
+  if(x2apic_id) {
+    eax = 0x0000000B;
+    cpuid(&eax, &ebx, &ecx, &edx);
+    return edx;
+  }
+  else {
+    eax = 0x00000001;
+    cpuid(&eax, &ebx, &ecx, &edx);
+    return (ebx >> 24);
+  }
 }
 
-bool is_smt_enabled(struct topology* topo) {
-  uint32_t id;
+bool fill_topo_masks_x2apic(struct topology** topo) {
+  int32_t level_type;
+  int32_t level_shift;
   
-  for(int i = 0; i < topo->total_cores; i++) {
+  int32_t coreplus_smt_mask;
+  bool level2 = false;
+  bool level1 = false;
+  
+  uint32_t eax = 0;
+  uint32_t ebx = 0;
+  uint32_t ecx = 0;
+  uint32_t edx = 0;
+  uint32_t i = 0;
+  
+  while(true) {
+    eax = 0x0000000B;
+    ecx = i;
+    cpuid(&eax, &ebx, &ecx, &edx);
+    if(ebx == 0) break;
+    
+    level_type = (ecx >> 8) & 0xFF;
+    level_shift = eax & 0xFFF; 
+    
+    switch(level_type) {
+      case 1: // SMT
+        (*topo)->apic->smt_mask = ~(0xFFFFFFFF << level_shift);
+        (*topo)->apic->smt_mask_width = level_shift;
+        (*topo)->smt_supported = ebx & 0xFFFF;
+        level1 = true;
+        break;
+      case 2: // Core
+        coreplus_smt_mask = ~(0xFFFFFFFF << level_shift);
+        (*topo)->apic->pkg_mask_shift =  level_shift;
+        (*topo)->apic->pkg_mask = (-1) ^ coreplus_smt_mask;
+        level2 = true;
+        break;
+      default:
+        printErr("Found invalid level when querying topology: %d", level_type);
+        break;
+    }
+    
+    i++; // sublevel to query
+  }
+  
+  if (level1 && level2) {
+    (*topo)->apic->core_mask = coreplus_smt_mask ^ (*topo)->apic->smt_mask;
+  }
+  else if (!level2 && level1) {
+    (*topo)->apic->core_mask = 0;
+    (*topo)->apic->pkg_mask_shift = (*topo)->apic->smt_mask_width;
+    (*topo)->apic->pkg_mask =  (-1) ^ (*topo)->apic->smt_mask;
+  }
+  else {
+    printErr("SMT level was not found when querying topology");
+    return false;
+  }
+
+  return true;
+}
+
+bool fill_topo_masks_apic(struct topology** topo) {
+  // TODO
+  return false;  
+}
+
+bool build_topo_from_apic(uint32_t* apic_pkg, uint32_t* apic_core, uint32_t* apic_smt, struct topology** topo) {
+  uint32_t sockets[64];
+  uint32_t smt[64];
+  
+  memset(sockets, 0, sizeof(uint32_t) * 64);
+  memset(smt, 0, sizeof(uint32_t) * 64);
+  
+  for(int i=0; i < (*topo)->total_cores; i++) {
+    sockets[apic_pkg[i]] = 1;
+    smt[apic_smt[i]] = 1;
+  }
+  for(int i=0; i < 64; i++) {
+    if(sockets[i] != 0)
+      (*topo)->sockets++;
+    if(smt[i] != 0)
+      (*topo)->smt_available++;
+  }
+  
+  (*topo)->logical_cores = (*topo)->total_cores / (*topo)->sockets;
+  (*topo)->physical_cores = (*topo)->logical_cores / (*topo)->smt_available;
+  
+  return true;
+}
+
+bool get_topology_from_apic(struct cpuInfo* cpu, struct topology** topo) {    
+  uint32_t apic_id;
+  uint32_t* apic_pkg = malloc(sizeof(uint32_t) * (*topo)->total_cores);
+  uint32_t* apic_core = malloc(sizeof(uint32_t) * (*topo)->total_cores);
+  uint32_t* apic_smt = malloc(sizeof(uint32_t) * (*topo)->total_cores);
+  bool x2apic_id = cpu->maxLevels >= 0x0000000B;
+  
+  if(x2apic_id) {
+    if(!fill_topo_masks_x2apic(topo))
+      return false;
+  }
+  else {
+    if(!fill_topo_masks_apic(topo))
+      return false;    
+  }
+  
+  for(int i=0; i < (*topo)->total_cores; i++) {
     if(!bind_to_cpu(i)) {
       printErr("Failed binding to CPU %d", i);
       return false;
     }
-    id = apic_id(i) & 1; // get the last bit
-    if(id == 1) return true;
+    apic_id = get_apic_id(x2apic_id);
+    
+    apic_pkg[i] = (apic_id & (*topo)->apic->pkg_mask) >> (*topo)->apic->pkg_mask_shift;
+    apic_core[i] = (apic_id & (*topo)->apic->core_mask) >> (*topo)->apic->smt_mask_width;
+    apic_smt[i] = apic_id & (*topo)->apic->smt_mask;
   }
   
-  return false;
-}
+  bool ret = build_topo_from_apic(apic_pkg, apic_core, apic_smt, topo);    
+  
+  return ret;
+} 
 
+// Main reference: https://software.intel.com/content/www/us/en/develop/articles/intel-64-architecture-processor-topology-enumeration.html
+// Very interesting resource: https://wiki.osdev.org/Detecting_CPU_Topology_(80x86)
 struct topology* get_topology_info(struct cpuInfo* cpu) {
   struct topology* topo = malloc(sizeof(struct topology));
+  topo->apic = malloc(sizeof(struct apic));
+  init_topology_struct(&topo);
   uint32_t eax = 0;
   uint32_t ebx = 0;
   uint32_t ecx = 0;
   uint32_t edx = 0;
   int32_t type;
   
-  if (cpu->maxLevels >= 0x00000001) {
-    eax = 0x00000001;
-    cpuid(&eax, &ebx, &ecx, &edx);
-    topo->smt_available = edx & (1 << 28);
-  }
-  else {
-    printWarn("Can't read HT information from cpuid (needed level is 0x%.8X, max is 0x%.8X). Assuming HT is not available", 0x00000001, cpu->maxLevels); 
-    topo->smt_available = false;
-    topo->smt_enabled = false;
-  }
-  
   // Ask the OS the total number of cores it sees
   // If we have one socket, it will be same as the cpuid,
   // but in dual socket it will not!
+  // TODO: Replace by apic
   #ifdef _WIN32
     SYSTEM_INFO info;
     GetSystemInfo(&info);
@@ -339,37 +465,17 @@ struct topology* get_topology_info(struct cpuInfo* cpu) {
   #endif 
     
   switch(cpu->cpu_vendor) {
-    case VENDOR_INTEL:  
-      if (cpu->maxLevels >= 0x0000000B) { 
-        eax = 0x0000000B;
-        ecx = 0x00000000;
-        cpuid(&eax, &ebx, &ecx, &edx);
-        type = (ecx >> 8) & 0xFF;
-        if (type != 1) {
-          printBug("Unexpected type in cpuid 0x0000000B (expected 1, got %d)", type);     
-          return NULL;
-        }        
-        topo->smt = ebx & 0xFFFF;                
-  
-        eax = 0x0000000B;
-        ecx = 0x00000001;
-        cpuid(&eax, &ebx, &ecx, &edx); 
-        type = (ecx >> 8) & 0xFF;
-        if (type < 2) {       
-          printBug("Unexpected type in cpuid 0x0000000B (expected < 2, got %d)", type);     
-          return NULL;
-        }
-        topo->logical_cores = ebx & 0xFFFF;
-        topo->physical_cores = topo->logical_cores / topo->smt;
-        topo->smt_enabled = is_smt_enabled(topo);
+    case VENDOR_INTEL:
+      if (cpu->maxLevels >= 0x00000004) { 
+        get_topology_from_apic(cpu, &topo);
       }
-      else {
-        printWarn("Can't read topology information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x0000000B, cpu->maxLevels); 
+      else {                
+        printErr("Can't read topology information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000001, cpu->maxLevels); 
         topo->physical_cores = 1;
         topo->logical_cores = 1;
-        topo->smt = 1;
-        topo->smt_enabled = false;
-      }
+        topo->smt_available = 1;
+        topo->smt_supported = 1;
+      }      
       break;
     case VENDOR_AMD:  
       if (cpu->maxExtendedLevels >= 0x80000008) {
@@ -380,38 +486,35 @@ struct topology* get_topology_info(struct cpuInfo* cpu) {
         if (cpu->maxExtendedLevels >= 0x8000001E) {
           eax = 0x8000001E;  
           cpuid(&eax, &ebx, &ecx, &edx);
-          topo->smt = ((ebx >> 8) & 0x03) + 1;          
+          topo->smt_supported = ((ebx >> 8) & 0x03) + 1;          
         }
         else {
           printWarn("Can't read topology information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x8000001E, cpu->maxExtendedLevels); 
-          topo->smt = 1;    
+          topo->smt_supported = 1;    
+          topo->smt_available = 1;    
         }
-        topo->physical_cores = topo->logical_cores / topo->smt;        
+        topo->physical_cores = topo->logical_cores / topo->smt_available;        
       }
       else {
         printWarn("Can't read topology information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x80000008, cpu->maxExtendedLevels); 
         topo->physical_cores = 1;
         topo->logical_cores = 1;
-        topo->smt = 1;    
+        topo->smt_supported = 1;    
+        topo->smt_available = 1;     
       }
       if (cpu->maxLevels >= 0x0000000B) {
-        topo->smt_enabled = is_smt_enabled(topo);
+        //topo->smt_supported = is_smt_enabled(topo);
       }
       else {
         printWarn("Can't read topology information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x80000008, cpu->maxLevels);   
-        topo->smt_enabled = false;
+        topo->smt_supported = 1;
       }
       break;
     default:
       printBug("Cant get topology because VENDOR is empty");
       return NULL;
   }
-  
-  if(topo->smt_enabled)
-    topo->sockets = topo->total_cores / topo->smt / topo->physical_cores; // Idea borrowed from lscpu
-  else
-    topo->sockets = topo->total_cores / topo->physical_cores;
-  
+    
   return topo;
 }
 
@@ -661,12 +764,12 @@ char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64
 // TODO: Refactoring
 char* get_str_topology(struct cpuInfo* cpu, struct topology* topo, bool dual_socket) {
   char* string;
-  if(topo->smt > 1) {
+  if(topo->smt_supported > 1) {
     //3 for digits, 21 for ' cores (SMT disabled)' which is the longest possible output
     uint32_t size = 3+21+1;
     string = malloc(sizeof(char)*size);
     if(dual_socket) {
-      if(topo->smt_enabled)
+      if(topo->smt_available > 1)
         snprintf(string, size, "%d cores (%d threads)",topo->physical_cores * topo->sockets, topo->logical_cores * topo->sockets);
       else {
         if(cpu->cpu_vendor == VENDOR_AMD)
@@ -676,7 +779,7 @@ char* get_str_topology(struct cpuInfo* cpu, struct topology* topo, bool dual_soc
       }
     }
     else {
-      if(topo->smt_enabled)
+      if(topo->smt_available > 1)
         snprintf(string, size, "%d cores (%d threads)",topo->physical_cores,topo->logical_cores);
       else {
         if(cpu->cpu_vendor == VENDOR_AMD)
