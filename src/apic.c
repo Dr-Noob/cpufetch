@@ -243,3 +243,19 @@ bool get_topology_from_apic(uint32_t cpuid_max_levels, struct topology** topo) {
   
   return ret;
 } 
+
+// Used by AMD
+uint32_t is_smt_enabled(struct topology* topo) {
+  uint32_t id;
+  
+  for(int i = 0; i < topo->total_cores; i++) {
+    if(!bind_to_cpu(i)) {
+      printErr("Failed binding to CPU %d", i);
+      return false;
+    }
+    id = get_apic_id(true) & 1; // get the last bit
+    if(id == 1) return 2; // We assume there isn't any AMD CPU with more than 2th per core
+  }
+  
+  return 1;  
+}

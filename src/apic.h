@@ -13,5 +13,6 @@ struct apic {
 };
 
 bool get_topology_from_apic(uint32_t cpuid_max_levels, struct topology** topo);
+uint32_t is_smt_enabled(struct topology* topo);
 
 #endif

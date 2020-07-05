@@ -315,25 +315,29 @@ struct topology* get_topology_info(struct cpuInfo* cpu) {
         }
         else {
           printWarn("Can't read topology information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x8000001E, cpu->maxExtendedLevels); 
-          topo->smt_supported = 1;    
-          topo->smt_available = 1;    
-        }
-        topo->physical_cores = topo->logical_cores / topo->smt_available;        
+          topo->smt_supported = 1;       
+        }        
       }
       else {
-        printWarn("Can't read topology information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x80000008, cpu->maxExtendedLevels); 
+        printErr("Can't read topology information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x80000008, cpu->maxExtendedLevels); 
         topo->physical_cores = 1;
         topo->logical_cores = 1;
-        topo->smt_supported = 1;    
-        topo->smt_available = 1;     
+        topo->smt_supported = 1;         
       }
       if (cpu->maxLevels >= 0x0000000B) {
-        //topo->smt_supported = is_smt_enabled(topo);
+        topo->smt_available = is_smt_enabled(topo);
       }
       else {
-        printWarn("Can't read topology information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x80000008, cpu->maxLevels);   
-        topo->smt_supported = 1;
+        printWarn("Can't read topology information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x0000000B, cpu->maxLevels);   
+        topo->smt_available = 1;
       }
+      topo->physical_cores = topo->logical_cores / topo->smt_available;
+      
+      if(topo->smt_supported > 1)
+        topo->sockets = topo->total_cores / topo->smt_supported / topo->physical_cores; // Idea borrowed from lscpu
+      else
+        topo->sockets = topo->total_cores / topo->physical_cores;
+      
       break;
     default:
       printBug("Cant get topology because VENDOR is empty");
@@ -760,7 +764,7 @@ char* get_str_cache_two(int32_t cache_size, uint32_t physical_cores) {
     printBug("get_value_as_smallest_unit: snprintf returned a negative value for input: %d\n", cache_size * physical_cores);
     return NULL;    
   }
-      
+    
   uint32_t size = tmp1_len + 2 + tmp2_len + 7 + 1;
   sanity_ret = snprintf(string, size, "%s (%s Total)", tmp1, tmp2);  
   

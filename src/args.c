@@ -173,7 +173,7 @@ bool parse_args(int argc, char* argv[]) {
        }
        args.style = parse_style(optarg);
        if(args.style == STYLE_INVALID) {
-         printErr("Invalid style '%s'\n",optarg);
+         printErr("Invalid style '%s'",optarg);
          return false;
        }
      }
