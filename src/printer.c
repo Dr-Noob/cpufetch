@@ -15,11 +15,11 @@
 #define COL_INTEL_RETRO_1 "\x1b[36;1m"
 #define COL_INTEL_RETRO_2 "\x1b[37;1m"
 #define COL_AMD_FANCY_1   "\x1b[47;1m"
-#define COL_AMD_FANCY_2   "\x1b[41;1m"
+#define COL_AMD_FANCY_2   "\x1b[42;1m"
 #define COL_AMD_FANCY_3   "\x1b[37;1m"
-#define COL_AMD_FANCY_4   "\x1b[31;1m"
+#define COL_AMD_FANCY_4   "\x1b[32;1m"
 #define COL_AMD_RETRO_1   "\x1b[37;1m"
-#define COL_AMD_RETRO_2   "\x1b[31;1m"
+#define COL_AMD_RETRO_2   "\x1b[32;1m"
 #define RESET             "\x1b[m"
 
 #define TITLE_NAME        "Name:"
@@ -223,7 +223,7 @@ uint32_t get_next_attribute(struct ascii* art, uint32_t last_attr) {
   return last_attr;
 }
 
-void print_ascii_intel(struct ascii* art, STYLE s, uint32_t la) {
+void print_ascii_intel(struct ascii* art, uint32_t la) {
   bool flag = false;
   int attr_to_print = -1;
   uint32_t space_right;
@@ -260,7 +260,7 @@ void print_ascii_intel(struct ascii* art, STYLE s, uint32_t la) {
   }
 }
 
-void print_ascii_amd(struct ascii* art, STYLE s, uint32_t la) {
+void print_ascii_amd(struct ascii* art, uint32_t la) {
   int attr_to_print = -1;
   uint32_t space_right;
   uint32_t space_up = (NUMBER_OF_LINES - art->n_attributes_set)/2;
@@ -300,12 +300,12 @@ uint32_t longest_attribute_length(struct ascii* art) {
   return max;
 }
 
-void print_ascii(struct ascii* art, STYLE s) {
+void print_ascii(struct ascii* art) {
   uint32_t longest_attribute = longest_attribute_length(art);
   if(art->vendor == VENDOR_INTEL)
-    print_ascii_intel(art, s, longest_attribute);
+    print_ascii_intel(art, longest_attribute);
   else
-    print_ascii_amd(art, s, longest_attribute);
+    print_ascii_amd(art, longest_attribute);
 }
 
 bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* freq, struct topology* topo, STYLE s, struct colors* cs) {
@@ -355,7 +355,7 @@ bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* f
     return false;    
   }
 
-  print_ascii(art, s);
+  print_ascii(art);
 
   free(cpu_name);
   free(max_frequency);

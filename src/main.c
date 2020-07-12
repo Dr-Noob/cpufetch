@@ -6,14 +6,15 @@
 #include "cpuid.h"
 #include "global.h"
 
-static const char* VERSION = "0.510";
+static const char* VERSION = "0.6";
 
 void print_help(char *argv[]) {
   printf("Usage: %s [--version] [--help] [--levels] [--style fancy|retro|legacy] [--color 'R,G,B:R,G,B:R,G,B:R,G,B']\n\
 Options: \n\
-  --color    Set text color. 4 colors (in RGB format) must be specified in the form: R,G,B:R,G,B:...\n\
+  --color    Set a custom color scheme. 4 colors must be specified in RGB with the format: R,G,B:R,G,B:...\n\
              These colors correspond to the ASCII art color (2 colors) and for the text colors (next 2)\n\
              Suggested color (Intel): --color 15,125,194:230,230,230:40,150,220:230,230,230\n\
+             Suggested color (AMD):   --color 250,250,250:0,154,102:250,250,250:0,154,102\n\
   --style    Set the style of the ASCII art:\n\
     * fancy \n\
     * retro \n\

@@ -1,6 +1,6 @@
 CXX=gcc
 
-CXXFLAGS=-Wall -Wextra -Werror -fstack-protector-all -pedantic -Wno-unused -std=c99
+CXXFLAGS=-Wall -Wextra -Werror -pedantic -fstack-protector-all -pedantic -std=c99
 SANITY_FLAGS=-Wfloat-equal -Wshadow -Wpointer-arith -Wstrict-overflow=5 -Wformat=2
 
 SRC_DIR=src/
@@ -10,11 +10,11 @@ HEADERS=$(SRC_DIR)cpuid.h $(SRC_DIR)apic.h $(SRC_DIR)cpuid_asm.h $(SRC_DIR)print
 ifneq ($(OS),Windows_NT)
 	SOURCE += $(SRC_DIR)udev.c
 	HEADERS += $(SRC_DIR)udev.h
+	OUTPUT=cpufetch	
 else
 	SANITY_FLAGS += -Wno-pedantic-ms-format
+	OUTPUT=cpufetch.exe
 endif
-
-OUTPUT=cpufetch
 
 all: $(OUTPUT)
 

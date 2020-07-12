@@ -272,7 +272,6 @@ struct topology* get_topology_info(struct cpuInfo* cpu) {
   uint32_t ebx = 0;
   uint32_t ecx = 0;
   uint32_t edx = 0;
-  int32_t type;
   
   // Ask the OS the total number of cores it sees
   // If we have one socket, it will be same as the cpuid,
@@ -386,8 +385,6 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
     // If its 0, we tried fetching a non existing cache
     if (cache_type > 0) {
       int32_t cache_level = (eax >>= 5) & 0x7;
-      int32_t cache_is_self_initializing = (eax >>= 3) & 0x1; // does not need SW initialization
-      int32_t cache_is_fully_associative = (eax >>= 1) & 0x1;
       uint32_t cache_sets = ecx + 1;
       uint32_t cache_coherency_line_size = (ebx & 0xFFF) + 1;
       uint32_t cache_physical_line_partitions = ((ebx >>= 12) & 0x3FF) + 1;
@@ -444,9 +441,15 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
     printBug("Invalid L1d size: %dKB", cach->L1d/1024);
     return NULL;
   }
-  if(cach->L2 != UNKNOWN && cach->L2 > 2 * 1048576) {
-    printBug("Invalid L2 size: %dMB", cach->L2/(1048576));
-    return NULL;
+  if(cach->L2 != UNKNOWN) {
+    if(cach->L3 != UNKNOWN && cach->L2 > 2 * 1048576) {
+      printBug("Invalid L2 size: %dMB", cach->L2/(1048576));
+      return NULL;
+    }
+    else if(cach->L2 > 100 * 1048576) {
+      printBug("Invalid L2 size: %dMB", cach->L2/(1048576));
+      return NULL;
+    }
   }
   if(cach->L3 != UNKNOWN && cach->L3 > 100 * 1048576) {
     printBug("Invalid L3 size: %dMB", cach->L3/(1048576));

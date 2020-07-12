@@ -131,7 +131,6 @@ bool parse_color(char* optarg, struct colors** cs) {
 
 bool parse_args(int argc, char* argv[]) {
   int c;
-  int digit_optind = 0;
   int option_index = 0;  
   opterr = 0;
 

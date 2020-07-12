@@ -29,8 +29,8 @@ unsigned char bit_scan_reverse(uint32_t* index, uint64_t mask) {
 }
 
 uint32_t create_mask(uint32_t num_entries, uint32_t *mask_width) {
-  uint32_t i;
-  uint64_t k;
+  uint32_t i = 0;
+  uint64_t k = 0;
 
   // NearestPo2(numEntries) is the nearest power of 2 integer that is not less than numEntries
   // The most significant bit of (numEntries * 2 -1) matches the above definition
@@ -91,7 +91,6 @@ bool fill_topo_masks_apic(struct topology** topo) {
   uint32_t core_plus_smt_id_max_cnt;
   uint32_t core_id_max_cnt;
   uint32_t smt_id_per_core_max_cnt;
-  uint32_t SMTIDPerCoreMaxCnt;
   
   cpuid(&eax, &ebx, &ecx, &edx);
   
@@ -117,7 +116,7 @@ bool fill_topo_masks_x2apic(struct topology** topo) {
   int32_t level_type;
   int32_t level_shift;
   
-  int32_t coreplus_smt_mask;
+  int32_t coreplus_smt_mask = 0;
   bool level2 = false;
   bool level1 = false;
   
@@ -173,7 +172,7 @@ bool fill_topo_masks_x2apic(struct topology** topo) {
   return true;
 }
 
-bool build_topo_from_apic(uint32_t* apic_pkg, uint32_t* apic_core, uint32_t* apic_smt, struct topology** topo) {
+bool build_topo_from_apic(uint32_t* apic_pkg, uint32_t* apic_smt, struct topology** topo) {
   uint32_t sockets[64];
   uint32_t smt[64];
   
@@ -236,7 +235,7 @@ bool get_topology_from_apic(uint32_t cpuid_max_levels, struct topology** topo) {
     printf("[%2d] 0x%.8X\n", i, apic_smt[i]);*/
     
   
-  bool ret = build_topo_from_apic(apic_pkg, apic_core, apic_smt, topo);   
+  bool ret = build_topo_from_apic(apic_pkg, apic_smt, topo);   
   
   // Assumption: If we cant get smt_available, we assume it is equal to smt_supported...
   if(!x2apic_id) (*topo)->smt_supported = (*topo)->smt_available;
