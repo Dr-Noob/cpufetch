@@ -51,3 +51,6 @@ Output is detailed as follows:
 
 ### Bugs or improvements
 Feel free to open a issue on the repo to report a issue or propose any improvement in the tool
+
+### Important note
+Current status of development of cpufetch is incomplete (there are lots of bugs at the moment). I will fix them, add some other features and update the Arch Linux package when I have time.

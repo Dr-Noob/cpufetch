@@ -1,33 +1,50 @@
-.TH man 8 "22 Jun 2018" "0.32" "cpufetch man page"
+.TH man 8 "12 Jul 2020" "0.6" "cpufetch man page"
 .SH NAME
 cpufetch \- Prints a fancy summary of the CPU with some advanced information
 .SH SYNOPSIS
-cpufetch [--help] [--style STYLE]
+cpufetch [--version] [--help] [--levels] [--style fancy|retro|legacy] [--color 'R,G,B:R,G,B:R,G,B:R,G,B']
 .SH DESCRIPTION
-cpufetch will print CPU information, for which will query cpuid instructions and udev directories on Linux. It should display:
+cpufetch will print CPU information, for which will query CPUID instructions and udev directories on Linux as a fallback method. It will display:
 .IP \[bu] 2
 Name
 .IP \[bu]
 Frequency
 .IP \[bu]
-Number of cores(Physical and Logical)
+Number of cores (Physical and Logical)
 .IP \[bu]
-AVX,SSE,FMA,AES and SHA support
+AVX,SSE,FMA,AES,SHA instructions support
 .IP \[bu]
-L1,L2 and L3 size
+Cache sizes
 .IP \[bu]
-Theoretical peak flops
+Theoretical peak flops (computed using the max frequency. This is only an approximation, please see https://github.com/Dr-Noob/FLOPS if you are interested in peak performance)
 .SH OPTIONS
+.TP
+\fB\-\-style\fR \f[I][R,G,B:R,G,B:R,G,B:R,G,B]\f[]
+Set a custom color scheme. 4 colors must be specified in RGB with the format R,G,B:R,G,B:...
+Suggested custom color schemes:
+.IP \[bu]
+\fBIntel\fR: --color 15,125,194:230,230,230:40,150,220:230,230,230
+.IP \[bu]
+\fBAMD\fR:   --color 250,250,250:0,154,102:250,250,250:0,154,102
+.TP
+\fB\-\-style\fR \f[I]STYLE\f[]
+Specify the style of ascii logo:
+.IP \[bu] 
+\fBfancy\fR:  Default style
+.IP \[bu]
+\fBretro\fR:  Old cpufetch style
+.IP \[bu]
+\fBlegacy\fR: Fallback style for terminals that does not support colors
 .TP
 \fB\-\-help\fR
 Prints help
 .TP
+\fB\-\-levels\fR
+Prints CPUID levels and CPU name
+.TP
 \fB\-\-version\fR
 Prints cpufetch version
-.TP
-\fB\-\-style\fR
-Specify the color style of ascii logo
 .SH BUGS
-No known bugs. AMD CPUs may not be fully supported
+Bugs should be posted on: https://github.com/Dr-Noob/cpufetch/issues
 .SH AUTHOR
 Dr-Noob (https://github.com/Dr-Noob)
