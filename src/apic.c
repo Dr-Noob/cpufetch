@@ -172,18 +172,43 @@ bool fill_topo_masks_x2apic(struct topology** topo) {
   return true;
 }
 
-bool build_topo_from_apic(uint32_t* apic_pkg, uint32_t* apic_smt, struct topology** topo) {
-  uint32_t sockets[64];
-  uint32_t smt[64];
+bool arr_contains_value(uint32_t* arr, uint32_t value, uint32_t arr_size) {
+  for(uint32_t i=0; i < arr_size; i++) {
+    if(arr[i] == value) return true;    
+  }
+  return false;
+}
+
+uint32_t max_apic_id_size(uint32_t** cache_id_apic, struct topology** topo) {
+  uint32_t max = 0;
   
-  memset(sockets, 0, sizeof(uint32_t) * 64);
-  memset(smt, 0, sizeof(uint32_t) * 64);
+  for(int i=0; i < (*topo)->cach->max_cache_level; i++) {
+    for(int j=0; j < (*topo)->total_cores; j++) {          
+      if(cache_id_apic[j][i] > max) max = cache_id_apic[j][i];
+    }
+  }
+  
+  max++;
+  if(max > (*topo)->total_cores) return max;
+  return (*topo)->total_cores;
+}
+
+bool build_topo_from_apic(uint32_t* apic_pkg, uint32_t* apic_smt, uint32_t** cache_id_apic, struct topology** topo) {
+  uint32_t size = max_apic_id_size(cache_id_apic, topo);
+  uint32_t* sockets = malloc(sizeof(uint32_t) * size);
+  uint32_t* smt = malloc(sizeof(uint32_t) * size);
+  uint32_t* apic_id = malloc(sizeof(uint32_t) * size);
+  uint32_t num_caches = 0;
+  
+  memset(sockets, 0, sizeof(uint32_t) * size);
+  memset(smt, 0, sizeof(uint32_t) * size);  
+  memset(apic_id, 0, sizeof(uint32_t) * size);  
   
   for(int i=0; i < (*topo)->total_cores; i++) {
     sockets[apic_pkg[i]] = 1;
     smt[apic_smt[i]] = 1;
   }
-  for(int i=0; i < 64; i++) {
+  for(int i=0; i < (*topo)->total_cores; i++) {
     if(sockets[i] != 0)
       (*topo)->sockets++;
     if(smt[i] != 0)
@@ -193,6 +218,52 @@ bool build_topo_from_apic(uint32_t* apic_pkg, uint32_t* apic_smt, struct topolog
   (*topo)->logical_cores = (*topo)->total_cores / (*topo)->sockets;
   (*topo)->physical_cores = (*topo)->logical_cores / (*topo)->smt_available;
   
+  for(int i=0; i < (*topo)->cach->max_cache_level; i++) {
+    num_caches = 0;
+    memset(apic_id, 0, sizeof(uint32_t) * size);
+    
+    for(int c=0; c < (*topo)->total_cores; c++) {      
+      apic_id[cache_id_apic[c][i]]++;
+    }
+    for(uint32_t c=0; c < size; c++) {      
+      if(apic_id[c] > 0) num_caches++;
+    }
+    
+    (*topo)->cach->cach_arr[i]->num_caches = num_caches;
+  }
+  
+  free(sockets);
+  free(smt);
+  free(apic_id);
+  
+  return true;
+}
+
+unsigned long getBitsFrom(const unsigned int val, const char from, const char to)
+{
+	unsigned long mask = (1<<(to+1)) - 1;
+	if (to == 31)	return val >> from;
+	
+	return (val & mask) >> from;
+}
+
+bool get_cache_topology_from_apic(struct topology** topo) {  
+  uint32_t eax = 0x4;
+  uint32_t ebx = 0;
+  uint32_t ecx = 0;
+  uint32_t edx = 0;
+     
+  for(int i=0; i < (*topo)->cach->max_cache_level; i++) { 
+    eax = 0x4;
+    ecx = i;
+    
+    cpuid(&eax, &ebx, &ecx, &edx);
+  
+    uint32_t SMTMaxCntPerEachCache = getBitsFrom(eax, 14, 25) + 1; // ((eax >> 14) & 0xFFF) + 1;
+    uint32_t EachCacheMaskWidth_targ_subleaf;
+    (*topo)->apic->cache_select_mask[i] = create_mask(SMTMaxCntPerEachCache,&EachCacheMaskWidth_targ_subleaf);
+  }
+  
   return true;
 }
 
@@ -201,7 +272,16 @@ bool get_topology_from_apic(uint32_t cpuid_max_levels, struct topology** topo) {
   uint32_t* apic_pkg = malloc(sizeof(uint32_t) * (*topo)->total_cores);
   uint32_t* apic_core = malloc(sizeof(uint32_t) * (*topo)->total_cores);
   uint32_t* apic_smt = malloc(sizeof(uint32_t) * (*topo)->total_cores);
+  uint32_t** cache_smt_id_apic = malloc(sizeof(uint32_t*) * (*topo)->total_cores);
+  uint32_t** cache_id_apic = malloc(sizeof(uint32_t*) * (*topo)->total_cores);
   bool x2apic_id = cpuid_max_levels >= 0x0000000B;
+  
+  for(int i=0; i < (*topo)->total_cores; i++) {
+    cache_smt_id_apic[i] = malloc(sizeof(uint32_t) * ((*topo)->cach->max_cache_level));
+    cache_id_apic[i] = malloc(sizeof(uint32_t) * ((*topo)->cach->max_cache_level));
+  }
+  (*topo)->apic->cache_select_mask = malloc(sizeof(uint32_t) * ((*topo)->cach->max_cache_level));
+  (*topo)->apic->cache_id_apic = malloc(sizeof(uint32_t) * ((*topo)->cach->max_cache_level));
   
   if(x2apic_id) {
     if(!fill_topo_masks_x2apic(topo))
@@ -211,6 +291,8 @@ bool get_topology_from_apic(uint32_t cpuid_max_levels, struct topology** topo) {
     if(!fill_topo_masks_apic(topo))
       return false;    
   }
+  
+  get_cache_topology_from_apic(topo);  
   
   for(int i=0; i < (*topo)->total_cores; i++) {
     if(!bind_to_cpu(i)) {
@@ -222,9 +304,20 @@ bool get_topology_from_apic(uint32_t cpuid_max_levels, struct topology** topo) {
     apic_pkg[i] = (apic_id & (*topo)->apic->pkg_mask) >> (*topo)->apic->pkg_mask_shift;
     apic_core[i] = (apic_id & (*topo)->apic->core_mask) >> (*topo)->apic->smt_mask_width;
     apic_smt[i] = apic_id & (*topo)->apic->smt_mask;
+    
+    for(int c=0; c < (*topo)->cach->max_cache_level; c++) {
+      cache_smt_id_apic[i][c] = apic_id & (*topo)->apic->cache_select_mask[c];
+      cache_id_apic[i][c] = apic_id & (-1 ^ (*topo)->apic->cache_select_mask[c]);
+    }
   }
   
   /* DEBUG
+  for(int i=0; i < (*topo)->cach->max_cache_level; i++) {
+    printf("[CACH %1d]", i);
+    for(int j=0; j < (*topo)->total_cores; j++)
+      printf("[%03d]", cache_id_apic[j][i]);
+    printf("\n");
+  }  
   for(int i=0; i < (*topo)->total_cores; i++)
     printf("[%2d] 0x%.8X\n", i, apic_pkg[i]);
   printf("\n");
@@ -235,10 +328,12 @@ bool get_topology_from_apic(uint32_t cpuid_max_levels, struct topology** topo) {
     printf("[%2d] 0x%.8X\n", i, apic_smt[i]);*/
     
   
-  bool ret = build_topo_from_apic(apic_pkg, apic_smt, topo);   
+  bool ret = build_topo_from_apic(apic_pkg, apic_smt, cache_id_apic, topo);
   
   // Assumption: If we cant get smt_available, we assume it is equal to smt_supported...
   if(!x2apic_id) (*topo)->smt_supported = (*topo)->smt_available;
+  
+  //TODO: free
   
   return ret;
 } 
@@ -253,7 +348,8 @@ uint32_t is_smt_enabled(struct topology* topo) {
       return false;
     }
     id = get_apic_id(false) & 1; // get the last bit
-    if(id == 1) return 2; // We assume there isn't any AMD CPU with more than 2th per core
+    printf("0x%.8X %d\n", get_apic_id(false), id);
+    //if(id == 1) return 2; // We assume there isn't any AMD CPU with more than 2th per core
   }
   
   return 1;  

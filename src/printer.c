@@ -323,10 +323,10 @@ bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* f
   char* fma = get_str_fma(cpu);
   char* aes = get_str_aes(cpu);
   char* sha = get_str_sha(cpu);
-  char* l1i = get_str_l1i(cach, topo);
-  char* l1d = get_str_l1d(cach, topo);
-  char* l2 = get_str_l2(cach, topo);
-  char* l3 = get_str_l3(cach, topo);
+  char* l1i = get_str_l1i(topo->cach);
+  char* l1d = get_str_l1d(topo->cach);
+  char* l2 = get_str_l2(topo->cach);
+  char* l3 = get_str_l3(topo->cach);
   char* pp = get_str_peak_performance(cpu,topo,get_freq(freq));
 
   setAttribute(art,ATTRIBUTE_NAME,cpu_name);

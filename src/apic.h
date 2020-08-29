@@ -10,6 +10,8 @@ struct apic {
   uint32_t core_mask;
   uint32_t smt_mask_width;
   uint32_t smt_mask;
+  uint32_t* cache_select_mask;
+  uint32_t* cache_id_apic;
 };
 
 bool get_topology_from_apic(uint32_t cpuid_max_levels, struct topology** topo);

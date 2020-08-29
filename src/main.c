@@ -6,7 +6,7 @@
 #include "cpuid.h"
 #include "global.h"
 
-static const char* VERSION = "0.6";
+static const char* VERSION = "0.61";
 
 void print_help(char *argv[]) {
   printf("Usage: %s [--version] [--help] [--levels] [--style fancy|retro|legacy] [--color 'R,G,B:R,G,B:R,G,B:R,G,B']\n\
@@ -59,12 +59,12 @@ int main(int argc, char* argv[]) {
   if(freq == NULL)
     return EXIT_FAILURE;
   
-  struct topology* topo = get_topology_info(cpu);
-  if(topo == NULL)
+  struct cache* cach = get_cache_info(cpu);
+  if(cach == NULL)
     return EXIT_FAILURE;
   
-  struct cache* cach = get_cache_info(cpu, topo);
-  if(cach == NULL)
+  struct topology* topo = get_topology_info(cpu, cach);
+  if(topo == NULL)
     return EXIT_FAILURE;
   
   if(print_cpufetch(cpu, cach, freq, topo, get_style(), get_colors()))  

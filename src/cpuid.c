@@ -62,14 +62,6 @@ struct cpuInfo {
   uint32_t maxExtendedLevels;
 };
 
-struct cache {
-  int32_t L1i;
-  int32_t L1d;
-  int32_t L2;
-  int32_t L3;
-  int8_t nL3;
-};
-
 struct frequency {
   int64_t base;
   int64_t max;
@@ -99,6 +91,7 @@ void init_topology_struct(struct topology** topo) {
   (*topo)->smt_available = 0;
   (*topo)->smt_supported = 0;
   (*topo)->sockets = 0;
+  // TODO: The other fields...
 }
 
 void get_cpu_vendor_internal(char* name, uint32_t ebx,uint32_t ecx,uint32_t edx) {
@@ -265,10 +258,12 @@ struct cpuInfo* get_cpu_info() {
 
 // Main reference: https://software.intel.com/content/www/us/en/develop/articles/intel-64-architecture-processor-topology-enumeration.html
 // Very interesting resource: https://wiki.osdev.org/Detecting_CPU_Topology_(80x86)
-struct topology* get_topology_info(struct cpuInfo* cpu) {
+struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
   struct topology* topo = malloc(sizeof(struct topology));
   topo->apic = malloc(sizeof(struct apic));
+  topo->cach = cach;
   init_topology_struct(&topo);
+  
   uint32_t eax = 0;
   uint32_t ebx = 0;
   uint32_t ecx = 0;
@@ -361,8 +356,19 @@ uint8_t get_number_llc_amd(struct topology* topo) {
   return topo->logical_cores / num_sharing_cache;
 }
 
-struct cache* get_cache_info(struct cpuInfo* cpu, struct topology* topo) {
-  struct cache* cach = malloc(sizeof(struct cache));    
+struct cache* get_cache_info(struct cpuInfo* cpu) {
+  struct cache* cach = malloc(sizeof(struct cache));
+  cach->L1i = malloc(sizeof(struct cach));
+  cach->L1d = malloc(sizeof(struct cach));
+  cach->L2 = malloc(sizeof(struct cach));
+  cach->L3 = malloc(sizeof(struct cach));
+  cach->cach_arr = malloc(sizeof(struct cach*) * 4);
+  cach->cach_arr[0] = cach->L1i;
+  cach->cach_arr[1] = cach->L1d;
+  cach->cach_arr[2] = cach->L2;
+  cach->cach_arr[3] = cach->L3;
+  cach->max_cache_level = 0;
+  
   uint32_t eax = 0;
   uint32_t ebx = 0;
   uint32_t ecx = 0;
@@ -398,7 +404,7 @@ struct cache* get_cache_info(struct cpuInfo* cpu, struct topology* topo) {
     int32_t cache_type = eax & 0x1F;
       
     // If its 0, we tried fetching a non existing cache
-    if (cache_type > 0) {
+    if (cache_type > 0) { // TODO: Change to while not == 0
       int32_t cache_level = (eax >>= 5) & 0x7;
       uint32_t cache_sets = ecx + 1;
       uint32_t cache_coherency_line_size = (ebx & 0xFFF) + 1;
@@ -406,14 +412,15 @@ struct cache* get_cache_info(struct cpuInfo* cpu, struct topology* topo) {
       uint32_t cache_ways_of_associativity = ((ebx >>= 10) & 0x3FF) + 1;
         
       int32_t cache_total_size = cache_ways_of_associativity * cache_physical_line_partitions * cache_coherency_line_size * cache_sets;  
-        
-      switch (cache_type) {
+      cach->max_cache_level++;
+      
+      switch (cache_type) {                
         case 1: // Data Cache (We assume this is L1d)
           if(cache_level != 1) {
             printBug("Found data cache at level %d (expected 1)", cache_level);
             return NULL;
           }
-          cach->L1d = cache_total_size; 
+          cach->L1d->size = cache_total_size; 
           break;
             
         case 2: // Instruction Cache (We assume this is L1i)
@@ -421,12 +428,12 @@ struct cache* get_cache_info(struct cpuInfo* cpu, struct topology* topo) {
             printBug("Found instruction cache at level %d (expected 1)", cache_level);
             return NULL;
           }
-          cach->L1i = cache_total_size;
+          cach->L1i->size = cache_total_size;
           break;
           
         case 3: // Unified Cache (This may be L2 or L3)
-          if(cache_level == 2) cach->L2 = cache_total_size;
-          else if(cache_level == 3) cach->L3 = cache_total_size;
+          if(cache_level == 2) cach->L2->size = cache_total_size;
+          else if(cache_level == 3) cach->L3->size = cache_total_size;
           else {
             printBug("Found unified cache at level %d (expected == 2 or 3)", cache_level);
             return NULL;
@@ -435,11 +442,15 @@ struct cache* get_cache_info(struct cpuInfo* cpu, struct topology* topo) {
           
         default: // Unknown Type Cache
           printBug("Unknown Type Cache found at ID %d", i);
-          return NULL;
+          return NULL;                  
       }
     }    
-    else if(i == 2) cach->L2 = UNKNOWN;
-    else if(i == 3) cach->L3 = UNKNOWN; 
+    else if(i == 2) {
+      cach->L2->size = UNKNOWN;
+    }
+    else if(i == 3) {
+      cach->L3->size = UNKNOWN; 
+    }
     else {
       printBug("Could not find cache ID %d", i);
       return NULL;    
@@ -448,38 +459,31 @@ struct cache* get_cache_info(struct cpuInfo* cpu, struct topology* topo) {
   
   // Sanity checks. If we read values greater than this, they can't be valid ones
   // The values were chosen by me
-  if(cach->L1i > 64 * 1024) {
-    printBug("Invalid L1i size: %dKB", cach->L1i/1024);
+  if(cach->L1i->size > 64 * 1024) {
+    printBug("Invalid L1i size: %dKB", cach->L1i->size/1024);
     return NULL;
   }
-  if(cach->L1d > 64 * 1024) {
-    printBug("Invalid L1d size: %dKB", cach->L1d/1024);
+  if(cach->L1d->size > 64 * 1024) {
+    printBug("Invalid L1d size: %dKB", cach->L1d->size/1024);
     return NULL;
   }
-  if(cach->L2 != UNKNOWN) {
-    if(cach->L3 != UNKNOWN && cach->L2 > 2 * 1048576) {
-      printBug("Invalid L2 size: %dMB", cach->L2/(1048576));
+  if(cach->L2->size != UNKNOWN) {
+    if(cach->L3->size != UNKNOWN && cach->L2->size > 2 * 1048576) {
+      printBug("Invalid L2 size: %dMB", cach->L2->size/(1048576));
       return NULL;
     }
-    else if(cach->L2 > 100 * 1048576) {
-      printBug("Invalid L2 size: %dMB", cach->L2/(1048576));
+    else if(cach->L2->size > 100 * 1048576) {
+      printBug("Invalid L2 size: %dMB", cach->L2->size/(1048576));
       return NULL;
     }
   }
-  if(cach->L3 != UNKNOWN && cach->L3 > 100 * 1048576) {
-    printBug("Invalid L3 size: %dMB", cach->L3/(1048576));
+  if(cach->L3->size != UNKNOWN && cach->L3->size > 100 * 1048576) {
+    printBug("Invalid L3 size: %dMB", cach->L3->size/(1048576));
     return NULL;
   }
-  if(cach->L2 == UNKNOWN) {
+  if(cach->L2->size == UNKNOWN) {
     printBug("Could not find L2 cache");
     return NULL;    
-  }
-  
-  if(cpu->cpu_vendor == VENDOR_INTEL) {
-    if(cach->L3 != UNKNOWN) cach->nL3 = 1;      
-  }
-  else {
-    if(cach->L3 != UNKNOWN) cach->nL3 = get_number_llc_amd(topo);          
   }
   
   return cach;
@@ -547,10 +551,10 @@ void debug_cpu_info(struct cpuInfo* cpu) {
 }
 
 void debug_cache(struct cache* cach) {
-  printf("L1i=%dB\n",cach->L1i);
-  printf("L1d=%dB\n",cach->L1d);
-  printf("L2=%dB\n",cach->L2);
-  printf("L3=%dB\n",cach->L3);
+  printf("L1i=%dB\n",cach->L1i->size);
+  printf("L1d=%dB\n",cach->L1d->size);
+  printf("L2=%dB\n",cach->L2->size);
+  printf("L3=%dB\n",cach->L3->size);
 }
 
 void debug_frequency(struct frequency* freq) {
@@ -827,45 +831,30 @@ char* get_str_cache_one(int32_t cache_size) {
   return string;
 }
 
-char* get_str_cache(int32_t cache_size, struct topology* topo, bool llc, int nllc) {
-  if(topo->sockets == 1) {
-    if(llc) {
-      if(nllc > 1)
-        return get_str_cache_two(cache_size, nllc);
-      else
-        return get_str_cache_one(cache_size);
-    }
-    else
-      return get_str_cache_two(cache_size, topo->physical_cores);
-  }
-  else {    
-    if(llc)
-      return get_str_cache_two(cache_size, nllc * topo->sockets);
-    else
-      return get_str_cache_two(cache_size, topo->physical_cores * topo->sockets);
-  }
-}
-
-char* get_str_l1i(struct cache* cach, struct topology* topo) {
-  return get_str_cache(cach->L1i, topo, false, 1);
-}
-
-char* get_str_l1d(struct cache* cach, struct topology* topo) {
-  return get_str_cache(cach->L1d, topo, false, 1);
-}
-
-char* get_str_l2(struct cache* cach, struct topology* topo) {
-  assert(cach->L2 != UNKNOWN);
-  if(cach->L3 == UNKNOWN) 
-    return get_str_cache(cach->L2, topo, true, 1);
+char* get_str_cache(int32_t cache_size, int32_t num_caches) {
+  if(num_caches > 1)
+    return get_str_cache_two(cache_size, num_caches);
   else
-    return get_str_cache(cach->L2, topo, false, 1);
+    return get_str_cache_one(cache_size);
 }
 
-char* get_str_l3(struct cache* cach, struct topology* topo) {
-  if(cach->L3 == UNKNOWN)
+char* get_str_l1i(struct cache* cach) {
+  return get_str_cache(cach->L1i->size, cach->L1i->num_caches);
+}
+
+char* get_str_l1d(struct cache* cach) {
+  return get_str_cache(cach->L1d->size, cach->L1d->num_caches);
+}
+
+char* get_str_l2(struct cache* cach) {
+  assert(cach->L2->size != UNKNOWN);
+  return get_str_cache(cach->L2->size, cach->L2->num_caches);
+}
+
+char* get_str_l3(struct cache* cach) {
+  if(cach->L3->size == UNKNOWN)
     return NULL;  
-  return get_str_cache(cach->L3, topo, true, cach->nL3);
+  return get_str_cache(cach->L3->size, cach->L3->num_caches);
 }
 
 char* get_str_freq(struct frequency* freq) {
