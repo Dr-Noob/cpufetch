@@ -30,7 +30,7 @@ struct cpuInfo* get_cpu_info();
 VENDOR get_cpu_vendor(struct cpuInfo* cpu);
 uint32_t get_nsockets(struct topology* topo);
 int64_t get_freq(struct frequency* freq);
-struct cache* get_cache_info(struct cpuInfo* cpu);
+struct cache* get_cache_info(struct cpuInfo* cpu, struct topology* topo);
 struct frequency* get_frequency_info(struct cpuInfo* cpu);
 struct topology* get_topology_info(struct cpuInfo* cpu);
 

@@ -67,6 +67,7 @@ struct cache {
   int32_t L1d;
   int32_t L2;
   int32_t L3;
+  int8_t nL3;
 };
 
 struct frequency {
@@ -346,7 +347,21 @@ struct topology* get_topology_info(struct cpuInfo* cpu) {
   return topo;
 }
 
-struct cache* get_cache_info(struct cpuInfo* cpu) {
+uint8_t get_number_llc_amd(struct topology* topo) {
+  uint32_t eax = 0x8000001D;
+  uint32_t ebx = 0;
+  uint32_t ecx = 3; // LLC Level
+  uint32_t edx = 0;     
+  uint32_t num_sharing_cache = 0;
+  
+  cpuid(&eax, &ebx, &ecx, &edx); 
+  
+  num_sharing_cache = ((eax >> 14) & 0xfff) + 1;
+  
+  return topo->logical_cores / num_sharing_cache;
+}
+
+struct cache* get_cache_info(struct cpuInfo* cpu, struct topology* topo) {
   struct cache* cach = malloc(sizeof(struct cache));    
   uint32_t eax = 0;
   uint32_t ebx = 0;
@@ -458,6 +473,13 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
   if(cach->L2 == UNKNOWN) {
     printBug("Could not find L2 cache");
     return NULL;    
+  }
+  
+  if(cpu->cpu_vendor == VENDOR_INTEL) {
+    if(cach->L3 != UNKNOWN) cach->nL3 = 1;      
+  }
+  else {
+    if(cach->L3 != UNKNOWN) cach->nL3 = get_number_llc_amd(topo);          
   }
   
   return cach;
@@ -805,41 +827,45 @@ char* get_str_cache_one(int32_t cache_size) {
   return string;
 }
 
-char* get_str_cache(int32_t cache_size, struct topology* topo, bool llc) {
+char* get_str_cache(int32_t cache_size, struct topology* topo, bool llc, int nllc) {
   if(topo->sockets == 1) {
-    if(llc)
-      return get_str_cache_one(cache_size);
+    if(llc) {
+      if(nllc > 1)
+        return get_str_cache_two(cache_size, nllc);
+      else
+        return get_str_cache_one(cache_size);
+    }
     else
       return get_str_cache_two(cache_size, topo->physical_cores);
   }
-  else {
+  else {    
     if(llc)
-      return get_str_cache_two(cache_size, topo->sockets);
+      return get_str_cache_two(cache_size, nllc * topo->sockets);
     else
       return get_str_cache_two(cache_size, topo->physical_cores * topo->sockets);
   }
 }
 
 char* get_str_l1i(struct cache* cach, struct topology* topo) {
-  return get_str_cache(cach->L1i, topo, false);
+  return get_str_cache(cach->L1i, topo, false, 1);
 }
 
 char* get_str_l1d(struct cache* cach, struct topology* topo) {
-  return get_str_cache(cach->L1d, topo, false);
+  return get_str_cache(cach->L1d, topo, false, 1);
 }
 
 char* get_str_l2(struct cache* cach, struct topology* topo) {
   assert(cach->L2 != UNKNOWN);
   if(cach->L3 == UNKNOWN) 
-    return get_str_cache(cach->L2, topo, true);
+    return get_str_cache(cach->L2, topo, true, 1);
   else
-    return get_str_cache(cach->L2, topo, false);
+    return get_str_cache(cach->L2, topo, false, 1);
 }
 
 char* get_str_l3(struct cache* cach, struct topology* topo) {
   if(cach->L3 == UNKNOWN)
     return NULL;  
-  return get_str_cache(cach->L3, topo, true);
+  return get_str_cache(cach->L3, topo, true, cach->nL3);
 }
 
 char* get_str_freq(struct frequency* freq) {

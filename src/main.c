@@ -53,11 +53,7 @@ int main(int argc, char* argv[]) {
     print_version();
     print_levels(cpu, get_str_cpu_name(cpu));
     return EXIT_SUCCESS;    
-  }
-
-  struct cache* cach = get_cache_info(cpu);
-  if(cach == NULL)
-    return EXIT_FAILURE;
+  }  
   
   struct frequency* freq = get_frequency_info(cpu);
   if(freq == NULL)
@@ -65,6 +61,10 @@ int main(int argc, char* argv[]) {
   
   struct topology* topo = get_topology_info(cpu);
   if(topo == NULL)
+    return EXIT_FAILURE;
+  
+  struct cache* cach = get_cache_info(cpu, topo);
+  if(cach == NULL)
     return EXIT_FAILURE;
   
   if(print_cpufetch(cpu, cach, freq, topo, get_style(), get_colors()))  

@@ -252,7 +252,7 @@ uint32_t is_smt_enabled(struct topology* topo) {
       printErr("Failed binding to CPU %d", i);
       return false;
     }
-    id = get_apic_id(true) & 1; // get the last bit
+    id = get_apic_id(false) & 1; // get the last bit
     if(id == 1) return 2; // We assume there isn't any AMD CPU with more than 2th per core
   }
   
