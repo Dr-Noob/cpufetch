@@ -37,31 +37,6 @@
  * cpuid amd: https://www.amd.com/system/files/TechDocs/25481.pdf
  */
 
-struct cpuInfo {
-  bool AVX;
-  bool AVX2;
-  bool AVX512;
-  bool SSE;
-  bool SSE2;
-  bool SSE3;
-  bool SSSE3;
-  bool SSE4a;
-  bool SSE4_1;
-  bool SSE4_2;
-  bool FMA3;
-  bool FMA4;
-  bool AES;
-  bool SHA;
-
-  VENDOR cpu_vendor;
-  
-  char* cpu_name;
-  //  Max cpuids levels
-  uint32_t maxLevels;
-  // Max cpuids extended levels
-  uint32_t maxExtendedLevels;
-};
-
 struct frequency {
   int64_t base;
   int64_t max;
@@ -287,7 +262,7 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
   switch(cpu->cpu_vendor) {
     case VENDOR_INTEL:
       if (cpu->maxLevels >= 0x00000004) { 
-        get_topology_from_apic(cpu->maxLevels, &topo);
+        get_topology_from_apic(cpu, &topo);
       }
       else {                
         printErr("Can't read topology information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000001, cpu->maxLevels); 
@@ -297,7 +272,7 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
         topo->smt_supported = 1;
       }      
       break;
-    case VENDOR_AMD:  
+    case VENDOR_AMD:       
       if (cpu->maxExtendedLevels >= 0x80000008) {
         eax = 0x80000008;  
         cpuid(&eax, &ebx, &ecx, &edx);        
@@ -319,6 +294,7 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
         topo->logical_cores = 1;
         topo->smt_supported = 1;         
       }
+      
       if (cpu->maxLevels >= 0x0000000B) {
         topo->smt_available = is_smt_enabled(topo);
       }
@@ -331,29 +307,20 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
       if(topo->smt_supported > 1)
         topo->sockets = topo->total_cores / topo->smt_supported / topo->physical_cores; // Idea borrowed from lscpu
       else
-        topo->sockets = topo->total_cores / topo->physical_cores;
+        topo->sockets = topo->total_cores / topo->physical_cores;    
+      
+      if (cpu->maxExtendedLevels >= 0x8000001D) {
+        get_topology_from_apic(cpu, &topo);
+      }
       
       break;
+      
     default:
       printBug("Cant get topology because VENDOR is empty");
       return NULL;
   }
     
   return topo;
-}
-
-uint8_t get_number_llc_amd(struct topology* topo) {
-  uint32_t eax = 0x8000001D;
-  uint32_t ebx = 0;
-  uint32_t ecx = 3; // LLC Level
-  uint32_t edx = 0;     
-  uint32_t num_sharing_cache = 0;
-  
-  cpuid(&eax, &ebx, &ecx, &edx); 
-  
-  num_sharing_cache = ((eax >> 14) & 0xfff) + 1;
-  
-  return topo->logical_cores / num_sharing_cache;
 }
 
 struct cache* get_cache_info(struct cpuInfo* cpu) {

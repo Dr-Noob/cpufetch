@@ -10,8 +10,34 @@
 
 #define UNKNOWN -1
 
-struct cpuInfo;
+typedef int32_t VENDOR;
+
 struct frequency;
+
+struct cpuInfo {
+  bool AVX;
+  bool AVX2;
+  bool AVX512;
+  bool SSE;
+  bool SSE2;
+  bool SSE3;
+  bool SSSE3;
+  bool SSE4a;
+  bool SSE4_1;
+  bool SSE4_2;
+  bool FMA3;
+  bool FMA4;
+  bool AES;
+  bool SHA;
+
+  VENDOR cpu_vendor;
+  
+  char* cpu_name;
+  //  Max cpuids levels
+  uint32_t maxLevels;
+  // Max cpuids extended levels
+  uint32_t maxExtendedLevels;
+};
 
 struct cach {
   int32_t size;
@@ -39,8 +65,6 @@ struct topology {
   struct apic* apic;
   struct cache* cach;
 };
-
-typedef int32_t VENDOR;
 
 struct cpuInfo* get_cpu_info();
 VENDOR get_cpu_vendor(struct cpuInfo* cpu);
