@@ -15,6 +15,6 @@ struct apic {
 };
 
 bool get_topology_from_apic(struct cpuInfo* cpu, struct topology** topo);
-uint32_t is_smt_enabled(struct topology* topo);
+uint32_t is_smt_enabled_amd(struct topology* topo);
 
 #endif

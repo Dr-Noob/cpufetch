@@ -48,15 +48,22 @@ uint32_t create_mask(uint32_t num_entries, uint32_t *mask_width) {
   return (1 << i) -1;
 }
 
-uint32_t get_apic_id() {
+uint32_t get_apic_id(bool x2apic_id) {
   uint32_t eax = 0;
   uint32_t ebx = 0;
   uint32_t ecx = 0;
   uint32_t edx = 0;
   
-  eax = 0x00000001;
-  cpuid(&eax, &ebx, &ecx, &edx);
-  return (ebx >> 24);
+  if(x2apic_id) {
+    eax = 0x0000000B;
+    cpuid(&eax, &ebx, &ecx, &edx);
+    return edx;
+  }
+  else {
+    eax = 0x00000001;
+    cpuid(&eax, &ebx, &ecx, &edx);
+    return (ebx >> 24);
+  }
 }
 
 bool bind_to_cpu(int cpu_id) {
@@ -165,52 +172,6 @@ bool fill_topo_masks_x2apic(struct topology** topo) {
   return true;
 }
 
-uint8_t get_number_llc_amd(struct topology* topo) {
-  uint32_t eax = 0x8000001D;
-  uint32_t ebx = 0;
-  uint32_t ecx = 3; // LLC Level
-  uint32_t edx = 0;     
-  uint32_t num_sharing_cache = 0;
-  
-  cpuid(&eax, &ebx, &ecx, &edx); 
-  
-  num_sharing_cache = ((eax >> 14) & 0xfff) + 1;
-  
-  return topo->logical_cores / num_sharing_cache;
-}
-
-void guess_cach_sizes_amd(struct topology** topo) {
-  (*topo)->cach->L1i->num_caches = (*topo)->physical_cores;
-  (*topo)->cach->L1d->num_caches = (*topo)->physical_cores;
-  (*topo)->cach->L2->num_caches = (*topo)->physical_cores;
-  (*topo)->cach->L3->num_caches = get_number_llc_amd(*topo);
-}
-
-bool get_topology_amd(struct topology** topo) {
-  /*uint32_t eax = 0x8000001E;
-  uint32_t ebx = 0;
-  uint32_t ecx = 0;
-  uint32_t edx = 0;
-  uint32_t err;
-
-  cpuid(&eax, &ebx, &ecx, &edx);
-
-  uint32_t node_id  = ecx & 0xff;
-  uint32_t cpu_core_id = ebx & 0xff;  
-  uint32_t smp_num_siblings = ((ebx >> 8) & 0xff) + 1;
-  uint32_t x86_max_cores = 0;
-  
-  if (smp_num_siblings > 1)
-    x86_max_cores /= smp_num_siblings;*/
-
-  // AMD does not support CPUID 0xB or 0x1F to query topology
-  // err = detect_extended_topology(cpu, topo); 
-  
-  guess_cach_sizes_amd(topo);  
-  
-  return true;
-}
-
 bool arr_contains_value(uint32_t* arr, uint32_t value, uint32_t arr_size) {
   for(uint32_t i=0; i < arr_size; i++) {
     if(arr[i] == value) return true;    
@@ -278,27 +239,19 @@ bool build_topo_from_apic(uint32_t* apic_pkg, uint32_t* apic_smt, uint32_t** cac
   return true;
 }
 
-unsigned long getBitsFrom(const unsigned int val, const char from, const char to)
-{
-	unsigned long mask = (1<<(to+1)) - 1;
-	if (to == 31)	return val >> from;
-	
-	return (val & mask) >> from;
-}
-
 bool get_cache_topology_from_apic(struct topology** topo) {  
-  uint32_t eax = 0x4;
+  uint32_t eax = 0x00000004;
   uint32_t ebx = 0;
   uint32_t ecx = 0;
   uint32_t edx = 0;
      
   for(int i=0; i < (*topo)->cach->max_cache_level; i++) { 
-    eax = 0x4;
+    eax = 0x00000004;
     ecx = i;
     
     cpuid(&eax, &ebx, &ecx, &edx);
   
-    uint32_t SMTMaxCntPerEachCache = getBitsFrom(eax, 14, 25) + 1; // ((eax >> 14) & 0xFFF) + 1;
+    uint32_t SMTMaxCntPerEachCache = ((eax >> 14) & 0x7FF) + 1;
     uint32_t EachCacheMaskWidth_targ_subleaf;
     (*topo)->apic->cache_select_mask[i] = create_mask(SMTMaxCntPerEachCache,&EachCacheMaskWidth_targ_subleaf);
   }
@@ -307,9 +260,6 @@ bool get_cache_topology_from_apic(struct topology** topo) {
 }
 
 bool get_topology_from_apic(struct cpuInfo* cpu, struct topology** topo) { 
-  if(cpu->cpu_vendor == VENDOR_AMD)
-    return get_topology_amd(topo);
-    
   uint32_t apic_id;
   uint32_t* apic_pkg = malloc(sizeof(uint32_t) * (*topo)->total_cores);
   uint32_t* apic_core = malloc(sizeof(uint32_t) * (*topo)->total_cores);
@@ -341,7 +291,7 @@ bool get_topology_from_apic(struct cpuInfo* cpu, struct topology** topo) {
       printErr("Failed binding to CPU %d", i);
       return false;
     }
-    apic_id = get_apic_id();
+    apic_id = get_apic_id(x2apic_id);
     
     apic_pkg[i] = (apic_id & (*topo)->apic->pkg_mask) >> (*topo)->apic->pkg_mask_shift;
     apic_core[i] = (apic_id & (*topo)->apic->core_mask) >> (*topo)->apic->smt_mask_width;
@@ -380,8 +330,7 @@ bool get_topology_from_apic(struct cpuInfo* cpu, struct topology** topo) {
   return ret;
 } 
 
-// Used by AMD
-uint32_t is_smt_enabled(struct topology* topo) {
+uint32_t is_smt_enabled_amd(struct topology* topo) {
   uint32_t id;
   
   for(int i = 0; i < topo->total_cores; i++) {
@@ -390,7 +339,7 @@ uint32_t is_smt_enabled(struct topology* topo) {
       return false;
     }
     id = get_apic_id(false) & 1; // get the last bit
-    if(id == 1) return 2; // We assume there isn't any AMD CPU with more than 2th per core
+    if(id == 1) return 2; // We assume there isn't any AMD CPU with more than 2th per core. TODO: Fix
   }
   
   return 1;  

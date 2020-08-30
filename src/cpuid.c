@@ -231,6 +231,36 @@ struct cpuInfo* get_cpu_info() {
   return cpu;
 }
 
+uint8_t get_number_llc_amd(struct topology* topo) {
+  uint32_t eax = 0x8000001D;
+  uint32_t ebx = 0;
+  uint32_t ecx = 3; // LLC Level
+  uint32_t edx = 0;     
+  uint32_t num_sharing_cache = 0;
+  
+  cpuid(&eax, &ebx, &ecx, &edx); 
+  
+  num_sharing_cache = ((eax >> 14) & 0xFFF) + 1;
+  
+  return topo->logical_cores / num_sharing_cache;
+}
+
+void get_cache_topology(struct cpuInfo* cpu, struct topology** topo) {  
+  (*topo)->cach->L1i->num_caches = (*topo)->physical_cores;
+  (*topo)->cach->L1d->num_caches = (*topo)->physical_cores;
+  (*topo)->cach->L2->num_caches = (*topo)->physical_cores;
+  
+  if((*topo)->cach->L3->size != UNKNOWN) {
+    if(cpu->maxExtendedLevels >= 0x8000001D) {
+      (*topo)->cach->L3->num_caches = get_number_llc_amd(*topo);
+    }
+    else {
+      printWarn("Can't read topology information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x8000001D, cpu->maxExtendedLevels); 
+      (*topo)->cach->L3->num_caches = 1;
+    }
+  }
+}
+
 // Main reference: https://software.intel.com/content/www/us/en/develop/articles/intel-64-architecture-processor-topology-enumeration.html
 // Very interesting resource: https://wiki.osdev.org/Detecting_CPU_Topology_(80x86)
 struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
@@ -295,8 +325,8 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
         topo->smt_supported = 1;         
       }
       
-      if (cpu->maxLevels >= 0x0000000B) {
-        topo->smt_available = is_smt_enabled(topo);
+      if (cpu->maxLevels >= 0x00000001) {
+        topo->smt_available = is_smt_enabled_amd(topo);
       }
       else {
         printWarn("Can't read topology information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x0000000B, cpu->maxLevels);   
@@ -309,9 +339,7 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
       else
         topo->sockets = topo->total_cores / topo->physical_cores;    
       
-      if (cpu->maxExtendedLevels >= 0x8000001D) {
-        get_topology_from_apic(cpu, &topo);
-      }
+      get_cache_topology(cpu, &topo);      
       
       break;
       
