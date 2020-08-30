@@ -21,6 +21,7 @@ Options: \n\
     * legacy \n\
   --help     Prints this help and exit\n\
   --levels   Prints CPU model and cpuid levels (debug purposes)\n\
+  --verbose  Prints extra information (if available) about how cpufetch tried fetching information\n\
   --version  Prints cpufetch version and exit\n",
   argv[0]);
 }

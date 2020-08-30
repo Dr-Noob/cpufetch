@@ -24,7 +24,7 @@ long get_freq_from_file(char* path) {
   if(fd == -1) {
     perror("open");
     printBug("Could not open '%s'", path);
-    return UNKNOWN;
+    return UNKNOWN_FREQ;
   }
 
   //File exists, read it
@@ -45,7 +45,7 @@ long get_freq_from_file(char* path) {
     perror("strtol");
     printBug("Failed parsing '%s' file. Read data was: '%s'", path, buf);
     free(buf);
-    return UNKNOWN;
+    return UNKNOWN_FREQ;
   }
   
   // We will be getting the frequency in KHz
@@ -53,7 +53,7 @@ long get_freq_from_file(char* path) {
   // greater than 10 GHz or less than 100 MHz
   if(ret > 10000 * 1000 || ret <  100 * 1000) {
     printBug("Invalid data was read from file '%s': %ld\n", path, ret);
-    return UNKNOWN;
+    return UNKNOWN_FREQ;
   }
   
   free(buf);

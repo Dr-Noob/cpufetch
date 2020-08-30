@@ -14,7 +14,7 @@ struct apic {
   uint32_t* cache_id_apic;
 };
 
-bool get_topology_from_apic(struct cpuInfo* cpu, struct topology** topo);
+bool get_topology_from_apic(struct cpuInfo* cpu, struct topology* topo);
 uint32_t is_smt_enabled_amd(struct topology* topo);
 
 #endif

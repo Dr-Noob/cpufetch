@@ -8,7 +8,7 @@
 #define VENDOR_AMD     2
 #define VENDOR_INVALID 3
 
-#define UNKNOWN -1
+#define UNKNOWN_FREQ -1
 
 typedef int32_t VENDOR;
 
@@ -42,6 +42,7 @@ struct cpuInfo {
 struct cach {
   int32_t size;
   uint8_t num_caches;
+  bool exists;
   // plenty of more properties to include in the future...
 };
 
