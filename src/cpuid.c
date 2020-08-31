@@ -166,7 +166,7 @@ char* get_str_cpu_name_internal() {
   return name;
 }
 
-struct uarch* get_cpu_uarch() {
+struct uarch* get_cpu_uarch(struct cpuInfo* cpu) {
   uint32_t eax = 0x00000001;
   uint32_t ebx = 0;
   uint32_t ecx = 0;
@@ -180,7 +180,7 @@ struct uarch* get_cpu_uarch() {
   uint32_t family = (eax >> 8) & 0xF;
   uint32_t efamily = (eax >> 20) & 0xFF;
   
-  return get_uarch_from_cpuid(efamily, family, emodel, model, (int)stepping);
+  return get_uarch_from_cpuid(cpu, efamily, family, emodel, model, (int)stepping);
 }
 
 struct cpuInfo* get_cpu_info() {
