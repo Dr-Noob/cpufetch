@@ -6,7 +6,7 @@
 #include "cpuid.h"
 #include "global.h"
 
-static const char* VERSION = "0.62";
+static const char* VERSION = "0.63";
 
 void print_help(char *argv[]) {
   printf("Usage: %s [--version] [--help] [--levels] [--style fancy|retro|legacy] [--color 'R,G,B:R,G,B:R,G,B:R,G,B']\n\

@@ -346,6 +346,10 @@ struct uarch* get_uarch_from_cpuid(struct cpuInfo* cpu, uint32_t ef, uint32_t f,
     return get_uarch_from_cpuid_amd(ef, f, em, m, s);
 }
 
+bool vpus_are_AVX512(struct cpuInfo* cpu) {
+  return cpu->arch->uarch != UARCH_ICE_LAKE;    
+}
+
 int get_number_of_vpus(struct cpuInfo* cpu) {
   if(cpu->cpu_vendor == VENDOR_AMD)
     return 1;

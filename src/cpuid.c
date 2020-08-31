@@ -638,7 +638,10 @@ char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64
   if(cpu->FMA3 || cpu->FMA4)
     flops = flops*2;
 
-  if(cpu->AVX512)
+  // Ice Lake has AVX512, but it has 1 VPU for AVX512, while
+  // it has 2 for AVX2. If this is a Ice Lake CPU, we are computing
+  // the peak performance supposing AVX2, not AVX512
+  if(cpu->AVX512 && vpus_are_AVX512(cpu))
     flops = flops*16;
   else if(cpu->AVX || cpu->AVX2)
     flops = flops*8;
