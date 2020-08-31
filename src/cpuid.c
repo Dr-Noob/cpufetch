@@ -15,6 +15,7 @@
 #include "cpuid_asm.h"
 #include "global.h"
 #include "apic.h"
+#include "uarch.h"
 
 #define VENDOR_INTEL_STRING "GenuineIntel"
 #define VENDOR_AMD_STRING   "AuthenticAMD"
@@ -165,6 +166,23 @@ char* get_str_cpu_name_internal() {
   return name;
 }
 
+struct uarch* get_cpu_uarch() {
+  uint32_t eax = 0x00000001;
+  uint32_t ebx = 0;
+  uint32_t ecx = 0;
+  uint32_t edx = 0;
+  
+  cpuid(&eax, &ebx, &ecx, &edx);
+   
+  uint32_t stepping = eax & 0xF;
+  uint32_t model = (eax >> 4) & 0xF;
+  uint32_t emodel = (eax >> 16) & 0xF;
+  uint32_t family = (eax >> 8) & 0xF;
+  uint32_t efamily = (eax >> 20) & 0xFF;
+  
+  return get_uarch_from_cpuid(efamily, family, emodel, model, (int)stepping);
+}
+
 struct cpuInfo* get_cpu_info() {
   struct cpuInfo* cpu = malloc(sizeof(struct cpuInfo));
   init_cpu_info(cpu);
@@ -258,6 +276,8 @@ struct cpuInfo* get_cpu_info() {
     sprintf(cpu->cpu_name,"Unknown");
     printWarn("Can't read cpu name from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x80000004, cpu->maxExtendedLevels);        
   }
+  
+  cpu->arch = get_cpu_uarch(cpu);
 
   return cpu;
 }

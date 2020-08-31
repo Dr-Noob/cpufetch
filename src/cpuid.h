@@ -37,6 +37,8 @@ struct cpuInfo {
   uint32_t maxLevels;
   // Max cpuids extended levels
   uint32_t maxExtendedLevels;
+  
+  struct uarch* arch;
 };
 
 struct cach {
