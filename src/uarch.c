@@ -6,11 +6,34 @@
 #include "uarch.h"
 
 /*
- * - Intel Microcode Revision Guidance (MRG):
- *   https://www.intel.com/content/dam/www/public/us/en/documents/corporate-information/SA00270-microcode-update-guidance.pdf
  * - cpuid codes are based on Todd Allen's cpuid program
  *   http://www.etallen.com/cpuid.html
+ * - This should be updated from time to time, to support newer CPUs. A good reference to look at:
+ *   https://en.wikichip.org/
  */
+
+// From Todd Allen:
+//
+// MSR_CPUID_table* is a table that appears in Intel document 325462, "Intel 64
+// and IA-32 Architectures Software Developer's Manual Combined Volumes: 1, 2A,
+// 2B, 2C, 2D, 3A, 3B, 3C, 3D, and 4" (the name changes from version to version
+// as more volumes are added).  The table moves around from version to version,
+// but in version 071US, was in "Volume 4: Model-Specific Registers", Table 2-1:
+// "CPUID Signature Values of DisplayFamily_DisplayModel".
+
+// MRG* is a table that forms the bulk of Intel Microcode Revision Guidance (or
+// Microcode Update Guidance).  Its purpose is not to list CPUID values, but
+// it does so, and sometimes lists values that appear nowhere else.
+
+// LX* indicates features that I have seen no documentation for, but which are
+// used by the Linux kernel (which is good evidence that they're correct).
+// The "hook" to find these generally is an X86_FEATURE_* flag in:
+//    arch/x86/include/asm/cpufeatures.h
+// For (synth) and (uarch synth) decoding, it often indicates
+// family/model/stepping value which are documented nowhere else.  These usually
+// can be found in:
+//    arch/x86/include/asm/intel-family.h
+
 typedef uint32_t MICROARCH;
 
 // No stepping
@@ -57,6 +80,7 @@ typedef uint32_t MICROARCH;
 #define UARCH_PRESCOTT        0x035
 #define UARCH_CEDAR_MILL      0x036
 #define UARCH_ITANIUM2        0x037
+#define UARCH_ICE_LAKE        0x038
 
 struct uarch {
   MICROARCH uarch;
@@ -162,7 +186,7 @@ struct uarch* get_uarch_from_cpuid(uint32_t ef, uint32_t f, uint32_t em, uint32_
   CHECK_UARCH(arch, 0,  6,  7,  5, NS, "Airmont",         UARCH_AIRMONT,          14) // no spec update; whispers & rumors
   CHECK_UARCH(arch, 0,  6,  7, 10, NS, "Goldmont Plus",   UARCH_GOLDMONT_PLUS,    14)
   CHECK_UARCH(arch, 0,  6,  7, 13, NS, "Sunny Cove",      UARCH_SUNNY_COVE,       10) // no spec update; only MSR_CPUID_table* so far
-  CHECK_UARCH(arch, 0,  6,  7, 14, NS, "Sunny Cove",      UARCH_SUNNY_COVE,       10)
+  CHECK_UARCH(arch, 0,  6,  7, 14, NS, "Ice Lake",        UARCH_ICE_LAKE,         10)
   CHECK_UARCH(arch, 0,  6,  8,  5, NS, "Knights Mill",    UARCH_KNIGHTS_MILL,     14) // no spec update; only MSR_CPUID_table* so far
   CHECK_UARCH(arch, 0,  6,  8,  6, NS, "Tremont",         UARCH_TREMONT,          10) // LX*
   CHECK_UARCH(arch, 0,  6,  8, 10, NS, "Tremont",         UARCH_TREMONT,          10) // no spec update; only geekbench.com example
@@ -191,10 +215,30 @@ struct uarch* get_uarch_from_cpuid(uint32_t ef, uint32_t f, uint32_t em, uint32_
   CHECK_UARCH(arch, 1, 15,  0,  1, NS, "Itanium2",        UARCH_ITANIUM2,        130)
   CHECK_UARCH(arch, 1, 15,  0,  2, NS, "Itanium2",        UARCH_ITANIUM2,        130)
   UARCH_END
-  
-  // DEBUG
-  //printf("M=0x%.8X EM=0x%.8X F=0x%.8X EF=0x%.8X S=0x%.8X\n", m, em, f, ef, s);
-  //printf("Your arch: %s\n", arch->uarch_str);
-  
+    
   return arch;
+}
+
+int get_number_of_vpus(struct cpuInfo* cpu) {
+  if(cpu->cpu_vendor == VENDOR_AMD)
+    return 1;
+  
+  switch(cpu->arch->uarch) {
+      case UARCH_HASWELL:
+      case UARCH_BROADWELL:
+          
+      case UARCH_SKYLAKE:
+      case UARCH_CASCADE_LAKE:                    
+      case UARCH_KABY_LAKE:
+      case UARCH_COFFE_LAKE:
+      case UARCH_PALM_COVE:    
+      
+      case UARCH_KNIGHTS_LANDING:
+      case UARCH_KNIGHTS_MILL:
+          
+      case UARCH_ICE_LAKE:      
+        return 2;
+      default:
+        return 1;
+  }
 }
