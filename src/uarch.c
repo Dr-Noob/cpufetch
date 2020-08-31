@@ -373,3 +373,19 @@ int get_number_of_vpus(struct cpuInfo* cpu) {
         return 1;
   }
 }
+
+char* get_str_uarch(struct cpuInfo* cpu) {
+  return cpu->arch->uarch_str;    
+}
+
+char* get_str_process(struct cpuInfo* cpu) {
+  char* str = malloc(sizeof(char) * (4+2+1));
+  uint32_t process = cpu->arch->process;
+  
+  if(process > 100)    
+    sprintf(str, "%.2fum", (double)process/100);
+  else
+    sprintf(str, "%dnm", process);
+  
+  return str;
+}

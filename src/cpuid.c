@@ -712,7 +712,7 @@ char* get_str_cpu_name(struct cpuInfo* cpu) {
 
 char* get_str_avx(struct cpuInfo* cpu) {
   //If all AVX are available, it will use up to 15
-  char* string = malloc(sizeof(char)*15+1);
+  char* string = malloc(sizeof(char)*17+1);
   if(!cpu->AVX)
     snprintf(string,2+1,"No");
   else if(!cpu->AVX2)
@@ -757,11 +757,11 @@ char* get_str_sse(struct cpuInfo* cpu) {
       last+=SSE4a_sl;
   }
   if(cpu->SSE4_1) {
-      snprintf(string+last,SSE4_1_sl+1,"SSE4_1,");
+      snprintf(string+last,SSE4_1_sl+1,"SSE4.1,");
       last+=SSE4_1_sl;
   }
   if(cpu->SSE4_2) {
-      snprintf(string+last,SSE4_2_sl+1,"SSE4_2,");
+      snprintf(string+last,SSE4_2_sl+1,"SSE4.2,");
       last+=SSE4_2_sl;
   }
 

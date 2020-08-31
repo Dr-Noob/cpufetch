@@ -6,6 +6,8 @@
 #include "printer.h"
 #include "ascii.h"
 #include "global.h"
+#include "cpuid.h"
+#include "uarch.h"
 
 #define COL_NONE          ""
 #define COL_INTEL_FANCY_1 "\x1b[46;1m"
@@ -22,50 +24,52 @@
 #define COL_AMD_RETRO_2   "\x1b[32;1m"
 #define RESET             "\x1b[m"
 
-#define TITLE_NAME        "Name:"
-#define TITLE_FREQUENCY   "Frequency:"
-#define TITLE_SOCKETS     "Sockets:" 
-#define TITLE_NCORES      "Cores:" 
-#define TITLE_NCORES_DUAL "Cores (Total):"
-#define TITLE_AVX         "AVX:"
-#define TITLE_SSE         "SSE:"
-#define TITLE_FMA         "FMA:"
-#define TITLE_AES         "AES:"
-#define TITLE_SHA         "SHA:"
-#define TITLE_L1i         "L1i Size:"
-#define TITLE_L1d         "L1d Size:"
-#define TITLE_L2          "L2 Size:"
-#define TITLE_L3          "L3 Size:"
-#define TITLE_PEAK        "Peak Perf.:"
+#define TITLE_NAME          "Name:"
+#define TITLE_FREQUENCY     "Max Frequency:"
+#define TITLE_SOCKETS       "Sockets:" 
+#define TITLE_NCORES        "Cores:" 
+#define TITLE_NCORES_DUAL   "Cores (Total):"
+#define TITLE_AVX           "AVX:"
+#define TITLE_SSE           "SSE:"
+#define TITLE_FMA           "FMA:"
+#define TITLE_AES           "AES:"
+#define TITLE_SHA           "SHA:"
+#define TITLE_L1i           "L1i Size:"
+#define TITLE_L1d           "L1d Size:"
+#define TITLE_L2            "L2 Size:"
+#define TITLE_L3            "L3 Size:"
+#define TITLE_PEAK          "Peak Performance:"
+#define TITLE_UARCH         "Microarchitecture:"
+#define TITLE_TECHNOLOGY    "Technology:"
 
-#define MAX_ATTRIBUTE_COUNT      15
+#define MAX_ATTRIBUTE_COUNT      14
 #define ATTRIBUTE_NAME            0
-#define ATTRIBUTE_FREQUENCY       1
-#define ATTRIBUTE_SOCKETS         2
-#define ATTRIBUTE_NCORES          3
-#define ATTRIBUTE_NCORES_DUAL     4
-#define ATTRIBUTE_AVX             5
-#define ATTRIBUTE_SSE             6
-#define ATTRIBUTE_FMA             7
-#define ATTRIBUTE_AES             8
-#define ATTRIBUTE_SHA             9
-#define ATTRIBUTE_L1i            10
-#define ATTRIBUTE_L1d            11
-#define ATTRIBUTE_L2             12
-#define ATTRIBUTE_L3             13
-#define ATTRIBUTE_PEAK           14
+#define ATTRIBUTE_UARCH           1
+#define ATTRIBUTE_TECHNOLOGY      2
+#define ATTRIBUTE_FREQUENCY       3
+#define ATTRIBUTE_SOCKETS         4
+#define ATTRIBUTE_NCORES          5
+#define ATTRIBUTE_NCORES_DUAL     6
+#define ATTRIBUTE_AVX             7
+#define ATTRIBUTE_FMA             8
+#define ATTRIBUTE_L1i             9
+#define ATTRIBUTE_L1d            10
+#define ATTRIBUTE_L2             11
+#define ATTRIBUTE_L3             12
+#define ATTRIBUTE_PEAK           13
 
-static const char* ATTRIBUTE_FIELDS [MAX_ATTRIBUTE_COUNT] = { TITLE_NAME, TITLE_FREQUENCY, TITLE_SOCKETS,
+static const char* ATTRIBUTE_FIELDS [MAX_ATTRIBUTE_COUNT] = { TITLE_NAME, TITLE_UARCH, TITLE_TECHNOLOGY,
+                                                              TITLE_FREQUENCY, TITLE_SOCKETS,
                                                               TITLE_NCORES, TITLE_NCORES_DUAL, 
-                                                              TITLE_AVX, TITLE_SSE,
-                                                              TITLE_FMA, TITLE_AES, TITLE_SHA,
-                                                              TITLE_L1i, TITLE_L1d, TITLE_L2, TITLE_L3,
-                                                              TITLE_PEAK
+                                                              TITLE_AVX,
+                                                              TITLE_FMA, TITLE_L1i, TITLE_L1d, TITLE_L2, TITLE_L3,
+                                                              TITLE_PEAK, 
                                                                };
 
-static const int ATTRIBUTE_LIST[MAX_ATTRIBUTE_COUNT] =  { ATTRIBUTE_NAME, ATTRIBUTE_FREQUENCY, ATTRIBUTE_SOCKETS,
+static const int ATTRIBUTE_LIST[MAX_ATTRIBUTE_COUNT] =  { ATTRIBUTE_NAME, ATTRIBUTE_UARCH, ATTRIBUTE_TECHNOLOGY,
+                                                        ATTRIBUTE_FREQUENCY, ATTRIBUTE_SOCKETS,
                                                         ATTRIBUTE_NCORES, ATTRIBUTE_NCORES_DUAL, ATTRIBUTE_AVX,
-                                                        ATTRIBUTE_SSE, ATTRIBUTE_FMA, ATTRIBUTE_AES, ATTRIBUTE_SHA,
+                                                        ATTRIBUTE_FMA, 
                                                         ATTRIBUTE_L1i, ATTRIBUTE_L1d, ATTRIBUTE_L2, ATTRIBUTE_L3,
                                                         ATTRIBUTE_PEAK };
 
@@ -230,6 +234,7 @@ void print_ascii_intel(struct ascii* art, uint32_t la) {
   uint32_t space_up = (NUMBER_OF_LINES - art->n_attributes_set)/2;
   uint32_t space_down = NUMBER_OF_LINES - art->n_attributes_set - space_up;
 
+  printf("\n");
   for(uint32_t n=0;n<NUMBER_OF_LINES;n++) {
 
     for(int i=0;i<LINE_SIZE;i++) {
@@ -258,6 +263,7 @@ void print_ascii_intel(struct ascii* art, uint32_t la) {
     }
     else printf("\n");
   }
+  printf("\n");
 }
 
 void print_ascii_amd(struct ascii* art, uint32_t la) {
@@ -266,6 +272,7 @@ void print_ascii_amd(struct ascii* art, uint32_t la) {
   uint32_t space_up = (NUMBER_OF_LINES - art->n_attributes_set)/2;
   uint32_t space_down = NUMBER_OF_LINES - art->n_attributes_set - space_up;
   
+  printf("\n");
   for(uint32_t n=0;n<NUMBER_OF_LINES;n++) {
     for(int i=0;i<LINE_SIZE;i++) {
       if(art->art[n][i] == '@')
@@ -283,6 +290,7 @@ void print_ascii_amd(struct ascii* art, uint32_t la) {
     }
     else printf("\n");
   }
+  printf("\n");
 
 }
 
@@ -314,15 +322,14 @@ bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* f
     return false;
   
   char* cpu_name = get_str_cpu_name(cpu);
+  char* uarch = get_str_uarch(cpu);
+  char* manufacturing_process = get_str_process(cpu);
   char* sockets = get_str_sockets(topo);
   char* max_frequency = get_str_freq(freq);
   char* n_cores = get_str_topology(cpu, topo, false);
   char* n_cores_dual = get_str_topology(cpu, topo, true);
   char* avx = get_str_avx(cpu);
-  char* sse = get_str_sse(cpu);
-  char* fma = get_str_fma(cpu);
-  char* aes = get_str_aes(cpu);
-  char* sha = get_str_sha(cpu);
+  char* fma = get_str_fma(cpu);  
   char* l1i = get_str_l1i(topo->cach);
   char* l1d = get_str_l1d(topo->cach);
   char* l2 = get_str_l2(topo->cach);
@@ -330,13 +337,12 @@ bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* f
   char* pp = get_str_peak_performance(cpu,topo,get_freq(freq));
 
   setAttribute(art,ATTRIBUTE_NAME,cpu_name);
+  setAttribute(art,ATTRIBUTE_UARCH,uarch);
+  setAttribute(art,ATTRIBUTE_TECHNOLOGY,manufacturing_process);
   setAttribute(art,ATTRIBUTE_FREQUENCY,max_frequency);
   setAttribute(art,ATTRIBUTE_NCORES,n_cores);
   setAttribute(art,ATTRIBUTE_AVX,avx);
-  setAttribute(art,ATTRIBUTE_SSE,sse);
   setAttribute(art,ATTRIBUTE_FMA,fma);
-  setAttribute(art,ATTRIBUTE_AES,aes);
-  setAttribute(art,ATTRIBUTE_SHA,sha);
   setAttribute(art,ATTRIBUTE_L1i,l1i);
   setAttribute(art,ATTRIBUTE_L1d,l1d);
   setAttribute(art,ATTRIBUTE_L2,l2);  
@@ -358,15 +364,14 @@ bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* f
   print_ascii(art);
 
   free(cpu_name);
+  free(uarch);
+  free(manufacturing_process);
   free(max_frequency);
   free(sockets);
   free(n_cores);
   free(n_cores_dual);
   free(avx);
-  free(sse);
   free(fma);
-  free(aes);
-  free(sha);
   free(l1i);
   free(l1d);
   free(l2);
@@ -375,6 +380,7 @@ bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* f
 
   free(cpu);
   free(art);
+  
   if(cs != NULL) free_colors_struct(cs);
   free_cache_struct(cach);
   free_topo_struct(topo);
