@@ -59,17 +59,6 @@ void init_cpu_info(struct cpuInfo* cpu) {
   cpu->AES    = false;
   cpu->SHA    = false;
 }
-/*
-void init_topology_struct(struct topology* topo, struct cache* cach) {
-  (*topo)->total_cores = 0;
-  (*topo)->physical_cores = 0;
-  (*topo)->logical_cores = 0;
-  (*topo)->smt_available = 0;
-  (*topo)->smt_supported = 0;
-  (*topo)->sockets = 0;
-  (*topo)->apic = malloc(sizeof(struct apic));
-  (*topo)->cach = cach;
-}*/
 
 void init_topology_struct(struct topology* topo, struct cache* cach) {
   topo->total_cores = 0;
@@ -282,34 +271,79 @@ struct cpuInfo* get_cpu_info() {
   return cpu;
 }
 
-uint8_t get_number_llc_amd(struct topology* topo) {
-  uint32_t eax = 0x8000001D;
-  uint32_t ebx = 0;
-  uint32_t ecx = 3; // LLC Level
-  uint32_t edx = 0;     
-  uint32_t num_sharing_cache = 0;
-  
-  cpuid(&eax, &ebx, &ecx, &edx); 
-  
-  num_sharing_cache = ((eax >> 14) & 0xFFF) + 1;
-  
-  return topo->logical_cores / num_sharing_cache;
-}
-
-void guess_cache_topology_amd(struct cpuInfo* cpu, struct topology* topo) {  
-  topo->cach->L1i->num_caches = topo->physical_cores;
-  topo->cach->L1d->num_caches = topo->physical_cores;
-  topo->cach->L2->num_caches = topo->physical_cores;
-  
-  if(topo->cach->L3->exists) {
-    if(cpu->maxExtendedLevels >= 0x8000001D) {
-      topo->cach->L3->num_caches = get_number_llc_amd(topo);
+bool get_cache_topology_amd(struct cpuInfo* cpu, struct topology* topo) {    
+  if(cpu->maxExtendedLevels >= 0x8000001D) {  
+    uint32_t i, eax, ebx, ecx, edx, num_sharing_cache, cache_type, cache_level;
+    
+    i = 0;
+    do {
+      eax = 0x8000001D;
+      ebx = 0;
+      ecx = i; // cache id
+      edx = 0;
+      
+      cpuid(&eax, &ebx, &ecx, &edx); 
+      
+      cache_type = eax & 0x1F;            
+      
+      if(cache_type > 0) {
+        num_sharing_cache = ((eax >> 14) & 0xFFF) + 1;  
+        cache_level = (eax >>= 5) & 0x7;            
+        
+        switch (cache_type) {                
+          case 1: // Data Cache (We assume this is L1d)
+            if(cache_level != 1) {
+              printBug("Found data cache at level %d (expected 1)", cache_level);
+              return false;
+            }
+            topo->cach->L1d->num_caches = topo->logical_cores / num_sharing_cache;
+            break;
+          
+          case 2: // Instruction Cache (We assume this is L1i)
+            if(cache_level != 1) {
+              printBug("Found instruction cache at level %d (expected 1)", cache_level);
+              return false;
+            }
+            topo->cach->L1i->num_caches = topo->logical_cores / num_sharing_cache;
+            break;
+          
+          case 3: // Unified Cache (This may be L2 or L3)
+            if(cache_level == 2) { 
+              topo->cach->L2->num_caches = topo->logical_cores / num_sharing_cache;
+            }
+            else if(cache_level == 3) {
+              topo->cach->L3->num_caches = topo->logical_cores / num_sharing_cache;
+            }
+            else {
+              printBug("Found unified cache at level %d (expected == 2 or 3)", cache_level);
+              return false;
+            }
+            break;
+          
+          default: // Unknown Type Cache
+            printBug("Unknown Type Cache found at ID %d", i);
+            return false; 
+        }   
+      }
+      
+      i++;
+    } while (cache_type > 0);        
+  }
+  else {
+    printWarn("Can't read topology information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X). Guessing cache sizes", 0x8000001D, cpu->maxExtendedLevels); 
+    topo->cach->L1i->num_caches = topo->physical_cores;
+    topo->cach->L1d->num_caches = topo->physical_cores;
+    
+    if(topo->cach->L3->exists) {
+      topo->cach->L2->num_caches = topo->physical_cores;
+      topo->cach->L3->num_caches = 1;    
     }
     else {
-      printWarn("Can't read topology information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x8000001D, cpu->maxExtendedLevels); 
-      topo->cach->L3->num_caches = 1;
+      topo->cach->L2->num_caches = 1;        
     }
   }
+  
+  return true;
 }
 
 // Main reference: https://software.intel.com/content/www/us/en/develop/articles/intel-64-architecture-processor-topology-enumeration.html
@@ -375,7 +409,10 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
       }
       
       if (cpu->maxLevels >= 0x00000001) {
-        topo->smt_available = is_smt_enabled_amd(topo);
+        if(topo->smt_supported > 1)
+          topo->smt_available = is_smt_enabled_amd(topo);
+        else
+          topo->smt_available = 1;
       }
       else {
         printWarn("Can't read topology information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x0000000B, cpu->maxLevels);   
@@ -388,7 +425,7 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
       else
         topo->sockets = topo->total_cores / topo->physical_cores;    
       
-      guess_cache_topology_amd(cpu, topo);      
+      get_cache_topology_amd(cpu, topo);      
       
       break;
       
