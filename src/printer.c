@@ -363,8 +363,6 @@ bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* f
 
   print_ascii(art);
 
-  free(cpu_name);
-  free(uarch);
   free(manufacturing_process);
   free(max_frequency);
   free(sockets);
@@ -376,15 +374,15 @@ bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* f
   free(l1d);
   free(l2);
   free(l3);
-  free(pp);
-
-  free(cpu);
+  free(pp);  
+  
   free(art);
   
   if(cs != NULL) free_colors_struct(cs);
   free_cache_struct(cach);
   free_topo_struct(topo);
   free_freq_struct(freq);   
+  free_cpuinfo_struct(cpu);    
   
   return true;
 }

@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "uarch.h"
+#include "global.h"
 
 /*
  * - cpuid codes are based on Todd Allen's cpuid program
@@ -110,10 +111,10 @@ struct uarch {
 #define UARCH_START if (false) {}
 #define CHECK_UARCH(arch, ef_, f_, em_, m_, s_, str, uarch, process) \
    else if (ef_ == ef && f_ == f && (em_ == NA || em_ == em) && (m_ == NA || m_ == m) && (s_ == NA || s_ == s)) fill_uarch(arch, str, uarch, process);
-#define UARCH_END else { arch->uarch = UARCH_UNKNOWN; }
+#define UARCH_END else { printBug("Unknown microarchitecture detected: M=0x%.8X EM=0x%.8X F=0x%.8X EF=0x%.8X S=0x%.8X", m, em, f, ef, s); fill_uarch(arch, "Unknown", UARCH_UNKNOWN, 0); }
 
 void fill_uarch(struct uarch* arch, char* str, MICROARCH u, uint32_t process) {
-  arch->uarch_str = malloc(sizeof(char) * strlen(str));
+  arch->uarch_str = malloc(sizeof(char) * (strlen(str)+1));
   strcpy(arch->uarch_str, str);
   arch->uarch = u;
   arch->process= process;
@@ -388,4 +389,9 @@ char* get_str_process(struct cpuInfo* cpu) {
     sprintf(str, "%dnm", process);
   
   return str;
+}
+
+void free_uarch_struct(struct uarch* arch) {    
+  free(arch->uarch_str);
+  free(arch);
 }

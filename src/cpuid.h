@@ -97,12 +97,12 @@ char* get_str_topology(struct cpuInfo* cpu, struct topology* topo, bool dual_soc
 
 char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64_t freq);
 
-void print_levels(struct cpuInfo* cpu, char* cpu_name);
+void print_levels(struct cpuInfo* cpu);
 
-void free_cpuinfo_struct(struct cpuInfo* cpu);
 void free_cache_struct(struct cache* cach);
 void free_topo_struct(struct topology* topo);
 void free_freq_struct(struct frequency* freq);
+void free_cpuinfo_struct(struct cpuInfo* cpu);
 
 void debug_cpu_info(struct cpuInfo* cpu);
 void debug_cache(struct cache* cach);

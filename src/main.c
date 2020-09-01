@@ -6,7 +6,7 @@
 #include "cpuid.h"
 #include "global.h"
 
-static const char* VERSION = "0.65";
+static const char* VERSION = "0.66";
 
 void print_help(char *argv[]) {
   printf("Usage: %s [--version] [--help] [--levels] [--style \"fancy\"|\"retro\"|\"legacy\"] [--color \"intel\"|\"amd\"|'R,G,B:R,G,B:R,G,B:R,G,B']\n\n\
@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
   
   if(show_levels()) {
     print_version();
-    print_levels(cpu, get_str_cpu_name(cpu));
+    print_levels(cpu);
     return EXIT_SUCCESS;    
   }  
   

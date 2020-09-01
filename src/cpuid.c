@@ -909,10 +909,12 @@ char* get_str_freq(struct frequency* freq) {
   return string;
 }
 
-void print_levels(struct cpuInfo* cpu, char* cpu_name) {
-  printf("%s\n", cpu_name);
+void print_levels(struct cpuInfo* cpu) {
+  printf("%s\n", cpu->cpu_name);
   printf("- Max standart level: 0x%.8X\n", cpu->maxLevels);
   printf("- Max extended level: 0x%.8X\n", cpu->maxExtendedLevels);
+  
+  free_cpuinfo_struct(cpu);
 }
 
 void free_topo_struct(struct topology* topo) {
@@ -930,4 +932,10 @@ void free_cache_struct(struct cache* cach) {
 
 void free_freq_struct(struct frequency* freq) {
   free(freq);
+}
+
+void free_cpuinfo_struct(struct cpuInfo* cpu) {
+  free_uarch_struct(cpu->arch);
+  free(cpu->cpu_name);
+  free(cpu);
 }
