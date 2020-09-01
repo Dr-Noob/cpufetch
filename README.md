@@ -1,7 +1,7 @@
 # cpufetch
 
 Prints a fancy summary of the CPU with some advanced information
-![Example](i9.png)
+![cpu1](i9.png)
 
 ### Platforms
 cpufetch currently supports x86 CPUs (both Intel and AMD CPUs)
@@ -9,7 +9,7 @@ cpufetch currently supports x86 CPUs (both Intel and AMD CPUs)
 | Platform  | Intel                     | AMD                      | Notes             |
 |:---------:|:-------------------------:|:------------------------:|:-----------------:|
 | Linux     | :heavy_check_mark:        | :heavy_check_mark:       | Prefered platform |
-| Windows   | :heavy_check_mark:        | :heavy_check_mark:       | Some information may be missing. No colors and worse CPU art |
+| Windows   | :heavy_check_mark:        | :heavy_check_mark:       | Some information may be missing. <br> No colors and worse CPU art |
 | macOS     | :heavy_exclamation_mark:  | :heavy_exclamation_mark: | Untested |
 
 
@@ -38,9 +38,9 @@ The Makefile is designed to work on both Linux and Windows.
 
 Here are more examples of how `cpufetch` looks on different CPUs.
 
-![Example](epyc.png)
+![cpu2](epyc.png)
 
-![Example](cascade_lake.png)
+![cpu3](cascade_lake.png)
 
 ### Colors and style
 By default, `cpufetch` will print the CPU art with the system colorscheme. However, you can always set a custom color scheme, either
