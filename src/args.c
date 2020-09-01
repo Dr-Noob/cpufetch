@@ -12,16 +12,19 @@
 #define ARG_STR_VERBOSE  "verbose"
 #define ARG_STR_VERSION  "version"
 
-#define ARG_CHAR_STYLE   's'
-#define ARG_CHAR_COLOR   'c'
-#define ARG_CHAR_HELP    'h'
-#define ARG_CHAR_LEVELS  'l'
-#define ARG_CHAR_VERBOSE 'v'
-#define ARG_CHAR_VERSION 'v'
+#define ARG_CHAR_STYLE    0
+#define ARG_CHAR_COLOR    1
+#define ARG_CHAR_HELP     2
+#define ARG_CHAR_LEVELS   3
+#define ARG_CHAR_VERBOSE  4
+#define ARG_CHAR_VERSION  5
 
 #define STYLE_STR_1      "fancy"
 #define STYLE_STR_2      "retro"
 #define STYLE_STR_3      "legacy"
+
+#define COLOR_STR_INTEL "intel"
+#define COLOR_STR_AMD   "amd"
 
 struct args_struct {
   bool levels_flag;
@@ -88,8 +91,25 @@ bool parse_color(char* optarg, struct colors** cs) {
   struct color** c3 = &((*cs)->c3);
   struct color** c4 = &((*cs)->c4);
   int32_t ret;
+  char* str_to_parse = NULL;
+  bool free_ptr;
   
-  ret = sscanf(optarg, "%d,%d,%d:%d,%d,%d:%d,%d,%d:%d,%d,%d", 
+  if(strcmp(optarg, COLOR_STR_INTEL) == 0) {
+    str_to_parse = malloc(sizeof(char) * 46);
+    strcpy(str_to_parse, COLOR_DEFAULT_INTEL);
+    free_ptr = true;
+  }
+  else if(strcmp(optarg, COLOR_STR_AMD) == 0) {
+    str_to_parse = malloc(sizeof(char) * 44);
+    strcpy(str_to_parse, COLOR_DEFAULT_AMD);  
+    free_ptr = true;
+  }
+  else {  
+    str_to_parse = optarg;
+    free_ptr = false;
+  }
+  
+  ret = sscanf(str_to_parse, "%d,%d,%d:%d,%d,%d:%d,%d,%d:%d,%d,%d", 
                &(*c1)->R, &(*c1)->G, &(*c1)->B,
                &(*c2)->R, &(*c2)->G, &(*c2)->B,
                &(*c3)->R, &(*c3)->G, &(*c3)->B,
@@ -124,7 +144,9 @@ bool parse_color(char* optarg, struct colors** cs) {
   if((*c2)->B < 0 || (*c2)->B > 255) {
     printErr("Blue in color 2 is invalid. Must be in range (0, 255)");
     return false;
-  }
+  }  
+  
+  if(free_ptr) free (str_to_parse);
   
   return true;      
 }
