@@ -6,23 +6,23 @@
 #include "cpuid.h"
 #include "global.h"
 
-static const char* VERSION = "0.67";
+static const char* VERSION = "0.7";
 
 void print_help(char *argv[]) {
   printf("Usage: %s [--version] [--help] [--levels] [--style \"fancy\"|\"retro\"|\"legacy\"] [--color \"intel\"|\"amd\"|'R,G,B:R,G,B:R,G,B:R,G,B']\n\n\
 Options: \n\
   --color       Set the color scheme. By default, cpufetch uses the system color scheme. This option \n\
                 lets the user use different colors to print the CPU art:  \n\
-   * \"intel\":   Use to intel color scheme \n\
+   * \"intel\":   Use intel default color scheme \n\
    * \"amd\":     Use amd default color scheme \n\
    * custom:    If color do not match \"intel\" or \"amd\", a custom scheme can be specified: \n\
                 4 colors must be given in RGB with the format: R,G,B:R,G,B:... \n\
                 These colors correspond to CPU art color (2 colors) and for the text colors (following 2) \n\
                 For example: --color 239,90,45:210,200,200:100,200,45:0,200,200 \n\n\
   --style       Set the style of CPU art: \n\
-    * \"fancy\"   (default style)      \n\
-    * \"retro\"   (old cpufetch style) \n\
-    * \"legacy\"                       \n\n\
+    * \"fancy\":  Default style      \n\
+    * \"retro\":  Old cpufetch style \n\
+    * \"legacy\": Fallback style for terminals that does not support colors                       \n\n\
   --levels      Prints CPU model and cpuid levels (debug purposes)\n\n\
   --verbose     Prints extra information (if available) about how cpufetch tried fetching information\n\n\
   --help        Prints this help and exit\n\n\

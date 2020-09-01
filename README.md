@@ -1,12 +1,28 @@
 # cpufetch
 
 Prints a fancy summary of the CPU with some advanced information
+![Example](i9.png)
 
 ### Platforms
-This tool works on both 64 only and under Linux because of its [implementation details](#implementation). AMD support is not guaranteed so information may not be correct
+cpufetch currently supports x86 CPUs (both Intel and AMD CPUs)
+
+| Platform  | Intel                     | AMD                      | Notes             |
+|:---------:|:-------------------------:|:------------------------:|:-----------------:|
+| Linux     | :heavy_check_mark:        | :heavy_check_mark:       | Prefered platform |
+| Windows   | :heavy_check_mark:        | :heavy_check_mark:       | Some information may be missing. No colors and worse CPU art |
+| macOS     | :heavy_exclamation_mark:  | :heavy_exclamation_mark: | Untested |
+
 
 ### Usage and installation
+#### Linux
+There is a cpufetch package available in Arch Linux ([cpufetch-git](https://aur.archlinux.org/packages/cpufetch-git)).
 
+If you are in other distro, you can build `cpufetch` from source (see below)
+
+#### Windows
+In the [releases](https://github.com/Dr-Noob/cpufetch/releases) section you will find some cpufetch executables compiled for Windows. Just download and run it from Windows CMD.
+
+#### Building from source
 Just clone the repo and use `make` to compile it
 
 ```
@@ -16,41 +32,34 @@ make
 ./cpufetch
 ```
 
+The Makefile is designed to work on both Linux and Windows.
+
 ### Example
 
-This is the output of `cpufetch` in a i7-4790K
+Here are more examples of how `cpufetch` looks on different CPUs.
 
-![Example](/preview.png)
+![Example](epyc.png)
 
-### Output
+![Example](cascade_lake.png)
 
-Output is detailed as follows:
+### Colors and style
+By default, `cpufetch` will print the CPU art with the system colorscheme. However, you can always set a custom color scheme, either
+specifying Intel or AMD, or specifying the colors in RGB format:
 
-| Field      | Description             | Possible Values  |
-|:----------:|:-----------------------:|:-----------------:|
-| Name       | Name of the CPU   | Any valid CPU name |
-| Frequency  | Max frequency of the CPU(in GHz) | X.XX(GHz or MHz)
-| N.Cores    | Number of cores the CPU has. If CPU supports `Hyperthreading` or similar, this will show cores and threads separately | X(cores)X(threads)
-| AVX        | Type of AVX supported by the CPU or None. AVX instructions allows the CPU to vectorize the code with a witdh of 256 bits in single precision(or 512bits if AVX512 is supported) | AVX,AVX2,AVX512,None
-| SSE        | Same as AVX, but SSE family are 128bits witdh | SSE, SSE2, SSE3, SSSE3, SSE4a, SSE4_1, SSE4_2,None |
-| FMA        | Does this CPU support FMA(Fused Multiply Add)?This instruction allows the CPU to multiply and add a value on the same clock cycle | FMA3,FMA4,None |
-| AES        | Does this CPU support AES? This instruction is allows the CPU to make AES cypher efficiently | Yes or No |
-| SHA        | Does this CPU support SHA? This instruction is allows the CPU to make SHA hashing efficiently | Yes or No |
-| L1 Size    | Size(in bytes) of the L1 cache, separated in data and instructions | XXB(Data)XXB(instructions) |
-| L2 Size    | Size(in bytes) of the L2 cache(both are unified) | XXXKB or None |
-| L3 Size    | Same as L3 | XXXXKB or None |
-| Peak FLOPS | Max FLOPS(Floating Point Operation Per Second) this CPU could theoretical achieve. This is calculated by: `N.Cores*Freq*2(Because 2 functional units)*2(If has FMA)*VectorWidth` | XXX.XX (G/T)FLOPs |
+```
+./cpufetch --color intel (default color for Intel)
+./cpufetch --color amd (default color for AND)
+./cpufetch --color 239,90,45:210,200,200:100,200,45:0,200,200 (example)
+```
 
-`cpufetch` also prints a simple ascii art of the manufacturer logo.
+In the case of setting the colors using RGB, 4 colors must be given in with the format: ``[R,G,B:R,G,B:R,G,B:R,G,B]``. These colors correspond to CPU art color (2 colors) and for the text colors (following 2). Thus, you can customize all the colors.
 
 ### Implementation
 
-`cpufetch` makes use of two techniques to fetch data:
-* __cpuid__: CPU name, number of threads per core and instructions features are fetched via _cpuid_. See [this](http://www.sandpile.org/x86/cpuid.htm) and [Intel  Processor Identification and the CPUID Instruction](https://www.scss.tcd.ie/~jones/CS4021/processor-identification-cpuid-instruction-note.pdf) for more information.
-* __udev__: Cache and frequency are fetched via _udev_, by looking at specific files from `/sys/devices/system/cpu`
+`cpufetch` fetches all of the information using the `CPUID` x86 instruction. There are, however, some cases where the CPU does not support fetching some needed information. In this case, `cpufetch` will use `/sys/devices/system/cpu` in Linux as a fallback. If `cpufetch` is running on Windows and `CPUID` does not give all the data, `cpufetch` won't be able to show it. [I hope this can be fixed in the future](https://github.com/Dr-Noob/cpufetch/issues/30)
 
 ### Bugs or improvements
-Feel free to open a issue on the repo to report a issue or propose any improvement in the tool
+There are many open issues in github (see [issues](https://github.com/Dr-Noob/cpufetch/issues)). Feel free to open a new one report a issue or propose any improvement in `cpufetch`
 
-### Important note
-Current status of development of cpufetch is incomplete (there are lots of bugs at the moment). I will fix them, add some other features and update the Arch Linux package when I have time.
+### Testers
+I would like to thank [Gonzalocl](https://github.com/Gonzalocl) and [OdnetninI](https://github.com/OdnetninI) for their help, running `cpufeth` in many different CPUs they have access to, which makes it easier to debug and check the correctness of `cpufetch`.
