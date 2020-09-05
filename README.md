@@ -1,6 +1,6 @@
 # cpufetch
 
-Prints a fancy summary of the CPU with some advanced information
+Simplistic yet fancy CPU architecture fetching tool
 ![cpu1](i9.png)
 
 ### Platforms
