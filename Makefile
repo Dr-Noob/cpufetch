@@ -32,3 +32,8 @@ run:
 
 clean:
 	@rm $(OUTPUT)
+	
+install: $(OUTPUT)
+	install -Dm755 "cpufetch"   "/usr/bin/cpufetch"
+	install -Dm644 "LICENSE"    "/usr/share/licenses/cpufetch-git/LICENSE"
+	install -Dm644 "cpufetch.8" "/usr/share/man/man8/cpufetch.8.gz"
