@@ -17,8 +17,23 @@
 #include "apic.h"
 #include "uarch.h"
 
-#define VENDOR_INTEL_STRING "GenuineIntel"
-#define VENDOR_AMD_STRING   "AuthenticAMD"
+#define CPU_VENDOR_INTEL_STRING "GenuineIntel"
+#define CPU_VENDOR_AMD_STRING   "AuthenticAMD"
+
+#define HV_VENDOR_KVM_STRING       "KVMKVMKVM"
+#define HV_VENDOR_QEMU_STRING      "TCGTCGTCGTCG"
+#define HV_VENDOR_HYPERV_STRING    "Microsoft Hv"
+#define HV_VENDOR_VMWARE_STRING    "VMwareVMware"
+#define HV_VENDOR_XEN_STRING       "XenVMMXenVMM"
+#define HV_VENDOR_PARALLELS_STRING "lrpepyh vr"
+
+#define HV_KVM_STRING       "KVM"
+#define HV_QEMU_STRING      "QEMU"
+#define HV_HYPERV_STRING    "Microsoft Hyper-V"
+#define HV_VMWARE_STRING    "VMware"
+#define HV_XEN_STRING       "Xen"
+#define HV_PARALLELS_STRING "Parallels"
+#define HV_UNKNOWN_STRING   "Unknown"
 
 #define STRING_YES        "Yes"
 #define STRING_NO         "No"
@@ -30,6 +45,7 @@
 #define STRING_MEGABYTES  "MB"
 
 #define CPU_NAME_MAX_LENGTH 64
+#define HYPERVISOR_NAME_MAX_LENGTH 17
 
 #define MASK 0xFF
 
@@ -107,6 +123,25 @@ void get_cpu_vendor_internal(char* name, uint32_t ebx,uint32_t ecx,uint32_t edx)
   name[__COUNTER__] = (ecx>>24) & MASK;
 }
 
+void get_hv_vendor_internal(char* name, uint32_t ebx, uint32_t ecx, uint32_t edx) {
+  uint32_t c = 0;
+  
+  name[c++] = ebx       & MASK;
+  name[c++] = (ebx>>8)  & MASK;
+  name[c++] = (ebx>>16) & MASK;
+  name[c++] = (ebx>>24) & MASK;
+
+  name[c++] = ecx       & MASK;
+  name[c++] = (ecx>>8)  & MASK;
+  name[c++] = (ecx>>16) & MASK;
+  name[c++] = (ecx>>24) & MASK;
+
+  name[c++] = edx       & MASK;
+  name[c++] = (edx>>8)  & MASK;
+  name[c++] = (edx>>16) & MASK;
+  name[c++] = (edx>>24) & MASK;
+}
+
 char* get_str_cpu_name_internal() {
   uint32_t eax = 0;
   uint32_t ebx = 0;
@@ -172,9 +207,66 @@ struct uarch* get_cpu_uarch(struct cpuInfo* cpu) {
   return get_uarch_from_cpuid(cpu, efamily, family, emodel, model, (int)stepping);
 }
 
+struct hypervisor* get_hp_info(bool hv_present) {
+  struct hypervisor* hv = malloc(sizeof(struct hypervisor));
+  if(!hv_present) {
+    hv->present = false;
+    return hv;    
+  }
+  
+  hv->present = true;
+  hv->hv_name = malloc(sizeof(char) * (HYPERVISOR_NAME_MAX_LENGTH+1));
+  memset(hv->hv_name, 0, HYPERVISOR_NAME_MAX_LENGTH+1);  
+  
+  uint32_t eax = 0x40000000;
+  uint32_t ebx = 0;
+  uint32_t ecx = 0;
+  uint32_t edx = 0;
+
+  cpuid(&eax, &ebx, &ecx, &edx);
+
+  char name[13];
+  memset(name, 0, 13);
+  get_hv_vendor_internal(name, ebx, ecx, edx);
+  
+  if(strcmp(HV_VENDOR_KVM_STRING, name) == 0) {
+    hv->hv_vendor = HV_VENDOR_KVM;
+    strcpy(hv->hv_name, HV_KVM_STRING);
+  }
+  else if (strcmp(HV_VENDOR_QEMU_STRING, name) == 0) {
+    hv->hv_vendor = HV_VENDOR_QEMU;  
+    strcpy(hv->hv_name, HV_QEMU_STRING);
+  }
+  else if (strcmp(HV_VENDOR_HYPERV_STRING, name) == 0) {
+    hv->hv_vendor = HV_VENDOR_HYPERV;
+    strcpy(hv->hv_name, HV_HYPERV_STRING);
+  }
+  else if (strcmp(HV_VENDOR_VMWARE_STRING, name) == 0) {
+    hv->hv_vendor = HV_VENDOR_VMWARE;
+    strcpy(hv->hv_name, HV_VMWARE_STRING);
+  }
+  else if (strcmp(HV_VENDOR_XEN_STRING, name) == 0) {
+    hv->hv_vendor = HV_VENDOR_XEN;
+    strcpy(hv->hv_name, HV_XEN_STRING);
+  }
+  else if (strcmp(HV_VENDOR_PARALLELS_STRING, name) == 0) {
+    hv->hv_vendor = HV_VENDOR_PARALLELS;
+    strcpy(hv->hv_name, HV_PARALLELS_STRING);
+  }
+  else {
+    hv->hv_vendor = HV_VENDOR_INVALID;
+    printWarn("Unknown hypervisor vendor: %s", name);
+    strcpy(hv->hv_name, HV_UNKNOWN_STRING);
+  }
+  
+  return hv;
+}
+
 struct cpuInfo* get_cpu_info() {
   struct cpuInfo* cpu = malloc(sizeof(struct cpuInfo));
   init_cpu_info(cpu);
+  cpu->hv = malloc(sizeof(struct hypervisor));
+  
   uint32_t eax = 0;
   uint32_t ebx = 0;
   uint32_t ecx = 0;
@@ -189,12 +281,12 @@ struct cpuInfo* get_cpu_info() {
   memset(name,0,13);
   get_cpu_vendor_internal(name, ebx, ecx, edx);
   
-  if(strcmp(VENDOR_INTEL_STRING,name) == 0)
-    cpu->cpu_vendor = VENDOR_INTEL;
-  else if (strcmp(VENDOR_AMD_STRING,name) == 0)
-    cpu->cpu_vendor = VENDOR_AMD;  
+  if(strcmp(CPU_VENDOR_INTEL_STRING,name) == 0)
+    cpu->cpu_vendor = CPU_VENDOR_INTEL;
+  else if (strcmp(CPU_VENDOR_AMD_STRING,name) == 0)
+    cpu->cpu_vendor = CPU_VENDOR_AMD;  
   else {
-    cpu->cpu_vendor = VENDOR_INVALID;
+    cpu->cpu_vendor = CPU_VENDOR_INVALID;
     printErr("Unknown CPU vendor: %s", name);
     return NULL;
   }
@@ -223,6 +315,10 @@ struct cpuInfo* get_cpu_info() {
 
     cpu->AVX    = (ecx & ((int)1 << 28)) != 0;
     cpu->FMA3   = (ecx & ((int)1 << 12)) != 0;
+    
+    bool hv_present = (ecx & ((int)1 << 31)) != 0;    
+    if((cpu->hv = get_hp_info(hv_present)) == NULL)
+      return NULL;
   }
   else {
     printWarn("Can't read features information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000001, cpu->maxLevels);
@@ -373,7 +469,7 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
   #endif 
   
   switch(cpu->cpu_vendor) {
-    case VENDOR_INTEL:
+    case CPU_VENDOR_INTEL:
       if (cpu->maxLevels >= 0x00000004) { 
         get_topology_from_apic(cpu, topo);
       }
@@ -385,7 +481,7 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
         topo->smt_supported = 1;
       }      
       break;
-    case VENDOR_AMD:       
+    case CPU_VENDOR_AMD:       
       if (cpu->maxExtendedLevels >= 0x80000008) {
         eax = 0x80000008;  
         cpuid(&eax, &ebx, &ecx, &edx);        
@@ -449,7 +545,7 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
 
   // We use standart 0x00000004 for Intel
   // We use extended 0x8000001D for AMD
-  if(cpu->cpu_vendor == VENDOR_INTEL) {
+  if(cpu->cpu_vendor == CPU_VENDOR_INTEL) {
     level = 0x00000004;
     if(cpu->maxLevels < level) {
       printErr("Can't read cache information from cpuid (needed level is %d, max is %d)", level, cpu->maxLevels);    
@@ -586,6 +682,15 @@ struct frequency* get_frequency_info(struct cpuInfo* cpu) {
     
     freq->base = eax;
     freq->max = ebx;    
+    
+    if(freq->base == 0) {
+      printWarn("Read base CPU frequency and got 0 MHz");
+      freq->base = UNKNOWN_FREQ;
+    }
+    if(freq->max == 0) {
+      printWarn("Read max CPU frequency and got 0 MHz");
+      freq->max = UNKNOWN_FREQ;
+    }
   }
   
   return freq;
@@ -705,7 +810,7 @@ char* get_str_topology(struct cpuInfo* cpu, struct topology* topo, bool dual_soc
       if(topo->smt_available > 1)
         snprintf(string, size, "%d cores (%d threads)",topo->physical_cores * topo->sockets, topo->logical_cores * topo->sockets);
       else {
-        if(cpu->cpu_vendor == VENDOR_AMD)
+        if(cpu->cpu_vendor == CPU_VENDOR_AMD)
           snprintf(string, size, "%d cores (SMT disabled)",topo->physical_cores * topo->sockets);
         else
           snprintf(string, size, "%d cores (HT disabled)",topo->physical_cores * topo->sockets);
@@ -715,7 +820,7 @@ char* get_str_topology(struct cpuInfo* cpu, struct topology* topo, bool dual_soc
       if(topo->smt_available > 1)
         snprintf(string, size, "%d cores (%d threads)",topo->physical_cores,topo->logical_cores);
       else {
-        if(cpu->cpu_vendor == VENDOR_AMD)
+        if(cpu->cpu_vendor == CPU_VENDOR_AMD)
           snprintf(string, size, "%d cores (SMT disabled)",topo->physical_cores);
         else
           snprintf(string, size, "%d cores (HT disabled)",topo->physical_cores);

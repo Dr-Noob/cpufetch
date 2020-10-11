@@ -3,16 +3,31 @@
 
 #include <stdint.h>
 
-#define VENDOR_EMPTY   0
-#define VENDOR_INTEL   1
-#define VENDOR_AMD     2
-#define VENDOR_INVALID 3
+#define CPU_VENDOR_EMPTY   0
+#define CPU_VENDOR_INTEL   1
+#define CPU_VENDOR_AMD     2
+#define CPU_VENDOR_INVALID 3
+
+#define HV_VENDOR_EMPTY     0
+#define HV_VENDOR_KVM       1
+#define HV_VENDOR_QEMU      2
+#define HV_VENDOR_HYPERV    3
+#define HV_VENDOR_VMWARE    4
+#define HV_VENDOR_XEN       5
+#define HV_VENDOR_PARALLELS 6
+#define HV_VENDOR_INVALID   7
 
 #define UNKNOWN_FREQ -1
 
 typedef int32_t VENDOR;
 
 struct frequency;
+
+struct hypervisor {
+  bool present;
+  char* hv_name;
+  VENDOR hv_vendor;
+};
 
 struct cpuInfo {
   bool AVX;
@@ -39,6 +54,7 @@ struct cpuInfo {
   uint32_t maxExtendedLevels;
   
   struct uarch* arch;
+  struct hypervisor* hv;
 };
 
 struct cach {

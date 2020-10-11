@@ -41,24 +41,26 @@
 #define TITLE_PEAK          "Peak Performance:"
 #define TITLE_UARCH         "Microarchitecture:"
 #define TITLE_TECHNOLOGY    "Technology:"
+#define TITLE_HYPERVISOR    "Hypervisor:"
 
-#define MAX_ATTRIBUTE_COUNT      14
+#define MAX_ATTRIBUTE_COUNT      15
 #define ATTRIBUTE_NAME            0
-#define ATTRIBUTE_UARCH           1
-#define ATTRIBUTE_TECHNOLOGY      2
-#define ATTRIBUTE_FREQUENCY       3
-#define ATTRIBUTE_SOCKETS         4
-#define ATTRIBUTE_NCORES          5
-#define ATTRIBUTE_NCORES_DUAL     6
-#define ATTRIBUTE_AVX             7
-#define ATTRIBUTE_FMA             8
-#define ATTRIBUTE_L1i             9
-#define ATTRIBUTE_L1d            10
-#define ATTRIBUTE_L2             11
-#define ATTRIBUTE_L3             12
-#define ATTRIBUTE_PEAK           13
+#define ATTRIBUTE_HYPERVISOR      1
+#define ATTRIBUTE_UARCH           2
+#define ATTRIBUTE_TECHNOLOGY      3
+#define ATTRIBUTE_FREQUENCY       4
+#define ATTRIBUTE_SOCKETS         5
+#define ATTRIBUTE_NCORES          6
+#define ATTRIBUTE_NCORES_DUAL     7
+#define ATTRIBUTE_AVX             8
+#define ATTRIBUTE_FMA             9
+#define ATTRIBUTE_L1i            10
+#define ATTRIBUTE_L1d            11
+#define ATTRIBUTE_L2             12
+#define ATTRIBUTE_L3             13
+#define ATTRIBUTE_PEAK           14
 
-static const char* ATTRIBUTE_FIELDS [MAX_ATTRIBUTE_COUNT] = { TITLE_NAME, TITLE_UARCH, TITLE_TECHNOLOGY,
+static const char* ATTRIBUTE_FIELDS [MAX_ATTRIBUTE_COUNT] = { TITLE_NAME, TITLE_HYPERVISOR, TITLE_UARCH, TITLE_TECHNOLOGY,
                                                               TITLE_FREQUENCY, TITLE_SOCKETS,
                                                               TITLE_NCORES, TITLE_NCORES_DUAL, 
                                                               TITLE_AVX,
@@ -66,7 +68,7 @@ static const char* ATTRIBUTE_FIELDS [MAX_ATTRIBUTE_COUNT] = { TITLE_NAME, TITLE_
                                                               TITLE_PEAK, 
                                                                };
 
-static const int ATTRIBUTE_LIST[MAX_ATTRIBUTE_COUNT] =  { ATTRIBUTE_NAME, ATTRIBUTE_UARCH, ATTRIBUTE_TECHNOLOGY,
+static const int ATTRIBUTE_LIST[MAX_ATTRIBUTE_COUNT] =  { ATTRIBUTE_NAME, ATTRIBUTE_HYPERVISOR, ATTRIBUTE_UARCH, ATTRIBUTE_TECHNOLOGY,
                                                         ATTRIBUTE_FREQUENCY, ATTRIBUTE_SOCKETS,
                                                         ATTRIBUTE_NCORES, ATTRIBUTE_NCORES_DUAL, ATTRIBUTE_AVX,
                                                         ATTRIBUTE_FMA, 
@@ -127,7 +129,7 @@ struct ascii* set_ascii(VENDOR cpuVendor, STYLE style, struct colors* cs) {
     art->attributes[i] = NULL;
   strcpy(art->reset,RESET);
   
-  if(cpuVendor == VENDOR_INTEL) {
+  if(cpuVendor == CPU_VENDOR_INTEL) {
     COL_FANCY_1 = COL_INTEL_FANCY_1;
     COL_FANCY_2 = COL_INTEL_FANCY_2;
     COL_FANCY_3 = COL_INTEL_FANCY_3;
@@ -213,7 +215,7 @@ struct ascii* set_ascii(VENDOR cpuVendor, STYLE style, struct colors* cs) {
   }
   
   char tmp[NUMBER_OF_LINES*LINE_SIZE];
-  if(cpuVendor == VENDOR_INTEL) strcpy(tmp, INTEL_ASCII);    
+  if(cpuVendor == CPU_VENDOR_INTEL) strcpy(tmp, INTEL_ASCII);    
   else strcpy(tmp, AMD_ASCII);    
     for(int i=0; i < NUMBER_OF_LINES; i++)
       strncpy(art->art[i], tmp + i*LINE_SIZE, LINE_SIZE); 
@@ -310,7 +312,7 @@ uint32_t longest_attribute_length(struct ascii* art) {
 
 void print_ascii(struct ascii* art) {
   uint32_t longest_attribute = longest_attribute_length(art);
-  if(art->vendor == VENDOR_INTEL)
+  if(art->vendor == CPU_VENDOR_INTEL)
     print_ascii_intel(art, longest_attribute);
   else
     print_ascii_amd(art, longest_attribute);
@@ -360,6 +362,8 @@ bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* f
     printBug("The number of attributes set is bigger than the max that can be displayed");
     return false;    
   }
+  if(cpu->hv->present) 
+    setAttribute(art, ATTRIBUTE_HYPERVISOR, cpu->hv->hv_name); 
 
   print_ascii(art);
 
