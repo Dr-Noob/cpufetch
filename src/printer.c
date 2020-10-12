@@ -24,56 +24,59 @@
 #define COL_AMD_RETRO_2   "\x1b[32;1m"
 #define RESET             "\x1b[m"
 
-#define TITLE_NAME          "Name:"
-#define TITLE_FREQUENCY     "Max Frequency:"
-#define TITLE_SOCKETS       "Sockets:" 
-#define TITLE_NCORES        "Cores:" 
-#define TITLE_NCORES_DUAL   "Cores (Total):"
-#define TITLE_AVX           "AVX:"
-#define TITLE_SSE           "SSE:"
-#define TITLE_FMA           "FMA:"
-#define TITLE_AES           "AES:"
-#define TITLE_SHA           "SHA:"
-#define TITLE_L1i           "L1i Size:"
-#define TITLE_L1d           "L1d Size:"
-#define TITLE_L2            "L2 Size:"
-#define TITLE_L3            "L3 Size:"
-#define TITLE_PEAK          "Peak Performance:"
-#define TITLE_UARCH         "Microarchitecture:"
-#define TITLE_TECHNOLOGY    "Technology:"
-#define TITLE_HYPERVISOR    "Hypervisor:"
+enum {
+  ATTRIBUTE_NAME,
+  ATTRIBUTE_HYPERVISOR,
+  ATTRIBUTE_UARCH,
+  ATTRIBUTE_TECHNOLOGY,
+  ATTRIBUTE_FREQUENCY,
+  ATTRIBUTE_SOCKETS,
+  ATTRIBUTE_NCORES,
+  ATTRIBUTE_NCORES_DUAL,
+  ATTRIBUTE_AVX,
+  ATTRIBUTE_FMA,
+  ATTRIBUTE_L1i,
+  ATTRIBUTE_L1d,
+  ATTRIBUTE_L2,
+  ATTRIBUTE_L3,
+  ATTRIBUTE_PEAK
+};
 
-#define MAX_ATTRIBUTE_COUNT      15
-#define ATTRIBUTE_NAME            0
-#define ATTRIBUTE_HYPERVISOR      1
-#define ATTRIBUTE_UARCH           2
-#define ATTRIBUTE_TECHNOLOGY      3
-#define ATTRIBUTE_FREQUENCY       4
-#define ATTRIBUTE_SOCKETS         5
-#define ATTRIBUTE_NCORES          6
-#define ATTRIBUTE_NCORES_DUAL     7
-#define ATTRIBUTE_AVX             8
-#define ATTRIBUTE_FMA             9
-#define ATTRIBUTE_L1i            10
-#define ATTRIBUTE_L1d            11
-#define ATTRIBUTE_L2             12
-#define ATTRIBUTE_L3             13
-#define ATTRIBUTE_PEAK           14
+static const char* ATTRIBUTE_FIELDS [] = { 
+  "Name:", 
+  "Hypervisor:",
+  "Microarchitecture:",
+  "Technology:",
+  "Max Frequency:", 
+  "Sockets:",
+  "Cores:", 
+  "Cores (Total):", 
+  "AVX:",
+  "FMA:", 
+  "L1i Size:", 
+  "L1d Size:", 
+  "L2 Size:", 
+  "L3 Size:",
+  "Peak Performance:", 
+};
 
-static const char* ATTRIBUTE_FIELDS [MAX_ATTRIBUTE_COUNT] = { TITLE_NAME, TITLE_HYPERVISOR, TITLE_UARCH, TITLE_TECHNOLOGY,
-                                                              TITLE_FREQUENCY, TITLE_SOCKETS,
-                                                              TITLE_NCORES, TITLE_NCORES_DUAL, 
-                                                              TITLE_AVX,
-                                                              TITLE_FMA, TITLE_L1i, TITLE_L1d, TITLE_L2, TITLE_L3,
-                                                              TITLE_PEAK, 
-                                                               };
-
-static const int ATTRIBUTE_LIST[MAX_ATTRIBUTE_COUNT] =  { ATTRIBUTE_NAME, ATTRIBUTE_HYPERVISOR, ATTRIBUTE_UARCH, ATTRIBUTE_TECHNOLOGY,
-                                                        ATTRIBUTE_FREQUENCY, ATTRIBUTE_SOCKETS,
-                                                        ATTRIBUTE_NCORES, ATTRIBUTE_NCORES_DUAL, ATTRIBUTE_AVX,
-                                                        ATTRIBUTE_FMA, 
-                                                        ATTRIBUTE_L1i, ATTRIBUTE_L1d, ATTRIBUTE_L2, ATTRIBUTE_L3,
-                                                        ATTRIBUTE_PEAK };
+static const int ATTRIBUTE_LIST[] =  { 
+  ATTRIBUTE_NAME, 
+  ATTRIBUTE_HYPERVISOR, 
+  ATTRIBUTE_UARCH, 
+  ATTRIBUTE_TECHNOLOGY,
+  ATTRIBUTE_FREQUENCY, 
+  ATTRIBUTE_SOCKETS,
+  ATTRIBUTE_NCORES, 
+  ATTRIBUTE_NCORES_DUAL, 
+  ATTRIBUTE_AVX,
+  ATTRIBUTE_FMA, 
+  ATTRIBUTE_L1i, 
+  ATTRIBUTE_L1d, 
+  ATTRIBUTE_L2, 
+  ATTRIBUTE_L3,
+  ATTRIBUTE_PEAK     
+};
 
 struct ascii {
   char art[NUMBER_OF_LINES][LINE_SIZE];
@@ -83,9 +86,11 @@ struct ascii {
   char color2_text[100];
   char ascii_chars[2];
   char reset[100];
-  char* attributes[MAX_ATTRIBUTE_COUNT];
+  char** attributes;
+  uint32_t max_attributes;
   uint32_t n_attributes_set;
   VENDOR vendor;
+  STYLE style;
 };
 
 void setAttribute(struct ascii* art, int type, char* value) {
@@ -110,7 +115,8 @@ char* rgb_to_ansi(struct color* c, bool background, bool bold) {
 
 struct ascii* set_ascii(VENDOR cpuVendor, STYLE style, struct colors* cs) {
   // Sanity checks //
-  for(int i=0; i < MAX_ATTRIBUTE_COUNT; i++) {
+  uint32_t max_attributes = sizeof(ATTRIBUTE_LIST) / sizeof(ATTRIBUTE_LIST[0]);
+  for(uint32_t i=0; i < max_attributes; i++) {
     if(ATTRIBUTE_FIELDS[i] == NULL) {
       printBug("Attribute field at position %d is empty", i);    
       return NULL;
@@ -125,11 +131,13 @@ struct ascii* set_ascii(VENDOR cpuVendor, STYLE style, struct colors* cs) {
   struct ascii* art = malloc(sizeof(struct ascii));
   art->n_attributes_set = 0;
   art->vendor = cpuVendor;
-  for(int i=0; i < MAX_ATTRIBUTE_COUNT; i++)
+  art->max_attributes = max_attributes;
+  art->attributes = malloc(sizeof(char *) * art->max_attributes);
+  for(uint32_t i=0; i < art->max_attributes; i++)
     art->attributes[i] = NULL;
   strcpy(art->reset,RESET);
   
-  if(cpuVendor == CPU_VENDOR_INTEL) {
+  if(art->vendor == CPU_VENDOR_INTEL) {
     COL_FANCY_1 = COL_INTEL_FANCY_1;
     COL_FANCY_2 = COL_INTEL_FANCY_2;
     COL_FANCY_3 = COL_INTEL_FANCY_3;
@@ -153,16 +161,18 @@ struct ascii* set_ascii(VENDOR cpuVendor, STYLE style, struct colors* cs) {
   }
   art->ascii_chars[1] = '#';
   
-  // If style is emtpy, set the default style
   if(style == STYLE_EMPTY) {
     #ifdef _WIN32
-      style = STYLE_LEGACY;
+      art->style = STYLE_LEGACY;
     #else
-      style = STYLE_FANCY;
-    #endif
+      art->style = STYLE_FANCY;
+    #endif        
+  }
+  else {
+    art->style = style;    
   }
   
-  switch(style) {
+  switch(art->style) {
     case STYLE_LEGACY:
       strcpy(art->color1_ascii,COL_NONE);
       strcpy(art->color2_ascii,COL_NONE);  
@@ -210,15 +220,18 @@ struct ascii* set_ascii(VENDOR cpuVendor, STYLE style, struct colors* cs) {
       break;
     case STYLE_INVALID:  
     default:
-      printBug("Found invalid style (%d)",style);
+      printBug("Found invalid style (%d)", art->style);
       return NULL;    
   }
   
   char tmp[NUMBER_OF_LINES*LINE_SIZE];
-  if(cpuVendor == CPU_VENDOR_INTEL) strcpy(tmp, INTEL_ASCII);    
-  else strcpy(tmp, AMD_ASCII);    
-    for(int i=0; i < NUMBER_OF_LINES; i++)
-      strncpy(art->art[i], tmp + i*LINE_SIZE, LINE_SIZE); 
+  if(art->vendor == CPU_VENDOR_INTEL)
+    strcpy(tmp, INTEL_ASCII);    
+  else
+    strcpy(tmp, AMD_ASCII);    
+  
+  for(int i=0; i < NUMBER_OF_LINES; i++)
+    strncpy(art->art[i], tmp + i*LINE_SIZE, LINE_SIZE); 
     
   return art;
 }
@@ -235,7 +248,7 @@ void print_ascii_intel(struct ascii* art, uint32_t la) {
   uint32_t space_right;
   uint32_t space_up = (NUMBER_OF_LINES - art->n_attributes_set)/2;
   uint32_t space_down = NUMBER_OF_LINES - art->n_attributes_set - space_up;
-
+  
   printf("\n");
   for(uint32_t n=0;n<NUMBER_OF_LINES;n++) {
 
@@ -245,8 +258,9 @@ void print_ascii_intel(struct ascii* art, uint32_t la) {
           flag = false;
           printf("%s%c%s", art->color2_ascii, art->ascii_chars[1], art->reset);          
         }
-        else
-          printf("%s%c%s",  art->color1_ascii, art->ascii_chars[0], art->reset);
+        else {
+          printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
+        }
       }
       else {
         if(art->art[n][i] != ' ' && art->art[n][i] != '\0') {
@@ -278,7 +292,7 @@ void print_ascii_amd(struct ascii* art, uint32_t la) {
   for(uint32_t n=0;n<NUMBER_OF_LINES;n++) {
     for(int i=0;i<LINE_SIZE;i++) {
       if(art->art[n][i] == '@')
-        printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
+        printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);    
       else if(art->art[n][i] == '#')
         printf("%s%c%s", art->color2_ascii, art->ascii_chars[1], art->reset);
       else
@@ -300,7 +314,7 @@ uint32_t longest_attribute_length(struct ascii* art) {
   uint32_t max = 0;
   uint64_t len = 0;
   
-  for(int i=0; i < MAX_ATTRIBUTE_COUNT; i++) {
+  for(uint32_t i=0; i < art->max_attributes; i++) {
     if(art->attributes[i] != NULL) {
       len = strlen(ATTRIBUTE_FIELDS[i]);
       if(len > max) max = len;
@@ -380,6 +394,7 @@ bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* f
   free(l3);
   free(pp);  
   
+  free(art->attributes);
   free(art);
   
   if(cs != NULL) free_colors_struct(cs);

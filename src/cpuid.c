@@ -20,20 +20,25 @@
 #define CPU_VENDOR_INTEL_STRING "GenuineIntel"
 #define CPU_VENDOR_AMD_STRING   "AuthenticAMD"
 
-#define HV_VENDOR_KVM_STRING       "KVMKVMKVM"
-#define HV_VENDOR_QEMU_STRING      "TCGTCGTCGTCG"
-#define HV_VENDOR_HYPERV_STRING    "Microsoft Hv"
-#define HV_VENDOR_VMWARE_STRING    "VMwareVMware"
-#define HV_VENDOR_XEN_STRING       "XenVMMXenVMM"
-#define HV_VENDOR_PARALLELS_STRING "lrpepyh vr"
+static const char *hv_vendors_string[] = {
+  [HV_VENDOR_KVM]       = "KVMKVMKVM",
+  [HV_VENDOR_QEMU]      = "TCGTCGTCGTCG",
+  [HV_VENDOR_HYPERV]    = "Microsoft Hv",
+  [HV_VENDOR_VMWARE]    = "VMwareVMware",
+  [HV_VENDOR_XEN]       = "XenVMMXenVMM",
+  [HV_VENDOR_PARALLELS] = "lrpepyh vr",
+  [HV_VENDOR_INVALID]   = NULL
+};
 
-#define HV_KVM_STRING       "KVM"
-#define HV_QEMU_STRING      "QEMU"
-#define HV_HYPERV_STRING    "Microsoft Hyper-V"
-#define HV_VMWARE_STRING    "VMware"
-#define HV_XEN_STRING       "Xen"
-#define HV_PARALLELS_STRING "Parallels"
-#define HV_UNKNOWN_STRING   "Unknown"
+static char *hv_vendors_name[] = {
+  [HV_VENDOR_KVM]       = "KVM",
+  [HV_VENDOR_QEMU]      = "QEMU",
+  [HV_VENDOR_HYPERV]    = "Microsoft Hyper-V",
+  [HV_VENDOR_VMWARE]    = "VMware",
+  [HV_VENDOR_XEN]       = "Xen",
+  [HV_VENDOR_PARALLELS] = "Parallels",
+  [HV_VENDOR_INVALID]   = "Unknown"
+};
 
 #define STRING_YES        "Yes"
 #define STRING_NO         "No"
@@ -106,40 +111,23 @@ void init_cache_struct(struct cache* cach) {
   cach->L3->exists = false;
 }
 
-void get_cpu_vendor_internal(char* name, uint32_t ebx,uint32_t ecx,uint32_t edx) {
-  name[__COUNTER__] = ebx       & MASK;
-  name[__COUNTER__] = (ebx>>8)  & MASK;
-  name[__COUNTER__] = (ebx>>16) & MASK;
-  name[__COUNTER__] = (ebx>>24) & MASK;
-
-  name[__COUNTER__] = edx       & MASK;
-  name[__COUNTER__] = (edx>>8)  & MASK;
-  name[__COUNTER__] = (edx>>16) & MASK;
-  name[__COUNTER__] = (edx>>24) & MASK;
-
-  name[__COUNTER__] = ecx       & MASK;
-  name[__COUNTER__] = (ecx>>8)  & MASK;
-  name[__COUNTER__] = (ecx>>16) & MASK;
-  name[__COUNTER__] = (ecx>>24) & MASK;
-}
-
-void get_hv_vendor_internal(char* name, uint32_t ebx, uint32_t ecx, uint32_t edx) {
+void get_name_cpuid(char* name, uint32_t reg1, uint32_t reg2, uint32_t reg3) {
   uint32_t c = 0;
   
-  name[c++] = ebx       & MASK;
-  name[c++] = (ebx>>8)  & MASK;
-  name[c++] = (ebx>>16) & MASK;
-  name[c++] = (ebx>>24) & MASK;
+  name[c++] = reg1       & MASK;
+  name[c++] = (reg1>>8)  & MASK;
+  name[c++] = (reg1>>16) & MASK;
+  name[c++] = (reg1>>24) & MASK;
 
-  name[c++] = ecx       & MASK;
-  name[c++] = (ecx>>8)  & MASK;
-  name[c++] = (ecx>>16) & MASK;
-  name[c++] = (ecx>>24) & MASK;
+  name[c++] = reg2       & MASK;
+  name[c++] = (reg2>>8)  & MASK;
+  name[c++] = (reg2>>16) & MASK;
+  name[c++] = (reg2>>24) & MASK;
 
-  name[c++] = edx       & MASK;
-  name[c++] = (edx>>8)  & MASK;
-  name[c++] = (edx>>16) & MASK;
-  name[c++] = (edx>>24) & MASK;
+  name[c++] = reg3       & MASK;
+  name[c++] = (reg3>>8)  & MASK;
+  name[c++] = (reg3>>16) & MASK;
+  name[c++] = (reg3>>24) & MASK;
 }
 
 char* get_str_cpu_name_internal() {
@@ -214,9 +202,7 @@ struct hypervisor* get_hp_info(bool hv_present) {
     return hv;    
   }
   
-  hv->present = true;
-  hv->hv_name = malloc(sizeof(char) * (HYPERVISOR_NAME_MAX_LENGTH+1));
-  memset(hv->hv_name, 0, HYPERVISOR_NAME_MAX_LENGTH+1);  
+  hv->present = true; 
   
   uint32_t eax = 0x40000000;
   uint32_t ebx = 0;
@@ -227,37 +213,24 @@ struct hypervisor* get_hp_info(bool hv_present) {
 
   char name[13];
   memset(name, 0, 13);
-  get_hv_vendor_internal(name, ebx, ecx, edx);
+  get_name_cpuid(name, ebx, ecx, edx);
   
-  if(strcmp(HV_VENDOR_KVM_STRING, name) == 0) {
-    hv->hv_vendor = HV_VENDOR_KVM;
-    strcpy(hv->hv_name, HV_KVM_STRING);
+  bool found = false;
+  uint8_t len = sizeof(hv_vendors_string) / sizeof(hv_vendors_string[0]);
+  
+  for(uint8_t v=0; v < len && !found; v++) {
+    if(strcmp(hv_vendors_string[v], name) == 0) {
+      hv->hv_vendor = v;
+      found = true;    
+    }
   }
-  else if (strcmp(HV_VENDOR_QEMU_STRING, name) == 0) {
-    hv->hv_vendor = HV_VENDOR_QEMU;  
-    strcpy(hv->hv_name, HV_QEMU_STRING);
-  }
-  else if (strcmp(HV_VENDOR_HYPERV_STRING, name) == 0) {
-    hv->hv_vendor = HV_VENDOR_HYPERV;
-    strcpy(hv->hv_name, HV_HYPERV_STRING);
-  }
-  else if (strcmp(HV_VENDOR_VMWARE_STRING, name) == 0) {
-    hv->hv_vendor = HV_VENDOR_VMWARE;
-    strcpy(hv->hv_name, HV_VMWARE_STRING);
-  }
-  else if (strcmp(HV_VENDOR_XEN_STRING, name) == 0) {
-    hv->hv_vendor = HV_VENDOR_XEN;
-    strcpy(hv->hv_name, HV_XEN_STRING);
-  }
-  else if (strcmp(HV_VENDOR_PARALLELS_STRING, name) == 0) {
-    hv->hv_vendor = HV_VENDOR_PARALLELS;
-    strcpy(hv->hv_name, HV_PARALLELS_STRING);
-  }
-  else {
+  
+  if(!found) {
     hv->hv_vendor = HV_VENDOR_INVALID;
-    printWarn("Unknown hypervisor vendor: %s", name);
-    strcpy(hv->hv_name, HV_UNKNOWN_STRING);
+    printWarn("Unknown hypervisor vendor: %s", name);    
   }
+  
+  hv->hv_name = hv_vendors_name[hv->hv_vendor];
   
   return hv;
 }
@@ -265,7 +238,6 @@ struct hypervisor* get_hp_info(bool hv_present) {
 struct cpuInfo* get_cpu_info() {
   struct cpuInfo* cpu = malloc(sizeof(struct cpuInfo));
   init_cpu_info(cpu);
-  cpu->hv = malloc(sizeof(struct hypervisor));
   
   uint32_t eax = 0;
   uint32_t ebx = 0;
@@ -279,7 +251,7 @@ struct cpuInfo* get_cpu_info() {
   //Fill vendor
   char name[13];
   memset(name,0,13);
-  get_cpu_vendor_internal(name, ebx, ecx, edx);
+  get_name_cpuid(name, ebx, edx, ecx);
   
   if(strcmp(CPU_VENDOR_INTEL_STRING,name) == 0)
     cpu->cpu_vendor = CPU_VENDOR_INTEL;
@@ -1076,8 +1048,13 @@ void free_freq_struct(struct frequency* freq) {
   free(freq);
 }
 
+void free_hv_struct(struct hypervisor* hv) {  
+  free(hv);    
+}
+
 void free_cpuinfo_struct(struct cpuInfo* cpu) {
   free_uarch_struct(cpu->arch);
+  free_hv_struct(cpu->hv);
   free(cpu->cpu_name);
   free(cpu);
 }

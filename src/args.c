@@ -5,26 +5,25 @@
 #include "args.h"
 #include "global.h"
 
-#define ARG_STR_STYLE    "style"
-#define ARG_STR_COLOR    "color"
-#define ARG_STR_HELP     "help"
-#define ARG_STR_LEVELS   "levels"
-#define ARG_STR_VERBOSE  "verbose"
-#define ARG_STR_VERSION  "version"
-
-#define ARG_CHAR_STYLE    0
-#define ARG_CHAR_COLOR    1
-#define ARG_CHAR_HELP     2
-#define ARG_CHAR_LEVELS   3
-#define ARG_CHAR_VERBOSE  4
-#define ARG_CHAR_VERSION  5
-
-#define STYLE_STR_1      "fancy"
-#define STYLE_STR_2      "retro"
-#define STYLE_STR_3      "legacy"
-
 #define COLOR_STR_INTEL "intel"
 #define COLOR_STR_AMD   "amd"
+
+static const char *SYTLES_STR_LIST[] = {
+  [STYLE_EMPTY]   = NULL,
+  [STYLE_FANCY]   = "fancy",
+  [STYLE_RETRO]   = "retro",
+  [STYLE_LEGACY]  = "legacy",
+  [STYLE_INVALID] = NULL
+};
+
+enum {
+  ARG_CHAR_STYLE,
+  ARG_CHAR_COLOR,
+  ARG_CHAR_HELP,
+  ARG_CHAR_LEVELS,
+  ARG_CHAR_VERBOSE,
+  ARG_CHAR_VERSION
+};
 
 struct args_struct {
   bool levels_flag;
@@ -35,7 +34,6 @@ struct args_struct {
   struct colors* colors;
 };
 
-static const char* SYTLES_STR_LIST[STYLES_COUNT] = { STYLE_STR_1, STYLE_STR_2, STYLE_STR_3 };
 static struct args_struct args;
 
 STYLE get_style() {
@@ -63,12 +61,15 @@ bool verbose_enabled() {
 }
 
 STYLE parse_style(char* style) {
-  int i = 0;
-  while(i != STYLES_COUNT && strcmp(SYTLES_STR_LIST[i],style) != 0)
+  uint8_t i = 0;
+  uint8_t styles_count = sizeof(SYTLES_STR_LIST) / sizeof(SYTLES_STR_LIST[0]);
+  
+  while(i != styles_count && (SYTLES_STR_LIST[i] == NULL || strcmp(SYTLES_STR_LIST[i], style) != 0))
     i++;
 
-  if(i == STYLES_COUNT)
+  if(i == styles_count)
     return STYLE_INVALID;
+  
   return i;
 }
 
@@ -164,12 +165,12 @@ bool parse_args(int argc, char* argv[]) {
   args.colors = NULL;
 
   static struct option long_options[] = {
-      {ARG_STR_STYLE,    required_argument, 0, ARG_CHAR_STYLE   },
-      {ARG_STR_COLOR,    required_argument, 0, ARG_CHAR_COLOR   },
-      {ARG_STR_HELP,     no_argument,       0, ARG_CHAR_HELP    },
-      {ARG_STR_LEVELS,   no_argument,       0, ARG_CHAR_LEVELS  },
-      {ARG_STR_VERBOSE,  no_argument,       0, ARG_CHAR_VERBOSE },
-      {ARG_STR_VERSION,  no_argument,       0, ARG_CHAR_VERSION },
+      {"style",    required_argument, 0, ARG_CHAR_STYLE   },
+      {"color",    required_argument, 0, ARG_CHAR_COLOR   },
+      {"help",     no_argument,       0, ARG_CHAR_HELP    },
+      {"levels",   no_argument,       0, ARG_CHAR_LEVELS  },
+      {"verbose",  no_argument,       0, ARG_CHAR_VERBOSE },
+      {"version",  no_argument,       0, ARG_CHAR_VERSION },
       {0, 0, 0, 0}
   };
 

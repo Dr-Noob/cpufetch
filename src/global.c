@@ -16,8 +16,10 @@
 
 #endif
 
-#define LOG_LEVEL_NORMAL  0
-#define LOG_LEVEL_VERBOSE 1
+enum {
+  LOG_LEVEL_NORMAL,
+  LOG_LEVEL_VERBOSE
+};
 
 int LOG_LEVEL;
 

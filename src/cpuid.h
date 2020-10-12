@@ -3,19 +3,21 @@
 
 #include <stdint.h>
 
-#define CPU_VENDOR_EMPTY   0
-#define CPU_VENDOR_INTEL   1
-#define CPU_VENDOR_AMD     2
-#define CPU_VENDOR_INVALID 3
+enum {
+  CPU_VENDOR_INTEL,
+  CPU_VENDOR_AMD,
+  CPU_VENDOR_INVALID
+};
 
-#define HV_VENDOR_EMPTY     0
-#define HV_VENDOR_KVM       1
-#define HV_VENDOR_QEMU      2
-#define HV_VENDOR_HYPERV    3
-#define HV_VENDOR_VMWARE    4
-#define HV_VENDOR_XEN       5
-#define HV_VENDOR_PARALLELS 6
-#define HV_VENDOR_INVALID   7
+enum {
+  HV_VENDOR_KVM,
+  HV_VENDOR_QEMU,
+  HV_VENDOR_HYPERV,
+  HV_VENDOR_VMWARE,
+  HV_VENDOR_XEN,
+  HV_VENDOR_PARALLELS,
+  HV_VENDOR_INVALID
+};
 
 #define UNKNOWN_FREQ -1
 

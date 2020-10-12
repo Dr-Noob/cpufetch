@@ -17,6 +17,15 @@ struct colors {
   struct color* c4;
 };
 
+enum {
+  STYLE_EMPTY,
+  STYLE_FANCY,
+  STYLE_WILD,
+  STYLE_RETRO,
+  STYLE_LEGACY,
+  STYLE_INVALID
+};
+
 #include "printer.h"
 
 bool parse_args(int argc, char* argv[]);
