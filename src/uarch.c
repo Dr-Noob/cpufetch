@@ -352,6 +352,11 @@ struct uarch* get_uarch_from_cpuid(struct cpuInfo* cpu, uint32_t ef, uint32_t f,
 
 bool vpus_are_AVX512(struct cpuInfo* cpu) {
   return cpu->arch->uarch != UARCH_ICE_LAKE;    
+  return cpu->arch->uarch != UARCH_ICE_LAKE;
+}
+
+bool is_knights_landing(struct cpuInfo* cpu) {
+  return cpu->arch->uarch == UARCH_KNIGHTS_LANDING;  
 }
 
 int get_number_of_vpus(struct cpuInfo* cpu) {

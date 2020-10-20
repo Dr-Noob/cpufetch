@@ -761,6 +761,11 @@ char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64
     flops = flops*8;
   else if(cpu->SSE)
     flops = flops*4;
+  
+  // See https://sites.utexas.edu/jdm4372/2018/01/22/a-peculiar-
+  // throughput-limitation-on-intels-xeon-phi-x200-knights-landing/
+  if(is_knights_landing(cpu))
+    flops = flops * 6 / 7; 
 
   if(flops >= (double)1000000000000.0)
     snprintf(string,size,"%.2f TFLOP/s",flops/1000000000000);
@@ -768,6 +773,7 @@ char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64
     snprintf(string,size,"%.2f GFLOP/s",flops/1000000000);
   else
     snprintf(string,size,"%.2f MFLOP/s",flops/1000000);
+  
   return string;
 }
 
