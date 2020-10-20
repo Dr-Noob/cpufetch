@@ -9,7 +9,7 @@ cpufetch currently supports x86 CPUs (both Intel and AMD CPUs)
 | Platform  | Intel                     | AMD                      | Notes             |
 |:---------:|:-------------------------:|:------------------------:|:-----------------:|
 | Linux     | :heavy_check_mark:        | :heavy_check_mark:       | Prefered platform |
-| Windows   | :heavy_check_mark:        | :heavy_check_mark:       | Some information may be missing. <br> No colors and worse CPU art |
+| Windows   | :heavy_check_mark:        | :heavy_check_mark:       | Some information may be missing. <br> Colors will be used if supported |
 | macOS     | :heavy_exclamation_mark:  | :heavy_exclamation_mark: | Untested |
 
 
