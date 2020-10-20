@@ -166,16 +166,21 @@ struct ascii* set_ascii(VENDOR cpuVendor, STYLE style, struct colors* cs) {
   }
   art->ascii_chars[1] = '#';
 
+  #ifdef _WIN32
+    HANDLE std_handle = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD console_mode;
+    
+    // Attempt to enable the VT100-processing flag
+    GetConsoleMode(std_handle, &console_mode);
+    SetConsoleMode(std_handle, console_mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+    // Get the console mode flag again, to see if it successfully enabled it
+    GetConsoleMode(std_handle, &console_mode);
+  #endif
+    
   if(style == STYLE_EMPTY) {
     #ifdef _WIN32
-      HANDLE std_handle = GetStdHandle(STD_OUTPUT_HANDLE);
-      DWORD console_mode;
-      // Attempt to enable the VT100-processing flag
-      GetConsoleMode(std_handle, &console_mode);
-      SetConsoleMode(std_handle, console_mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
-      // Get the console mode flag again, to see if it successfully enabled it
-      GetConsoleMode(std_handle, &console_mode);
-      // Enable fancy mode if VT100-processing is enabled
+      // Use fancy style if VT100-processing is enabled,
+      // or legacy style in other case
       art->style = (console_mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING) ? STYLE_FANCY : STYLE_LEGACY;
     #else
       art->style = STYLE_FANCY;
