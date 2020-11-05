@@ -13,7 +13,7 @@
 
 #include "cpuid.h"
 #include "cpuid_asm.h"
-#include "global.h"
+#include "../common/global.h"
 #include "apic.h"
 #include "uarch.h"
 
@@ -49,7 +49,6 @@ static char *hv_vendors_name[] = {
 #define STRING_KILOBYTES  "KB"
 #define STRING_MEGABYTES  "MB"
 
-#define CPU_NAME_MAX_LENGTH 64
 #define HYPERVISOR_NAME_MAX_LENGTH 17
 
 #define MASK 0xFF
@@ -1027,14 +1026,6 @@ char* get_str_freq(struct frequency* freq) {
   else
     snprintf(string,size,"%.2f"STRING_MEGAHERZ,(float)(freq->max));
   return string;
-}
-
-void print_levels(struct cpuInfo* cpu) {
-  printf("%s\n", cpu->cpu_name);
-  printf("- Max standart level: 0x%.8X\n", cpu->maxLevels);
-  printf("- Max extended level: 0x%.8X\n", cpu->maxExtendedLevels);
-  
-  free_cpuinfo_struct(cpu);
 }
 
 void free_topo_struct(struct topology* topo) {

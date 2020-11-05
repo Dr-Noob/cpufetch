@@ -3,10 +3,17 @@
 
 #include "args.h"
 #include "printer.h"
-#include "cpuid.h"
 #include "global.h"
 
-static const char* VERSION = "0.72";
+#ifdef _ARCH_X86
+  static const char* ARCH_STR = "x86_64 build";
+  #include "../x86/cpuid.h"
+#else
+  static const char* ARCH_STR = "ARM build";
+  #include "../arm/cpuid.h"
+#endif
+
+  static const char* VERSION = "0.8";
 
 void print_help(char *argv[]) {
   printf("Usage: %s [--version] [--help] [--levels] [--style \"fancy\"|\"retro\"|\"legacy\"] [--color \"intel\"|\"amd\"|'R,G,B:R,G,B:R,G,B:R,G,B']\n\n\
@@ -37,7 +44,7 @@ NOTES: \n\
 }
 
 void print_version() {
-  printf("cpufetch v%s\n",VERSION);
+  printf("cpufetch v%s (%s)\n",VERSION, ARCH_STR);
 }
 
 int main(int argc, char* argv[]) {

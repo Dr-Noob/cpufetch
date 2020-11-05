@@ -12,7 +12,7 @@
 
 #include "apic.h"
 #include "cpuid_asm.h"
-#include "global.h"
+#include "../common/global.h"
 
 /*
  * bit_scan_reverse and create_mask code taken from:

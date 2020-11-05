@@ -5,29 +5,40 @@
 
 #include "printer.h"
 #include "ascii.h"
-#include "global.h"
-#include "cpuid.h"
-#include "uarch.h"
+#include "../common/global.h"
+
+#ifdef _ARCH_X86  
+  #include "../x86/uarch.h"
+  #include "../x86/cpuid.h"
+#else
+  #include "../arm/cpuid.h"
+  #include "../arm/uarch.h"  
+#endif
 
 #ifdef _WIN32
 #define NOMINMAX
 #include <Windows.h>
 #endif
 
-#define COL_NONE          ""
-#define COL_INTEL_FANCY_1 "\x1b[46;1m"
-#define COL_INTEL_FANCY_2 "\x1b[47;1m"
-#define COL_INTEL_FANCY_3 "\x1b[36;1m"
-#define COL_INTEL_FANCY_4 "\x1b[37;1m"
-#define COL_INTEL_RETRO_1 "\x1b[36;1m"
-#define COL_INTEL_RETRO_2 "\x1b[37;1m"
-#define COL_AMD_FANCY_1   "\x1b[47;1m"
-#define COL_AMD_FANCY_2   "\x1b[42;1m"
-#define COL_AMD_FANCY_3   "\x1b[37;1m"
-#define COL_AMD_FANCY_4   "\x1b[32;1m"
-#define COL_AMD_RETRO_1   "\x1b[37;1m"
-#define COL_AMD_RETRO_2   "\x1b[32;1m"
-#define RESET             "\x1b[m"
+#define COL_NONE            ""
+#define COL_INTEL_FANCY_1   "\x1b[46;1m"
+#define COL_INTEL_FANCY_2   "\x1b[47;1m"
+#define COL_INTEL_FANCY_3   "\x1b[36;1m"
+#define COL_INTEL_FANCY_4   "\x1b[37;1m"
+#define COL_INTEL_RETRO_1   "\x1b[36;1m"
+#define COL_INTEL_RETRO_2   "\x1b[37;1m"
+#define COL_AMD_FANCY_1     "\x1b[47;1m"
+#define COL_AMD_FANCY_2     "\x1b[42;1m"
+#define COL_AMD_FANCY_3     "\x1b[37;1m"
+#define COL_AMD_FANCY_4     "\x1b[32;1m"
+#define COL_AMD_RETRO_1     "\x1b[37;1m"
+#define COL_AMD_RETRO_2     "\x1b[32;1m"
+#define COL_UNKNOWN_FANCY_1 "\x1b[47;1m"
+#define COL_UNKNOWN_FANCY_2 "\x1b[47;1m"
+#define COL_UNKNOWN_FANCY_3 "\x1b[37;1m"
+#define COL_UNKNOWN_FANCY_4 "\x1b[31;1m"
+#define COL_UNKNOWN_RETRO   "\x1b[32;0m"
+#define RESET               "\x1b[m"
 
 enum {
   ATTRIBUTE_NAME,
@@ -153,7 +164,7 @@ struct ascii* set_ascii(VENDOR cpuVendor, STYLE style, struct colors* cs) {
     COL_RETRO_4 = COL_INTEL_RETRO_2;
     art->ascii_chars[0] = '#';
   }
-  else {
+  else if(art->vendor == CPU_VENDOR_AMD) {
     COL_FANCY_1 = COL_AMD_FANCY_1;
     COL_FANCY_2 = COL_AMD_FANCY_2;
     COL_FANCY_3 = COL_AMD_FANCY_3;
@@ -163,6 +174,17 @@ struct ascii* set_ascii(VENDOR cpuVendor, STYLE style, struct colors* cs) {
     COL_RETRO_3 = COL_AMD_RETRO_1;
     COL_RETRO_4 = COL_AMD_RETRO_2;
     art->ascii_chars[0] = '@';
+  }
+  else {
+    COL_FANCY_1 = COL_UNKNOWN_FANCY_1;
+    COL_FANCY_2 = COL_UNKNOWN_FANCY_2;
+    COL_FANCY_3 = COL_UNKNOWN_FANCY_3;
+    COL_FANCY_4 = COL_UNKNOWN_FANCY_4;
+    COL_RETRO_1 = COL_UNKNOWN_RETRO;
+    COL_RETRO_2 = COL_UNKNOWN_RETRO;
+    COL_RETRO_3 = COL_UNKNOWN_RETRO;
+    COL_RETRO_4 = COL_UNKNOWN_RETRO; 
+    art->ascii_chars[0] = '#';
   }
   art->ascii_chars[1] = '#';
 
@@ -245,8 +267,10 @@ struct ascii* set_ascii(VENDOR cpuVendor, STYLE style, struct colors* cs) {
   char tmp[NUMBER_OF_LINES*LINE_SIZE];
   if(art->vendor == CPU_VENDOR_INTEL)
     strcpy(tmp, INTEL_ASCII);
-  else
+  else if(art->vendor == CPU_VENDOR_AMD)
     strcpy(tmp, AMD_ASCII);
+  else
+    strcpy(tmp, UNKNOWN_ASCII);
 
   for(int i=0; i < NUMBER_OF_LINES; i++)
     strncpy(art->art[i], tmp + i*LINE_SIZE, LINE_SIZE);
@@ -422,4 +446,12 @@ bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* f
   free_cpuinfo_struct(cpu);
 
   return true;
+}
+
+void print_levels(struct cpuInfo* cpu) {
+  printf("%s\n", cpu->cpu_name);
+  printf("- Max standart level: 0x%.8X\n", cpu->maxLevels);
+  printf("- Max extended level: 0x%.8X\n", cpu->maxExtendedLevels);
+  
+  free_cpuinfo_struct(cpu);
 }

@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include "uarch.h"
-#include "global.h"
+#include "../common/global.h"
 
 /*
  * - cpuid codes are based on Todd Allen's cpuid program
