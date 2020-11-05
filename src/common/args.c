@@ -20,7 +20,9 @@ enum {
   ARG_CHAR_STYLE,
   ARG_CHAR_COLOR,
   ARG_CHAR_HELP,
+#ifdef ARCH_X86
   ARG_CHAR_LEVELS,
+#endif
   ARG_CHAR_VERBOSE,
   ARG_CHAR_VERSION
 };
@@ -168,7 +170,9 @@ bool parse_args(int argc, char* argv[]) {
       {"style",    required_argument, 0, ARG_CHAR_STYLE   },
       {"color",    required_argument, 0, ARG_CHAR_COLOR   },
       {"help",     no_argument,       0, ARG_CHAR_HELP    },
+#ifdef ARCH_X86
       {"levels",   no_argument,       0, ARG_CHAR_LEVELS  },
+#endif
       {"verbose",  no_argument,       0, ARG_CHAR_VERBOSE },
       {"version",  no_argument,       0, ARG_CHAR_VERSION },
       {0, 0, 0, 0}
@@ -213,6 +217,7 @@ bool parse_args(int argc, char* argv[]) {
        }
        args.verbose_flag  = true;
      }
+#ifdef ARCH_X86
      else if(c == ARG_CHAR_LEVELS) {
        if(args.levels_flag) {
          printErr("Levels option specified more than once");
@@ -220,6 +225,7 @@ bool parse_args(int argc, char* argv[]) {
        }
        args.levels_flag  = true;
      }
+#endif
      else if (c == ARG_CHAR_VERSION) {
        if(args.version_flag) {
          printErr("Version option specified more than once");

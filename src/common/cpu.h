@@ -5,8 +5,12 @@
 #include <stdbool.h>
 
 enum {
+// ARCH_X86
   CPU_VENDOR_INTEL,
   CPU_VENDOR_AMD,
+// ARCH_ARM
+  CPU_VENDOR_ARM,
+// OTHERS
   CPU_VENDOR_UNKNOWN,
   CPU_VENDOR_INVALID
 };
@@ -26,7 +30,10 @@ enum {
 
 typedef int32_t VENDOR;
 
-struct frequency;
+struct frequency {
+  int64_t base;
+  int64_t max;
+};
 
 struct hypervisor {
   bool present;
@@ -35,6 +42,7 @@ struct hypervisor {
 };
 
 struct cpuInfo {
+#ifdef ARCH_X86
   bool AVX;
   bool AVX2;
   bool AVX512;
@@ -47,17 +55,21 @@ struct cpuInfo {
   bool SSE4_2;
   bool FMA3;
   bool FMA4;
+#endif
   bool AES;
   bool SHA;
 
   VENDOR cpu_vendor;
-  
+
   char* cpu_name;
+
+#ifdef ARCH_X86
   //  Max cpuids levels
   uint32_t maxLevels;
   // Max cpuids extended levels
   uint32_t maxExtendedLevels;
-  
+#endif
+
   struct uarch* arch;
   struct hypervisor* hv;
 };
@@ -75,7 +87,7 @@ struct cache {
   struct cach* L2;
   struct cach* L3;
   struct cach** cach_arr;
-  
+
   uint8_t max_cache_level;
 };
 
@@ -83,11 +95,11 @@ struct topology {
   int64_t total_cores;
   uint32_t physical_cores;
   uint32_t logical_cores;
-  uint32_t smt_available; // Number of SMT that is currently enabled 
+  uint32_t smt_available; // Number of SMT that is currently enabled
   uint32_t smt_supported; // Number of SMT that CPU supports (equal to smt_available if SMT is enabled)
-  uint32_t sockets;  
+  uint32_t sockets;
   struct cache* cach;
-#ifdef _ARCH_X86
+#ifdef ARCH_X86
   struct apic* apic;
 #endif
 };

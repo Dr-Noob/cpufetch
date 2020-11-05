@@ -7,12 +7,12 @@
 #include "ascii.h"
 #include "../common/global.h"
 
-#ifdef _ARCH_X86  
+#ifdef ARCH_X86
   #include "../x86/uarch.h"
   #include "../x86/cpuid.h"
 #else
-  #include "../arm/cpuid.h"
-  #include "../arm/uarch.h"  
+  #include "../arm/uarch.h"
+  #include "../arm/midr.h"
 #endif
 
 #ifdef _WIN32
@@ -448,10 +448,12 @@ bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* f
   return true;
 }
 
+#ifdef ARCH_X86
 void print_levels(struct cpuInfo* cpu) {
   printf("%s\n", cpu->cpu_name);
   printf("- Max standart level: 0x%.8X\n", cpu->maxLevels);
   printf("- Max extended level: 0x%.8X\n", cpu->maxExtendedLevels);
-  
+
   free_cpuinfo_struct(cpu);
 }
+#endif

@@ -1,5 +1,5 @@
-#ifndef __CPUID__
-#define __CPUID__
+#ifndef __MIDR__
+#define __MIDR__
 
 #include "../common/cpu.h"
 

@@ -5,8 +5,13 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include "../common/global.h"
-#include "cpuid.h"
+#include "global.h"
+
+#ifdef ARCH_X86
+  #include "../x86/cpuid.h"
+#else
+  #include "../arm/cpuid.h"
+#endif  
 
 #define _PATH_SYS_SYSTEM    "/sys/devices/system"
 #define _PATH_SYS_CPU       _PATH_SYS_SYSTEM"/cpu"

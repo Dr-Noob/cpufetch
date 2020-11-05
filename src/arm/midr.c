@@ -4,23 +4,18 @@
 #include <assert.h>
 #include <stdbool.h>
 
-#include "cpuid.h"
+#include "midr.h"
 
-struct frequency {
-  int64_t base;
-  int64_t max;
-};
-
-struct cpuInfo* get_cpu_info() { 
+struct cpuInfo* get_cpu_info() {
   struct cpuInfo* cpu = malloc(sizeof(struct cpuInfo));
-  
+
   cpu->cpu_vendor = CPU_VENDOR_UNKNOWN;
   cpu->cpu_name = malloc(sizeof(char) * CPU_NAME_MAX_LENGTH);
   strcpy(cpu->cpu_name, "Unknown");
   cpu->arch = NULL;
   cpu->hv = malloc(sizeof(struct hypervisor));
   cpu->hv->present = false;
-  
+
   return cpu;
 }
 

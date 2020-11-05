@@ -5,19 +5,24 @@
 #include "printer.h"
 #include "global.h"
 
-#ifdef _ARCH_X86
+#ifdef ARCH_X86
   static const char* ARCH_STR = "x86_64 build";
   #include "../x86/cpuid.h"
 #else
   static const char* ARCH_STR = "ARM build";
-  #include "../arm/cpuid.h"
+  #include "../arm/midr.h"
 #endif
 
-  static const char* VERSION = "0.8";
+static const char* VERSION = "0.8";
 
 void print_help(char *argv[]) {
-  printf("Usage: %s [--version] [--help] [--levels] [--style \"fancy\"|\"retro\"|\"legacy\"] [--color \"intel\"|\"amd\"|'R,G,B:R,G,B:R,G,B:R,G,B']\n\n\
-Options: \n\
+#ifdef ARCH_X86
+  printf("Usage: %s [--version] [--help] [--levels] [--style \"fancy\"|\"retro\"|\"legacy\"] [--color \"intel\"|\"amd\"|'R,G,B:R,G,B:R,G,B:R,G,B']\n\n", argv[0]);
+#else
+  printf("Usage: %s [--version] [--help] [--style \"fancy\"|\"retro\"|\"legacy\"] [--color \"intel\"|\"amd\"|'R,G,B:R,G,B:R,G,B:R,G,B']\n\n", argv[0]);
+#endif
+
+  printf("Options: \n\
   --color       Set the color scheme. By default, cpufetch uses the system color scheme. This option \n\
                 lets the user use different colors to print the CPU art:  \n\
    * \"intel\":   Use intel default color scheme \n\
@@ -29,9 +34,13 @@ Options: \n\
   --style       Set the style of CPU art: \n\
     * \"fancy\":  Default style      \n\
     * \"retro\":  Old cpufetch style \n\
-    * \"legacy\": Fallback style for terminals that does not support colors                       \n\n\
-  --levels      Prints CPU model and cpuid levels (debug purposes)\n\n\
-  --verbose     Prints extra information (if available) about how cpufetch tried fetching information\n\n\
+    * \"legacy\": Fallback style for terminals that does not support colors                       \n\n");
+
+#ifdef ARCH_X86
+  printf("  --levels      Prints CPU model and cpuid levels (debug purposes)\n\n");
+#endif
+
+  printf("  --verbose     Prints extra information (if available) about how cpufetch tried fetching information\n\n\
   --help        Prints this help and exit\n\n\
   --version     Prints cpufetch version and exit\n\n\
                                                    \n\
@@ -39,8 +48,7 @@ NOTES: \n\
   - Bugs or improvements should be submitted to: github.com/Dr-Noob/cpufetch/issues        \n\
   - Peak performance information is NOT accurate. cpufetch computes peak performance using the max   \n\
     frequency. However, to properly compute peak performance, you need to know the frequency of the  \n\
-    CPU running AVX code, which is not be fetched by cpufetch since it depends on each specific CPU. \n",
-  argv[0]);
+    CPU running AVX code, which is not be fetched by cpufetch since it depends on each specific CPU. \n");
 }
 
 void print_version() {
@@ -52,6 +60,7 @@ int main(int argc, char* argv[]) {
     return EXIT_FAILURE;
 
   if(show_help()) {
+    print_version();
     print_help(argv);
     return EXIT_SUCCESS;
   }
@@ -60,32 +69,34 @@ int main(int argc, char* argv[]) {
     print_version();
     return EXIT_SUCCESS;
   }
-  
+
   set_log_level(verbose_enabled());
 
   struct cpuInfo* cpu = get_cpu_info();
   if(cpu == NULL)
     return EXIT_FAILURE;
-  
+
+#ifdef ARCH_X86
   if(show_levels()) {
     print_version();
     print_levels(cpu);
-    return EXIT_SUCCESS;    
-  }  
-  
+    return EXIT_SUCCESS;
+  }
+#endif
+
   struct frequency* freq = get_frequency_info(cpu);
   if(freq == NULL)
     return EXIT_FAILURE;
-  
+
   struct cache* cach = get_cache_info(cpu);
   if(cach == NULL)
     return EXIT_FAILURE;
-  
+
   struct topology* topo = get_topology_info(cpu, cach);
   if(topo == NULL)
     return EXIT_FAILURE;
-  
-  if(print_cpufetch(cpu, cach, freq, topo, get_style(), get_colors()))  
+
+  if(print_cpufetch(cpu, cach, freq, topo, get_style(), get_colors()))
     return EXIT_SUCCESS;
   else
     return EXIT_FAILURE;

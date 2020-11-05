@@ -1,7 +1,7 @@
 #ifdef _WIN32
   #include <windows.h>
 #else
-  #include "udev.h"
+  #include "../common/udev.h"
   #include <unistd.h>
 #endif
 
@@ -57,11 +57,6 @@ static char *hv_vendors_name[] = {
  * cpuid reference: http://www.sandpile.org/x86/cpuid.htm
  * cpuid amd: https://www.amd.com/system/files/TechDocs/25481.pdf
  */
-
-struct frequency {
-  int64_t base;
-  int64_t max;
-};
 
 void init_cpu_info(struct cpuInfo* cpu) {
   cpu->AVX    = false;
