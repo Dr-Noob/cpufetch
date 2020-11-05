@@ -5,17 +5,20 @@ SANITY_FLAGS=-Wfloat-equal -Wshadow -Wpointer-arith -Wstrict-overflow=5 -Wformat
 
 SRC_COMMON=src/common/
 
+COMMON_SRC = $(SRC_COMMON)main.c $(SRC_COMMON)cpu.c $(SRC_COMMON)udev.c $(SRC_COMMON)printer.c $(SRC_COMMON)args.c $(SRC_COMMON)global.c
+COMMON_HDR = $(SRC_COMMON)ascii.h $(SRC_COMMON)cpu.h $(SRC_COMMON)udev.h $(SRC_COMMON)printer.h $(SRC_COMMON)args.h $(SRC_COMMON)global.h
+
 ifneq ($(OS),Windows_NT)	
 	arch := $(shell uname -m)
 	ifeq ($(arch), x86_64)
 		SRC_DIR=src/x86/
-		SOURCE += $(SRC_COMMON)main.c $(SRC_DIR)cpuid.c $(SRC_DIR)apic.c $(SRC_DIR)cpuid_asm.c $(SRC_COMMON)udev.c $(SRC_DIR)uarch.c $(SRC_COMMON)printer.c $(SRC_COMMON)args.c $(SRC_COMMON)global.c
-		HEADERS += $(SRC_DIR)cpuid.h $(SRC_DIR)apic.h $(SRC_DIR)cpuid_asm.h $(SRC_COMMON)udev.h $(SRC_DIR)uarch.h $(SRC_COMMON)ascii.h $(SRC_COMMON)printer.h $(SRC_COMMON)args.h $(SRC_COMMON)global.h
+		SOURCE += $(COMMON_SRC) $(SRC_DIR)cpuid.c $(SRC_DIR)apic.c $(SRC_DIR)cpuid_asm.c $(SRC_DIR)uarch.c 
+		HEADERS += $(COMMON_HDR) $(SRC_DIR)cpuid.h $(SRC_DIR)apic.h $(SRC_DIR)cpuid_asm.h $(SRC_DIR)uarch.h 
 		CXXFLAGS += -DARCH_X86
 	else
 		SRC_DIR=src/arm/
-		SOURCE += $(SRC_COMMON)main.c $(SRC_DIR)midr.c $(SRC_DIR)uarch.c $(SRC_COMMON)printer.c $(SRC_COMMON)args.c $(SRC_COMMON)global.c 
-		HEADERS += $(SRC_COMMON)ascii.h $(SRC_DIR)uarch.h $(SRC_DIR)midr.h $(SRC_COMMON)printer.h $(SRC_COMMON)args.h $(SRC_COMMON)global.h 
+		SOURCE += $(COMMON_SRC) $(SRC_DIR)midr.c $(SRC_DIR)uarch.c 
+		HEADERS += $(COMMON_HDR) $(SRC_DIR)midr.h $(SRC_DIR)uarch.h 
 		CXXFLAGS += -DARCH_ARM -Wno-unused-parameter
 	endif
 		
@@ -23,8 +26,8 @@ ifneq ($(OS),Windows_NT)
 else
 	# Assume x86_64
 	SRC_DIR=src/x86/
-	SOURCE += $(SRC_COMMON)main.c $(SRC_DIR)cpuid.c $(SRC_DIR)apic.c $(SRC_DIR)cpuid_asm.c $(SRC_DIR)udev.c $(SRC_DIR)uarch.c $(SRC_COMMON)printer.c $(SRC_COMMON)args.c $(SRC_COMMON)global.c
-	HEADERS += $(SRC_DIR)cpuid.h $(SRC_DIR)apic.h $(SRC_DIR)cpuid_asm.h $(SRC_DIR)udev.h $(SRC_DIR)uarch.h $(SRC_COMMON)ascii.h $(SRC_COMMON)printer.h $(SRC_COMMON)args.h $(SRC_COMMON)global.h
+	SOURCE += $(COMMON_SRC) $(SRC_DIR)cpuid.c $(SRC_DIR)apic.c $(SRC_DIR)cpuid_asm.c $(SRC_DIR)uarch.c
+	HEADERS += $(COMMON_HDR) $(SRC_DIR)cpuid.h $(SRC_DIR)apic.h $(SRC_DIR)cpuid_asm.h $(SRC_DIR)uarch.h 
 	CXXFLAGS += -D_ARCH_X86
 	SANITY_FLAGS += -Wno-pedantic-ms-format
 	OUTPUT=cpufetch.exe

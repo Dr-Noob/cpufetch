@@ -13,7 +13,7 @@
   #include "../arm/midr.h"
 #endif
 
-static const char* VERSION = "0.8";
+static const char* VERSION = "0.81";
 
 void print_help(char *argv[]) {
 #ifdef ARCH_X86

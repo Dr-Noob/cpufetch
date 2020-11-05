@@ -6,6 +6,7 @@
 #include "printer.h"
 #include "ascii.h"
 #include "../common/global.h"
+#include "../common/cpu.h"
 
 #ifdef ARCH_X86
   #include "../x86/uarch.h"
@@ -49,8 +50,10 @@ enum {
   ATTRIBUTE_SOCKETS,
   ATTRIBUTE_NCORES,
   ATTRIBUTE_NCORES_DUAL,
+#ifdef ARCH_X86
   ATTRIBUTE_AVX,
   ATTRIBUTE_FMA,
+#endif
   ATTRIBUTE_L1i,
   ATTRIBUTE_L1d,
   ATTRIBUTE_L2,
@@ -67,8 +70,10 @@ static const char* ATTRIBUTE_FIELDS [] = {
   "Sockets:",
   "Cores:",
   "Cores (Total):",
+#ifdef ARCH_X86
   "AVX:",
   "FMA:",
+#endif
   "L1i Size:",
   "L1d Size:",
   "L2 Size:",
@@ -85,8 +90,10 @@ static const int ATTRIBUTE_LIST[] =  {
   ATTRIBUTE_SOCKETS,
   ATTRIBUTE_NCORES,
   ATTRIBUTE_NCORES_DUAL,
+#ifdef ARCH_X86
   ATTRIBUTE_AVX,
   ATTRIBUTE_FMA,
+#endif
   ATTRIBUTE_L1i,
   ATTRIBUTE_L1d,
   ATTRIBUTE_L2,
@@ -386,8 +393,12 @@ bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* f
   char* max_frequency = get_str_freq(freq);
   char* n_cores = get_str_topology(cpu, topo, false);
   char* n_cores_dual = get_str_topology(cpu, topo, true);
+#ifdef ARCH_X86
   char* avx = get_str_avx(cpu);
   char* fma = get_str_fma(cpu);
+  setAttribute(art,ATTRIBUTE_AVX,avx);
+  setAttribute(art,ATTRIBUTE_FMA,fma);
+#endif
   char* l1i = get_str_l1i(topo->cach);
   char* l1d = get_str_l1d(topo->cach);
   char* l2 = get_str_l2(topo->cach);
@@ -399,8 +410,6 @@ bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* f
   setAttribute(art,ATTRIBUTE_TECHNOLOGY,manufacturing_process);
   setAttribute(art,ATTRIBUTE_FREQUENCY,max_frequency);
   setAttribute(art,ATTRIBUTE_NCORES,n_cores);
-  setAttribute(art,ATTRIBUTE_AVX,avx);
-  setAttribute(art,ATTRIBUTE_FMA,fma);
   setAttribute(art,ATTRIBUTE_L1i,l1i);
   setAttribute(art,ATTRIBUTE_L1d,l1d);
   setAttribute(art,ATTRIBUTE_L2,l2);
@@ -428,8 +437,10 @@ bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* f
   free(sockets);
   free(n_cores);
   free(n_cores_dual);
+#ifdef ARCH_X86
   free(avx);
   free(fma);
+#endif
   free(l1i);
   free(l1d);
   free(l2);

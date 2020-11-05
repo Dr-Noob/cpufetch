@@ -68,6 +68,9 @@ struct cpuInfo {
   uint32_t maxLevels;
   // Max cpuids extended levels
   uint32_t maxExtendedLevels;
+#else
+  // Main ID register
+  uint32_t midr;
 #endif
 
   struct uarch* arch;
@@ -103,5 +106,23 @@ struct topology {
   struct apic* apic;
 #endif
 };
+
+VENDOR get_cpu_vendor(struct cpuInfo* cpu);
+uint32_t get_nsockets(struct topology* topo);
+int64_t get_freq(struct frequency* freq);
+
+char* get_str_sockets(struct topology* topo);
+char* get_str_cpu_name(struct cpuInfo* cpu);
+char* get_str_aes(struct cpuInfo* cpu);
+char* get_str_sha(struct cpuInfo* cpu);
+char* get_str_l1i(struct cache* cach);
+char* get_str_l1d(struct cache* cach);
+char* get_str_l2(struct cache* cach);
+char* get_str_l3(struct cache* cach);
+char* get_str_freq(struct frequency* freq);
+
+void free_cache_struct(struct cache* cach);
+void free_freq_struct(struct frequency* freq);
+void free_cpuinfo_struct(struct cpuInfo* cpu);
 
 #endif

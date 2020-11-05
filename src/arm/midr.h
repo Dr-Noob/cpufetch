@@ -8,37 +8,48 @@ struct cache* get_cache_info(struct cpuInfo* cpu);
 struct frequency* get_frequency_info(struct cpuInfo* cpu);
 struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach);
 
-VENDOR get_cpu_vendor(struct cpuInfo* cpu);
 uint32_t get_nsockets(struct topology* topo);
-int64_t get_freq(struct frequency* freq);
-
-char* get_str_cpu_name(struct cpuInfo* cpu);
-char* get_str_ncores(struct cpuInfo* cpu);
-char* get_str_avx(struct cpuInfo* cpu);
-char* get_str_sse(struct cpuInfo* cpu);
-char* get_str_fma(struct cpuInfo* cpu);
-char* get_str_aes(struct cpuInfo* cpu);
-char* get_str_sha(struct cpuInfo* cpu);
-
-char* get_str_l1i(struct cache* cach);
-char* get_str_l1d(struct cache* cach);
-char* get_str_l2(struct cache* cach);
-char* get_str_l3(struct cache* cach);
-
-char* get_str_freq(struct frequency* freq);
-
-char* get_str_sockets(struct topology* topo);
 char* get_str_topology(struct cpuInfo* cpu, struct topology* topo, bool dual_socket);
-
 char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64_t freq);
 
-void free_cache_struct(struct cache* cach);
 void free_topo_struct(struct topology* topo);
-void free_freq_struct(struct frequency* freq);
-void free_cpuinfo_struct(struct cpuInfo* cpu);
 
-void debug_cpu_info(struct cpuInfo* cpu);
-void debug_cache(struct cache* cach);
-void debug_frequency(struct frequency* freq);
+// Code taken from cpuinfo (https://github.com/pytorch/cpuinfo/blob/master/src/arm/midr.h)
+#define CPUINFO_ARM_MIDR_IMPLEMENTER_MASK  UINT32_C(0xFF000000)
+#define CPUINFO_ARM_MIDR_VARIANT_MASK      UINT32_C(0x00F00000)
+#define CPUINFO_ARM_MIDR_ARCHITECTURE_MASK UINT32_C(0x000F0000)
+#define CPUINFO_ARM_MIDR_PART_MASK         UINT32_C(0x0000FFF0)
+#define CPUINFO_ARM_MIDR_REVISION_MASK     UINT32_C(0x0000000F)
+
+#define CPUINFO_ARM_MIDR_IMPLEMENTER_OFFSET  24
+#define CPUINFO_ARM_MIDR_VARIANT_OFFSET      20
+#define CPUINFO_ARM_MIDR_ARCHITECTURE_OFFSET 16
+#define CPUINFO_ARM_MIDR_PART_OFFSET          4
+#define CPUINFO_ARM_MIDR_REVISION_OFFSET      0
+
+inline static uint32_t midr_set_implementer(uint32_t midr, uint32_t implementer) {
+        return (midr & ~CPUINFO_ARM_MIDR_IMPLEMENTER_MASK) |
+                ((implementer << CPUINFO_ARM_MIDR_IMPLEMENTER_OFFSET) & CPUINFO_ARM_MIDR_IMPLEMENTER_MASK);
+}
+
+inline static uint32_t midr_set_variant(uint32_t midr, uint32_t variant) {
+        return (midr & ~CPUINFO_ARM_MIDR_VARIANT_MASK) |
+                ((variant << CPUINFO_ARM_MIDR_VARIANT_OFFSET) & CPUINFO_ARM_MIDR_VARIANT_MASK);
+}
+
+inline static uint32_t midr_set_architecture(uint32_t midr, uint32_t architecture) {
+        return (midr & ~CPUINFO_ARM_MIDR_ARCHITECTURE_MASK) |
+                ((architecture << CPUINFO_ARM_MIDR_ARCHITECTURE_OFFSET) & CPUINFO_ARM_MIDR_ARCHITECTURE_MASK);
+}
+
+inline static uint32_t midr_set_part(uint32_t midr, uint32_t part) {
+        return (midr & ~CPUINFO_ARM_MIDR_PART_MASK) |
+                ((part << CPUINFO_ARM_MIDR_PART_OFFSET) & CPUINFO_ARM_MIDR_PART_MASK);
+}
+
+inline static uint32_t midr_set_revision(uint32_t midr, uint32_t revision) {
+        return (midr & ~CPUINFO_ARM_MIDR_REVISION_MASK) |
+                ((revision << CPUINFO_ARM_MIDR_REVISION_OFFSET) & CPUINFO_ARM_MIDR_REVISION_MASK);
+}
 
 #endif
