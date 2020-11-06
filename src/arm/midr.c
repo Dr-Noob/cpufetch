@@ -9,13 +9,92 @@
 
 #define STRING_UNKNOWN    "Unknown"
 
+int count_distinct(uint32_t* arr, int n)  {
+  int res = 1;
+
+  for (int i = 1; i < n; i++) {
+    int j = 0;
+      for (j = 0; j < i; j++) {
+        if (arr[i] == arr[j])
+          break;
+      }
+
+      if (i == j)
+          res++;
+  }
+  return res;
+}
+
+uint32_t fill_ids_from_midr(uint32_t* midr_array, uint32_t* ids_array, int len) {
+  uint32_t latest_id = 0;
+  bool found;
+  ids_array[0] = latest_id;
+
+  for (int i = 1; i < len; i++) {
+    int j = 0;
+    found = false;
+
+    for (j = 0; j < len && !found; j++) {
+      if (i != j && midr_array[i] == midr_array[j]) {
+        if(j > i) {
+          latest_id++;
+          ids_array[i] = latest_id;
+        }
+        else {
+          ids_array[i] = ids_array[j];
+        }
+        found = true;
+      }
+    }
+    if(!found) {
+      latest_id++;
+      ids_array[i] = latest_id;
+    }
+  }
+
+  return latest_id+1;
+}
+
+VENDOR get_vendor_from_midr(uint32_t midr) {
+  return CPU_VENDOR_ARM;
+}
+
+char* get_name_from_midr(uint32_t midr) {
+  char* name = malloc(sizeof(char) * CPU_NAME_MAX_LENGTH);
+  strcpy(name, "Unknown");
+  return name;
+}
+
 struct cpuInfo* get_cpu_info() {
   struct cpuInfo* cpu = malloc(sizeof(struct cpuInfo));
+  cpu->next_cpu = NULL;
 
-  cpu->midr = get_midr_from_cpuinfo(0);
-  cpu->cpu_vendor = CPU_VENDOR_UNKNOWN;
-  cpu->cpu_name = malloc(sizeof(char) * CPU_NAME_MAX_LENGTH);
-  strcpy(cpu->cpu_name, "Unknown");
+  int ncores = get_ncores_from_cpuinfo();
+  uint32_t* midr_array = malloc(sizeof(uint32_t) * ncores);
+  uint32_t* ids_array = malloc(sizeof(uint32_t) * ncores);
+
+  for(int i=0; i < ncores; i++) {
+    midr_array[i] = get_midr_from_cpuinfo(i);
+  }
+  uint32_t sockets = fill_ids_from_midr(midr_array, ids_array, ncores);
+
+  struct cpuInfo* ptr = cpu;
+  int midr_idx = 0;
+  int tmp_midr_idx = 0;
+  for(uint32_t i=0; i < sockets; i++) {
+    if(i > 0) {
+      ptr->next_cpu = malloc(sizeof(struct cpuInfo));
+      ptr = ptr->next_cpu;
+
+      tmp_midr_idx = midr_idx;
+      while(midr_array[midr_idx] == midr_array[tmp_midr_idx]) tmp_midr_idx++;
+      midr_idx = tmp_midr_idx;
+    }
+    ptr->midr = midr_array[midr_idx];
+    ptr->cpu_vendor = get_vendor_from_midr(ptr->midr);
+    ptr->cpu_name = get_name_from_midr(ptr->midr);
+  }
+
   cpu->arch = NULL;
   cpu->hv = malloc(sizeof(struct hypervisor));
   cpu->hv->present = false;

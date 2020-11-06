@@ -13,7 +13,7 @@
   #include "../arm/midr.h"
 #endif
 
-static const char* VERSION = "0.81";
+static const char* VERSION = "0.82";
 
 void print_help(char *argv[]) {
 #ifdef ARCH_X86
@@ -25,9 +25,10 @@ void print_help(char *argv[]) {
   printf("Options: \n\
   --color       Set the color scheme. By default, cpufetch uses the system color scheme. This option \n\
                 lets the user use different colors to print the CPU art:  \n\
-   * \"intel\":   Use intel default color scheme \n\
-   * \"amd\":     Use amd default color scheme \n\
-   * custom:    If color do not match \"intel\" or \"amd\", a custom scheme can be specified: \n\
+   * \"intel\":   Use Intel default color scheme \n\
+   * \"amd\":     Use AMD default color scheme \n\
+   * \"arm\":     Use ARM default color scheme \n\
+   * custom:    If color argument do not match \"Intel\", \"AMD\" or \"ARM\", a custom scheme can be specified: \n\
                 4 colors must be given in RGB with the format: R,G,B:R,G,B:... \n\
                 These colors correspond to CPU art color (2 colors) and for the text colors (following 2) \n\
                 For example: --color 239,90,45:210,200,200:100,200,45:0,200,200 \n\n\

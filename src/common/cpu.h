@@ -68,13 +68,20 @@ struct cpuInfo {
   uint32_t maxLevels;
   // Max cpuids extended levels
   uint32_t maxExtendedLevels;
-#else
+#elif ARCH_ARM
   // Main ID register
   uint32_t midr;
 #endif
 
   struct uarch* arch;
   struct hypervisor* hv;
+
+#ifdef ARCH_ARM
+  // If SoC contains more than one CPU and they
+  // are different, the others will be stored in
+  // the next_cpu field
+  struct cpuInfo* next_cpu;
+#endif
 };
 
 struct cach {

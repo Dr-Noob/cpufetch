@@ -28,12 +28,21 @@
 #define COL_INTEL_FANCY_4   "\x1b[37;1m"
 #define COL_INTEL_RETRO_1   "\x1b[36;1m"
 #define COL_INTEL_RETRO_2   "\x1b[37;1m"
+
 #define COL_AMD_FANCY_1     "\x1b[47;1m"
 #define COL_AMD_FANCY_2     "\x1b[42;1m"
 #define COL_AMD_FANCY_3     "\x1b[37;1m"
 #define COL_AMD_FANCY_4     "\x1b[32;1m"
 #define COL_AMD_RETRO_1     "\x1b[37;1m"
 #define COL_AMD_RETRO_2     "\x1b[32;1m"
+
+#define COL_ARM_FANCY_1     "\x1b[46;1m"
+#define COL_ARM_FANCY_2     "\x1b[46;1m"
+#define COL_ARM_FANCY_3     "\x1b[37;1m"
+#define COL_ARM_FANCY_4     "\x1b[36;1m"
+#define COL_ARM_RETRO_1     "\x1b[36;1m"
+#define COL_ARM_RETRO_2     "\x1b[37;1m"
+
 #define COL_UNKNOWN_FANCY_1 "\x1b[47;1m"
 #define COL_UNKNOWN_FANCY_2 "\x1b[47;1m"
 #define COL_UNKNOWN_FANCY_3 "\x1b[37;1m"
@@ -182,6 +191,17 @@ struct ascii* set_ascii(VENDOR cpuVendor, STYLE style, struct colors* cs) {
     COL_RETRO_4 = COL_AMD_RETRO_2;
     art->ascii_chars[0] = '@';
   }
+  else if(art->vendor == CPU_VENDOR_ARM) {
+    COL_FANCY_1 = COL_ARM_FANCY_1;
+    COL_FANCY_2 = COL_ARM_FANCY_2;
+    COL_FANCY_3 = COL_ARM_FANCY_3;
+    COL_FANCY_4 = COL_ARM_FANCY_4;
+    COL_RETRO_1 = COL_ARM_RETRO_1;
+    COL_RETRO_2 = COL_ARM_RETRO_2;
+    COL_RETRO_3 = COL_ARM_RETRO_1;
+    COL_RETRO_4 = COL_ARM_RETRO_2;
+    art->ascii_chars[0] = '#';
+  }
   else {
     COL_FANCY_1 = COL_UNKNOWN_FANCY_1;
     COL_FANCY_2 = COL_UNKNOWN_FANCY_2;
@@ -190,7 +210,7 @@ struct ascii* set_ascii(VENDOR cpuVendor, STYLE style, struct colors* cs) {
     COL_RETRO_1 = COL_UNKNOWN_RETRO;
     COL_RETRO_2 = COL_UNKNOWN_RETRO;
     COL_RETRO_3 = COL_UNKNOWN_RETRO;
-    COL_RETRO_4 = COL_UNKNOWN_RETRO; 
+    COL_RETRO_4 = COL_UNKNOWN_RETRO;
     art->ascii_chars[0] = '#';
   }
   art->ascii_chars[1] = '#';
@@ -198,14 +218,14 @@ struct ascii* set_ascii(VENDOR cpuVendor, STYLE style, struct colors* cs) {
   #ifdef _WIN32
     HANDLE std_handle = GetStdHandle(STD_OUTPUT_HANDLE);
     DWORD console_mode;
-    
+
     // Attempt to enable the VT100-processing flag
     GetConsoleMode(std_handle, &console_mode);
     SetConsoleMode(std_handle, console_mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
     // Get the console mode flag again, to see if it successfully enabled it
     GetConsoleMode(std_handle, &console_mode);
   #endif
-    
+
   if(style == STYLE_EMPTY) {
     #ifdef _WIN32
       // Use fancy style if VT100-processing is enabled,
@@ -276,6 +296,8 @@ struct ascii* set_ascii(VENDOR cpuVendor, STYLE style, struct colors* cs) {
     strcpy(tmp, INTEL_ASCII);
   else if(art->vendor == CPU_VENDOR_AMD)
     strcpy(tmp, AMD_ASCII);
+  else if(art->vendor == CPU_VENDOR_ARM)
+    strcpy(tmp, ARM_ASCII);
   else
     strcpy(tmp, UNKNOWN_ASCII);
 
