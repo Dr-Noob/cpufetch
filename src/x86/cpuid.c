@@ -326,78 +326,63 @@ struct cpuInfo* get_cpu_info() {
   return cpu;
 }
 
-bool get_cache_topology_amd(struct cpuInfo* cpu, struct topology* topo) {    
-  if(cpu->maxExtendedLevels >= 0x8000001D) {  
-    uint32_t i, eax, ebx, ecx, edx, num_sharing_cache, cache_type, cache_level;
+bool get_cache_topology_amd(struct topology* topo) {     
+  uint32_t i, eax, ebx, ecx, edx, num_sharing_cache, cache_type, cache_level;
     
-    i = 0;
-    do {
-      eax = 0x8000001D;
-      ebx = 0;
-      ecx = i; // cache id
-      edx = 0;
+  i = 0;
+  do {
+    eax = 0x8000001D;
+    ebx = 0;
+    ecx = i; // cache id
+    edx = 0;
       
-      cpuid(&eax, &ebx, &ecx, &edx); 
+    cpuid(&eax, &ebx, &ecx, &edx); 
       
-      cache_type = eax & 0x1F;            
-      
-      if(cache_type > 0) {
-        num_sharing_cache = ((eax >> 14) & 0xFFF) + 1;  
-        cache_level = (eax >>= 5) & 0x7;            
+    cache_type = eax & 0x1F;            
+     
+    if(cache_type > 0) {
+      num_sharing_cache = ((eax >> 14) & 0xFFF) + 1;  
+      cache_level = (eax >>= 5) & 0x7;            
         
-        switch (cache_type) {                
-          case 1: // Data Cache (We assume this is L1d)
-            if(cache_level != 1) {
-              printBug("Found data cache at level %d (expected 1)", cache_level);
-              return false;
-            }
-            topo->cach->L1d->num_caches = topo->logical_cores / num_sharing_cache;
-            break;
+      switch (cache_type) {                
+        case 1: // Data Cache (We assume this is L1d)
+          if(cache_level != 1) {
+            printBug("Found data cache at level %d (expected 1)", cache_level);
+            return false;
+          }
+          topo->cach->L1d->num_caches = topo->logical_cores / num_sharing_cache;
+          break;
           
-          case 2: // Instruction Cache (We assume this is L1i)
-            if(cache_level != 1) {
-              printBug("Found instruction cache at level %d (expected 1)", cache_level);
-              return false;
-            }
-            topo->cach->L1i->num_caches = topo->logical_cores / num_sharing_cache;
-            break;
+        case 2: // Instruction Cache (We assume this is L1i)
+          if(cache_level != 1) {
+            printBug("Found instruction cache at level %d (expected 1)", cache_level);
+            return false;
+          }
+          topo->cach->L1i->num_caches = topo->logical_cores / num_sharing_cache;
+          break;
           
-          case 3: // Unified Cache (This may be L2 or L3)
-            if(cache_level == 2) { 
-              topo->cach->L2->num_caches = topo->logical_cores / num_sharing_cache;
-            }
-            else if(cache_level == 3) {
-              topo->cach->L3->num_caches = topo->logical_cores / num_sharing_cache;
-            }
-            else {
-              printBug("Found unified cache at level %d (expected == 2 or 3)", cache_level);
-              return false;
-            }
-            break;
+        case 3: // Unified Cache (This may be L2 or L3)
+          if(cache_level == 2) { 
+            topo->cach->L2->num_caches = topo->logical_cores / num_sharing_cache;
+          }
+          else if(cache_level == 3) {
+            topo->cach->L3->num_caches = topo->logical_cores / num_sharing_cache;
+          }
+          else {
+            printBug("Found unified cache at level %d (expected == 2 or 3)", cache_level);
+            return false;
+          }
+          break;
           
-          default: // Unknown Type Cache
-            printBug("Unknown Type Cache found at ID %d", i);
-            return false; 
-        }   
-      }
+        default: // Unknown Type Cache
+          printBug("Unknown Type Cache found at ID %d", i);
+          return false; 
+      }   
+    }
       
-      i++;
-    } while (cache_type > 0);        
-  }
-  else {
-    printWarn("Can't read topology information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X). Guessing cache sizes", 0x8000001D, cpu->maxExtendedLevels); 
-    topo->cach->L1i->num_caches = topo->physical_cores;
-    topo->cach->L1d->num_caches = topo->physical_cores;
+    i++;
+  } while (cache_type > 0);        
     
-    if(topo->cach->L3->exists) {
-      topo->cach->L2->num_caches = topo->physical_cores;
-      topo->cach->L3->num_caches = 1;    
-    }
-    else {
-      topo->cach->L2->num_caches = 1;        
-    }
-  }
-  
   return true;
 }
 
@@ -480,7 +465,23 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
       else
         topo->sockets = topo->total_cores / topo->physical_cores;    
       
-      get_cache_topology_amd(cpu, topo);      
+      if(cpu->maxExtendedLevels >= 0x8000001D) {
+        if(!get_cache_topology_amd(topo))
+          return NULL;
+      }
+      else {
+        printWarn("Can't read topology information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X). Guessing cache sizes", 0x8000001D, cpu->maxExtendedLevels); 
+        topo->cach->L1i->num_caches = topo->physical_cores;
+        topo->cach->L1d->num_caches = topo->physical_cores;
+    
+        if(topo->cach->L3->exists) {
+          topo->cach->L2->num_caches = topo->physical_cores;
+          topo->cach->L3->num_caches = 1;    
+        }
+        else {
+          topo->cach->L2->num_caches = 1;        
+        }
+      }
       
       break;
       
@@ -492,45 +493,53 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
   return topo;
 }
 
-struct cache* get_cache_info(struct cpuInfo* cpu) {
-  struct cache* cach = malloc(sizeof(struct cache));
-  init_cache_struct(cach);
+struct cache* get_cache_info_amd(struct cache* cach) {
+  uint32_t eax = 0x80000005;
+  uint32_t ebx = 0;
+  uint32_t ecx = 0;
+  uint32_t edx = 0;
+  cpuid(&eax, &ebx, &ecx, &edx);
   
+  cach->L1i->size = (ecx >> 24) * 1024;
+  cach->L1d->size = (edx >> 24) * 1024;
+  
+  eax = 0x80000006;
+  cpuid(&eax, &ebx, &ecx, &edx);
+  
+  cach->L2->size = (ecx >> 16) * 1024;
+  cach->L3->size = (edx >> 18) * 512 * 1024;
+
+  cach->L1i->exists = cach->L1i->size > 0;
+  cach->L1d->exists = cach->L1d->size > 0;
+  cach->L2->exists = cach->L2->size > 0;
+  cach->L3->exists = cach->L3->size > 0;
+
+  if(cach->L3->exists)
+   cach->max_cache_level = 4;
+  else
+   cach->max_cache_level = 3;
+
+  return cach;
+}
+
+struct cache* get_cache_info_intel(struct cache* cach) {
   uint32_t eax = 0;
   uint32_t ebx = 0;
   uint32_t ecx = 0;
   uint32_t edx = 0;
-  uint32_t level;
 
-  // We use standart 0x00000004 for Intel
-  // We use extended 0x8000001D for AMD
-  if(cpu->cpu_vendor == CPU_VENDOR_INTEL) {
-    level = 0x00000004;
-    if(cpu->maxLevels < level) {
-      printErr("Can't read cache information from cpuid (needed level is %d, max is %d)", level, cpu->maxLevels);    
-      return NULL;
-    }
-  }
-  else {
-    level = 0x8000001D;
-    if(cpu->maxExtendedLevels < level) {
-      printErr("Can't read cache information from cpuid (needed extended level is %d, max is %d)", level, cpu->maxExtendedLevels);    
-      return NULL;
-    }
-  }
-  
   int i=0;
   int32_t cache_type;
   do {
-    eax = level; // get cache info
+    eax = 0x00000004; // get cache info
     ebx = 0;
     ecx = i; // cache id
     edx = 0;
-      
-    cpuid(&eax, &ebx, &ecx, &edx); 
-      
+
+    cpuid(&eax, &ebx, &ecx, &edx);
+
     cache_type = eax & 0x1F;
-      
+
     // If its 0, we tried fetching a non existing cache
     if (cache_type > 0) {
       int32_t cache_level = (eax >>= 5) & 0x7;
@@ -538,11 +547,11 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
       uint32_t cache_coherency_line_size = (ebx & 0xFFF) + 1;
       uint32_t cache_physical_line_partitions = ((ebx >>= 12) & 0x3FF) + 1;
       uint32_t cache_ways_of_associativity = ((ebx >>= 10) & 0x3FF) + 1;
-        
-      int32_t cache_total_size = cache_ways_of_associativity * cache_physical_line_partitions * cache_coherency_line_size * cache_sets;  
+
+      int32_t cache_total_size = cache_ways_of_associativity * cache_physical_line_partitions * cache_coherency_line_size * cache_sets;
       cach->max_cache_level++;
-      
-      switch (cache_type) {                
+
+      switch (cache_type) {
         case 1: // Data Cache (We assume this is L1d)
           if(cache_level != 1) {
             printBug("Found data cache at level %d (expected 1)", cache_level);
@@ -551,7 +560,7 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
           cach->L1d->size = cache_total_size;
           cach->L1d->exists = true;
           break;
-            
+
         case 2: // Instruction Cache (We assume this is L1i)
           if(cache_level != 1) {
             printBug("Found instruction cache at level %d (expected 1)", cache_level);
@@ -560,9 +569,9 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
           cach->L1i->size = cache_total_size;
           cach->L1i->exists = true;
           break;
-          
+
         case 3: // Unified Cache (This may be L2 or L3)
-          if(cache_level == 2) { 
+          if(cache_level == 2) {
             cach->L2->size = cache_total_size;
             cach->L2->exists = true;
           }
@@ -575,18 +584,45 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
             return NULL;
           }
           break;
-          
+
         default: // Unknown Type Cache
           printBug("Unknown Type Cache found at ID %d", i);
-          return NULL;                  
+          return NULL;
       }
-    }    
-    
+    }
+
     i++;
   } while (cache_type > 0);
+
+  return cach;
+}
+
+struct cache* get_cache_info(struct cpuInfo* cpu) {
+  struct cache* cach = malloc(sizeof(struct cache));
+  init_cache_struct(cach);
+  
+  uint32_t level;
+  // We use standart 0x00000004 for Intel
+  // We use extended 0x80000006 for AMD
+  if(cpu->cpu_vendor == CPU_VENDOR_INTEL) {
+    level = 0x00000004;
+    if(cpu->maxLevels < level) {
+      printErr("Can't read cache information from cpuid (needed level is %d, max is %d)", level, cpu->maxLevels);    
+      return NULL;
+    }
+    get_cache_info_intel(cach);
+  }
+  else {
+    level = 0x80000006;
+    if(cpu->maxExtendedLevels < level) {
+      printErr("Can't read cache information from cpuid (needed extended level is %d, max is %d)", level, cpu->maxExtendedLevels);    
+      return NULL;
+    }
+    get_cache_info_amd(cach);
+  }
   
   // Sanity checks. If we read values greater than this, they can't be valid ones
-  // The values were chosen by me
+  // Values were chosen by me
   if(cach->L1i->size > 64 * 1024) {
     printBug("Invalid L1i size: %dKB", cach->L1i->size/1024);
     return NULL;
