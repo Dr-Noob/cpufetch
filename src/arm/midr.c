@@ -6,6 +6,7 @@
 
 #include "../common/udev.h"
 #include "midr.h"
+#include "uarch.h"
 
 #define STRING_UNKNOWN    "Unknown"
 
@@ -55,16 +56,6 @@ uint32_t fill_ids_from_midr(uint32_t* midr_array, uint32_t* ids_array, int len) 
   return latest_id+1;
 }
 
-VENDOR get_vendor_from_midr(uint32_t midr) {
-  return CPU_VENDOR_ARM;
-}
-
-char* get_name_from_midr(uint32_t midr) {
-  char* name = malloc(sizeof(char) * CPU_NAME_MAX_LENGTH);
-  strcpy(name, "Unknown");
-  return name;
-}
-
 struct cpuInfo* get_cpu_info() {
   struct cpuInfo* cpu = malloc(sizeof(struct cpuInfo));
   cpu->next_cpu = NULL;
@@ -91,11 +82,9 @@ struct cpuInfo* get_cpu_info() {
       midr_idx = tmp_midr_idx;
     }
     ptr->midr = midr_array[midr_idx];
-    ptr->cpu_vendor = get_vendor_from_midr(ptr->midr);
-    ptr->cpu_name = get_name_from_midr(ptr->midr);
+    ptr->arch = get_uarch_from_midr(ptr->midr, ptr);
   }
 
-  cpu->arch = NULL;
   cpu->hv = malloc(sizeof(struct hypervisor));
   cpu->hv->present = false;
 
