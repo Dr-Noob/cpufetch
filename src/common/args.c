@@ -84,7 +84,7 @@ void free_colors_struct(struct colors* cs) {
   free(cs);
 }
 
-bool parse_color(char* optarg, struct colors** cs) {
+bool parse_color(char* optarg_str, struct colors** cs) {
   *cs = malloc(sizeof(struct colors));        
   (*cs)->c1 = malloc(sizeof(struct color));
   (*cs)->c2 = malloc(sizeof(struct color));
@@ -98,23 +98,23 @@ bool parse_color(char* optarg, struct colors** cs) {
   char* str_to_parse = NULL;
   bool free_ptr;
   
-  if(strcmp(optarg, COLOR_STR_INTEL) == 0) {
+  if(strcmp(optarg_str, COLOR_STR_INTEL) == 0) {
     str_to_parse = malloc(sizeof(char) * 46);
     strcpy(str_to_parse, COLOR_DEFAULT_INTEL);
     free_ptr = true;
   }
-  else if(strcmp(optarg, COLOR_STR_AMD) == 0) {
+  else if(strcmp(optarg_str, COLOR_STR_AMD) == 0) {
     str_to_parse = malloc(sizeof(char) * 44);
     strcpy(str_to_parse, COLOR_DEFAULT_AMD);  
     free_ptr = true;
   }
-  else if(strcmp(optarg, COLOR_STR_ARM) == 0) {
+  else if(strcmp(optarg_str, COLOR_STR_ARM) == 0) {
     str_to_parse = malloc(sizeof(char) * 46);
     strcpy(str_to_parse, COLOR_DEFAULT_ARM);  
     free_ptr = true;
   }
   else {  
-    str_to_parse = optarg;
+    str_to_parse = optarg_str;
     free_ptr = false;
   }
   
