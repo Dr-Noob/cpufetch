@@ -30,7 +30,7 @@ enum {
 
 bool parse_args(int argc, char* argv[]);
 bool show_help();
-bool show_levels();
+bool show_debug();
 bool show_version();
 bool verbose_enabled();
 void free_colors_struct(struct colors* cs);

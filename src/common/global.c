@@ -53,7 +53,7 @@ void printBug(const char *fmt, ...) {
   vsnprintf(buffer,buffer_size, fmt, args);
   va_end(args);
   fprintf(stderr,RED "[ERROR]: "RESET "%s\n",buffer);
-  fprintf(stderr,"Please, create a new issue with this error message and your CPU model in https://github.com/Dr-Noob/cpufetch/issues\n");
+  fprintf(stderr,"Please, create a new issue with this error message the output of 'cpufetch --debug' in https://github.com/Dr-Noob/cpufetch/issues\n");
 }
 
 void set_log_level(bool verbose) {

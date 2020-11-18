@@ -13,6 +13,7 @@ char* get_soc_name(struct cpuInfo* cpu);
 char* get_str_topology(struct cpuInfo* cpu, struct topology* topo, bool dual_socket);
 char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64_t freq);
 
+void print_debug(struct cpuInfo* cpu);
 void free_topo_struct(struct topology* topo);
 
 // Code taken from cpuinfo (https://github.com/pytorch/cpuinfo/blob/master/src/arm/midr.h)

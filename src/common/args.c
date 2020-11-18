@@ -21,15 +21,13 @@ enum {
   ARG_CHAR_STYLE,
   ARG_CHAR_COLOR,
   ARG_CHAR_HELP,
-#ifdef ARCH_X86
-  ARG_CHAR_LEVELS,
-#endif
+  ARG_CHAR_DEBUG,
   ARG_CHAR_VERBOSE,
   ARG_CHAR_VERSION
 };
 
 struct args_struct {
-  bool levels_flag;
+  bool debug_flag;
   bool help_flag;
   bool verbose_flag;
   bool version_flag;
@@ -55,8 +53,8 @@ bool show_version() {
   return args.version_flag;
 }
 
-bool show_levels() {
-  return args.levels_flag;
+bool show_debug() {
+  return args.debug_flag;
 }
 
 bool verbose_enabled() {
@@ -166,7 +164,7 @@ bool parse_args(int argc, char* argv[]) {
   opterr = 0;
 
   bool color_flag = false;
-  args.levels_flag = false;
+  args.debug_flag = false;
   args.verbose_flag = false;
   args.help_flag = false;
   args.style = STYLE_EMPTY;
@@ -176,9 +174,7 @@ bool parse_args(int argc, char* argv[]) {
       {"style",    required_argument, 0, ARG_CHAR_STYLE   },
       {"color",    required_argument, 0, ARG_CHAR_COLOR   },
       {"help",     no_argument,       0, ARG_CHAR_HELP    },
-#ifdef ARCH_X86
-      {"levels",   no_argument,       0, ARG_CHAR_LEVELS  },
-#endif
+      {"debug",    no_argument,       0, ARG_CHAR_DEBUG   },
       {"verbose",  no_argument,       0, ARG_CHAR_VERBOSE },
       {"version",  no_argument,       0, ARG_CHAR_VERSION },
       {0, 0, 0, 0}
@@ -223,15 +219,13 @@ bool parse_args(int argc, char* argv[]) {
        }
        args.verbose_flag  = true;
      }
-#ifdef ARCH_X86
-     else if(c == ARG_CHAR_LEVELS) {
-       if(args.levels_flag) {
-         printErr("Levels option specified more than once");
+     else if(c == ARG_CHAR_DEBUG) {
+       if(args.debug_flag) {
+         printErr("Debug option specified more than once");
          return false;
        }
-       args.levels_flag  = true;
+       args.debug_flag  = true;
      }
-#endif
      else if (c == ARG_CHAR_VERSION) {
        if(args.version_flag) {
          printErr("Version option specified more than once");

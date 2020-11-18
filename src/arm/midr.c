@@ -195,6 +195,22 @@ char* get_soc_name(struct cpuInfo* cpu) {
   return cpu->soc_name;    
 }
 
+//TODO: Fix wrong implementation
+void print_debug(struct cpuInfo* cpu) {
+  int ncores = get_ncores_from_cpuinfo();
+  
+  if(ncores >= 10) {
+    for(int i=0; i < ncores; i++) {
+      printf("[Core %02d] 0x%.8X\n", i, cpu->midr);
+    }
+  }
+  else {
+    for(int i=0; i < ncores; i++) {
+      printf("[Core %d] 0x%.8X\n", i, cpu->midr);
+    }    
+  }
+}
+
 void free_topo_struct(struct topology* topo) {
   free(topo);
 }

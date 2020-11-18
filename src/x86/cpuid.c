@@ -828,6 +828,14 @@ char* get_str_fma(struct cpuInfo* cpu) {
 
 /*** DEBUG ***/
 
+void print_debug(struct cpuInfo* cpu) {
+  printf("%s\n", cpu->cpu_name);
+  printf("- Max standart level: 0x%.8X\n", cpu->maxLevels);
+  printf("- Max extended level: 0x%.8X\n", cpu->maxExtendedLevels);
+
+  free_cpuinfo_struct(cpu);
+}
+
 void debug_cpu_info(struct cpuInfo* cpu) {
   printf("AVX=%s\n", cpu->AVX ? "true" : "false");
   printf("AVX2=%s\n", cpu->AVX2 ? "true" : "false");

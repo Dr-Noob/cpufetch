@@ -8,19 +8,15 @@
 #ifdef ARCH_X86
   static const char* ARCH_STR = "x86_64 build";
   #include "../x86/cpuid.h"
-#else
+#elif ARCH_ARM
   static const char* ARCH_STR = "ARM build";
   #include "../arm/midr.h"
 #endif
 
-static const char* VERSION = "0.85";
+static const char* VERSION = "0.86";
 
 void print_help(char *argv[]) {
-#ifdef ARCH_X86
-  printf("Usage: %s [--version] [--help] [--levels] [--style \"fancy\"|\"retro\"|\"legacy\"] [--color \"intel\"|\"amd\"|'R,G,B:R,G,B:R,G,B:R,G,B']\n\n", argv[0]);
-#else
-  printf("Usage: %s [--version] [--help] [--style \"fancy\"|\"retro\"|\"legacy\"] [--color \"intel\"|\"amd\"|'R,G,B:R,G,B:R,G,B:R,G,B']\n\n", argv[0]);
-#endif
+  printf("Usage: %s [--version] [--help] [--debug] [--style \"fancy\"|\"retro\"|\"legacy\"] [--color \"intel\"|\"amd\"|'R,G,B:R,G,B:R,G,B:R,G,B']\n\n", argv[0]);
 
   printf("Options: \n\
   --color       Set the color scheme. By default, cpufetch uses the system color scheme. This option \n\
@@ -38,7 +34,9 @@ void print_help(char *argv[]) {
     * \"legacy\": Fallback style for terminals that does not support colors                       \n\n");
 
 #ifdef ARCH_X86
-  printf("  --levels      Prints CPU model and cpuid levels (debug purposes)\n\n");
+  printf("  --debug       Prints CPU model and cpuid levels (debug purposes)\n\n");
+#elif ARCH_ARM
+  printf("  --debug       Prints main ID register values for all cores (debug purposes)\n\n");
 #endif
 
   printf("  --verbose     Prints extra information (if available) about how cpufetch tried fetching information\n\n\
@@ -77,13 +75,11 @@ int main(int argc, char* argv[]) {
   if(cpu == NULL)
     return EXIT_FAILURE;
 
-#ifdef ARCH_X86
-  if(show_levels()) {
+  if(show_debug()) {
     print_version();
-    print_levels(cpu);
+    print_debug(cpu);
     return EXIT_SUCCESS;
   }
-#endif
 
   struct frequency* freq = get_frequency_info(cpu);
   if(freq == NULL)

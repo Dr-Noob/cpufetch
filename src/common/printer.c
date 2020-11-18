@@ -526,13 +526,3 @@ bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* f
 
   return true;
 }
-
-#ifdef ARCH_X86
-void print_levels(struct cpuInfo* cpu) {
-  printf("%s\n", cpu->cpu_name);
-  printf("- Max standart level: 0x%.8X\n", cpu->maxLevels);
-  printf("- Max extended level: 0x%.8X\n", cpu->maxExtendedLevels);
-
-  free_cpuinfo_struct(cpu);
-}
-#endif
