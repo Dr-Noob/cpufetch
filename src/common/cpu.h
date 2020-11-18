@@ -33,6 +33,13 @@ enum {
   HV_VENDOR_INVALID
 };
 
+enum {
+  SOC_VENDOR_QUALCOMM,
+  SOC_VENDOR_HUAWUEI,
+  SOC_VENDOR_SAMSUNG,
+  SOC_VENDOR_UNKNOWN
+};
+
 #define UNKNOWN_FREQ -1
 #define CPU_NAME_MAX_LENGTH 64
 
@@ -67,11 +74,13 @@ struct cpuInfo {
   bool AES;
   bool SHA;
 
-  VENDOR cpu_vendor;
-
-  char* cpu_name;
+  VENDOR cpu_vendor;  
+  struct uarch* arch;
+  struct hypervisor* hv;
 
 #ifdef ARCH_X86
+  // CPU name from model
+  char* cpu_name;
   //  Max cpuids levels
   uint32_t maxLevels;
   // Max cpuids extended levels
@@ -81,14 +90,13 @@ struct cpuInfo {
   uint32_t midr;
 #endif
 
-  struct uarch* arch;
-  struct hypervisor* hv;
-
 #ifdef ARCH_ARM
+  VENDOR soc;
+  char* soc_name;
   // If SoC contains more than one CPU and they
   // are different, the others will be stored in
   // the next_cpu field
-  struct cpuInfo* next_cpu;
+  struct cpuInfo* next_cpu;  
 #endif
 };
 
@@ -122,12 +130,15 @@ struct topology {
 #endif
 };
 
+#ifdef ARCH_X86
+char* get_str_cpu_name(struct cpuInfo* cpu);
+#endif
+
 VENDOR get_cpu_vendor(struct cpuInfo* cpu);
 uint32_t get_nsockets(struct topology* topo);
 int64_t get_freq(struct frequency* freq);
 
 char* get_str_sockets(struct topology* topo);
-char* get_str_cpu_name(struct cpuInfo* cpu);
 char* get_str_aes(struct cpuInfo* cpu);
 char* get_str_sha(struct cpuInfo* cpu);
 char* get_str_l1i(struct cache* cach);

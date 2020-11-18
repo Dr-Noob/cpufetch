@@ -87,6 +87,9 @@ struct cpuInfo* get_cpu_info() {
 
   cpu->hv = malloc(sizeof(struct hypervisor));
   cpu->hv->present = false;
+  cpu->soc = SOC_VENDOR_UNKNOWN;
+  cpu->soc_name = malloc(sizeof(char)*(strlen(STRING_UNKNOWN)+1));
+  snprintf(cpu->soc_name, strlen(STRING_UNKNOWN)+1, STRING_UNKNOWN);
 
   return cpu;
 }
@@ -186,6 +189,10 @@ char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64
     snprintf(string,size,"%.2f MFLOP/s",flops/1000000);
 
   return string;
+}
+
+char* get_soc_name(struct cpuInfo* cpu) { 
+  return cpu->soc_name;    
 }
 
 void free_topo_struct(struct topology* topo) {

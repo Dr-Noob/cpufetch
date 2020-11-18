@@ -51,7 +51,11 @@
 #define RESET               "\x1b[m"
 
 enum {
+#ifdef ARCH_X86    
   ATTRIBUTE_NAME,
+#elif ARCH_ARM
+  ATTRIBUTE_SOC,
+#endif
   ATTRIBUTE_HYPERVISOR,
   ATTRIBUTE_UARCH,
   ATTRIBUTE_TECHNOLOGY,
@@ -71,7 +75,11 @@ enum {
 };
 
 static const char* ATTRIBUTE_FIELDS [] = {
+#ifdef ARCH_X86    
   "Name:",
+ #elif ARCH_ARM 
+  "SoC:",
+#endif
   "Hypervisor:",
   "Microarchitecture:",
   "Technology:",
@@ -91,7 +99,11 @@ static const char* ATTRIBUTE_FIELDS [] = {
 };
 
 static const int ATTRIBUTE_LIST[] =  {
+#ifdef ARCH_X86
   ATTRIBUTE_NAME,
+#elif ARCH_ARM
+  ATTRIBUTE_SOC,
+#endif
   ATTRIBUTE_HYPERVISOR,
   ATTRIBUTE_UARCH,
   ATTRIBUTE_TECHNOLOGY,
@@ -381,6 +393,32 @@ void print_ascii_amd(struct ascii* art, uint32_t la) {
 
 }
 
+void print_ascii_arm(struct ascii* art, uint32_t la) {
+  int attr_to_print = -1;
+  uint32_t space_right;
+  uint32_t space_up = (NUMBER_OF_LINES - art->n_attributes_set)/2;
+  uint32_t space_down = NUMBER_OF_LINES - art->n_attributes_set - space_up;
+
+  printf("\n");
+  for(uint32_t n=0;n<NUMBER_OF_LINES;n++) {
+    for(int i=0;i<LINE_SIZE;i++) {
+      if(art->art[n][i] == '#')
+        printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
+      else
+        printf("%c",art->art[n][i]);
+    }
+
+    if(n > space_up-1 && n < NUMBER_OF_LINES-space_down) {
+      attr_to_print = get_next_attribute(art, attr_to_print);
+      space_right = 1 + (la - strlen(ATTRIBUTE_FIELDS[attr_to_print]));
+      printf("%s%s%s%*s%s%s%s\n",art->color1_text, ATTRIBUTE_FIELDS[attr_to_print], art->reset, space_right, "", art->color2_text, art->attributes[attr_to_print], art->reset);
+    }
+    else printf("\n");
+  }
+  printf("\n");
+
+}
+
 uint32_t longest_attribute_length(struct ascii* art) {
   uint32_t max = 0;
   uint64_t len = 0;
@@ -399,16 +437,20 @@ void print_ascii(struct ascii* art) {
   uint32_t longest_attribute = longest_attribute_length(art);
   if(art->vendor == CPU_VENDOR_INTEL)
     print_ascii_intel(art, longest_attribute);
-  else
+  else if(art->vendor == CPU_VENDOR_AMD)
     print_ascii_amd(art, longest_attribute);
+  else if(art->vendor == CPU_VENDOR_ARM)
+    print_ascii_arm(art, longest_attribute);
+  else {
+    printBug("Invalid CPU vendor: %d\n", art->vendor);
+  }
 }
 
 bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* freq, struct topology* topo, STYLE s, struct colors* cs) {
   struct ascii* art = set_ascii(get_cpu_vendor(cpu), s, cs);
   if(art == NULL)
     return false;
-
-  char* cpu_name = get_str_cpu_name(cpu);
+  
   char* uarch = get_str_uarch(cpu);
   char* manufacturing_process = get_str_process(cpu);
   char* sockets = get_str_sockets(topo);
@@ -416,18 +458,22 @@ bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* f
   char* n_cores = get_str_topology(cpu, topo, false);
   char* n_cores_dual = get_str_topology(cpu, topo, true);
 #ifdef ARCH_X86
+  char* cpu_name = get_str_cpu_name(cpu);
   char* avx = get_str_avx(cpu);
   char* fma = get_str_fma(cpu);
+  setAttribute(art,ATTRIBUTE_NAME,cpu_name);
   setAttribute(art,ATTRIBUTE_AVX,avx);
   setAttribute(art,ATTRIBUTE_FMA,fma);
+#elif ARCH_ARM
+  char* soc_name = get_soc_name(cpu);
+  setAttribute(art, ATTRIBUTE_SOC, soc_name);
 #endif
   char* l1i = get_str_l1i(topo->cach);
   char* l1d = get_str_l1d(topo->cach);
   char* l2 = get_str_l2(topo->cach);
   char* l3 = get_str_l3(topo->cach);
   char* pp = get_str_peak_performance(cpu,topo,get_freq(freq));
-
-  setAttribute(art,ATTRIBUTE_NAME,cpu_name);
+  
   setAttribute(art,ATTRIBUTE_UARCH,uarch);
   setAttribute(art,ATTRIBUTE_TECHNOLOGY,manufacturing_process);
   setAttribute(art,ATTRIBUTE_FREQUENCY,max_frequency);

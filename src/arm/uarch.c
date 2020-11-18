@@ -17,6 +17,7 @@ struct uarch {
   MICROARCH uarch;
   ISA isa;
   char* uarch_str;
+  char* isa_str;
   // int32_t process; process depends on SoC
 };
 
@@ -154,14 +155,15 @@ static char* isas_string[] = {
 #define UARCH_END else { printBug("Unknown microarchitecture detected: IM=0x%.8X P=0x%.8X V=0x%.8X R=0x%.8X", im, p, v, r); fill_uarch(arch, cpu, "Unknown", UARCH_UNKNOWN, CPU_VENDOR_UNKNOWN); }
    
 void fill_uarch(struct uarch* arch, struct cpuInfo* cpu, char* str, MICROARCH u, VENDOR vendor) {
+  arch->uarch = u;  
+  arch->isa = isas_uarch[arch->uarch];
+  cpu->cpu_vendor = vendor;
+  
   arch->uarch_str = malloc(sizeof(char) * (strlen(str)+1));
   strcpy(arch->uarch_str, str);
-  arch->uarch = u;
-  cpu->cpu_vendor = vendor;
-  arch->isa = isas_uarch[arch->uarch];
-  char* isa_str = isas_string[arch->isa];
-  cpu->cpu_name = malloc(sizeof(char) * (strlen(isa_str)+1));
-  strcpy(cpu->cpu_name, isa_str);
+  
+  arch->isa_str = malloc(sizeof(char) * (strlen(isas_string[arch->isa])+1));
+  strcpy(arch->isa_str, isas_string[arch->isa]);  
 }   
 
 /*

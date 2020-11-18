@@ -44,9 +44,11 @@ char* get_str_sockets(struct topology* topo) {
   return string;
 }
 
+#ifdef ARCH_X86
 char* get_str_cpu_name(struct cpuInfo* cpu) {
   return cpu->cpu_name;    
 }
+#endif
 
 int32_t get_value_as_smallest_unit(char ** str, uint32_t value) {
   int32_t sanity_ret;
@@ -174,6 +176,8 @@ void free_hv_struct(struct hypervisor* hv) {
 void free_cpuinfo_struct(struct cpuInfo* cpu) {
   free_uarch_struct(cpu->arch);
   free_hv_struct(cpu->hv);
+  #ifdef ARCH_X86
   free(cpu->cpu_name);
+  #endif
   free(cpu);
 }
