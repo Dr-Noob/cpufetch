@@ -608,7 +608,7 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
   if(cpu->cpu_vendor == CPU_VENDOR_INTEL) {
     level = 0x00000004;    
     if(cpu->maxLevels < level) {
-      printErr("Can't read cache information from cpuid (needed level is %d, max is %d)", level, cpu->maxLevels);    
+      printErr("Can't read cache information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", level, cpu->maxLevels);    
       return NULL;
     }
     else {
@@ -618,13 +618,13 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
   else {
     level = 0x8000001D;
     if(cpu->maxExtendedLevels < level) {
-      printWarn("Can't read cache information from cpuid (needed extended level is %d, max is %d)", level, cpu->maxExtendedLevels);
+      printWarn("Can't read cache information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", level, cpu->maxExtendedLevels);
       level = 0x80000006;
       if(cpu->maxExtendedLevels < level) {
-        printErr("Can't read cache information from cpuid using old method (needed extended level is %d, max is %d)", level, cpu->maxExtendedLevels);    
+        printErr("Can't read cache information from cpuid using old method (needed extended level is 0x%.8X, max is 0x%.8X)", level, cpu->maxExtendedLevels);    
         return NULL;
       }
-      printWarn("Fallback to old method using %d and %d", level-1, level);
+      printWarn("Fallback to old method using 0x%.8X and 0x%.8X", level-1, level);
       cach = get_cache_info_amd_fallback(cach);
     }
     else {
@@ -667,19 +667,19 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
 struct frequency* get_frequency_info(struct cpuInfo* cpu) {
   struct frequency* freq = malloc(sizeof(struct frequency));
   
-  if(cpu->maxLevels < 0x16) {
+  if(cpu->maxLevels < 0x00000016) {
     #ifdef _WIN32
-      printErr("Can't read frequency information from cpuid (needed level is %d, max is %d)", 0x16, cpu->maxLevels);
+      printErr("Can't read frequency information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000016, cpu->maxLevels);
       freq->base = UNKNOWN_FREQ;
       freq->max = UNKNOWN_FREQ;
     #else
-      printWarn("Can't read frequency information from cpuid (needed level is %d, max is %d). Using udev", 0x16, cpu->maxLevels);
+      printWarn("Can't read frequency information from cpuid (needed level is 0x%.8X, max is 0x%.8X). Using udev", 0x00000016, cpu->maxLevels);
       freq->base = UNKNOWN_FREQ;
       freq->max = get_max_freq_from_file();
     #endif
   }
   else {
-    uint32_t eax = 0x16;
+    uint32_t eax = 0x00000016;
     uint32_t ebx = 0;
     uint32_t ecx = 0;
     uint32_t edx = 0;
