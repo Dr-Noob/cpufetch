@@ -85,6 +85,7 @@ struct cpuInfo* get_cpu_info() {
     ptr->arch = get_uarch_from_midr(ptr->midr, ptr);
   }
 
+  cpu->num_cpus = sockets;
   cpu->hv = malloc(sizeof(struct hypervisor));
   cpu->hv->present = false;
   cpu->soc = SOC_VENDOR_UNKNOWN;

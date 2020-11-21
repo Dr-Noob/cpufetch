@@ -97,6 +97,7 @@ struct cpuInfo {
   // are different, the others will be stored in
   // the next_cpu field
   struct cpuInfo* next_cpu;  
+  uint8_t num_cpus;
 #endif
 };
 
