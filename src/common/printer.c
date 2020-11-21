@@ -641,6 +641,15 @@ bool print_cpufetch_arm(struct ascii* art, struct cpuInfo* cpu, struct cache* ca
 #endif
 
 bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* freq, struct topology* topo, STYLE s, struct colors* cs) {
+  // Sanity check of ASCII arts
+  for(int i=0; i < 4; i++) {
+    const char* ascii = ASCII_ARRAY[i];
+    if(strlen(ascii) != (NUMBER_OF_LINES * LINE_SIZE)-1) {
+      printBug("ASCII art %d is wrong! ASCII length: %d, expected length: %d", i, strlen(ascii), (NUMBER_OF_LINES * LINE_SIZE)-1);
+      return false;
+    }
+  }
+    
   struct ascii* art = set_ascii(get_cpu_vendor(cpu), s, cs);
   if(art == NULL)
     return false;
