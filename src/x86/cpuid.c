@@ -492,35 +492,43 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
   return topo;
 }
 
-struct cache* get_cache_info(struct cpuInfo* cpu) {
-  struct cache* cach = malloc(sizeof(struct cache));
-  init_cache_struct(cach);
+struct cache* get_cache_info_amd_fallback(struct cache* cach) {
+  uint32_t eax = 0x80000005;
+  uint32_t ebx = 0;
+  uint32_t ecx = 0;
+  uint32_t edx = 0;
+  cpuid(&eax, &ebx, &ecx, &edx);
   
+  cach->L1d->size = (ecx >> 24) * 1024;
+  cach->L1i->size = (edx >> 24) * 1024;
+  
+  eax = 0x80000006;
+  cpuid(&eax, &ebx, &ecx, &edx);
+  
+  cach->L2->size = (ecx >> 16) * 1024;
+  cach->L3->size = (edx >> 18) * 512 * 1024;
+
+  cach->L1i->exists = cach->L1i->size > 0;
+  cach->L1d->exists = cach->L1d->size > 0;
+  cach->L2->exists = cach->L2->size > 0;
+  cach->L3->exists = cach->L3->size > 0;
+
+  if(cach->L3->exists)
+   cach->max_cache_level = 4;
+  else
+   cach->max_cache_level = 3;
+
+  return cach;
+}
+
+struct cache* get_cache_info_general(struct cache* cach, uint32_t level) {
   uint32_t eax = 0;
   uint32_t ebx = 0;
   uint32_t ecx = 0;
   uint32_t edx = 0;
-  uint32_t level;
-
-  // We use standart 0x00000004 for Intel
-  // We use extended 0x8000001D for AMD
-  if(cpu->cpu_vendor == CPU_VENDOR_INTEL) {
-    level = 0x00000004;
-    if(cpu->maxLevels < level) {
-      printErr("Can't read cache information from cpuid (needed level is %d, max is %d)", level, cpu->maxLevels);    
-      return NULL;
-    }
-  }
-  else {
-    level = 0x8000001D;
-    if(cpu->maxExtendedLevels < level) {
-      printErr("Can't read cache information from cpuid (needed extended level is %d, max is %d)", level, cpu->maxExtendedLevels);    
-      return NULL;
-    }
-  }
-  
   int i=0;
   int32_t cache_type;
+  
   do {
     eax = level; // get cache info
     ebx = 0;
@@ -584,6 +592,45 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
     
     i++;
   } while (cache_type > 0);
+  
+  return cach;
+}
+
+struct cache* get_cache_info(struct cpuInfo* cpu) {  
+  struct cache* cach = malloc(sizeof(struct cache));
+  init_cache_struct(cach);
+
+  uint32_t level;
+
+  // We use standart 0x00000004 for Intel
+  // We use extended 0x8000001D for AMD
+  // or 0x80000005/6 for old AMD
+  if(cpu->cpu_vendor == CPU_VENDOR_INTEL) {
+    level = 0x00000004;    
+    if(cpu->maxLevels < level) {
+      printErr("Can't read cache information from cpuid (needed level is %d, max is %d)", level, cpu->maxLevels);    
+      return NULL;
+    }
+    else {
+      cach = get_cache_info_general(cach, level);
+    }
+  }
+  else {
+    level = 0x8000001D;
+    if(cpu->maxExtendedLevels < level) {
+      printWarn("Can't read cache information from cpuid (needed extended level is %d, max is %d)", level, cpu->maxExtendedLevels);
+      level = 0x80000006;
+      if(cpu->maxExtendedLevels < level) {
+        printErr("Can't read cache information from cpuid using old method (needed extended level is %d, max is %d)", level, cpu->maxExtendedLevels);    
+        return NULL;
+      }
+      printWarn("Fallback to old method using %d and %d", level-1, level);
+      cach = get_cache_info_amd_fallback(cach);
+    }
+    else {
+      cach = get_cache_info_general(cach, level);    
+    }
+  }
   
   // Sanity checks. If we read values greater than this, they can't be valid ones
   // The values were chosen by me
