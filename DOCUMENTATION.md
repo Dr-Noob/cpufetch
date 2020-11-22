@@ -34,10 +34,16 @@ If the CPU supports it, we are done. If not:
 #### How to get cache sizes?
 __Involved code: get_cache_info (cpuid.c)__
 
-- Intel: We use CPUID leaf 0x4
-- AMD: We use extended CPUID leaf 0x1D
+First, we check if CPU supports the given cpuid level:
 
-If CPU does not support it, we are dead: cpufetch can't get this information. If CPU does, we can fetch it, and 0x4 in Intel behaves the same way as 0x1D in AMD.
+- Intel: CPUID leaf 0x00000004 (standard)
+- AMD: CPUID leaf 0x8000001D (extended)
+
+Intel behaves the same way with 0x00000004 as AMD with 0x8000001D, so the same code can be reused.
+
+If AMD does not support this level, we fallback to the old method, using 0x80000005 and 0x80000006. I observed that the old method returns the full size for L3 cache. However, in the other one (using 0x8000001D), L3 size is reported as the size of a single cache, and we also can fetch how many cores shares the cache. This means that the old method in new CPUs reports a wrong L3 cache size. Therefore, the old methold should not be used in new AMD CPUs. Finally, if AMD CPU does not support, cpufetch can't get cache information.
+
+If Intel does not support this level, cpufetch can't get this information.
 
 #### How to get CPU microarchitecture?
 __Involved code: get_cpu_uarch (cpuid.c), get_uarch_from_cpuid (uarch.c)__

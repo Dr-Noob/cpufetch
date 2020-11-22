@@ -4,13 +4,22 @@ Simplistic yet fancy CPU architecture fetching tool
 ![cpu1](i9.png)
 
 ### Platforms
-cpufetch currently supports x86_64 CPUs (both Intel and AMD CPUs) and ARM (experimental support)
+cpufetch currently supports x86_64 CPUs (both Intel and AMD) and ARM (experimental support)
 
 | Platform  | Intel                     | AMD                      | ARM                      | Notes             |
 |:---------:|:-------------------------:|:------------------------:|:------------------------:|:-----------------:|
-| Linux     | :heavy_check_mark:        | :heavy_check_mark:       |:interrobang:             | Prefered platform. <br> Experimental ARM support |
+| Linux     | :heavy_check_mark:        | :heavy_check_mark:       | :heavy_check_mark:       | Prefered platform. <br> Experimental ARM support |
 | Windows   | :heavy_check_mark:        | :heavy_check_mark:       | :x:                      | Some information may be missing. <br> Colors will be used if supported |
+| Android   | :heavy_exclamation_mark:  | :heavy_exclamation_mark: | :heavy_check_mark:       | Experimental ARM support |
 | macOS     | :heavy_exclamation_mark:  | :heavy_exclamation_mark: | :heavy_exclamation_mark: | Untested |
+
+| Emoji                   | Meaning       |
+|:-----------------------:|:-------------:|
+|:heavy_check_mark:       | Supported     |
+|:x:                      | Not Supported |
+|:heavy_exclamation_mark: | Unested       |
+
+
 
 
 ### Usage and installation
@@ -22,9 +31,11 @@ If you are in other distro, you can build `cpufetch` from source (see below)
 #### Windows
 In the [releases](https://github.com/Dr-Noob/cpufetch/releases) section you will find some cpufetch executables compiled for Windows. Just download and run it from Windows CMD.
 
-#### Building from source
-Just clone the repo and use `make` to compile it
+#### Android
+You need to build `cpufetch` from source (see below).
 
+### Building from source
+#### Linux and Windows
 ```
 git clone https://github.com/Dr-Noob/cpufetch
 cd cpufetch
@@ -32,9 +43,18 @@ make
 ./cpufetch
 ```
 
-The Makefile is designed to work on both Linux and Windows.
+#### Android
+I recommend using `termux` terminal emulator. Once you installed it, run the following commands:
 
-### Example
+```
+pkg install -y git make clang
+git clone https://github.com/Dr-Noob/cpufetch
+cd cpufetch
+make
+./cpufetch
+```
+
+### Examples
 
 Here are more examples of how `cpufetch` looks on different CPUs.
 
