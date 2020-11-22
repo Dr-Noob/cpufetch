@@ -5,6 +5,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
+#include "udev.h"
 #include "global.h"
 
 #ifdef ARCH_X86
@@ -25,9 +26,13 @@
 long get_freq_from_file(char* path) {
   int fd = open(path, O_RDONLY);
 
-  if(fd == -1) {
+  if(fd == -1) {    
+  #ifdef ARCH_X86
     perror("open");
     printBug("Could not open '%s'", path);
+  #elif ARCH_ARM
+    printWarn("Could not open '%s'", path);
+  #endif
     return UNKNOWN_FREQ;
   }
 
@@ -83,7 +88,7 @@ long get_min_freq_from_file(uint32_t core) {
 
 #ifdef ARCH_ARM
 
-#define UNKNOWN -1
+#define _PATH_CPUS_PRESENT      _PATH_SYS_SYSTEM _PATH_SYS_CPU "/present"
 #define _PATH_CPUINFO "/proc/cpuinfo"
 
 #define CPUINFO_CPU_IMPLEMENTER_STR  "CPU implementer\t: "
@@ -94,10 +99,16 @@ long get_min_freq_from_file(uint32_t core) {
 
 #define CPUINFO_CPU_STRING "processor"
 
+// https://www.kernel.org/doc/html/latest/core-api/cpu_hotplug.html
 int get_ncores_from_cpuinfo() {
-  int fd = open(_PATH_CPUINFO, O_RDONLY);
-
+  // Examples:
+  // 0-271
+  // 0-5
+  // 0-7
+  int fd = open(_PATH_CPUS_PRESENT, O_RDONLY);
+  
   if(fd == -1) {
+    fprintf(stderr, "%s: ", _PATH_CPUS_PRESENT);      
     perror("open");
     return UNKNOWN;
   }
@@ -114,12 +125,18 @@ int get_ncores_from_cpuinfo() {
   }
 
   int ncores = 0;
-  char* tmp = buf;
-  do {
-    tmp++;
-    ncores++;
-    tmp = strstr(tmp, CPUINFO_CPU_STRING);
-  } while(tmp != NULL);
+  char* tmp1 = strstr(buf, "-") + 1;
+  char* tmp2 = strstr(buf, "\n");
+  char ncores_str[offset];
+  memcpy(ncores_str, tmp1, tmp2-tmp1);
+  
+  char* end;
+  errno = 0;
+  ncores = strtol(ncores_str, &end, 10) + 1;  
+  if(errno != 0) {
+    perror("strtol");
+    return UNKNOWN;
+  }
 
   free(buf);
 
@@ -173,6 +190,9 @@ uint32_t get_midr_from_cpuinfo(uint32_t core) {
     current_core++;
     tmp = strstr(tmp, CPUINFO_CPU_STRING);
   }
+  
+  if(tmp == NULL)
+    return UNKNOWN;
 
   uint32_t cpu_implementer;
   uint32_t cpu_architecture;

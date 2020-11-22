@@ -5,6 +5,7 @@
 #include <stdbool.h>
 
 #include "../common/udev.h"
+#include "../common/global.h"
 #include "midr.h"
 #include "uarch.h"
 
@@ -131,6 +132,11 @@ struct cpuInfo* get_cpu_info() {
 
   for(int i=0; i < ncores; i++) {
     midr_array[i] = get_midr_from_cpuinfo(i);
+    
+    if(midr_array[i] == UNKNOWN) {
+      printWarn("Unable to fetch MIDR for core %d. This is probably because the core is offline", i);
+      midr_array[i] = midr_array[0];
+    }
   }
   uint32_t sockets = fill_ids_from_midr(midr_array, ids_array, ncores);
 
@@ -213,16 +219,25 @@ char* get_soc_name(struct cpuInfo* cpu) {
 void print_debug(struct cpuInfo* cpu) {
   int ncores = get_ncores_from_cpuinfo();
   
-  if(ncores >= 10) {
-    for(int i=0; i < ncores; i++) {
-      printf("[Core %02d] 0x%.8X %ld MHz\n", i, get_midr_from_cpuinfo(i), get_max_freq_from_file(i));
+  for(int i=0; i < ncores; i++) {
+    printf("[Core %d] ", i);
+    long freq = get_max_freq_from_file(i);
+    uint32_t midr = get_midr_from_cpuinfo(i);
+    if(midr == UNKNOWN) {
+      printWarn("Unable to fetch MIDR for core %d. This is probably because the core is offline", i);
+      printf("0x%.8X ", get_midr_from_cpuinfo(0));
     }
-  }
-  else {
-    for(int i=0; i < ncores; i++) {
-      printf("[Core %d] 0x%.8X %ld MHz\n", i, get_midr_from_cpuinfo(i), get_max_freq_from_file(i));
-    }    
-  }
+    else {
+      printf("0x%.8X ", midr);    
+    }
+    if(freq == UNKNOWN_FREQ) {
+      printWarn("Unable to fetch max frequency for core %d. This is probably because the core is offline", i);
+      printf("%ld MHz\n", get_max_freq_from_file(0));
+    }
+    else {
+      printf("%ld MHz\n", freq);    
+    }
+  }    
 }
 
 void free_topo_struct(struct topology* topo) {
