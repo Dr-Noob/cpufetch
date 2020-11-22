@@ -322,7 +322,10 @@ struct cpuInfo* get_cpu_info() {
   }
   
   cpu->arch = get_cpu_uarch(cpu);
-
+  cpu->freq = get_frequency_info(cpu);
+  cpu->cach = get_cache_info(cpu);
+  cpu->topo = get_topology_info(cpu, cpu->cach);
+  
   return cpu;
 }
 

@@ -80,20 +80,8 @@ int main(int argc, char* argv[]) {
     print_debug(cpu);
     return EXIT_SUCCESS;
   }
-
-  struct frequency* freq = get_frequency_info(cpu);
-  if(freq == NULL)
-    return EXIT_FAILURE;
-
-  struct cache* cach = get_cache_info(cpu);
-  if(cach == NULL)
-    return EXIT_FAILURE;
-
-  struct topology* topo = get_topology_info(cpu, cach);
-  if(topo == NULL)
-    return EXIT_FAILURE;
-
-  if(print_cpufetch(cpu, cach, freq, topo, get_style(), get_colors()))
+  
+  if(print_cpufetch(cpu, get_style(), get_colors()))
     return EXIT_SUCCESS;
   else
     return EXIT_FAILURE;

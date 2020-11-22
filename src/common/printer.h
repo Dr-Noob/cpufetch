@@ -19,6 +19,6 @@ typedef int STYLE;
 void print_levels(struct cpuInfo* cpu);
 #endif
 
-bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* freq, struct topology* topo, STYLE s, struct colors* cs);
+bool print_cpufetch(struct cpuInfo* cpu, STYLE s, struct colors* cs);
 
 #endif

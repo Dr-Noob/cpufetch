@@ -403,23 +403,23 @@ void print_ascii(struct ascii* art) {
   
 }
 
-bool print_cpufetch_x86(struct ascii* art, struct cpuInfo* cpu, struct cache* cach, struct frequency* freq, struct topology* topo, struct colors* cs) {
+bool print_cpufetch_x86(struct ascii* art, struct cpuInfo* cpu, struct colors* cs) {
   char* uarch = get_str_uarch(cpu);
   char* manufacturing_process = get_str_process(cpu);
-  char* sockets = get_str_sockets(topo);
-  char* max_frequency = get_str_freq(freq);
-  char* n_cores = get_str_topology(cpu, topo, false);
-  char* n_cores_dual = get_str_topology(cpu, topo, true);
+  char* sockets = get_str_sockets(cpu->topo);
+  char* max_frequency = get_str_freq(cpu->freq);
+  char* n_cores = get_str_topology(cpu, cpu->topo, false);
+  char* n_cores_dual = get_str_topology(cpu, cpu->topo, true);
   char* cpu_name = get_str_cpu_name(cpu);
   char* avx = get_str_avx(cpu);
   char* fma = get_str_fma(cpu);
 
 
-  char* l1i = get_str_l1i(topo->cach);
-  char* l1d = get_str_l1d(topo->cach);
-  char* l2 = get_str_l2(topo->cach);
-  char* l3 = get_str_l3(topo->cach);
-  char* pp = get_str_peak_performance(cpu,topo,get_freq(freq));
+  char* l1i = get_str_l1i(cpu->cach);
+  char* l1d = get_str_l1d(cpu->cach);
+  char* l2 = get_str_l2(cpu->cach);
+  char* l3 = get_str_l3(cpu->cach);
+  char* pp = get_str_peak_performance(cpu,cpu->topo,get_freq(cpu->freq));
 
   setAttribute(art,ATTRIBUTE_NAME,cpu_name);
   if(cpu->hv->present) {
@@ -428,7 +428,7 @@ bool print_cpufetch_x86(struct ascii* art, struct cpuInfo* cpu, struct cache* ca
   setAttribute(art,ATTRIBUTE_UARCH,uarch);
   setAttribute(art,ATTRIBUTE_TECHNOLOGY,manufacturing_process);
   setAttribute(art,ATTRIBUTE_FREQUENCY,max_frequency);
-  uint32_t socket_num = get_nsockets(topo);
+  uint32_t socket_num = get_nsockets(cpu->topo);
   if (socket_num > 1) {
     setAttribute(art, ATTRIBUTE_SOCKETS, sockets);
     setAttribute(art, ATTRIBUTE_NCORES,n_cores);
@@ -471,9 +471,9 @@ bool print_cpufetch_x86(struct ascii* art, struct cpuInfo* cpu, struct cache* ca
   free(art);
 
   if(cs != NULL) free_colors_struct(cs);
-  free_cache_struct(cach);
-  free_topo_struct(topo);
-  free_freq_struct(freq);
+  free_cache_struct(cpu->cach);
+  free_topo_struct(cpu->topo);
+  free_freq_struct(cpu->freq);
   free_cpuinfo_struct(cpu);
 
   return true;
@@ -539,7 +539,7 @@ void print_ascii(struct ascii* art) {
   
 }
 
-bool print_cpufetch_arm(struct ascii* art, struct cpuInfo* cpu, struct cache* cach, struct frequency* freq, struct topology* topo, struct colors* cs) {    
+bool print_cpufetch_arm(struct ascii* art, struct cpuInfo* cpu, struct colors* cs) {    
   char* manufacturing_process = get_str_process(cpu);
   char* soc_name = get_soc_name(cpu);
   setAttribute(art,ATTRIBUTE_SOC,soc_name);
@@ -547,12 +547,12 @@ bool print_cpufetch_arm(struct ascii* art, struct cpuInfo* cpu, struct cache* ca
   
   if(cpu->num_cpus == 1) {
     char* uarch = get_str_uarch(cpu);
-    char* max_frequency = get_str_freq(freq);
-    char* n_cores = get_str_topology(cpu, topo, false);
-    char* l1i = get_str_l1i(topo->cach);
-    char* l1d = get_str_l1d(topo->cach);
-    char* l2 = get_str_l2(topo->cach);
-    char* l3 = get_str_l3(topo->cach);
+    char* max_frequency = get_str_freq(cpu->freq);
+    char* n_cores = get_str_topology(cpu, cpu->topo, false);
+    char* l1i = get_str_l1i(cpu->cach);
+    char* l1d = get_str_l1d(cpu->cach);
+    char* l2 = get_str_l2(cpu->cach);
+    char* l3 = get_str_l3(cpu->cach);
   
     setAttribute(art,ATTRIBUTE_UARCH,uarch);
     setAttribute(art,ATTRIBUTE_FREQUENCY,max_frequency);
@@ -571,35 +571,18 @@ bool print_cpufetch_arm(struct ascii* art, struct cpuInfo* cpu, struct cache* ca
     free(l2);
   }
   else {
-    struct cpuInfo* ptr;
-    int i = 1;
-    for(ptr = cpu; ptr != NULL; ptr = ptr->next_cpu, i++) {
+    struct cpuInfo* ptr = cpu;
+    for(int i = 0; i < cpu->num_cpus; ptr = ptr->next_cpu, i++) {
       char* uarch = get_str_uarch(ptr);
-      char* max_frequency = get_str_freq(freq);
-      char* n_cores = get_str_topology(cpu, topo, false);
-      char* l1i = get_str_l1i(topo->cach);
-      char* l1d = get_str_l1d(topo->cach);
-      char* l2 = get_str_l2(topo->cach);
-      char* l3 = get_str_l3(topo->cach);      
-  
-      /*
-      switch(i) {
-        case 1:
-          setAttribute(art, ATTRIBUTE_CPU_NUM_1, NULL);
-          break;
-        case 2:
-          setAttribute(art, ATTRIBUTE_CPU_NUM_2, NULL);
-          break;
-        case 3:
-          setAttribute(art, ATTRIBUTE_CPU_NUM_3, NULL);
-          break;
-        default:
-          printBug("SoC has more than 3 CPUs, which is not supported!");
-          return false;
-      }*/
+      char* max_frequency = get_str_freq(ptr->freq);
+      char* n_cores = get_str_topology(ptr, ptr->topo, false);
+      char* l1i = get_str_l1i(ptr->cach);
+      char* l1d = get_str_l1d(ptr->cach);
+      char* l2 = get_str_l2(ptr->cach);
+      char* l3 = get_str_l3(ptr->cach);
       
       char* cpu_num = malloc(sizeof(char) * 6);
-      sprintf(cpu_num, "CPU %d:", i);
+      sprintf(cpu_num, "CPU %d:", i+1);
       setAttribute(art, ATTRIBUTE_CPU_NUM, cpu_num);
       setAttribute(art, ATTRIBUTE_UARCH, uarch);
       setAttribute(art, ATTRIBUTE_FREQUENCY, max_frequency);
@@ -612,7 +595,7 @@ bool print_cpufetch_arm(struct ascii* art, struct cpuInfo* cpu, struct cache* ca
       }
     }
   }
-  char* pp = get_str_peak_performance(cpu,topo,get_freq(freq));
+  char* pp = get_str_peak_performance(cpu);
   setAttribute(art,ATTRIBUTE_PEAK,pp);
   
   if(art->n_attributes_set > NUMBER_OF_LINES) {
@@ -631,16 +614,15 @@ bool print_cpufetch_arm(struct ascii* art, struct cpuInfo* cpu, struct cache* ca
   free(art);
 
   if(cs != NULL) free_colors_struct(cs);
-  free_cache_struct(cach);
-  free_topo_struct(topo);
-  free_freq_struct(freq);
+  free_cache_struct(cpu->cach);
+  free_topo_struct(cpu->topo);
   free_cpuinfo_struct(cpu);
 
   return true;
 }
 #endif
 
-bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* freq, struct topology* topo, STYLE s, struct colors* cs) {
+bool print_cpufetch(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   // Sanity check of ASCII arts
   for(int i=0; i < 4; i++) {
     const char* ascii = ASCII_ARRAY[i];
@@ -655,8 +637,8 @@ bool print_cpufetch(struct cpuInfo* cpu, struct cache* cach, struct frequency* f
     return false;
   
 #ifdef ARCH_X86
-  return print_cpufetch_x86(art, cpu, cach, freq, topo, cs);
+  return print_cpufetch_x86(art, cpu, cs);
 #elif ARCH_ARM
-  return print_cpufetch_arm(art, cpu, cach, freq, topo, cs);  
+  return print_cpufetch_arm(art, cpu, cs);  
 #endif
 }

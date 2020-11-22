@@ -56,51 +56,6 @@ struct hypervisor {
   VENDOR hv_vendor;
 };
 
-struct cpuInfo {
-#ifdef ARCH_X86
-  bool AVX;
-  bool AVX2;
-  bool AVX512;
-  bool SSE;
-  bool SSE2;
-  bool SSE3;
-  bool SSSE3;
-  bool SSE4a;
-  bool SSE4_1;
-  bool SSE4_2;
-  bool FMA3;
-  bool FMA4;
-#endif
-  bool AES;
-  bool SHA;
-
-  VENDOR cpu_vendor;  
-  struct uarch* arch;
-  struct hypervisor* hv;
-
-#ifdef ARCH_X86
-  // CPU name from model
-  char* cpu_name;
-  //  Max cpuids levels
-  uint32_t maxLevels;
-  // Max cpuids extended levels
-  uint32_t maxExtendedLevels;
-#elif ARCH_ARM
-  // Main ID register
-  uint32_t midr;
-#endif
-
-#ifdef ARCH_ARM
-  VENDOR soc;
-  char* soc_name;
-  // If SoC contains more than one CPU and they
-  // are different, the others will be stored in
-  // the next_cpu field
-  struct cpuInfo* next_cpu;  
-  uint8_t num_cpus;
-#endif
-};
-
 struct cach {
   int32_t size;
   uint8_t num_caches;
@@ -128,6 +83,54 @@ struct topology {
   struct cache* cach;
 #ifdef ARCH_X86
   struct apic* apic;
+#endif
+};
+
+struct cpuInfo {
+#ifdef ARCH_X86
+  bool AVX;
+  bool AVX2;
+  bool AVX512;
+  bool SSE;
+  bool SSE2;
+  bool SSE3;
+  bool SSSE3;
+  bool SSE4a;
+  bool SSE4_1;
+  bool SSE4_2;
+  bool FMA3;
+  bool FMA4;
+#endif
+  bool AES;
+  bool SHA;
+
+  VENDOR cpu_vendor;  
+  struct uarch* arch;
+  struct hypervisor* hv;
+  struct frequency* freq;
+  struct cache* cach;
+  struct topology* topo;
+  
+#ifdef ARCH_X86
+  // CPU name from model
+  char* cpu_name;
+  //  Max cpuids levels
+  uint32_t maxLevels;
+  // Max cpuids extended levels
+  uint32_t maxExtendedLevels;
+#elif ARCH_ARM
+  // Main ID register
+  uint32_t midr;
+#endif
+
+#ifdef ARCH_ARM
+  VENDOR soc;
+  char* soc_name;
+  // If SoC contains more than one CPU and they
+  // are different, the others will be stored in
+  // the next_cpu field
+  struct cpuInfo* next_cpu;  
+  uint8_t num_cpus;
 #endif
 };
 
