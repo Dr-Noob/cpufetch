@@ -52,11 +52,11 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
   return cach;
 }
 
-struct frequency* get_frequency_info(struct cpuInfo* cpu) {
+struct frequency* get_frequency_info(uint32_t core) {
   struct frequency* freq = malloc(sizeof(struct frequency));
 
   freq->base = UNKNOWN_FREQ;
-  freq->max = get_max_freq_from_file();
+  freq->max = get_max_freq_from_file(core);
 
   return freq;
 }
@@ -151,7 +151,7 @@ struct cpuInfo* get_cpu_info() {
     ptr->midr = midr_array[midr_idx];
     ptr->arch = get_uarch_from_midr(ptr->midr, ptr);
     
-    ptr->freq = get_frequency_info(ptr);
+    ptr->freq = get_frequency_info(i); // TODO: wrong!
     ptr->cach = get_cache_info(ptr);
     ptr->topo = get_topology_info(ptr, ptr->cach);
   }
@@ -210,18 +210,17 @@ char* get_soc_name(struct cpuInfo* cpu) {
   return cpu->soc_name;    
 }
 
-//TODO: Fix wrong implementation
 void print_debug(struct cpuInfo* cpu) {
   int ncores = get_ncores_from_cpuinfo();
   
   if(ncores >= 10) {
     for(int i=0; i < ncores; i++) {
-      printf("[Core %02d] 0x%.8X\n", i, cpu->midr);
+      printf("[Core %02d] 0x%.8X %ld MHz\n", i, get_midr_from_cpuinfo(i), get_max_freq_from_file(i));
     }
   }
   else {
     for(int i=0; i < ncores; i++) {
-      printf("[Core %d] 0x%.8X\n", i, cpu->midr);
+      printf("[Core %d] 0x%.8X %ld MHz\n", i, get_midr_from_cpuinfo(i), get_max_freq_from_file(i));
     }    
   }
 }

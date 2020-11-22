@@ -13,15 +13,14 @@
   #include "../arm/midr.h"
 #endif
 
-#define _PATH_SYS_SYSTEM    "/sys/devices/system"
-#define _PATH_SYS_CPU       _PATH_SYS_SYSTEM"/cpu"
-#define _PATH_ONE_CPU       _PATH_SYS_CPU"/cpu0"
+#define _PATH_SYS_SYSTEM        "/sys/devices/system"
+#define _PATH_SYS_CPU           "/cpu"
+#define _PATH_FREQUENCY         "/cpufreq"
+#define _PATH_FREQUENCY_MAX     "/cpuinfo_max_freq"
+#define _PATH_FREQUENCY_MIN     "/cpuinfo_min_freq"
 
-#define _PATH_FREQUENCY     _PATH_ONE_CPU"/cpufreq"
-#define _PATH_FREQUENCY_MAX _PATH_FREQUENCY"/cpuinfo_max_freq"
-#define _PATH_FREQUENCY_MIN _PATH_FREQUENCY"/cpuinfo_min_freq"
-
-#define DEFAULT_FILE_SIZE 4096
+#define _PATH_FREQUENCY_MAX_LEN 100
+#define DEFAULT_FILE_SIZE       4096
 
 long get_freq_from_file(char* path) {
   int fd = open(path, O_RDONLY);
@@ -70,12 +69,16 @@ long get_freq_from_file(char* path) {
   return ret/1000;
 }
 
-long get_max_freq_from_file() {
-  return get_freq_from_file(_PATH_FREQUENCY_MAX);
+long get_max_freq_from_file(uint32_t core) {
+  char path[_PATH_FREQUENCY_MAX_LEN];
+  sprintf(path, "%s%s/cpu%d%s%s", _PATH_SYS_SYSTEM, _PATH_SYS_CPU, core, _PATH_FREQUENCY, _PATH_FREQUENCY_MAX);
+  return get_freq_from_file(path);
 }
 
-long get_min_freq_from_file() {
-  return get_freq_from_file(_PATH_FREQUENCY_MIN);
+long get_min_freq_from_file(uint32_t core) {
+  char path[_PATH_FREQUENCY_MAX_LEN];
+  sprintf(path, "%s%s/cpu%d%s%s", _PATH_SYS_SYSTEM, _PATH_SYS_CPU, core, _PATH_FREQUENCY, _PATH_FREQUENCY_MIN);
+  return get_freq_from_file(path);
 }
 
 #ifdef ARCH_ARM
