@@ -8,6 +8,7 @@
 #include "../common/global.h"
 #include "midr.h"
 #include "uarch.h"
+#include "soc.h"
 
 #define STRING_UNKNOWN    "Unknown"
 
@@ -165,9 +166,7 @@ struct cpuInfo* get_cpu_info() {
   cpu->num_cpus = sockets;
   cpu->hv = malloc(sizeof(struct hypervisor));
   cpu->hv->present = false;
-  cpu->soc = SOC_VENDOR_UNKNOWN;
-  cpu->soc_name = malloc(sizeof(char)*(strlen(STRING_UNKNOWN)+1));
-  snprintf(cpu->soc_name, strlen(STRING_UNKNOWN)+1, STRING_UNKNOWN);
+  cpu->soc = get_soc();  
 
   return cpu;
 }
@@ -195,7 +194,7 @@ char* get_str_peak_performance(struct cpuInfo* cpu) {
     }
   }
 
-  double flops;
+  double flops = 0.0;
   
   ptr = cpu;
   for(int i=0; i < cpu->num_cpus; ptr = ptr->next_cpu, i++) {
@@ -213,7 +212,7 @@ char* get_str_peak_performance(struct cpuInfo* cpu) {
 }
 
 char* get_soc_name(struct cpuInfo* cpu) { 
-  return cpu->soc_name;    
+  return cpu->soc->raw_name;    
 }
 
 void print_debug(struct cpuInfo* cpu) {

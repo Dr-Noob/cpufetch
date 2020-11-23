@@ -124,8 +124,7 @@ struct cpuInfo {
 #endif
 
 #ifdef ARCH_ARM
-  VENDOR soc;
-  char* soc_name;
+  struct system_on_chip* soc;
   // If SoC contains more than one CPU and they
   // are different, the others will be stored in
   // the next_cpu field
