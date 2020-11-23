@@ -128,13 +128,14 @@ struct cpuInfo* get_cpu_info() {
   cpu->next_cpu = NULL;
 
   int ncores = get_ncores_from_cpuinfo();
+  bool success = false;
   uint32_t* midr_array = malloc(sizeof(uint32_t) * ncores);
   uint32_t* ids_array = malloc(sizeof(uint32_t) * ncores);
 
   for(int i=0; i < ncores; i++) {
-    midr_array[i] = get_midr_from_cpuinfo(i);
+    midr_array[i] = get_midr_from_cpuinfo(i, &success);
     
-    if(midr_array[i] == UNKNOWN) {
+    if(!success) {
       printWarn("Unable to fetch MIDR for core %d. This is probably because the core is offline", i);
       midr_array[i] = midr_array[0];
     }
@@ -217,14 +218,15 @@ char* get_soc_name(struct cpuInfo* cpu) {
 
 void print_debug(struct cpuInfo* cpu) {
   int ncores = get_ncores_from_cpuinfo();
+  bool success = false;
   
   for(int i=0; i < ncores; i++) {
     printf("[Core %d] ", i);
     long freq = get_max_freq_from_file(i);
-    uint32_t midr = get_midr_from_cpuinfo(i);
-    if(midr == UNKNOWN) {
+    uint32_t midr = get_midr_from_cpuinfo(i, &success);
+    if(!success) {
       printWarn("Unable to fetch MIDR for core %d. This is probably because the core is offline", i);
-      printf("0x%.8X ", get_midr_from_cpuinfo(0));
+      printf("0x%.8X ", get_midr_from_cpuinfo(0, &success));
     }
     else {
       printf("0x%.8X ", midr);    

@@ -534,7 +534,8 @@ void print_ascii(struct ascii* art) {
   if(art->vendor == CPU_VENDOR_ARM)
     print_ascii_arm(art, longest_attribute);
   else {
-    printBug("Invalid CPU vendor: %d\n", art->vendor);
+    printWarn("Invalid CPU vendor: %d\n", art->vendor);
+    print_ascii_arm(art, longest_attribute);
   }
   
 }
@@ -581,7 +582,7 @@ bool print_cpufetch_arm(struct ascii* art, struct cpuInfo* cpu, struct colors* c
       char* l2 = get_str_l2(ptr->cach);
       char* l3 = get_str_l3(ptr->cach);
       
-      char* cpu_num = malloc(sizeof(char) * 6);
+      char* cpu_num = malloc(sizeof(char) * 9);
       sprintf(cpu_num, "CPU %d:", i+1);
       setAttribute(art, ATTRIBUTE_CPU_NUM, cpu_num);
       setAttribute(art, ATTRIBUTE_UARCH, uarch);

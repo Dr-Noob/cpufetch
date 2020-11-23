@@ -164,12 +164,14 @@ long parse_cpuinfo_field(char* buf, char* field_str, int field_base) {
 }
 // https://developer.arm.com/docs/ddi0595/h/aarch32-system-registers/midr
 // https://static.docs.arm.com/ddi0595/h/SysReg_xml_v86A-2020-06.pdf
-uint32_t get_midr_from_cpuinfo(uint32_t core) {
+uint32_t get_midr_from_cpuinfo(uint32_t core, bool* success) {
   int fd = open(_PATH_CPUINFO, O_RDONLY);
-
+  *success = true;
+  
   if(fd == -1) {
+    *success = false;
     perror("open");
-    return UNKNOWN;
+    return 0;
   }
 
   //File exists, read it
@@ -191,8 +193,10 @@ uint32_t get_midr_from_cpuinfo(uint32_t core) {
     tmp = strstr(tmp, CPUINFO_CPU_STRING);
   }
   
-  if(tmp == NULL)
-    return UNKNOWN;
+  if(tmp == NULL) {
+    *success = false;    
+    return 0;
+  }
 
   uint32_t cpu_implementer;
   uint32_t cpu_architecture;
@@ -204,30 +208,35 @@ uint32_t get_midr_from_cpuinfo(uint32_t core) {
 
   if ((ret = parse_cpuinfo_field(tmp, CPUINFO_CPU_IMPLEMENTER_STR, 16)) < 0) {
     printf("Failed parsing cpu_implementer\n");
+    *success = false;    
     return 0;
   }
   cpu_implementer = (uint32_t) ret;
 
   if ((ret = parse_cpuinfo_field(tmp, CPUINFO_CPU_ARCHITECTURE_STR, 10)) < 0) {
     printf("Failed parsing cpu_architecture\n");
+    *success = false;    
     return 0;
   }
   cpu_architecture = (uint32_t) 0xF; // Why?
 
   if ((ret = parse_cpuinfo_field(tmp, CPUINFO_CPU_VARIANT_STR, 16)) < 0) {
     printf("Failed parsing cpu_variant\n");
+    *success = false;    
     return 0;
   }
   cpu_variant = (uint32_t) ret;
 
   if ((ret = parse_cpuinfo_field(tmp, CPUINFO_CPU_PART_STR, 16)) < 0) {
     printf("Failed parsing cpu_part\n");
+    *success = false;    
     return 0;
   }
   cpu_part = (uint32_t) ret;
 
   if ((ret = parse_cpuinfo_field(tmp, CPUINFO_CPU_REVISION_STR, 10)) < 0) {
     printf("Failed parsing cpu_revision\n");
+    *success = false;    
     return 0;
   }
   cpu_revision = (uint32_t) ret;

@@ -7,6 +7,8 @@
 #include "uarch.h"
 #include "../common/global.h"
 
+#define STRING_UNKNOWN    "Unknown"
+
 // Data not available
 #define NA                   -1
 
@@ -276,8 +278,8 @@ char* get_str_uarch(struct cpuInfo* cpu) {
 }
 
 char* get_str_process(struct cpuInfo* cpu) {
-  char* str = malloc(sizeof(char) * (4+2+1));
-  sprintf(str, "%s", "Unknown");
+  char* str = malloc(sizeof(char) * (strlen(STRING_UNKNOWN)+1));
+  snprintf(str, strlen(STRING_UNKNOWN)+1, STRING_UNKNOWN);
   return str;
 }
 
