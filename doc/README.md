@@ -52,5 +52,5 @@ In ARM, __cpufetch works using the MIDR register and Linux filesystem__. MIDR (M
 ##### 1.3 Documentation organization
 The rest of the documentation is divided into x86 and ARM architectures, since each one need different implementations:
 
-- [DOCUMENTATION_X86.md](https://github.com/Dr-Noob/cpufetch/blob/master/DOCUMENTATION_X86.md)
-- [DOCUMENTATION_ARM.md](https://github.com/Dr-Noob/cpufetch/blob/master/DOCUMENTATION_ARM.md)
+- [DOCUMENTATION_X86.md](https://github.com/Dr-Noob/cpufetch/blob/master/doc/DOCUMENTATION_X86.md)
+- [DOCUMENTATION_ARM.md](https://github.com/Dr-Noob/cpufetch/blob/master/doc/DOCUMENTATION_ARM.md)

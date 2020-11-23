@@ -1,7 +1,7 @@
 # cpufetch
 
 Simplistic yet fancy CPU architecture fetching tool
-![cpu1](i9.png)
+![cpu1](pictures/i9.png)
 
 ### Platforms
 cpufetch currently supports x86_64 CPUs (both Intel and AMD) and ARM (experimental support)
@@ -58,9 +58,9 @@ make
 
 Here are more examples of how `cpufetch` looks on different CPUs.
 
-![cpu2](epyc.png)
+![cpu2](pictures/epyc.png)
 
-![cpu3](cascade_lake.png)
+![cpu3](pictures/cascade_lake.png)
 
 ### Colors and style
 By default, `cpufetch` will print the CPU art with the system colorscheme. However, you can always set a custom color scheme, either
