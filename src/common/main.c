@@ -13,7 +13,7 @@
   #include "../arm/midr.h"
 #endif
 
-static const char* VERSION = "0.88";
+static const char* VERSION = "0.89";
 
 void print_help(char *argv[]) {
   printf("Usage: %s [--version] [--help] [--debug] [--style \"fancy\"|\"retro\"|\"legacy\"] [--color \"intel\"|\"amd\"|'R,G,B:R,G,B:R,G,B:R,G,B']\n\n", argv[0]);

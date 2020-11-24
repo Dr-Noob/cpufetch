@@ -213,10 +213,6 @@ char* get_str_peak_performance(struct cpuInfo* cpu) {
   return string;
 }
 
-char* get_soc_name(struct cpuInfo* cpu) { 
-  return cpu->soc->raw_name;    
-}
-
 void print_debug(struct cpuInfo* cpu) {
   int ncores = get_ncores_from_cpuinfo();
   bool success = false;

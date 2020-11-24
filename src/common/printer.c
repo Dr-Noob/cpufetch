@@ -14,6 +14,7 @@
 #else
   #include "../arm/uarch.h"
   #include "../arm/midr.h"
+  #include "../arm/soc.h"
 #endif
 
 #ifdef _WIN32
@@ -542,7 +543,7 @@ void print_ascii(struct ascii* art) {
 
 bool print_cpufetch_arm(struct ascii* art, struct cpuInfo* cpu, struct colors* cs) {    
   char* manufacturing_process = get_str_process(cpu);
-  char* soc_name = get_soc_name(cpu);
+  char* soc_name = get_soc_name(cpu->soc);
   setAttribute(art,ATTRIBUTE_SOC,soc_name);
   setAttribute(art,ATTRIBUTE_TECHNOLOGY,manufacturing_process);
   
