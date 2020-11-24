@@ -12,16 +12,6 @@
 
 #define STRING_UNKNOWN    "Unknown"
 
-void init_topology_struct(struct topology* topo, struct cache* cach) {
-  topo->total_cores = 0;
-  topo->physical_cores = 0;
-  topo->logical_cores = 0;
-  topo->smt_available = 0;
-  topo->smt_supported = 0;
-  topo->sockets = 0;
-  topo->cach = cach;
-}
-
 void init_cache_struct(struct cache* cach) {
   cach->L1i = malloc(sizeof(struct cach));
   cach->L1d = malloc(sizeof(struct cach));
@@ -64,17 +54,30 @@ struct frequency* get_frequency_info(uint32_t core) {
   return freq;
 }
 
-struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
+struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach, uint32_t* midr_array, int socket_idx, int ncores) {
   struct topology* topo = malloc(sizeof(struct topology));
-  init_topology_struct(topo, cach);
 
-  topo->total_cores = get_ncores_from_cpuinfo();
-  topo->physical_cores = topo->total_cores;
-  topo->logical_cores = topo->total_cores;
-  topo->smt_available = 1;
-  topo->smt_supported = 0;
-  topo->sockets = 1;
-
+  topo->cach = cach;
+  topo->total_cores = 0;
+  
+  int sockets_seen = 0;
+  int first_core_idx = 0;
+  int currrent_core_idx = 0;
+  int cores_in_socket = 0;
+  
+  while(socket_idx + 1 > sockets_seen) {
+    if(midr_array[first_core_idx] == midr_array[currrent_core_idx] && currrent_core_idx < ncores) {
+      currrent_core_idx++;
+      cores_in_socket++;
+    }
+    else {
+      topo->total_cores = cores_in_socket;  
+      cores_in_socket = 0;
+      first_core_idx = currrent_core_idx;
+      sockets_seen++;
+    }
+  }
+  
   return topo;
 }
 
@@ -155,9 +158,9 @@ struct cpuInfo* get_cpu_info() {
     ptr->midr = midr_array[midr_idx];
     ptr->arch = get_uarch_from_midr(ptr->midr, ptr);
     
-    ptr->freq = get_frequency_info(i); // TODO: wrong!
+    ptr->freq = get_frequency_info(midr_idx);
     ptr->cach = get_cache_info(ptr);
-    ptr->topo = get_topology_info(ptr, ptr->cach);
+    ptr->topo = get_topology_info(ptr, ptr->cach, midr_array, i, ncores);
   }
   
   cpu->num_cpus = sockets;
@@ -171,7 +174,7 @@ struct cpuInfo* get_cpu_info() {
 char* get_str_topology(struct cpuInfo* cpu, struct topology* topo, bool dual_socket) {
   uint32_t size = 3+7+1;
   char*  string = malloc(sizeof(char)*size);
-  snprintf(string, size, "%d cores", topo->physical_cores);
+  snprintf(string, size, "%d cores", topo->total_cores);
 
   return string;
 }

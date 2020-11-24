@@ -26,12 +26,13 @@ VENDOR get_cpu_vendor(struct cpuInfo* cpu) {
   return cpu->cpu_vendor;
 }
 
-uint32_t get_nsockets(struct topology* topo) {
-  return topo->sockets;
-}
-
 int64_t get_freq(struct frequency* freq) {
   return freq->max;
+}
+
+#ifdef ARCH_X86
+char* get_str_cpu_name(struct cpuInfo* cpu) {
+  return cpu->cpu_name;    
 }
 
 char* get_str_sockets(struct topology* topo) {
@@ -44,9 +45,8 @@ char* get_str_sockets(struct topology* topo) {
   return string;
 }
 
-#ifdef ARCH_X86
-char* get_str_cpu_name(struct cpuInfo* cpu) {
-  return cpu->cpu_name;    
+uint32_t get_nsockets(struct topology* topo) {
+  return topo->sockets;
 }
 #endif
 

@@ -74,14 +74,14 @@ struct cache {
 };
 
 struct topology {
-  int64_t total_cores;
-  uint32_t physical_cores;
+  int32_t total_cores;  
+  struct cache* cach;
+#ifdef ARCH_X86
+  uint32_t physical_cores;  
   uint32_t logical_cores;
   uint32_t smt_available; // Number of SMT that is currently enabled
   uint32_t smt_supported; // Number of SMT that CPU supports (equal to smt_available if SMT is enabled)
   uint32_t sockets;
-  struct cache* cach;
-#ifdef ARCH_X86
   struct apic* apic;
 #endif
 };
@@ -135,13 +135,13 @@ struct cpuInfo {
 
 #ifdef ARCH_X86
 char* get_str_cpu_name(struct cpuInfo* cpu);
+char* get_str_sockets(struct topology* topo);
+uint32_t get_nsockets(struct topology* topo);
 #endif
 
 VENDOR get_cpu_vendor(struct cpuInfo* cpu);
-uint32_t get_nsockets(struct topology* topo);
 int64_t get_freq(struct frequency* freq);
 
-char* get_str_sockets(struct topology* topo);
 char* get_str_aes(struct cpuInfo* cpu);
 char* get_str_sha(struct cpuInfo* cpu);
 char* get_str_l1i(struct cache* cach);

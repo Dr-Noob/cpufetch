@@ -4,9 +4,6 @@
 #include "../common/cpu.h"
 
 struct cpuInfo* get_cpu_info();
-struct cache* get_cache_info(struct cpuInfo* cpu);
-struct frequency* get_frequency_info(uint32_t core);
-struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach);
 
 uint32_t get_nsockets(struct topology* topo);
 char* get_str_topology(struct cpuInfo* cpu, struct topology* topo, bool dual_socket);
