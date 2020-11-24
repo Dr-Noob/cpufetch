@@ -563,13 +563,7 @@ bool print_cpufetch_arm(struct ascii* art, struct cpuInfo* cpu, struct colors* c
     setAttribute(art,ATTRIBUTE_L2,l2);
     if(l3 != NULL) {
       setAttribute(art,ATTRIBUTE_L3,l3);
-      free(l3);
     }
-    
-    free(max_frequency);
-    free(l1i);
-    free(l1d);
-    free(l2);
   }
   else {
     struct cpuInfo* ptr = cpu;

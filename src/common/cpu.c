@@ -150,12 +150,15 @@ char* get_str_freq(struct frequency* freq) {
   uint32_t size = (4+3+1);
   assert(strlen(STRING_UNKNOWN)+1 <= size);
   char* string = malloc(sizeof(char)*size);
+  memset(string, 0, sizeof(char)*size);
+  
   if(freq->max == UNKNOWN_FREQ)
     snprintf(string,strlen(STRING_UNKNOWN)+1,STRING_UNKNOWN);
   else if(freq->max >= 1000)
     snprintf(string,size,"%.2f"STRING_GIGAHERZ,(float)(freq->max)/1000);
   else
-    snprintf(string,size,"%.2f"STRING_MEGAHERZ,(float)(freq->max));
+    snprintf(string,size,"%lld"STRING_MEGAHERZ,freq->max);
+  
   return string;
 }
 

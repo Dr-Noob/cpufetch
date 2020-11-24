@@ -129,6 +129,7 @@ int get_ncores_from_cpuinfo() {
   char* tmp1 = strstr(buf, "-") + 1;
   char* tmp2 = strstr(buf, "\n");
   char ncores_str[offset];
+  memset(ncores_str, 0, sizeof(char) * offset);
   memcpy(ncores_str, tmp1, tmp2-tmp1);
   
   char* end;

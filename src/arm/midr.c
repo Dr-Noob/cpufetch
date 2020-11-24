@@ -48,6 +48,7 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
   cach->max_cache_level = 2;
   for(int i=0; i < cach->max_cache_level + 1; i++) {
     cach->cach_arr[i]->exists = true;
+    cach->cach_arr[i]->num_caches = 1;
     cach->cach_arr[i]->size = 0;
   }
 
