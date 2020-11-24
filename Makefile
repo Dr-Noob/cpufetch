@@ -17,8 +17,8 @@ ifneq ($(OS),Windows_NT)
 		CXXFLAGS += -DARCH_X86
 	else
 		SRC_DIR=src/arm/
-		SOURCE += $(COMMON_SRC) $(SRC_DIR)midr.c $(SRC_DIR)uarch.c $(SRC_DIR)soc.c
-		HEADERS += $(COMMON_HDR) $(SRC_DIR)midr.h $(SRC_DIR)uarch.h  $(SRC_DIR)soc.h
+		SOURCE += $(COMMON_SRC) $(SRC_DIR)midr.c $(SRC_DIR)uarch.c $(SRC_DIR)soc.c $(SRC_DIR)udev.c
+		HEADERS += $(COMMON_HDR) $(SRC_DIR)midr.h $(SRC_DIR)uarch.h  $(SRC_DIR)soc.h $(SRC_DIR)udev.c
 		CXXFLAGS += -DARCH_ARM -Wno-unused-parameter
 	endif
 		

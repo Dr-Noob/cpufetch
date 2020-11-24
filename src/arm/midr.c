@@ -4,8 +4,8 @@
 #include <assert.h>
 #include <stdbool.h>
 
-#include "../common/udev.h"
 #include "../common/global.h"
+#include "udev.h"
 #include "midr.h"
 #include "uarch.h"
 #include "soc.h"

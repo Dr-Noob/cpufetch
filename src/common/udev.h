@@ -1,17 +1,26 @@
 #ifndef __UDEV__
 #define __UDEV__
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 #include <stdbool.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
 
+#define _PATH_SYS_SYSTEM        "/sys/devices/system"
+#define _PATH_SYS_CPU           "/cpu"
+#define _PATH_FREQUENCY         "/cpufreq"
+#define _PATH_FREQUENCY_MAX     "/cpuinfo_max_freq"
+#define _PATH_FREQUENCY_MIN     "/cpuinfo_min_freq"
+
+#define _PATH_FREQUENCY_MAX_LEN 100
+#define DEFAULT_FILE_SIZE       4096
+
+char* read_file(char* path, int* len);
 long get_max_freq_from_file(uint32_t core);
 long get_min_freq_from_file(uint32_t core);
-
-#ifdef ARCH_ARM
-#define UNKNOWN -1
-int get_ncores_from_cpuinfo();
-uint32_t get_midr_from_cpuinfo(uint32_t core, bool* success);
-char* get_hardware_from_cpuinfo();
-#endif
 
 #endif
