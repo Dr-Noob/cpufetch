@@ -28,7 +28,7 @@ else
 	SRC_DIR=src/x86/
 	SOURCE += $(COMMON_SRC) $(SRC_DIR)cpuid.c $(SRC_DIR)apic.c $(SRC_DIR)cpuid_asm.c $(SRC_DIR)uarch.c
 	HEADERS += $(COMMON_HDR) $(SRC_DIR)cpuid.h $(SRC_DIR)apic.h $(SRC_DIR)cpuid_asm.h $(SRC_DIR)uarch.h 
-	CXXFLAGS += -D_ARCH_X86
+	CXXFLAGS += -DARCH_X86
 	SANITY_FLAGS += -Wno-pedantic-ms-format
 	OUTPUT=cpufetch.exe
 endif

@@ -914,13 +914,8 @@ void debug_cache(struct cache* cach) {
 }
 
 void debug_frequency(struct frequency* freq) {
-  #ifdef _WIN32
-    printf("maxf=%I64d Mhz\n",freq->max);
-    printf("basef=%I64d Mhz\n",freq->base);
-  #else
-    printf("maxf=%ld Mhz\n",freq->max);
-    printf("basef=%ld Mhz\n",freq->base);
-  #endif
+  printf("maxf=%d Mhz\n",freq->max);
+  printf("basef=%d Mhz\n",freq->base);
 }
 
 void free_topo_struct(struct topology* topo) {

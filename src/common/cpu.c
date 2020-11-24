@@ -157,7 +157,7 @@ char* get_str_freq(struct frequency* freq) {
   else if(freq->max >= 1000)
     snprintf(string,size,"%.2f"STRING_GIGAHERZ,(float)(freq->max)/1000);
   else
-    snprintf(string,size,"%ld"STRING_MEGAHERZ,freq->max);
+    snprintf(string,size,"%d"STRING_MEGAHERZ,freq->max);
   
   return string;
 }

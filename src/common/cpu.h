@@ -46,8 +46,8 @@ enum {
 typedef int32_t VENDOR;
 
 struct frequency {
-  int64_t base;
-  int64_t max;
+  int32_t base;
+  int32_t max;
 };
 
 struct hypervisor {
