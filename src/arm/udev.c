@@ -73,7 +73,7 @@ uint32_t get_midr_from_cpuinfo(uint32_t core, bool* success) {
     return 0;    
   }
 
-  char* tmp = buf;
+  char* tmp = strstr(buf, CPUINFO_CPU_STRING);
   uint32_t current_core = 0;
   while(core != current_core && tmp != NULL) {
     tmp++;
