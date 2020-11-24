@@ -96,6 +96,7 @@ long get_min_freq_from_file(uint32_t core) {
 #define CPUINFO_CPU_VARIANT_STR      "CPU variant\t: "
 #define CPUINFO_CPU_PART_STR         "CPU part\t: "
 #define CPUINFO_CPU_REVISION_STR     "CPU revision\t: "
+#define CPUINFO_HARDWARE_STR         "Hardware\t: "
 
 #define CPUINFO_CPU_STRING "processor"
 
@@ -248,6 +249,38 @@ uint32_t get_midr_from_cpuinfo(uint32_t core, bool* success) {
   midr = midr_set_revision(midr, cpu_revision);
 
   return midr;
+}
+
+char* get_hardware_from_cpuinfo() {
+  int fd = open(_PATH_CPUINFO, O_RDONLY);
+  
+  if(fd == -1) {
+    perror("open");
+    return NULL;
+  }
+
+  //File exists, read it
+  int bytes_read = 0;
+  int offset = 0;
+  int block = 128;
+  char* buf = malloc(sizeof(char)*DEFAULT_FILE_SIZE);
+  memset(buf, 0, sizeof(char)*DEFAULT_FILE_SIZE);
+
+  while (  (bytes_read = read(fd, buf+offset, block)) > 0 ) {
+    offset += bytes_read;
+  }   
+  
+  char* tmp1 = strstr(buf, CPUINFO_HARDWARE_STR);
+  if(tmp1 == NULL) return NULL;
+  tmp1 = tmp1 + strlen(CPUINFO_HARDWARE_STR);
+  char* tmp2 = strstr(tmp1, "\n");
+  
+  int strlen = (1 + (tmp2-tmp1));
+  char* hardware = malloc(sizeof(char) * strlen);
+  memset(hardware, 0, sizeof(char) * strlen);
+  strncpy(hardware, tmp1, tmp2-tmp1);
+  
+  return hardware;
 }
 
 #endif /* ARCH_ARM */

@@ -11,6 +11,7 @@ long get_min_freq_from_file(uint32_t core);
 #define UNKNOWN -1
 int get_ncores_from_cpuinfo();
 uint32_t get_midr_from_cpuinfo(uint32_t core, bool* success);
+char* get_hardware_from_cpuinfo();
 #endif
 
 #endif
