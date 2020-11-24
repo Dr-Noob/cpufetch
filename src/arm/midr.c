@@ -78,23 +78,11 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
   return topo;
 }
 
-int count_distinct(uint32_t* arr, int n)  {
-  int res = 1;
-
-  for (int i = 1; i < n; i++) {
-    int j = 0;
-      for (j = 0; j < i; j++) {
-        if (arr[i] == arr[j])
-          break;
-      }
-
-      if (i == j)
-          res++;
-  }
-  return res;
+bool cores_are_equal(int c1pos, int c2pos, uint32_t* midr_array, int32_t* freq_array) {
+  return midr_array[c1pos] == midr_array[c2pos] && freq_array[c1pos] == freq_array[c2pos];
 }
-
-uint32_t fill_ids_from_midr(uint32_t* midr_array, uint32_t* ids_array, int len) {
+    
+uint32_t fill_ids_from_midr(uint32_t* midr_array, int32_t* freq_array, uint32_t* ids_array, int len) {
   uint32_t latest_id = 0;
   bool found;
   ids_array[0] = latest_id;
@@ -104,7 +92,7 @@ uint32_t fill_ids_from_midr(uint32_t* midr_array, uint32_t* ids_array, int len) 
     found = false;
 
     for (j = 0; j < len && !found; j++) {
-      if (i != j && midr_array[i] == midr_array[j]) {
+      if (i != j && cores_are_equal(i, j, midr_array, freq_array)) {
         if(j > i) {
           latest_id++;
           ids_array[i] = latest_id;
@@ -130,7 +118,8 @@ struct cpuInfo* get_cpu_info() {
 
   int ncores = get_ncores_from_cpuinfo();
   bool success = false;
-  uint32_t* midr_array = malloc(sizeof(uint32_t) * ncores);
+  int32_t* freq_array = malloc(sizeof(uint32_t) * ncores);
+  uint32_t* midr_array = malloc(sizeof(uint32_t) * ncores);  
   uint32_t* ids_array = malloc(sizeof(uint32_t) * ncores);
 
   for(int i=0; i < ncores; i++) {
@@ -140,8 +129,14 @@ struct cpuInfo* get_cpu_info() {
       printWarn("Unable to fetch MIDR for core %d. This is probably because the core is offline", i);
       midr_array[i] = midr_array[0];
     }
+    
+    freq_array[i] = get_max_freq_from_file(i);
+    if(freq_array[i] == UNKNOWN_FREQ) {
+      printWarn("Unable to fetch max frequency for core %d. This is probably because the core is offline", i);
+      freq_array[i] = freq_array[0];
+    }    
   }
-  uint32_t sockets = fill_ids_from_midr(midr_array, ids_array, ncores);
+  uint32_t sockets = fill_ids_from_midr(midr_array, freq_array, ids_array, ncores);
 
   struct cpuInfo* ptr = cpu;
   int midr_idx = 0;
@@ -152,7 +147,7 @@ struct cpuInfo* get_cpu_info() {
       ptr = ptr->next_cpu;
 
       tmp_midr_idx = midr_idx;
-      while(midr_array[midr_idx] == midr_array[tmp_midr_idx]) tmp_midr_idx++;
+      while(cores_are_equal(midr_idx, tmp_midr_idx, midr_array, freq_array)) tmp_midr_idx++;
       midr_idx = tmp_midr_idx;
     }
     ptr->next_cpu = NULL;
