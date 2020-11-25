@@ -1,10 +1,21 @@
 #ifndef __SOC__
 #define __SOC__
 
-typedef int SOC;
+#include <stdint.h>
+
+typedef int32_t SOC;
+
+enum {
+  SOC_UNKNOWN,
+  SOC_SNAPDRAGON,
+  SOC_MEDIATEK,
+  SOC_EXYNOS,
+};
 
 struct system_on_chip {
-  SOC soc;
+  SOC soc_vendor;
+  int32_t process;
+  char* soc_name;
   char* raw_name;    
 };
 
