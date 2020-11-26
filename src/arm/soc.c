@@ -12,6 +12,7 @@
 static char* soc_trademark_string[] = {
   [SOC_SNAPDRAGON] = "Snapdragon",
   [SOC_MEDIATEK]   = "MediaTek",
+  [SOC_EXYNOS]     = "Exynos",
 };
 
 bool match_soc(struct system_on_chip* soc, char* raw_name, char* expected_name, char* soc_name, SOC soc_vendor, int32_t process) {
@@ -32,6 +33,51 @@ bool match_soc(struct system_on_chip* soc, char* raw_name, char* expected_name, 
 #define CHECK_SOC(raw_name, expected_name, soc_name, soc_vendor, soc, process) \
    else if (match_soc(soc, raw_name, expected_name, soc_name, soc_vendor, process)) return true;
 #define SOC_END else { return false; }
+   
+bool match_exynos(char* soc_name, struct system_on_chip* soc) {
+  char* tmp;
+
+  if((tmp = strstr(soc_name, "universal")) == NULL)
+    return false;
+  
+  SOC_START
+  // universalXXXX //
+  CHECK_SOC(tmp, "universal3475", "3475", SOC_EXYNOS, soc, 28) 
+  CHECK_SOC(tmp, "universal4210", "4210", SOC_EXYNOS, soc, 45)
+  CHECK_SOC(tmp, "universal4212", "4212", SOC_EXYNOS, soc, 32)
+  CHECK_SOC(tmp, "universal4412", "4412", SOC_EXYNOS, soc, 32)
+  CHECK_SOC(tmp, "universal5250", "5250", SOC_EXYNOS, soc, 32)
+  CHECK_SOC(tmp, "universal5410", "5410", SOC_EXYNOS, soc, 28)
+  CHECK_SOC(tmp, "universal5420", "5420", SOC_EXYNOS, soc, 28)
+  CHECK_SOC(tmp, "universal5422", "5422", SOC_EXYNOS, soc, 28)
+  CHECK_SOC(tmp, "universal5430", "5430", SOC_EXYNOS, soc, 20)
+  CHECK_SOC(tmp, "universal5433", "5433", SOC_EXYNOS, soc, 20)
+  CHECK_SOC(tmp, "universal5260", "5260", SOC_EXYNOS, soc, 28)
+  CHECK_SOC(tmp, "universal7270", "7270", SOC_EXYNOS, soc, 14)
+  CHECK_SOC(tmp, "universal7420", "7420", SOC_EXYNOS, soc, 14)
+  CHECK_SOC(tmp, "universal7570", "7570", SOC_EXYNOS, soc, 14)
+  CHECK_SOC(tmp, "universal7870", "7870", SOC_EXYNOS, soc, 14)
+  CHECK_SOC(tmp, "universal7872", "7872", SOC_EXYNOS, soc, 14)
+  CHECK_SOC(tmp, "universal7880", "7880", SOC_EXYNOS, soc, 14)
+  CHECK_SOC(tmp, "universal7884", "7884", SOC_EXYNOS, soc, 14)
+  CHECK_SOC(tmp, "universal7885", "7885", SOC_EXYNOS, soc, 14)
+  CHECK_SOC(tmp, "universal7904", "7904", SOC_EXYNOS, soc, 14)
+  CHECK_SOC(tmp, "universal8890", "8890", SOC_EXYNOS, soc, 14)
+  CHECK_SOC(tmp, "universal8895", "8895", SOC_EXYNOS, soc, 10)
+  CHECK_SOC(tmp, "universal9110", "9110", SOC_EXYNOS, soc, 14)
+  CHECK_SOC(tmp, "universal9609", "9609", SOC_EXYNOS, soc, 10)
+  CHECK_SOC(tmp, "universal9610", "9610", SOC_EXYNOS, soc, 10)
+  CHECK_SOC(tmp, "universal9611", "9611", SOC_EXYNOS, soc, 10)
+  CHECK_SOC(tmp, "universal9810", "9810", SOC_EXYNOS, soc, 10)
+  CHECK_SOC(tmp, "universal9820", "9820", SOC_EXYNOS, soc,  8)
+  CHECK_SOC(tmp, "universal9825", "9825", SOC_EXYNOS, soc,  7)
+  // New exynos. Dont know if they will work //
+  CHECK_SOC(tmp, "universal1080", "1080", SOC_EXYNOS, soc,  5)  
+  CHECK_SOC(tmp, "universal990",   "990", SOC_EXYNOS, soc,  7)
+  CHECK_SOC(tmp, "universal980",   "980", SOC_EXYNOS, soc,  8)    
+  CHECK_SOC(tmp, "universal880",   "880", SOC_EXYNOS, soc,  8)
+  SOC_END
+}
 
 bool match_mediatek(char* soc_name, struct system_on_chip* soc) {
   char* tmp;
@@ -257,6 +303,9 @@ struct system_on_chip* parse_soc_from_string(struct system_on_chip* soc) {
     return soc;
   
   if(match_mediatek(raw_name, soc))
+    return soc;
+  
+  if(match_exynos(raw_name, soc))
     return soc;
   
   return soc;
