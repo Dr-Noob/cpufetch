@@ -21,5 +21,6 @@ struct system_on_chip {
 
 struct system_on_chip* get_soc();
 char* get_soc_name(struct system_on_chip* soc);
+char* get_str_process(struct system_on_chip* soc);
 
 #endif

@@ -310,6 +310,7 @@ struct system_on_chip* get_soc() {
   struct system_on_chip* soc = malloc(sizeof(struct system_on_chip));
   soc->raw_name = NULL;
   soc->soc_vendor = SOC_UNKNOWN;
+  soc->process = UNKNOWN;
   
   soc = guess_soc_from_cpuinfo(soc);
   if(soc->soc_vendor == SOC_UNKNOWN) {
@@ -338,5 +339,20 @@ char* get_soc_name(struct system_on_chip* soc) {
   if(soc->soc_vendor == SOC_UNKNOWN)
     return soc->raw_name;
   return soc->soc_name;
+}
+
+char* get_str_process(struct system_on_chip* soc) {
+  char* str;
+  
+  if(soc->process == UNKNOWN) {
+    str = malloc(sizeof(char) * (strlen(STRING_UNKNOWN)+1));
+    snprintf(str, strlen(STRING_UNKNOWN)+1, STRING_UNKNOWN);
+  }
+  else {
+    str = malloc(sizeof(char) * 5);
+    memset(str, 0, sizeof(char) * 5);
+    snprintf(str, 5, "%dnm", soc->process);    
+  }
+  return str;
 }
 

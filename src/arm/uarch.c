@@ -275,12 +275,6 @@ char* get_str_uarch(struct cpuInfo* cpu) {
   return cpu->arch->uarch_str;    
 }
 
-char* get_str_process(struct cpuInfo* cpu) {
-  char* str = malloc(sizeof(char) * (strlen(STRING_UNKNOWN)+1));
-  snprintf(str, strlen(STRING_UNKNOWN)+1, STRING_UNKNOWN);
-  return str;
-}
-
 void free_uarch_struct(struct uarch* arch) {    
   free(arch->uarch_str);
   free(arch);

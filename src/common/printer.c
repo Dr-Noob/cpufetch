@@ -542,7 +542,7 @@ void print_ascii(struct ascii* art) {
 }
 
 bool print_cpufetch_arm(struct ascii* art, struct cpuInfo* cpu, struct colors* cs) {    
-  char* manufacturing_process = get_str_process(cpu);
+  char* manufacturing_process = get_str_process(cpu->soc);
   char* soc_name = get_soc_name(cpu->soc);
   setAttribute(art,ATTRIBUTE_SOC,soc_name);
   setAttribute(art,ATTRIBUTE_TECHNOLOGY,manufacturing_process);
