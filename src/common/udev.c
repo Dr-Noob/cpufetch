@@ -32,8 +32,12 @@ long get_freq_from_file(char* path) {
   int filelen;
   char* buf;
   if((buf = read_file(path, &filelen)) == NULL) {
+  #ifdef ARCH_X86
     perror("open");
     printBug("Could not open '%s'", path); 
+  #elif ARCH_ARM
+    printWarn("Could not open '%s'", path); 
+  #endif
     return UNKNOWN_FREQ;
   }
 
