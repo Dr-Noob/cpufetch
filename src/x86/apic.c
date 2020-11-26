@@ -184,7 +184,7 @@ uint32_t max_apic_id_size(uint32_t** cache_id_apic, struct topology* topo) {
   }
   
   max++;
-  if(max > topo->total_cores) return max;
+  if(max > (uint32_t) topo->total_cores) return max;
   return topo->total_cores;
 }
 
