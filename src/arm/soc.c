@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "soc.h"
 #include "udev.h"
@@ -27,6 +28,18 @@ bool match_soc(struct system_on_chip* soc, char* raw_name, char* expected_name, 
   sprintf(soc->soc_name, "%s %s", soc_trademark_string[soc->soc_vendor], soc_name);
   
   return true;
+}
+
+char* toupperstr(char* str) {
+  int len = strlen(str) + 1;
+  char* ret = malloc(sizeof(char) * len);
+  memset(ret, 0, sizeof(char) * len);
+  
+  for(int i=0; i < len; i++) {
+    ret[i] = toupper((unsigned char) str[i]);    
+  }
+  
+  return ret;
 }
 
 #define SOC_START if (false) {}
@@ -177,12 +190,13 @@ bool match_mediatek(char* soc_name, struct system_on_chip* soc) {
 
 bool match_qualcomm(char* soc_name, struct system_on_chip* soc) {
   char* tmp;
+  char* soc_name_upper = toupperstr(soc_name);
 
-  if((tmp = strstr(soc_name, "MSM")) != NULL);
-  else if((tmp = strstr(soc_name, "SDM")) != NULL);
-  else if((tmp = strstr(soc_name, "APQ")) != NULL);
-  else if((tmp = strstr(soc_name, "SM")) != NULL);    
-  else if((tmp = strstr(soc_name, "QM")) != NULL);      
+  if((tmp = strstr(soc_name_upper, "MSM")) != NULL);
+  else if((tmp = strstr(soc_name_upper, "SDM")) != NULL);
+  else if((tmp = strstr(soc_name_upper, "APQ")) != NULL);
+  else if((tmp = strstr(soc_name_upper, "SM")) != NULL);    
+  else if((tmp = strstr(soc_name_upper, "QM")) != NULL);      
   else return false;
   
   SOC_START
