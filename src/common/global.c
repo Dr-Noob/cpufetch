@@ -53,7 +53,11 @@ void printBug(const char *fmt, ...) {
   vsnprintf(buffer,buffer_size, fmt, args);
   va_end(args);
   fprintf(stderr,RED "[ERROR]: "RESET "%s\n",buffer);
-  fprintf(stderr,"Please, create a new issue with this error message the output of 'cpufetch --debug' in https://github.com/Dr-Noob/cpufetch/issues\n");
+#ifdef ARCH_X86
+  fprintf(stderr,"Please, create a new issue with this error message and the output of 'cpufetch --debug' in https://github.com/Dr-Noob/cpufetch/issues\n");
+#elif ARCH_ARM
+  fprintf(stderr,"Please, create a new issue with this error message, your smartphone/computer model and the output of 'cpufetch --debug' in https://github.com/Dr-Noob/cpufetch/issues\n");
+#endif
 }
 
 void set_log_level(bool verbose) {

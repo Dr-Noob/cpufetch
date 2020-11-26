@@ -269,14 +269,12 @@ static inline int android_property_get(const char* key, char* value) {
   return __system_property_get(key, value);
 }
 
-struct system_on_chip* guess_soc_from_android() {
-  struct system_on_chip* soc = NULL;
+struct system_on_chip* guess_soc_from_android(struct system_on_chip* soc) {
   char tmp[100];
   int property_len = 0;
   
   property_len = android_property_get("ro.mediatek.platform", (char *) &tmp);
   if(property_len > 0) {
-    soc = malloc(sizeof(struct system_on_chip));
     soc->raw_name = malloc(sizeof(char) * (property_len + 1));
     strncpy(soc->raw_name, tmp, property_len + 1);
     soc->raw_name[property_len] = '\0';
@@ -286,7 +284,6 @@ struct system_on_chip* guess_soc_from_android() {
   
   property_len = android_property_get("ro.product.board", (char *) &tmp);
   if(property_len > 0) {    
-    soc = malloc(sizeof(struct system_on_chip));
     soc->raw_name = malloc(sizeof(char) * (property_len + 1));
     strncpy(soc->raw_name, tmp, property_len + 1);
     soc->raw_name[property_len] = '\0';
@@ -298,36 +295,38 @@ struct system_on_chip* guess_soc_from_android() {
 }
 #endif
 
-struct system_on_chip* guess_soc_from_cpuinfo() {
-  struct system_on_chip* soc = NULL;
-  
+struct system_on_chip* guess_soc_from_cpuinfo(struct system_on_chip* soc) {
   char* tmp = get_hardware_from_cpuinfo(&strlen);
+  
   if(tmp != NULL) {
-    soc = malloc(sizeof(struct system_on_chip));  
     soc->raw_name = tmp;
-    soc->soc_vendor = SOC_UNKNOWN;
     return parse_soc_from_string(soc);
   }
   
-  return NULL;
+  return soc;
 }
 
 struct system_on_chip* get_soc() {
-  struct system_on_chip* soc = NULL;  
+  struct system_on_chip* soc = malloc(sizeof(struct system_on_chip));
+  soc->raw_name = NULL;
+  soc->soc_vendor = SOC_UNKNOWN;
   
-  soc = guess_soc_from_cpuinfo();
-  if(soc == NULL) {
-    printWarn("SoC detection failed using /proc/cpuinfo");
+  soc = guess_soc_from_cpuinfo(soc);
+  if(soc->soc_vendor == SOC_UNKNOWN) {
+    if(soc->raw_name != NULL)
+      printBug("SoC detection failed using /proc/cpuinfo: Found '%s' string", soc->raw_name);   
+    else
+      printWarn("SoC detection failed using /proc/cpuinfo: No string found");
 #ifdef __ANDROID__
-    soc = guess_soc_from_android();
-    if(soc == NULL) {
-      printWarn("SoC detection failed using Android");
-    }
+    soc = guess_soc_from_android(soc);
+    if(soc->raw_name == NULL)
+      printWarn("SoC detection failed using Android: No string found");
+    else if(soc->soc_vendor == SOC_UNKNOWN)
+      printBug("SoC detection failed using Android: Found '%s' string", soc->raw_name);   
 #endif
   }
 
-  if(soc == NULL) {
-    soc = malloc(sizeof(struct system_on_chip));
+  if(soc->raw_name == NULL) {
     soc->raw_name = malloc(sizeof(char) * (strlen(STRING_UNKNOWN)+1));
     snprintf(soc->raw_name, strlen(STRING_UNKNOWN)+1, STRING_UNKNOWN);
   }
