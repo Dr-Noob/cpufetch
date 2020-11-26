@@ -24,34 +24,24 @@
 
 #define MAX_ATTRIBUTES      100
 
-#define COL_NONE            ""
-#define COL_INTEL_FANCY_1   "\x1b[46;1m"
-#define COL_INTEL_FANCY_2   "\x1b[47;1m"
-#define COL_INTEL_FANCY_3   "\x1b[36;1m"
-#define COL_INTEL_FANCY_4   "\x1b[37;1m"
-#define COL_INTEL_RETRO_1   "\x1b[36;1m"
-#define COL_INTEL_RETRO_2   "\x1b[37;1m"
-
-#define COL_AMD_FANCY_1     "\x1b[47;1m"
-#define COL_AMD_FANCY_2     "\x1b[42;1m"
-#define COL_AMD_FANCY_3     "\x1b[37;1m"
-#define COL_AMD_FANCY_4     "\x1b[32;1m"
-#define COL_AMD_RETRO_1     "\x1b[37;1m"
-#define COL_AMD_RETRO_2     "\x1b[32;1m"
-
-#define COL_ARM_FANCY_1     "\x1b[46;1m"
-#define COL_ARM_FANCY_2     "\x1b[46;1m"
-#define COL_ARM_FANCY_3     "\x1b[37;1m"
-#define COL_ARM_FANCY_4     "\x1b[36;1m"
-#define COL_ARM_RETRO_1     "\x1b[36;1m"
-#define COL_ARM_RETRO_2     "\x1b[37;1m"
-
-#define COL_UNKNOWN_FANCY_1 "\x1b[47;1m"
-#define COL_UNKNOWN_FANCY_2 "\x1b[47;1m"
-#define COL_UNKNOWN_FANCY_3 "\x1b[37;1m"
-#define COL_UNKNOWN_FANCY_4 "\x1b[31;1m"
-#define COL_UNKNOWN_RETRO   "\x1b[32;0m"
-#define RESET               "\x1b[m"
+#define COLOR_NONE       ""
+#define COLOR_FG_BLACK   "\x1b[30;1m"
+#define COLOR_FG_RED     "\x1b[31;1m"
+#define COLOR_FG_GREEN   "\x1b[32;1m"
+#define COLOR_FG_YELLOW  "\x1b[33;1m"
+#define COLOR_FG_BLUE    "\x1b[34;1m"
+#define COLOR_FG_MAGENTA "\x1b[35;1m"
+#define COLOR_FG_CYAN    "\x1b[36;1m"
+#define COLOR_FG_WHITE   "\x1b[37;1m"
+#define COLOR_BG_BLACK   "\x1b[40;1m"
+#define COLOR_BG_RED     "\x1b[41;1m"
+#define COLOR_BG_GREEN   "\x1b[42;1m"
+#define COLOR_BG_YELLOW  "\x1b[43;1m"
+#define COLOR_BG_BLUE    "\x1b[44;1m"
+#define COLOR_BG_MAGENTA "\x1b[45;1m"
+#define COLOR_BG_CYAN    "\x1b[46;1m"
+#define COLOR_BG_WHITE   "\x1b[47;1m"
+#define COLOR_RESET      "\x1b[m"
 
 enum {
 #ifdef ARCH_X86    
@@ -147,63 +137,54 @@ char* rgb_to_ansi(struct color* c, bool background, bool bold) {
   return str;
 }
 
-struct ascii* set_ascii(VENDOR cpuVendor, STYLE style, struct colors* cs) {
+struct ascii* set_ascii(VENDOR vendor, STYLE style, struct colors* cs) {
   char *COL_FANCY_1, *COL_FANCY_2, *COL_FANCY_3, *COL_FANCY_4, *COL_RETRO_1, *COL_RETRO_2, *COL_RETRO_3, *COL_RETRO_4;
   struct ascii* art = malloc(sizeof(struct ascii));
   art->n_attributes_set = 0;
-  art->vendor = cpuVendor;
+  art->vendor = vendor;
   art->attributes = malloc(sizeof(struct attribute *) * MAX_ATTRIBUTES);
   for(uint32_t i=0; i < MAX_ATTRIBUTES; i++) {
     art->attributes[i] = malloc(sizeof(struct attribute));
     art->attributes[i]->type = 0;
     art->attributes[i]->value = NULL;
   }
-  strcpy(art->reset,RESET);
+  strcpy(art->reset, COLOR_RESET);
 
+#ifdef ARCH_X86  
   if(art->vendor == CPU_VENDOR_INTEL) {
-    COL_FANCY_1 = COL_INTEL_FANCY_1;
-    COL_FANCY_2 = COL_INTEL_FANCY_2;
-    COL_FANCY_3 = COL_INTEL_FANCY_3;
-    COL_FANCY_4 = COL_INTEL_FANCY_4;
-    COL_RETRO_1 = COL_INTEL_RETRO_1;
-    COL_RETRO_2 = COL_INTEL_RETRO_2;
-    COL_RETRO_3 = COL_INTEL_RETRO_1;
-    COL_RETRO_4 = COL_INTEL_RETRO_2;
+    COL_FANCY_1 = COLOR_BG_CYAN;
+    COL_FANCY_2 = COLOR_BG_WHITE;
+    COL_FANCY_3 = COLOR_FG_CYAN;
+    COL_FANCY_4 = COLOR_FG_WHITE;
     art->ascii_chars[0] = '#';
   }
   else if(art->vendor == CPU_VENDOR_AMD) {
-    COL_FANCY_1 = COL_AMD_FANCY_1;
-    COL_FANCY_2 = COL_AMD_FANCY_2;
-    COL_FANCY_3 = COL_AMD_FANCY_3;
-    COL_FANCY_4 = COL_AMD_FANCY_4;
-    COL_RETRO_1 = COL_AMD_RETRO_1;
-    COL_RETRO_2 = COL_AMD_RETRO_2;
-    COL_RETRO_3 = COL_AMD_RETRO_1;
-    COL_RETRO_4 = COL_AMD_RETRO_2;
+    COL_FANCY_1 = COLOR_BG_WHITE;
+    COL_FANCY_2 = COLOR_BG_GREEN;
+    COL_FANCY_3 = COLOR_FG_WHITE;
+    COL_FANCY_4 = COLOR_FG_GREEN;    
     art->ascii_chars[0] = '@';
   }
-  else if(art->vendor == CPU_VENDOR_ARM) {
-    COL_FANCY_1 = COL_ARM_FANCY_1;
-    COL_FANCY_2 = COL_ARM_FANCY_2;
-    COL_FANCY_3 = COL_ARM_FANCY_3;
-    COL_FANCY_4 = COL_ARM_FANCY_4;
-    COL_RETRO_1 = COL_ARM_RETRO_1;
-    COL_RETRO_2 = COL_ARM_RETRO_2;
-    COL_RETRO_3 = COL_ARM_RETRO_1;
-    COL_RETRO_4 = COL_ARM_RETRO_2;
-    art->ascii_chars[0] = '#';
+#elif ARCH_ARM
+  if(art->vendor == SOC_SNAPDRAGON) {
+    COL_FANCY_1 = COLOR_BG_CYAN;
+    COL_FANCY_2 = COLOR_BG_CYAN;
+    COL_FANCY_3 = COLOR_FG_WHITE;
+    COL_FANCY_4 = COLOR_FG_CYAN;
+    art->ascii_chars[0] = '@';
   }
   else {
-    COL_FANCY_1 = COL_UNKNOWN_FANCY_1;
-    COL_FANCY_2 = COL_UNKNOWN_FANCY_2;
-    COL_FANCY_3 = COL_UNKNOWN_FANCY_3;
-    COL_FANCY_4 = COL_UNKNOWN_FANCY_4;
-    COL_RETRO_1 = COL_UNKNOWN_RETRO;
-    COL_RETRO_2 = COL_UNKNOWN_RETRO;
-    COL_RETRO_3 = COL_UNKNOWN_RETRO;
-    COL_RETRO_4 = COL_UNKNOWN_RETRO;
+    COL_FANCY_1 = COLOR_BG_CYAN;
+    COL_FANCY_2 = COLOR_BG_CYAN;
+    COL_FANCY_3 = COLOR_FG_WHITE;
+    COL_FANCY_4 = COLOR_FG_CYAN;
     art->ascii_chars[0] = '#';
   }
+#endif
+  COL_RETRO_1 = COL_FANCY_3;
+  COL_RETRO_2 = COL_FANCY_4;
+  COL_RETRO_3 = COL_RETRO_1;
+  COL_RETRO_4 = COL_RETRO_2;
   art->ascii_chars[1] = '#';
 
   #ifdef _WIN32
@@ -232,10 +213,10 @@ struct ascii* set_ascii(VENDOR cpuVendor, STYLE style, struct colors* cs) {
 
   switch(art->style) {
     case STYLE_LEGACY:
-      strcpy(art->color1_ascii,COL_NONE);
-      strcpy(art->color2_ascii,COL_NONE);
-      strcpy(art->color1_text,COL_NONE);
-      strcpy(art->color2_text,COL_NONE);
+      strcpy(art->color1_ascii, COLOR_NONE);
+      strcpy(art->color2_ascii, COLOR_NONE);
+      strcpy(art->color1_text, COLOR_NONE);
+      strcpy(art->color2_text, COLOR_NONE);
       art->reset[0] = '\0';
       break;
     case STYLE_FANCY:
@@ -283,14 +264,19 @@ struct ascii* set_ascii(VENDOR cpuVendor, STYLE style, struct colors* cs) {
   }
 
   char tmp[NUMBER_OF_LINES*LINE_SIZE];
+#ifdef ARCH_X86  
   if(art->vendor == CPU_VENDOR_INTEL)
     strcpy(tmp, INTEL_ASCII);
   else if(art->vendor == CPU_VENDOR_AMD)
     strcpy(tmp, AMD_ASCII);
-  else if(art->vendor == CPU_VENDOR_ARM)
-    strcpy(tmp, ARM_ASCII);
   else
-    strcpy(tmp, UNKNOWN_ASCII);
+    strcpy(tmp, UNKNOWN_ASCII);  
+#elif ARCH_ARM  
+  if(art->vendor == SOC_SNAPDRAGON)
+    strcpy(tmp, SNAPDRAGON_ASCII);
+  else
+    strcpy(tmp, ARM_ASCII);
+#endif
 
   for(int i=0; i < NUMBER_OF_LINES; i++)
     strncpy(art->art[i], tmp + i*LINE_SIZE, LINE_SIZE);
@@ -404,7 +390,11 @@ void print_ascii(struct ascii* art) {
   
 }
 
-bool print_cpufetch_x86(struct ascii* art, struct cpuInfo* cpu, struct colors* cs) {
+bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
+  struct ascii* art = set_ascii(get_cpu_vendor(cpu), s, cs);
+  if(art == NULL)
+    return false;  
+  
   char* uarch = get_str_uarch(cpu);
   char* manufacturing_process = get_str_process(cpu);
   char* sockets = get_str_sockets(cpu->topo);
@@ -494,8 +484,10 @@ void print_ascii_arm(struct ascii* art, uint32_t la) {
   printf("\n");
   for(uint32_t n=0;n<NUMBER_OF_LINES;n++) {
     for(int i=0;i<LINE_SIZE;i++) {
-      if(art->art[n][i] == '#')
+      if(art->art[n][i] == '@')
         printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
+      else if(art->art[n][i] == '#')
+        printf("%s%c%s", art->color2_ascii, art->ascii_chars[1], art->reset);  
       else
         printf("%c",art->art[n][i]);
     }
@@ -534,6 +526,8 @@ void print_ascii(struct ascii* art) {
   
   if(art->vendor == CPU_VENDOR_ARM)
     print_ascii_arm(art, longest_attribute);
+  if(art->vendor == SOC_SNAPDRAGON)
+    print_ascii_arm(art, longest_attribute);
   else {
     printWarn("Invalid CPU vendor: %d\n", art->vendor);
     print_ascii_arm(art, longest_attribute);
@@ -541,7 +535,11 @@ void print_ascii(struct ascii* art) {
   
 }
 
-bool print_cpufetch_arm(struct ascii* art, struct cpuInfo* cpu, struct colors* cs) {    
+bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct colors* cs) {   
+  struct ascii* art = set_ascii(get_soc_vendor(cpu->soc), s, cs);
+  if(art == NULL)
+    return false;  
+  
   char* manufacturing_process = get_str_process(cpu->soc);
   char* soc_name = get_soc_name(cpu->soc);
   setAttribute(art,ATTRIBUTE_SOC,soc_name);
@@ -620,21 +618,18 @@ bool print_cpufetch_arm(struct ascii* art, struct cpuInfo* cpu, struct colors* c
 
 bool print_cpufetch(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   // Sanity check of ASCII arts
-  for(int i=0; i < 4; i++) {
+  int len = sizeof(ASCII_ARRAY) / sizeof(ASCII_ARRAY[0]);
+  for(int i=0; i < len; i++) {
     const char* ascii = ASCII_ARRAY[i];
     if(strlen(ascii) != (NUMBER_OF_LINES * LINE_SIZE)-1) {
       printBug("ASCII art %d is wrong! ASCII length: %d, expected length: %d", i, strlen(ascii), (NUMBER_OF_LINES * LINE_SIZE)-1);
       return false;
     }
   }
-    
-  struct ascii* art = set_ascii(get_cpu_vendor(cpu), s, cs);
-  if(art == NULL)
-    return false;
   
 #ifdef ARCH_X86
-  return print_cpufetch_x86(art, cpu, cs);
+  return print_cpufetch_x86(cpu, s, cs);
 #elif ARCH_ARM
-  return print_cpufetch_arm(art, cpu, cs);  
+  return print_cpufetch_arm(cpu, s, cs);  
 #endif
 }

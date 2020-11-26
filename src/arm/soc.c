@@ -16,7 +16,7 @@ static char* soc_trademark_string[] = {
   [SOC_EXYNOS]     = "Exynos",
 };
 
-bool match_soc(struct system_on_chip* soc, char* raw_name, char* expected_name, char* soc_name, SOC soc_vendor, int32_t process) {
+bool match_soc(struct system_on_chip* soc, char* raw_name, char* expected_name, char* soc_name, VENDOR soc_vendor, int32_t process) {
   if(strlen(raw_name) > strlen(expected_name))
     return false;
   
@@ -405,6 +405,10 @@ char* get_soc_name(struct system_on_chip* soc) {
   if(soc->soc_vendor == SOC_UNKNOWN)
     return soc->raw_name;
   return soc->soc_name;
+}
+
+VENDOR get_soc_vendor(struct system_on_chip* soc) {
+  return soc->soc_vendor;
 }
 
 char* get_str_process(struct system_on_chip* soc) {
