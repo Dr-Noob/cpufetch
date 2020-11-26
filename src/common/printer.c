@@ -299,7 +299,38 @@ uint32_t longest_attribute_length(struct ascii* art) {
 }
 
 #ifdef ARCH_X86
-void print_ascii_intel(struct ascii* art, uint32_t la) {  
+void print_algorithm_intel(struct ascii* art, int i, int n, bool* flag) {
+  if(*flag) {
+    if(art->art[n][i] == ' ') {
+      *flag = false;
+      printf("%s%c%s", art->color2_ascii, art->ascii_chars[1], art->reset);
+    }
+    else {
+      printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
+    }
+  }
+  else {
+    if(art->art[n][i] != ' ' && art->art[n][i] != '\0') {
+      *flag = true;
+      printf("%c",' ');
+    }
+    else {
+      printf("%c",' ');
+    }
+  }
+}
+
+void print_algorithm_amd(struct ascii* art, int i, int n, bool* flag) {
+  *flag = false; // dummy, just silence compiler error
+  if(art->art[n][i] == '@')
+    printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
+  else if(art->art[n][i] == '#')
+    printf("%s%c%s", art->color2_ascii, art->ascii_chars[1], art->reset);
+  else
+    printf("%c",art->art[n][i]);
+}
+
+void print_ascii_x86(struct ascii* art, uint32_t la, void (*callback_print_algorithm)(struct ascii* art, int i, int n, bool* flag)) {  
   int attr_to_print = 0;
   int attr_type;
   char* attr_value;
@@ -310,26 +341,8 @@ void print_ascii_intel(struct ascii* art, uint32_t la) {
 
   printf("\n");
   for(uint32_t n=0;n<NUMBER_OF_LINES;n++) {
-
-    for(int i=0;i<LINE_SIZE;i++) {
-      if(flag) {
-        if(art->art[n][i] == ' ') {
-          flag = false;
-          printf("%s%c%s", art->color2_ascii, art->ascii_chars[1], art->reset);
-        }
-        else {
-          printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
-        }
-      }
-      else {
-        if(art->art[n][i] != ' ' && art->art[n][i] != '\0') {
-          flag = true;
-          printf("%c",' ');
-        }
-        else
-          printf("%c",' ');
-      }
-    }
+    for(int i=0;i<LINE_SIZE;i++) 
+      callback_print_algorithm(art, i, n, &flag);
 
     if(n > space_up-1 && n < NUMBER_OF_LINES-space_down) {
       attr_type = art->attributes[attr_to_print]->type;
@@ -342,48 +355,15 @@ void print_ascii_intel(struct ascii* art, uint32_t la) {
     else printf("\n");
   }
   printf("\n");
-}
-
-void print_ascii_amd(struct ascii* art, uint32_t la) {
-  int attr_to_print = 0;
-  int attr_type;
-  char* attr_value;
-  uint32_t space_right;
-  uint32_t space_up = (NUMBER_OF_LINES - art->n_attributes_set)/2;
-  uint32_t space_down = NUMBER_OF_LINES - art->n_attributes_set - space_up;
-
-  printf("\n");
-  for(uint32_t n=0;n<NUMBER_OF_LINES;n++) {
-    for(int i=0;i<LINE_SIZE;i++) {
-      if(art->art[n][i] == '@')
-        printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
-      else if(art->art[n][i] == '#')
-        printf("%s%c%s", art->color2_ascii, art->ascii_chars[1], art->reset);
-      else
-        printf("%c",art->art[n][i]);
-    }
-
-    if(n > space_up-1 && n < NUMBER_OF_LINES-space_down) {
-      attr_type = art->attributes[attr_to_print]->type;
-      attr_value = art->attributes[attr_to_print]->value;
-      attr_to_print++;
-      
-      space_right = 1 + (la - strlen(ATTRIBUTE_FIELDS[attr_type]));
-      printf("%s%s%s%*s%s%s%s\n", art->color1_text, ATTRIBUTE_FIELDS[attr_type], art->reset, space_right, "", art->color2_text, attr_value, art->reset);
-    }
-    else printf("\n");
-  }
-  printf("\n");
-
 }
 
 void print_ascii(struct ascii* art) {
   uint32_t longest_attribute = longest_attribute_length(art);
   
   if(art->vendor == CPU_VENDOR_INTEL)
-    print_ascii_intel(art, longest_attribute);
+    print_ascii_x86(art, longest_attribute, &print_algorithm_intel);
   else if(art->vendor == CPU_VENDOR_AMD)
-    print_ascii_amd(art, longest_attribute);
+    print_ascii_x86(art, longest_attribute, &print_algorithm_amd);
   else {
     printBug("Invalid CPU vendor: %d\n", art->vendor);
   }
