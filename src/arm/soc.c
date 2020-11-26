@@ -17,7 +17,10 @@ static char* soc_trademark_string[] = {
 };
 
 bool match_soc(struct system_on_chip* soc, char* raw_name, char* expected_name, char* soc_name, SOC soc_vendor, int32_t process) {
-  int len = min(strlen(raw_name), strlen(expected_name));
+  if(strlen(raw_name) > strlen(expected_name))
+    return false;
+  
+  int len = strlen(raw_name);
   if(strncmp(raw_name, expected_name, len) != 0) return false;
   
   soc->soc_vendor = soc_vendor;
@@ -264,13 +267,13 @@ bool match_qualcomm(char* soc_name, struct system_on_chip* soc) {
   CHECK_SOC(tmp, "MSM8939",        "615 / 616", SOC_SNAPDRAGON, soc, 28)
   CHECK_SOC(tmp, "MSM8952",        "617",       SOC_SNAPDRAGON, soc, 28)
   CHECK_SOC(tmp, "MSM8953",        "625",       SOC_SNAPDRAGON, soc, 14)
-  CHECK_SOC(tmp, "MSM8953 Pro",    "626",       SOC_SNAPDRAGON, soc, 14)
+  CHECK_SOC(tmp, "MSM8953 PRO",    "626",       SOC_SNAPDRAGON, soc, 14)
   CHECK_SOC(tmp, "SDM630",         "630",       SOC_SNAPDRAGON, soc, 14)
   CHECK_SOC(tmp, "SDM632",         "632",       SOC_SNAPDRAGON, soc, 12)
   CHECK_SOC(tmp, "SDM636",         "636",       SOC_SNAPDRAGON, soc, 14)
   CHECK_SOC(tmp, "MSM8956",        "650",       SOC_SNAPDRAGON, soc, 28)
   CHECK_SOC(tmp, "MSM8976",        "652",       SOC_SNAPDRAGON, soc, 28)
-  CHECK_SOC(tmp, "MSM8976 Pro",    "653",       SOC_SNAPDRAGON, soc, 28)
+  CHECK_SOC(tmp, "MSM8976 PRO",    "653",       SOC_SNAPDRAGON, soc, 28)
   CHECK_SOC(tmp, "SDM660",         "660",       SOC_SNAPDRAGON, soc, 14)
   CHECK_SOC(tmp, "SM6115",         "662",       SOC_SNAPDRAGON, soc, 11)
   CHECK_SOC(tmp, "SM6125",         "665",       SOC_SNAPDRAGON, soc, 11)
@@ -298,8 +301,8 @@ bool match_qualcomm(char* soc_name, struct system_on_chip* soc) {
   CHECK_SOC(tmp, "MSM8992",        "808",       SOC_SNAPDRAGON, soc, 20)
   CHECK_SOC(tmp, "MSM8994",        "810",       SOC_SNAPDRAGON, soc, 20)
   CHECK_SOC(tmp, "MSM8996",        "820",       SOC_SNAPDRAGON, soc, 14)
-  CHECK_SOC(tmp, "MSM8996 Pro A",  "821",       SOC_SNAPDRAGON, soc, 14)
-  CHECK_SOC(tmp, "MSM8996 Pro AB", "821 AB",    SOC_SNAPDRAGON, soc, 14)
+  CHECK_SOC(tmp, "MSM8996 PRO A",  "821",       SOC_SNAPDRAGON, soc, 14)
+  CHECK_SOC(tmp, "MSM8996 PRO AB", "821 AB",    SOC_SNAPDRAGON, soc, 14)
   CHECK_SOC(tmp, "MSM8995",        "835",       SOC_SNAPDRAGON, soc, 10)
   //CHECK_SOC(tmp, "?",            "845",       SOC_SNAPDRAGON, soc, 10)
   //CHECK_SOC(tmp, "?",            "850",       SOC_SNAPDRAGON, soc, 10)
