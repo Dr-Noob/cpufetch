@@ -167,10 +167,10 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct colors* cs) {
   }
 #elif ARCH_ARM
   if(art->vendor == SOC_SNAPDRAGON) {
-    COL_FANCY_1 = COLOR_BG_CYAN;
-    COL_FANCY_2 = COLOR_BG_CYAN;
-    COL_FANCY_3 = COLOR_FG_WHITE;
-    COL_FANCY_4 = COLOR_FG_CYAN;
+    COL_FANCY_1 = COLOR_BG_RED;
+    COL_FANCY_2 = COLOR_BG_WHITE;
+    COL_FANCY_3 = COLOR_FG_RED;
+    COL_FANCY_4 = COLOR_FG_WHITE;
     art->ascii_chars[0] = '@';
   }
   else {
@@ -472,7 +472,23 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
 #endif
 
 #ifdef ARCH_ARM
-void print_ascii_arm(struct ascii* art, uint32_t la) {
+void print_algorithm_snapdragon(struct ascii* art, int i, int n) {
+  if(art->art[n][i] == '@')
+    printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
+  else if(art->art[n][i] == '#')
+    printf("%s%c%s", art->color2_ascii, art->ascii_chars[1], art->reset);  
+  else
+    printf("%c",art->art[n][i]);    
+}
+
+void print_algorithm_arm(struct ascii* art, int i, int n) {
+  if(art->art[n][i] == '#')
+    printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);  
+  else
+    printf("%c",art->art[n][i]);    
+}
+
+void print_ascii_arm(struct ascii* art, uint32_t la, void (*callback_print_algorithm)(struct ascii* art, int i, int n)) {
   int attr_to_print = 0;
   int attr_type;
   char* attr_value;
@@ -483,14 +499,8 @@ void print_ascii_arm(struct ascii* art, uint32_t la) {
 
   printf("\n");
   for(uint32_t n=0;n<NUMBER_OF_LINES;n++) {
-    for(int i=0;i<LINE_SIZE;i++) {
-      if(art->art[n][i] == '@')
-        printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
-      else if(art->art[n][i] == '#')
-        printf("%s%c%s", art->color2_ascii, art->ascii_chars[1], art->reset);  
-      else
-        printf("%c",art->art[n][i]);
-    }
+    for(int i=0;i<LINE_SIZE;i++)
+      callback_print_algorithm(art, i, n);
 
     if(n > space_up-1 && n < NUMBER_OF_LINES-space_down) {
       attr_type = art->attributes[attr_to_print]->type;
@@ -524,13 +534,12 @@ void print_ascii_arm(struct ascii* art, uint32_t la) {
 void print_ascii(struct ascii* art) {
   uint32_t longest_attribute = longest_attribute_length(art);
   
-  if(art->vendor == CPU_VENDOR_ARM)
-    print_ascii_arm(art, longest_attribute);
   if(art->vendor == SOC_SNAPDRAGON)
-    print_ascii_arm(art, longest_attribute);
+    print_ascii_arm(art, longest_attribute, &print_algorithm_snapdragon);  
   else {
-    printWarn("Invalid CPU vendor: %d\n", art->vendor);
-    print_ascii_arm(art, longest_attribute);
+    if(art->vendor != SOC_UNKNOWN)
+      printWarn("Invalid SOC vendor: %d\n", art->vendor);
+    print_ascii_arm(art, longest_attribute, &print_algorithm_arm);
   }
   
 }
