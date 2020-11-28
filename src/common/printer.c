@@ -320,38 +320,43 @@ uint32_t longest_attribute_length(struct ascii* art) {
 }
 
 #ifdef ARCH_X86
-void print_algorithm_intel(struct ascii* art, int i, int n, bool* flag) {
-  if(*flag) {
-    if(art->art[n][i] == ' ') {
-      *flag = false;
-      printf("%s%c%s", art->color2_ascii, art->ascii_chars[1], art->reset);
+void print_algorithm_intel(struct ascii* art, int n, bool* flag) {
+  for(int i=0; i < LINE_SIZE; i++) {
+    if(*flag) {
+      if(art->art[n][i] == ' ') {
+        *flag = false;
+        printf("%s%c%s", art->color2_ascii, art->ascii_chars[1], art->reset);
+      }
+      else {
+        printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
+      }
     }
     else {
-      printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
-    }
-  }
-  else {
-    if(art->art[n][i] != ' ' && art->art[n][i] != '\0') {
-      *flag = true;
-      printf("%c",' ');
-    }
-    else {
-      printf("%c",' ');
+      if(art->art[n][i] != ' ' && art->art[n][i] != '\0') {
+        *flag = true;
+        printf("%c",' ');
+      }
+      else {
+        printf("%c",' ');
+      }
     }
   }
 }
 
-void print_algorithm_amd(struct ascii* art, int i, int n, bool* flag) {
+void print_algorithm_amd(struct ascii* art, int n, bool* flag) {
   *flag = false; // dummy, just silence compiler error
-  if(art->art[n][i] == '@')
-    printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
-  else if(art->art[n][i] == '#')
-    printf("%s%c%s", art->color2_ascii, art->ascii_chars[1], art->reset);
-  else
-    printf("%c",art->art[n][i]);
+  
+  for(int i=0; i < LINE_SIZE; i++) {
+    if(art->art[n][i] == '@')
+      printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
+    else if(art->art[n][i] == '#')
+      printf("%s%c%s", art->color2_ascii, art->ascii_chars[1], art->reset);
+    else
+      printf("%c",art->art[n][i]);
+  }
 }
 
-void print_ascii_x86(struct ascii* art, uint32_t la, void (*callback_print_algorithm)(struct ascii* art, int i, int n, bool* flag)) {  
+void print_ascii_x86(struct ascii* art, uint32_t la, void (*callback_print_algorithm)(struct ascii* art, int i, bool* flag)) {  
   int attr_to_print = 0;
   int attr_type;
   char* attr_value;
@@ -362,8 +367,7 @@ void print_ascii_x86(struct ascii* art, uint32_t la, void (*callback_print_algor
 
   printf("\n");
   for(uint32_t n=0;n<NUMBER_OF_LINES;n++) {
-    for(int i=0;i<LINE_SIZE;i++) 
-      callback_print_algorithm(art, i, n, &flag);
+    callback_print_algorithm(art, n, &flag);
 
     if(n > space_up-1 && n < NUMBER_OF_LINES-space_down) {
       attr_type = art->attributes[attr_to_print]->type;
@@ -473,38 +477,45 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
 #endif
 
 #ifdef ARCH_ARM
-void print_algorithm_snapd_mtk(struct ascii* art, int i, int n) {
-  if(art->art[n][i] == '@')
-    printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
-  else if(art->art[n][i] == '#')
-    printf("%s%c%s", art->color2_ascii, art->ascii_chars[1], art->reset);  
-  else
-    printf("%c",art->art[n][i]);    
+void print_algorithm_snapd_mtk(struct ascii* art, int n) {
+  for(int i=0; i < LINE_SIZE; i++) {
+    if(art->art[n][i] == '@')
+      printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
+    else if(art->art[n][i] == '#')
+      printf("%s%c%s", art->color2_ascii, art->ascii_chars[1], art->reset);  
+    else
+      printf("%c",art->art[n][i]);    
+  }
 }
 
-void print_algorithm_samsung(struct ascii* art, int i, int n) {
+void print_algorithm_samsung(struct ascii* art, int n) {
   int margin = 8;
   
-  if(art->art[n][i] == '#')
+  for(int i=0; i < LINE_SIZE; i++) {
+    if(art->art[n][i] == '#') {
       printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
-  else if(i > margin && i < LINE_SIZE-margin) {
+    }
+    else if(i > margin && i < LINE_SIZE-margin) {
+      if(art->art[n][i] == '#')
+        printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);  
+      else
+        printf("%s%c%s","\x1b[48;2;10;10;10m" COLOR_FG_WHITE, art->art[n][i], art->reset);    
+    }
+    else
+      printf("%c", art->art[n][i]);
+  }
+}
+
+void print_algorithm_arm(struct ascii* art, int n) {
+  for(int i=0; i < LINE_SIZE; i++) {  
     if(art->art[n][i] == '#')
       printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);  
     else
-      printf("%s%c%s","\x1b[48;2;10;10;10m" COLOR_FG_WHITE, art->art[n][i], art->reset);    
+      printf("%c",art->art[n][i]);    
   }
-  else
-    printf("%c", art->art[n][i]);
 }
 
-void print_algorithm_arm(struct ascii* art, int i, int n) {
-  if(art->art[n][i] == '#')
-    printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);  
-  else
-    printf("%c",art->art[n][i]);    
-}
-
-void print_ascii_arm(struct ascii* art, uint32_t la, void (*callback_print_algorithm)(struct ascii* art, int i, int n)) {  
+void print_ascii_arm(struct ascii* art, uint32_t la, void (*callback_print_algorithm)(struct ascii* art, int n)) {  
   int attr_to_print = 0;
   int attr_type;
   char* attr_value;
@@ -526,13 +537,10 @@ void print_ascii_arm(struct ascii* art, uint32_t la, void (*callback_print_algor
   uint32_t len = max(art->n_attributes_set, NUMBER_OF_LINES);
   
   for(uint32_t n=0; n < len; n++) {
-    if(n >= art->additional_spaces && n < NUMBER_OF_LINES + art->additional_spaces) {
-      for(int i=0;i<LINE_SIZE;i++)
-        callback_print_algorithm(art, i, n-art->additional_spaces);
-    }
-    else {
-      for(int i=0;i<LINE_SIZE;i++) printf(" ");
-    }
+    if(n >= art->additional_spaces && n < NUMBER_OF_LINES + art->additional_spaces)
+      callback_print_algorithm(art, n - art->additional_spaces);
+    else
+      printf("%*s", LINE_SIZE, "");
 
     if(n >= limit_up && n < limit_down) {
       attr_type = art->attributes[attr_to_print]->type;
