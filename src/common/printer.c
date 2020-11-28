@@ -489,13 +489,14 @@ void print_algorithm_snapd_mtk(struct ascii* art, int n) {
 }
 
 void print_algorithm_samsung(struct ascii* art, int n) {
-  int margin = 8;
+  int y_margin = 2;
+  int x_margin = 2 * y_margin;
   
   for(int i=0; i < LINE_SIZE; i++) {
     if(art->art[n][i] == '#') {
       printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
     }
-    else if(i > margin && i < LINE_SIZE-margin) {
+    else if((n >= y_margin && n < NUMBER_OF_LINES-y_margin) && (i >= x_margin && i < LINE_SIZE-x_margin)) {
       if(art->art[n][i] == '#')
         printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);  
       else
