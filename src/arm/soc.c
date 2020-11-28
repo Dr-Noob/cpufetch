@@ -14,23 +14,31 @@ static char* soc_trademark_string[] = {
   [SOC_SNAPDRAGON] = "Snapdragon",
   [SOC_MEDIATEK]   = "MediaTek",
   [SOC_EXYNOS]     = "Exynos",
+  [SOC_KIRIN]      = "Kirin",
+  [SOC_BROADCOM]   = "Broadcom",
 };
+
+void fill_soc(struct system_on_chip* soc, char* soc_name, VENDOR soc_vendor, int32_t process) {
+  soc->soc_vendor = soc_vendor;
+  soc->process = process;
+  int len = strlen(soc_name) + strlen(soc_trademark_string[soc->soc_vendor]) + 1;
+  soc->soc_name = malloc(sizeof(char) * len);
+  memset(soc->soc_name, 0, sizeof(char) * len);
+  sprintf(soc->soc_name, "%s %s", soc_trademark_string[soc->soc_vendor], soc_name);    
+}
 
 bool match_soc(struct system_on_chip* soc, char* raw_name, char* expected_name, char* soc_name, VENDOR soc_vendor, int32_t process) {
   if(strlen(raw_name) > strlen(expected_name))
     return false;
   
   int len = strlen(raw_name);
-  if(strncmp(raw_name, expected_name, len) != 0) return false;
-  
-  soc->soc_vendor = soc_vendor;
-  soc->process = process;
-  len = strlen(soc_name) + strlen(soc_trademark_string[soc->soc_vendor]) + 1;
-  soc->soc_name = malloc(sizeof(char) * len);
-  memset(soc->soc_name, 0, sizeof(char) * len);
-  sprintf(soc->soc_name, "%s %s", soc_trademark_string[soc->soc_vendor], soc_name);
-  
-  return true;
+  if(strncmp(raw_name, expected_name, len) != 0) {
+    return false;
+  }
+  else {
+    fill_soc(soc, soc_name, soc_vendor, process);
+    return true;    
+  }
 }
 
 char* toupperstr(char* str) {
@@ -49,7 +57,74 @@ char* toupperstr(char* str) {
 #define CHECK_SOC(raw_name, expected_name, soc_name, soc_vendor, soc, process) \
    else if (match_soc(soc, raw_name, expected_name, soc_name, soc_vendor, process)) return true;
 #define SOC_END else { return false; }
-   
+
+// https://en.wikipedia.org/wiki/Raspberry_Pi
+// http://phonedb.net/index.php?m=processor&id=562&c=broadcom_bcm21663
+// https://hwbot.org/hardware/processors#key=bcmxxx
+bool match_broadcom(char* soc_name, struct system_on_chip* soc) {
+  char* tmp;
+
+  if((tmp = strstr(soc_name, "BCM")) == NULL)
+    return false;
+  
+  SOC_START
+  CHECK_SOC(tmp, "BCM2835",              "2835",              SOC_BROADCOM, soc, 65)    
+  CHECK_SOC(tmp, "BCM2836",              "2836",              SOC_BROADCOM, soc, 40)    
+  CHECK_SOC(tmp, "BCM2837",              "2837",              SOC_BROADCOM, soc, 40) 
+  CHECK_SOC(tmp, "BCM2837B0",            "2837B0",            SOC_BROADCOM, soc, 40) 
+  CHECK_SOC(tmp, "BCM2711",              "2711",              SOC_BROADCOM, soc, 28)  
+  CHECK_SOC(tmp, "BCM21553",             "21553",             SOC_BROADCOM, soc, 65)    
+  CHECK_SOC(tmp, "BCM21553-Thunderbird", "21553 Thunderbird", SOC_BROADCOM, soc, 65)      
+  CHECK_SOC(tmp, "BCM21663",             "21663",             SOC_BROADCOM, soc, 40) 
+  CHECK_SOC(tmp, "BCM21664",             "21664",             SOC_BROADCOM, soc, 40) 
+  CHECK_SOC(tmp, "BCM28155",             "28155",             SOC_BROADCOM, soc, 40) 
+  CHECK_SOC(tmp, "BCM23550",             "23550",             SOC_BROADCOM, soc, 40) 
+  CHECK_SOC(tmp, "BCM28145",             "28145",             SOC_BROADCOM, soc, 40) 
+  CHECK_SOC(tmp, "BCM2157",              "2157",              SOC_BROADCOM, soc, 65) 
+  CHECK_SOC(tmp, "BCM21654",             "21654",             SOC_BROADCOM, soc, 40) 
+  SOC_END
+}
+
+// https://www.techinsights.com/
+// https://datasheetspdf.com/pdf-file/1316605/HiSilicon/Hi3660/1
+bool match_hisilicon(char* soc_name, struct system_on_chip* soc) {
+  char* tmp;
+
+  if((tmp = strstr(soc_name, "Hi")) == NULL)
+    return false;
+  
+  SOC_START
+  CHECK_SOC(tmp, "Hi3620GFC",  "K3V2",  SOC_KIRIN, soc, 40)
+  //CHECK_SOC(tmp, "?",          "K3V2E", SOC_KIRIN, soc,  ?)
+  //CHECK_SOC(tmp, "?",          "620",   SOC_KIRIN, soc, 28)
+  //CHECK_SOC(tmp, "?",          "650",   SOC_KIRIN, soc, 16)
+  //CHECK_SOC(tmp, "?",          "655",   SOC_KIRIN, soc, 16)
+  //CHECK_SOC(tmp, "?",          "658",   SOC_KIRIN, soc, 16)
+  //CHECK_SOC(tmp, "?",          "659",   SOC_KIRIN, soc, 16)
+  //CHECK_SOC(tmp, "?",          "710",   SOC_KIRIN, soc, 12)
+  //CHECK_SOC(tmp, "?",          "710A",  SOC_KIRIN, soc, 12)
+  //CHECK_SOC(tmp, "?",          "710F",  SOC_KIRIN, soc, 12)
+  //CHECK_SOC(tmp, "?",          "810",   SOC_KIRIN, soc,  7)
+  //CHECK_SOC(tmp, "?",          "820",   SOC_KIRIN, soc,  7)
+  //CHECK_SOC(tmp, "?",          "9000",  SOC_KIRIN, soc,  5)
+  //CHECK_SOC(tmp, "?",          "9000E", SOC_KIRIN, soc,  5)
+  //CHECK_SOC(tmp, "?",          "910",   SOC_KIRIN, soc, 28)
+  //CHECK_SOC(tmp, "?",          "910T",  SOC_KIRIN, soc, 28)
+  CHECK_SOC(tmp, "Hi3630",     "920",   SOC_KIRIN, soc, 28)
+  //CHECK_SOC(tmp, "?",          "925",   SOC_KIRIN, soc, 28)
+  //CHECK_SOC(tmp, "?",          "930",   SOC_KIRIN, soc, ?)
+  //CHECK_SOC(tmp, "?",          "935",   SOC_KIRIN, soc, ?)
+  CHECK_SOC(tmp, "Hi3650",     "950",   SOC_KIRIN, soc, 16)
+  //CHECK_SOC(tmp, "?",          "955",   SOC_KIRIN, soc, ?)
+  CHECK_SOC(tmp, "Hi3660",     "960",   SOC_KIRIN, soc, 16)
+  //CHECK_SOC(tmp, "?",          "960S",  SOC_KIRIN, soc, 16)
+  CHECK_SOC(tmp, "Hi3670",     "970",   SOC_KIRIN, soc, 10)
+  CHECK_SOC(tmp, "Hi3680",     "980",   SOC_KIRIN, soc,  7)
+  //CHECK_SOC(tmp, "?",          "985",   SOC_KIRIN, soc,  7)
+  CHECK_SOC(tmp, "Hi3690",     "990",   SOC_KIRIN, soc,  7)
+  SOC_END
+}
+
 bool match_exynos(char* soc_name, struct system_on_chip* soc) {
   char* tmp;
 
@@ -313,6 +388,18 @@ bool match_qualcomm(char* soc_name, struct system_on_chip* soc) {
   SOC_END
 }
 
+bool match_special(char* soc_name, struct system_on_chip* soc) {
+  char* tmp;
+
+  // Xiaomi hides Redmi Note 8/8T under "Qualcomm Technologies, Inc TRINKET"
+  if((tmp = strstr(soc_name, "TRINKET")) != NULL) {
+    fill_soc(soc, "665", SOC_SNAPDRAGON, 11);
+    return true;
+  }
+  
+  return false;  
+}
+
 struct system_on_chip* parse_soc_from_string(struct system_on_chip* soc) {
   char* raw_name = soc->raw_name;
   
@@ -324,6 +411,11 @@ struct system_on_chip* parse_soc_from_string(struct system_on_chip* soc) {
   
   if(match_exynos(raw_name, soc))
     return soc;
+  
+  if(match_hisilicon(raw_name, soc))
+    return soc;
+  
+  match_special(raw_name, soc);  
   
   return soc;
 }

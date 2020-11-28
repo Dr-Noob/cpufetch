@@ -9,6 +9,8 @@ enum {
   SOC_SNAPDRAGON,
   SOC_MEDIATEK,
   SOC_EXYNOS,
+  SOC_KIRIN,
+  SOC_BROADCOM
 };
 
 struct system_on_chip {
