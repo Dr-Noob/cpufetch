@@ -22,6 +22,7 @@
 #include <Windows.h>
 #endif
 
+#define max(a,b) (((a)>(b))?(a):(b))
 #define MAX_ATTRIBUTES      100
 
 #define COLOR_NONE       ""
@@ -99,7 +100,7 @@ struct attribute {
 };
 
 struct ascii {
-  char art[NUMBER_OF_LINES][LINE_SIZE];
+  char art[NUMBER_OF_LINES][LINE_SIZE+1];
   char color1_ascii[100];
   char color2_ascii[100];
   char color1_text[100];
@@ -108,6 +109,7 @@ struct ascii {
   char reset[100];
   struct attribute** attributes;
   uint32_t n_attributes_set;
+  uint32_t additional_spaces;
   VENDOR vendor;
   STYLE style;
 };
@@ -141,6 +143,7 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct colors* cs) {
   char *COL_FANCY_1, *COL_FANCY_2, *COL_FANCY_3, *COL_FANCY_4, *COL_RETRO_1, *COL_RETRO_2, *COL_RETRO_3, *COL_RETRO_4;
   struct ascii* art = malloc(sizeof(struct ascii));
   art->n_attributes_set = 0;
+  art->additional_spaces = 0;
   art->vendor = vendor;
   art->attributes = malloc(sizeof(struct attribute *) * MAX_ATTRIBUTES);
   for(uint32_t i=0; i < MAX_ATTRIBUTES; i++) {
@@ -277,7 +280,7 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct colors* cs) {
       return NULL;
   }
 
-  char tmp[NUMBER_OF_LINES*LINE_SIZE];
+  char tmp[NUMBER_OF_LINES * LINE_SIZE + 1];
 #ifdef ARCH_X86  
   if(art->vendor == CPU_VENDOR_INTEL)
     strcpy(tmp, INTEL_ASCII);
@@ -488,7 +491,7 @@ void print_algorithm_samsung(struct ascii* art, int i, int n) {
     if(art->art[n][i] == '#')
       printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);  
     else
-      printf("%s%c%s",COLOR_BG_BLACK COLOR_FG_WHITE, art->art[n][i], art->reset);    
+      printf("%s%c%s","\x1b[48;2;10;10;10m" COLOR_FG_WHITE, art->art[n][i], art->reset);    
   }
   else
     printf("%c", art->art[n][i]);
@@ -501,21 +504,37 @@ void print_algorithm_arm(struct ascii* art, int i, int n) {
     printf("%c",art->art[n][i]);    
 }
 
-void print_ascii_arm(struct ascii* art, uint32_t la, void (*callback_print_algorithm)(struct ascii* art, int i, int n)) {
+void print_ascii_arm(struct ascii* art, uint32_t la, void (*callback_print_algorithm)(struct ascii* art, int i, int n)) {  
   int attr_to_print = 0;
   int attr_type;
   char* attr_value;
+  uint32_t limit_up;
+  uint32_t limit_down;
+  
   uint32_t space_right;
   uint32_t space_up = (NUMBER_OF_LINES - art->n_attributes_set)/2;
   uint32_t space_down = NUMBER_OF_LINES - art->n_attributes_set - space_up;
+  if(art->n_attributes_set > NUMBER_OF_LINES) {
+    limit_up = 0;
+    limit_down = art->n_attributes_set;
+  }
+  else {
+    limit_up = space_up;
+    limit_down = NUMBER_OF_LINES-space_down;
+  }
   bool add_space = false;
+  uint32_t len = max(art->n_attributes_set, NUMBER_OF_LINES);
+  
+  for(uint32_t n=0; n < len; n++) {
+    if(n >= art->additional_spaces && n < NUMBER_OF_LINES + art->additional_spaces) {
+      for(int i=0;i<LINE_SIZE;i++)
+        callback_print_algorithm(art, i, n-art->additional_spaces);
+    }
+    else {
+      for(int i=0;i<LINE_SIZE;i++) printf(" ");
+    }
 
-  printf("\n");
-  for(uint32_t n=0;n<NUMBER_OF_LINES;n++) {
-    for(int i=0;i<LINE_SIZE;i++)
-      callback_print_algorithm(art, i, n);
-
-    if(n > space_up-1 && n < NUMBER_OF_LINES-space_down) {
+    if(n >= limit_up && n < limit_down) {
       attr_type = art->attributes[attr_to_print]->type;
       attr_value = art->attributes[attr_to_print]->value;
       attr_to_print++;
@@ -540,7 +559,6 @@ void print_ascii_arm(struct ascii* art, uint32_t la, void (*callback_print_algor
     }
     else printf("\n");
   }
-  printf("\n");
 
 }
 
@@ -616,9 +634,8 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   char* pp = get_str_peak_performance(cpu);
   setAttribute(art,ATTRIBUTE_PEAK,pp);
   
-  if(art->n_attributes_set > NUMBER_OF_LINES) {
-    printBug("The number of attributes set is bigger than the max that can be displayed");
-    return false;
+  if(art->n_attributes_set > NUMBER_OF_LINES) {    
+    art->additional_spaces = (art->n_attributes_set - NUMBER_OF_LINES) / 2;
   }
   if(cpu->hv->present)
     setAttribute(art, ATTRIBUTE_HYPERVISOR, cpu->hv->hv_name);
@@ -645,8 +662,8 @@ bool print_cpufetch(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   int len = sizeof(ASCII_ARRAY) / sizeof(ASCII_ARRAY[0]);
   for(int i=0; i < len; i++) {
     const char* ascii = ASCII_ARRAY[i];
-    if(strlen(ascii) != (NUMBER_OF_LINES * LINE_SIZE)-1) {
-      printBug("ASCII art %d is wrong! ASCII length: %d, expected length: %d", i, strlen(ascii), (NUMBER_OF_LINES * LINE_SIZE)-1);
+    if(strlen(ascii) != (NUMBER_OF_LINES * LINE_SIZE)) {
+      printBug("ASCII art %d is wrong! ASCII length: %d, expected length: %d", i, strlen(ascii), (NUMBER_OF_LINES * LINE_SIZE));
       return false;
     }
   }
