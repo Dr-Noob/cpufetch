@@ -180,6 +180,13 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct colors* cs) {
     COL_FANCY_4 = COLOR_FG_BLUE;
     art->ascii_chars[0] = '@';
   }
+  else if(art->vendor == SOC_EXYNOS) {
+    COL_FANCY_1 = COLOR_BG_BLUE;
+    COL_FANCY_2 = COLOR_BG_WHITE;
+    COL_FANCY_3 = COLOR_FG_BLUE;
+    COL_FANCY_4 = COLOR_FG_WHITE;
+    art->ascii_chars[0] = '@';
+  }
   else {
     COL_FANCY_1 = COLOR_BG_CYAN;
     COL_FANCY_2 = COLOR_BG_CYAN;
@@ -283,6 +290,8 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct colors* cs) {
     strcpy(tmp, SNAPDRAGON_ASCII);
   else if(art->vendor == SOC_MEDIATEK)
     strcpy(tmp, MEDIATEK_ASCII);
+  else if(art->vendor == SOC_EXYNOS)
+    strcpy(tmp, EXYNOS_ASCII);
   else
     strcpy(tmp, ARM_ASCII);
 #endif
@@ -470,6 +479,21 @@ void print_algorithm_snapd_mtk(struct ascii* art, int i, int n) {
     printf("%c",art->art[n][i]);    
 }
 
+void print_algorithm_samsung(struct ascii* art, int i, int n) {
+  int margin = 8;
+  
+  if(art->art[n][i] == '#')
+      printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
+  else if(i > margin && i < LINE_SIZE-margin) {
+    if(art->art[n][i] == '#')
+      printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);  
+    else
+      printf("%s%c%s",COLOR_BG_BLACK COLOR_FG_WHITE, art->art[n][i], art->reset);    
+  }
+  else
+    printf("%c", art->art[n][i]);
+}
+
 void print_algorithm_arm(struct ascii* art, int i, int n) {
   if(art->art[n][i] == '#')
     printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);  
@@ -525,6 +549,8 @@ void print_ascii(struct ascii* art) {
   
   if(art->vendor == SOC_SNAPDRAGON || art->vendor == SOC_MEDIATEK)
     print_ascii_arm(art, longest_attribute, &print_algorithm_snapd_mtk);      
+  else if(art->vendor == SOC_EXYNOS)
+    print_ascii_arm(art, longest_attribute, &print_algorithm_samsung);      
   else {
     if(art->vendor != SOC_UNKNOWN)
       printWarn("Invalid SOC vendor: %d\n", art->vendor);

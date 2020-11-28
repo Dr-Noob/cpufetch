@@ -87,6 +87,28 @@
                                                               \
                                                               \
                                                              "
+
+#define EXYNOS_ASCII \
+"                                                              \
+                                                              \
+                                                              \
+                                                              \
+                                                              \
+                                                              \
+                                                              \
+                         ##  ##  ##                           \
+                           ##  ##                             \
+                             ##                               \
+                           ##  ##                             \
+                         ##  ##  ##                           \
+                                                              \
+                         SAMSUNG                              \
+                         Exynos                               \
+                                                              \
+                                                              \
+                                                              \
+                                                             "
+                                                             
                                                              
 #define ARM_ASCII \
 "                                                              \
@@ -136,6 +158,7 @@ static const char* ASCII_ARRAY [] = {
   ARM_ASCII,
   SNAPDRAGON_ASCII,
   MEDIATEK_ASCII,
+  EXYNOS_ASCII,
   UNKNOWN_ASCII
 };                                                             
 
