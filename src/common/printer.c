@@ -190,6 +190,20 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct colors* cs) {
     COL_FANCY_4 = COLOR_FG_WHITE;
     art->ascii_chars[0] = '@';
   }
+  else if(art->vendor == SOC_KIRIN) {
+    COL_FANCY_1 = COLOR_BG_WHITE;
+    COL_FANCY_2 = COLOR_BG_RED;
+    COL_FANCY_3 = COLOR_FG_WHITE;
+    COL_FANCY_4 = COLOR_FG_RED;
+    art->ascii_chars[0] = '@';
+  }
+  else if(art->vendor == SOC_BROADCOM) {
+    COL_FANCY_1 = COLOR_BG_WHITE;
+    COL_FANCY_2 = COLOR_BG_RED;
+    COL_FANCY_3 = COLOR_FG_WHITE;
+    COL_FANCY_4 = COLOR_FG_RED;
+    art->ascii_chars[0] = '@';
+  }
   else {
     COL_FANCY_1 = COLOR_BG_CYAN;
     COL_FANCY_2 = COLOR_BG_CYAN;
@@ -295,6 +309,10 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct colors* cs) {
     strcpy(tmp, MEDIATEK_ASCII);
   else if(art->vendor == SOC_EXYNOS)
     strcpy(tmp, EXYNOS_ASCII);
+  else if(art->vendor == SOC_KIRIN)
+    strcpy(tmp, KIRIN_ASCII);
+  else if(art->vendor == SOC_BROADCOM)
+    strcpy(tmp, BROADCOM_ASCII);
   else
     strcpy(tmp, ARM_ASCII);
 #endif
@@ -574,7 +592,7 @@ void print_ascii_arm(struct ascii* art, uint32_t la, void (*callback_print_algor
 void print_ascii(struct ascii* art) {
   uint32_t longest_attribute = longest_attribute_length(art);
   
-  if(art->vendor == SOC_SNAPDRAGON || art->vendor == SOC_MEDIATEK)
+  if(art->vendor == SOC_SNAPDRAGON || art->vendor == SOC_MEDIATEK || art->vendor == SOC_KIRIN || art->vendor == SOC_BROADCOM)
     print_ascii_arm(art, longest_attribute, &print_algorithm_snapd_mtk);      
   else if(art->vendor == SOC_EXYNOS)
     print_ascii_arm(art, longest_attribute, &print_algorithm_samsung);      

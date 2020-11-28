@@ -11,11 +11,11 @@
 #define STRING_UNKNOWN    "Unknown"
 
 static char* soc_trademark_string[] = {
-  [SOC_SNAPDRAGON] = "Snapdragon",
-  [SOC_MEDIATEK]   = "MediaTek",
-  [SOC_EXYNOS]     = "Exynos",
-  [SOC_KIRIN]      = "Kirin",
-  [SOC_BROADCOM]   = "Broadcom",
+  [SOC_SNAPDRAGON] = "Snapdragon ",
+  [SOC_MEDIATEK]   = "MediaTek ",
+  [SOC_EXYNOS]     = "Exynos ",
+  [SOC_KIRIN]      = "Kirin ",
+  [SOC_BROADCOM]   = "Broadcom BCM",
 };
 
 void fill_soc(struct system_on_chip* soc, char* soc_name, VENDOR soc_vendor, int32_t process) {
@@ -24,7 +24,7 @@ void fill_soc(struct system_on_chip* soc, char* soc_name, VENDOR soc_vendor, int
   int len = strlen(soc_name) + strlen(soc_trademark_string[soc->soc_vendor]) + 1;
   soc->soc_name = malloc(sizeof(char) * len);
   memset(soc->soc_name, 0, sizeof(char) * len);
-  sprintf(soc->soc_name, "%s %s", soc_trademark_string[soc->soc_vendor], soc_name);    
+  sprintf(soc->soc_name, "%s%s", soc_trademark_string[soc->soc_vendor], soc_name);    
 }
 
 bool match_soc(struct system_on_chip* soc, char* raw_name, char* expected_name, char* soc_name, VENDOR soc_vendor, int32_t process) {
@@ -413,6 +413,9 @@ struct system_on_chip* parse_soc_from_string(struct system_on_chip* soc) {
     return soc;
   
   if(match_hisilicon(raw_name, soc))
+    return soc;
+  
+  if(match_broadcom(raw_name, soc))
     return soc;
   
   match_special(raw_name, soc);  
