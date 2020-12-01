@@ -51,23 +51,6 @@ static char *hv_vendors_name[] = {
  * cpuid amd: https://www.amd.com/system/files/TechDocs/25481.pdf
  */
 
-void init_cpu_info(struct cpuInfo* cpu) {
-  cpu->AVX    = false;
-  cpu->AVX2   = false;
-  cpu->AVX512 = false;
-  cpu->SSE    = false;
-  cpu->SSE2   = false;
-  cpu->SSE3   = false;
-  cpu->SSSE3  = false;
-  cpu->SSE4a  = false;
-  cpu->SSE4_1 = false;
-  cpu->SSE4_2 = false;
-  cpu->FMA3   = false;
-  cpu->FMA4   = false;
-  cpu->AES    = false;
-  cpu->SHA    = false;
-}
-
 void init_topology_struct(struct topology* topo, struct cache* cach) {
   topo->total_cores = 0;
   topo->physical_cores = 0;
@@ -224,7 +207,13 @@ struct hypervisor* get_hp_info(bool hv_present) {
 
 struct cpuInfo* get_cpu_info() {
   struct cpuInfo* cpu = malloc(sizeof(struct cpuInfo));
-  init_cpu_info(cpu);
+  struct features* feat = malloc(sizeof(struct features));
+  cpu->feat = feat;
+  
+  bool *ptr = &(feat->AES);
+  for(int i = 0; i < sizeof(struct features)/sizeof(bool); i++, *ptr++) {
+    *ptr = false;
+  }
   
   uint32_t eax = 0;
   uint32_t ebx = 0;
@@ -262,18 +251,18 @@ struct cpuInfo* get_cpu_info() {
   if (cpu->maxLevels >= 0x00000001){
     eax = 0x00000001;
     cpuid(&eax, &ebx, &ecx, &edx);
-    cpu->SSE    = (edx & ((int)1 << 25)) != 0;
-    cpu->SSE2   = (edx & ((int)1 << 26)) != 0;
-    cpu->SSE3   = (ecx & ((int)1 <<  0)) != 0;
+    feat->SSE    = (edx & ((int)1 << 25)) != 0;
+    feat->SSE2   = (edx & ((int)1 << 26)) != 0;
+    feat->SSE3   = (ecx & ((int)1 <<  0)) != 0;
 
-    cpu->SSSE3  = (ecx & ((int)1 <<  9)) != 0;
-    cpu->SSE4_1 = (ecx & ((int)1 << 19)) != 0;
-    cpu->SSE4_2 = (ecx & ((int)1 << 20)) != 0;
+    feat->SSSE3  = (ecx & ((int)1 <<  9)) != 0;
+    feat->SSE4_1 = (ecx & ((int)1 << 19)) != 0;
+    feat->SSE4_2 = (ecx & ((int)1 << 20)) != 0;
 
-    cpu->AES    = (ecx & ((int)1 << 25)) != 0;
+    feat->AES    = (ecx & ((int)1 << 25)) != 0;
 
-    cpu->AVX    = (ecx & ((int)1 << 28)) != 0;
-    cpu->FMA3   = (ecx & ((int)1 << 12)) != 0;
+    feat->AVX    = (ecx & ((int)1 << 28)) != 0;
+    feat->FMA3   = (ecx & ((int)1 << 12)) != 0;
     
     bool hv_present = (ecx & ((int)1 << 31)) != 0;    
     if((cpu->hv = get_hp_info(hv_present)) == NULL)
@@ -287,9 +276,9 @@ struct cpuInfo* get_cpu_info() {
     eax = 0x00000007;
     ecx = 0x00000000;
     cpuid(&eax, &ebx, &ecx, &edx);
-    cpu->AVX2         = (ebx & ((int)1 <<  5)) != 0;
-    cpu->SHA          = (ebx & ((int)1 << 29)) != 0;
-    cpu->AVX512       = (((ebx & ((int)1 << 16)) != 0) ||
+    feat->AVX2         = (ebx & ((int)1 <<  5)) != 0;
+    feat->SHA          = (ebx & ((int)1 << 29)) != 0;
+    feat->AVX512       = (((ebx & ((int)1 << 16)) != 0) ||
                         ((ebx & ((int)1 << 28)) != 0)  ||
                         ((ebx & ((int)1 << 26)) != 0)  ||
                         ((ebx & ((int)1 << 27)) != 0)  ||
@@ -305,8 +294,8 @@ struct cpuInfo* get_cpu_info() {
   if (cpu->maxExtendedLevels >= 0x80000001){
     eax = 0x80000001;
     cpuid(&eax, &ebx, &ecx, &edx);
-    cpu->SSE4a = (ecx & ((int)1 <<  6)) != 0;
-    cpu->FMA4  = (ecx & ((int)1 << 16)) != 0;
+    feat->SSE4a = (ecx & ((int)1 <<  6)) != 0;
+    feat->FMA4  = (ecx & ((int)1 << 16)) != 0;
   }
   else {
     printWarn("Can't read features information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x80000001, cpu->maxExtendedLevels);        
@@ -732,22 +721,23 @@ char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64
     return string;
   }
 
+  struct features* feat = cpu->feat;
   double flops = topo->physical_cores * topo->sockets * (freq*1000000);
   int vpus = get_number_of_vpus(cpu);
   
   flops = flops * vpus; 
 
-  if(cpu->FMA3 || cpu->FMA4)
+  if(feat->FMA3 || feat->FMA4)
     flops = flops*2;
 
   // Ice Lake has AVX512, but it has 1 VPU for AVX512, while
   // it has 2 for AVX2. If this is a Ice Lake CPU, we are computing
   // the peak performance supposing AVX2, not AVX512
-  if(cpu->AVX512 && vpus_are_AVX512(cpu))
+  if(feat->AVX512 && vpus_are_AVX512(cpu))
     flops = flops*16;
-  else if(cpu->AVX || cpu->AVX2)
+  else if(feat->AVX || feat->AVX2)
     flops = flops*8;
-  else if(cpu->SSE)
+  else if(feat->SSE)
     flops = flops*4;
   
   // See https://sites.utexas.edu/jdm4372/2018/01/22/a-peculiar-
@@ -807,11 +797,11 @@ char* get_str_topology(struct cpuInfo* cpu, struct topology* topo, bool dual_soc
 char* get_str_avx(struct cpuInfo* cpu) {
   //If all AVX are available, it will use up to 15
   char* string = malloc(sizeof(char)*17+1);
-  if(!cpu->AVX)
+  if(!cpu->feat->AVX)
     snprintf(string,2+1,"No");
-  else if(!cpu->AVX2)
+  else if(!cpu->feat->AVX2)
     snprintf(string,3+1,"AVX");
-  else if(!cpu->AVX512)
+  else if(!cpu->feat->AVX512)
     snprintf(string,8+1,"AVX,AVX2");
   else
     snprintf(string,15+1,"AVX,AVX2,AVX512");
@@ -830,31 +820,31 @@ char* get_str_sse(struct cpuInfo* cpu) {
   uint32_t SSE4_2_sl = 7;
   char* string = malloc(sizeof(char)*SSE_sl+SSE2_sl+SSE3_sl+SSSE3_sl+SSE4a_sl+SSE4_1_sl+SSE4_2_sl+1);
 
-  if(cpu->SSE) {
+  if(cpu->feat->SSE) {
       snprintf(string+last,SSE_sl+1,"SSE,");
       last+=SSE_sl;
   }
-  if(cpu->SSE2) {
+  if(cpu->feat->SSE2) {
       snprintf(string+last,SSE2_sl+1,"SSE2,");
       last+=SSE2_sl;
   }
-  if(cpu->SSE3) {
+  if(cpu->feat->SSE3) {
       snprintf(string+last,SSE3_sl+1,"SSE3,");
       last+=SSE3_sl;
   }
-  if(cpu->SSSE3) {
+  if(cpu->feat->SSSE3) {
       snprintf(string+last,SSSE3_sl+1,"SSSE3,");
       last+=SSSE3_sl;
   }
-  if(cpu->SSE4a) {
+  if(cpu->feat->SSE4a) {
       snprintf(string+last,SSE4a_sl+1,"SSE4a,");
       last+=SSE4a_sl;
   }
-  if(cpu->SSE4_1) {
+  if(cpu->feat->SSE4_1) {
       snprintf(string+last,SSE4_1_sl+1,"SSE4.1,");
       last+=SSE4_1_sl;
   }
-  if(cpu->SSE4_2) {
+  if(cpu->feat->SSE4_2) {
       snprintf(string+last,SSE4_2_sl+1,"SSE4.2,");
       last+=SSE4_2_sl;
   }
@@ -866,9 +856,9 @@ char* get_str_sse(struct cpuInfo* cpu) {
 
 char* get_str_fma(struct cpuInfo* cpu) {
   char* string = malloc(sizeof(char)*9+1);
-  if(!cpu->FMA3)
+  if(!cpu->feat->FMA3)
     snprintf(string,2+1,"No");
-  else if(!cpu->FMA4)
+  else if(!cpu->feat->FMA4)
     snprintf(string,4+1,"FMA3");
   else
     snprintf(string,9+1,"FMA3,FMA4");
@@ -884,38 +874,6 @@ void print_debug(struct cpuInfo* cpu) {
   printf("- Max extended level: 0x%.8X\n", cpu->maxExtendedLevels);
 
   free_cpuinfo_struct(cpu);
-}
-
-void debug_cpu_info(struct cpuInfo* cpu) {
-  printf("AVX=%s\n", cpu->AVX ? "true" : "false");
-  printf("AVX2=%s\n", cpu->AVX2 ? "true" : "false");
-  printf("AVX512=%s\n\n", cpu->AVX512 ? "true" : "false");
-
-  printf("SSE=%s\n", cpu->SSE ? "true" : "false");
-  printf("SSE2=%s\n", cpu->SSE2 ? "true" : "false");
-  printf("SSE3=%s\n", cpu->SSE3 ? "true" : "false");
-  printf("SSSE3=%s\n", cpu->SSSE3 ? "true" : "false");
-  printf("SSE4a=%s\n", cpu->SSE4a ? "true" : "false");
-  printf("SSE4_1=%s\n", cpu->SSE4_1 ? "true" : "false");
-  printf("SSE4_2=%s\n\n", cpu->SSE4_2 ? "true" : "false");
-
-  printf("FMA3=%s\n", cpu->FMA3 ? "true" : "false");
-  printf("FMA4=%s\n\n", cpu->FMA4 ? "true" : "false");
-
-  printf("AES=%s\n", cpu->AES ? "true" : "false");
-  printf("SHA=%s\n", cpu->SHA ? "true" : "false");
-}
-
-void debug_cache(struct cache* cach) {
-  printf("L1i=%dB\n",cach->L1i->size);
-  printf("L1d=%dB\n",cach->L1d->size);
-  printf("L2=%dB\n",cach->L2->size);
-  printf("L3=%dB\n",cach->L3->size);
-}
-
-void debug_frequency(struct frequency* freq) {
-  printf("maxf=%d Mhz\n",freq->max);
-  printf("basef=%d Mhz\n",freq->base);
 }
 
 void free_topo_struct(struct topology* topo) {

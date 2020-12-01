@@ -79,7 +79,8 @@ struct topology {
 #endif
 };
 
-struct cpuInfo {
+struct features {
+  bool AES; // Must be the first field of features struct!  
 #ifdef ARCH_X86
   bool AVX;
   bool AVX2;
@@ -93,21 +94,23 @@ struct cpuInfo {
   bool SSE4_2;
   bool FMA3;
   bool FMA4;
-  bool SHA;
+  bool SHA;  
 #elif ARCH_ARM
   bool NEON;  
   bool SHA1;
   bool SHA2;
   bool CRC32;
-#endif
-  bool AES;
+#endif  
+};
 
+struct cpuInfo {
   VENDOR cpu_vendor;  
   struct uarch* arch;
   struct hypervisor* hv;
   struct frequency* freq;
   struct cache* cach;
   struct topology* topo;
+  struct features* feat;
   
 #ifdef ARCH_X86
   // CPU name from model

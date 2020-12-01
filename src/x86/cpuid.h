@@ -15,9 +15,6 @@ char* get_str_topology(struct cpuInfo* cpu, struct topology* topo, bool dual_soc
 char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64_t freq);
 
 void print_debug(struct cpuInfo* cpu);
-void debug_cpu_info(struct cpuInfo* cpu);
-void debug_cache(struct cache* cach);
-void debug_frequency(struct frequency* freq);
 
 void free_topo_struct(struct topology* topo);
 
