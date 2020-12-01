@@ -3,6 +3,9 @@
 #include <string.h>
 #include <assert.h>
 #include <stdbool.h>
+#include <errno.h>
+#include <sys/auxv.h>
+#include <asm/hwcap.h>
 
 #include "../common/global.h"
 #include "udev.h"
@@ -115,9 +118,54 @@ uint32_t fill_ids_from_midr(uint32_t* midr_array, int32_t* freq_array, uint32_t*
   return latest_id+1;
 }
 
+void init_cpu_info(struct cpuInfo* cpu) {
+  cpu->NEON = false;
+  cpu->AES = false;
+  cpu->SHA1 = false;
+  cpu->SHA2 = false;
+  cpu->CRC32 = false;
+  cpu->next_cpu = NULL;
+}
+
+// We assume all cpus share the same hardware
+// capabilities but I'm not sure it is always
+// true...
+void fill_cpu_features(struct cpuInfo* cpu) {
+  errno = 0;
+  long hwcaps = getauxval(AT_HWCAP);
+  
+  if(errno == ENOENT) {
+    printWarn("Unable to retrieve AT_HWCAP using getauxval");
+  }
+#ifdef __aarch64__
+  else {
+    cpu->AES = hwcaps & HWCAP_AES;
+    cpu->CRC32 = hwcaps & HWCAP_CRC32;
+    cpu->SHA1 = hwcaps & HWCAP_SHA1;
+    cpu->SHA2 = hwcaps & HWCAP_SHA2;
+    cpu->NEON = hwcaps & HWCAP_ASIMD;
+  }
+#else
+  else {
+    cpu->NEON = hwcaps & HWCAP_NEON;
+  }
+  
+  hwcaps = getauxval(AT_HWCAP2);
+  if(errno == ENOENT) {
+    printWarn("Unable to retrieve AT_HWCAP2 using getauxval");
+  }
+  else {
+    cpu->AES = hwcaps & HWCAP2_AES;
+    cpu->CRC32 = hwcaps & HWCAP2_CRC32;
+    cpu->SHA1 = hwcaps & HWCAP2_SHA1;
+    cpu->SHA2 = hwcaps & HWCAP2_SHA2;
+  }
+#endif
+}
+
 struct cpuInfo* get_cpu_info() {
   struct cpuInfo* cpu = malloc(sizeof(struct cpuInfo));
-  cpu->next_cpu = NULL;
+  init_cpu_info(cpu);
 
   int ncores = get_ncores_from_cpuinfo();
   bool success = false;
@@ -140,20 +188,21 @@ struct cpuInfo* get_cpu_info() {
     }    
   }
   uint32_t sockets = fill_ids_from_midr(midr_array, freq_array, ids_array, ncores);
-
+  fill_cpu_features(cpu);
+  
   struct cpuInfo* ptr = cpu;
   int midr_idx = 0;
   int tmp_midr_idx = 0;
   for(uint32_t i=0; i < sockets; i++) {
     if(i > 0) {
-      ptr->next_cpu = malloc(sizeof(struct cpuInfo));
+      ptr->next_cpu = malloc(sizeof(struct cpuInfo));      
       ptr = ptr->next_cpu;
+      init_cpu_info(ptr);
 
       tmp_midr_idx = midr_idx;
       while(cores_are_equal(midr_idx, tmp_midr_idx, midr_array, freq_array)) tmp_midr_idx++;
       midr_idx = tmp_midr_idx;
-    }
-    ptr->next_cpu = NULL;
+    }    
     
     ptr->midr = midr_array[midr_idx];
     ptr->arch = get_uarch_from_midr(ptr->midr, ptr);
@@ -200,6 +249,7 @@ char* get_str_peak_performance(struct cpuInfo* cpu) {
   for(int i=0; i < cpu->num_cpus; ptr = ptr->next_cpu, i++) {
     flops += ptr->topo->total_cores * (get_freq(ptr->freq) * 1000000);
   }
+  if(cpu->NEON) flops = flops * 4;
   
   if(flops >= (double)1000000000000.0)
     snprintf(string,size,"%.2f TFLOP/s",flops/1000000000000);
@@ -209,6 +259,39 @@ char* get_str_peak_performance(struct cpuInfo* cpu) {
     snprintf(string,size,"%.2f MFLOP/s",flops/1000000);
 
   return string;
+}
+
+char* get_str_features(struct cpuInfo* cpu) {
+  char* string = malloc(sizeof(char) * 100); //TODO: Fix
+  uint32_t len = 0;
+  
+  if(cpu->NEON) {
+    strcat(string, "NEON,");
+    len += 5;
+  }
+  if(cpu->SHA1) {
+    strcat(string, "SHA1,");
+    len += 5;
+  }
+  if(cpu->SHA2) {
+    strcat(string, "SHA2,");
+    len += 5;
+  }
+  if(cpu->AES) {
+    strcat(string, "AES,");
+    len += 4;
+  }
+  if(cpu->CRC32) {
+    strcat(string, "CRC32,");
+    len += 6;
+  }
+  
+  if(len > 0) {
+    string[len-1] = '\0';
+    return string;
+  }
+  else  
+    return NULL;    
 }
 
 void print_debug(struct cpuInfo* cpu) {

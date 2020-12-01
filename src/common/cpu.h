@@ -93,9 +93,14 @@ struct cpuInfo {
   bool SSE4_2;
   bool FMA3;
   bool FMA4;
+  bool SHA;
+#elif ARCH_ARM
+  bool NEON;  
+  bool SHA1;
+  bool SHA2;
+  bool CRC32;
 #endif
   bool AES;
-  bool SHA;
 
   VENDOR cpu_vendor;  
   struct uarch* arch;

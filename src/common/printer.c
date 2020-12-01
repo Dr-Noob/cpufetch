@@ -61,6 +61,8 @@ enum {
 #ifdef ARCH_X86
   ATTRIBUTE_AVX,
   ATTRIBUTE_FMA,
+#elif ARCH_ARM
+  ATTRIBUTE_FEATURES,
 #endif
   ATTRIBUTE_L1i,
   ATTRIBUTE_L1d,
@@ -86,6 +88,8 @@ static const char* ATTRIBUTE_FIELDS [] = {
 #ifdef ARCH_X86
   "AVX:",
   "FMA:",
+#elif ARCH_ARM
+  "Features: ",  
 #endif
   "L1i Size:",
   "L1d Size:",
@@ -611,6 +615,7 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   
   char* manufacturing_process = get_str_process(cpu->soc);
   char* soc_name = get_soc_name(cpu->soc);
+  char* features = get_str_features(cpu);
   setAttribute(art,ATTRIBUTE_SOC,soc_name);
   setAttribute(art,ATTRIBUTE_TECHNOLOGY,manufacturing_process);
   
@@ -626,6 +631,9 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
     setAttribute(art,ATTRIBUTE_UARCH,uarch);
     setAttribute(art,ATTRIBUTE_FREQUENCY,max_frequency);
     setAttribute(art,ATTRIBUTE_NCORES,n_cores);
+    if(features != NULL) {
+      setAttribute(art, ATTRIBUTE_FEATURES, features);    
+    }
     setAttribute(art,ATTRIBUTE_L1i,l1i);
     setAttribute(art,ATTRIBUTE_L1d,l1d);
     setAttribute(art,ATTRIBUTE_L2,l2);
@@ -634,11 +642,11 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
     }
   }
   else {
-    struct cpuInfo* ptr = cpu;
+    struct cpuInfo* ptr = cpu;    
     for(int i = 0; i < cpu->num_cpus; ptr = ptr->next_cpu, i++) {
       char* uarch = get_str_uarch(ptr);
       char* max_frequency = get_str_freq(ptr->freq);
-      char* n_cores = get_str_topology(ptr, ptr->topo, false);
+      char* n_cores = get_str_topology(ptr, ptr->topo, false);      
       char* l1i = get_str_l1i(ptr->cach);
       char* l1d = get_str_l1d(ptr->cach);
       char* l2 = get_str_l2(ptr->cach);
@@ -650,6 +658,9 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
       setAttribute(art, ATTRIBUTE_UARCH, uarch);
       setAttribute(art, ATTRIBUTE_FREQUENCY, max_frequency);
       setAttribute(art, ATTRIBUTE_NCORES, n_cores);
+      if(features != NULL) {
+        setAttribute(art, ATTRIBUTE_FEATURES, features);    
+      }
       setAttribute(art, ATTRIBUTE_L1i, l1i);
       setAttribute(art, ATTRIBUTE_L1d, l1d);
       setAttribute(art, ATTRIBUTE_L2, l2); 
