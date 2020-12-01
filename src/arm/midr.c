@@ -125,10 +125,12 @@ void init_cpu_info(struct cpuInfo* cpu) {
 // We assume all cpus share the same hardware
 // capabilities but I'm not sure it is always
 // true...
+// ARM32 https://elixir.bootlin.com/linux/latest/source/arch/arm/include/uapi/asm/hwcap.h
+// ARM64 https://elixir.bootlin.com/linux/latest/source/arch/arm64/include/uapi/asm/hwcap.h
 struct features* get_features_info() {
   struct features* feat = malloc(sizeof(struct features));
   bool *ptr = &(feat->AES);
-  for(int i = 0; i < sizeof(struct features)/sizeof(bool); i++, *ptr++) {
+  for(uint32_t i = 0; i < sizeof(struct features)/sizeof(bool); i++, ptr++) {
     *ptr = false;
   }
   

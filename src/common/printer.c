@@ -172,6 +172,10 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct colors* cs) {
     COL_FANCY_4 = COLOR_FG_GREEN;    
     art->ascii_chars[0] = '@';
   }
+  else {
+    printBug("Invalid CPU vendor in set_ascii (%d)", art->vendor);    
+    return NULL;
+  }
 #elif ARCH_ARM
   if(art->vendor == SOC_SNAPDRAGON) {
     COL_FANCY_1 = COLOR_BG_RED;

@@ -211,7 +211,7 @@ struct cpuInfo* get_cpu_info() {
   cpu->feat = feat;
   
   bool *ptr = &(feat->AES);
-  for(int i = 0; i < sizeof(struct features)/sizeof(bool); i++, *ptr++) {
+  for(uint32_t i = 0; i < sizeof(struct features)/sizeof(bool); i++, ptr++) {
     *ptr = false;
   }
   

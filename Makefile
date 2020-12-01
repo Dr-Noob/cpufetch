@@ -1,7 +1,7 @@
 CXX=gcc
 
 CXXFLAGS=-Wall -Wextra -Werror -pedantic -fstack-protector-all -pedantic -std=c99
-SANITY_FLAGS=-Wfloat-equal -Wshadow -Wpointer-arith 
+SANITY_FLAGS=-Wfloat-equal -Wshadow -Wpointer-arith -Wno-stringop-truncation
 
 SRC_COMMON=src/common/
 
