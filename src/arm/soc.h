@@ -4,16 +4,19 @@
 #include "../common/cpu.h"
 #include <stdint.h>
 
+typedef int32_t SOC;
+
 enum {
-  SOC_UNKNOWN,
-  SOC_SNAPDRAGON,
-  SOC_MEDIATEK,
-  SOC_EXYNOS,
-  SOC_KIRIN,
-  SOC_BROADCOM
+  SOC_VENDOR_UNKNOWN,
+  SOC_VENDOR_SNAPDRAGON,
+  SOC_VENDOR_MEDIATEK,
+  SOC_VENDOR_EXYNOS,
+  SOC_VENDOR_KIRIN,
+  SOC_VENDOR_BROADCOM
 };
 
 struct system_on_chip {
+  SOC soc_model;
   VENDOR soc_vendor;
   int32_t process;
   char* soc_name;
