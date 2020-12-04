@@ -266,6 +266,20 @@ bool match_mediatek(char* soc_name, struct system_on_chip* soc) {
   SOC_END
 }
 
+/*
+ * APQ: Application Processor Qualcomm
+ * MSM: Mobile Station Modem
+ * In a APQXXXX or MSMXXXX, the second digit represents:
+ * *------------------*
+ * | Value | Meaning  |
+ * *------------------*
+ * |     0 | No modem |
+ * |     2 | HPSA+    |
+ * |     6 | CDMA     |
+ * |     9 | LTE      |
+ * *------------------* 
+ * Ref: https://www.tomshardware.com/reviews/snapdragon-801-performance-xperia-z2,3777-2.html
+ */
 bool match_qualcomm(char* soc_name, struct system_on_chip* soc) {
   char* tmp;
   char* soc_name_upper = toupperstr(soc_name);
@@ -311,33 +325,42 @@ bool match_qualcomm(char* soc_name, struct system_on_chip* soc) {
   CHECK_SOC(tmp, "APQ8064",        "S4 Pro",    SOC_SNAPD_APQ8064,        soc, 28) 
   CHECK_SOC(tmp, "MSM8960T",       "S4 Pro",    SOC_SNAPD_MSM8960T,       soc, 28) 
   // Snapdragon 2XX //
-  CHECK_SOC(tmp, "MSM8212",        "200",       SOC_SNAPD_MSM8212,        soc, 45) 
-  CHECK_SOC(tmp, "MSM8625Q",       "200",       SOC_SNAPD_MSM8625Q,       soc, 45)
-  CHECK_SOC(tmp, "MSM8210",        "200",       SOC_SNAPD_MSM8210,        soc, 45)
-  CHECK_SOC(tmp, "MSM8225Q",       "200",       SOC_SNAPD_MSM8225Q,       soc, 45)
-  CHECK_SOC(tmp, "MSM8208",        "208",       SOC_SNAPD_MSM8208,        soc, 28)
-  CHECK_SOC(tmp, "MSM8909",        "210",       SOC_SNAPD_MSM8909,        soc, 28)
-  CHECK_SOC(tmp, "APQ8009",        "212",       SOC_SNAPD_APQ8009,        soc, 28)
+  CHECK_SOC(tmp, "MSM8110",        "200",       SOC_SNAPD_MSM8110,        soc, 28) 
+  CHECK_SOC(tmp, "MSM8210",        "200",       SOC_SNAPD_MSM8210,        soc, 28) 
+  CHECK_SOC(tmp, "MSM8610",        "200",       SOC_SNAPD_MSM8610,        soc, 28) 
+  CHECK_SOC(tmp, "MSM8112",        "200",       SOC_SNAPD_MSM8112,        soc, 28) 
+  CHECK_SOC(tmp, "MSM8212",        "200",       SOC_SNAPD_MSM8212,        soc, 28) 
+  CHECK_SOC(tmp, "MSM8612",        "200",       SOC_SNAPD_MSM8612,        soc, 28) 
+  CHECK_SOC(tmp, "MSM8225Q",       "200",       SOC_SNAPD_MSM8225Q,       soc, 45) 
+  CHECK_SOC(tmp, "MSM8625Q",       "200",       SOC_SNAPD_MSM8625Q,       soc, 45) 
+  CHECK_SOC(tmp, "MSM8208",        "208",       SOC_SNAPD_MSM8208,        soc, 28) 
+  CHECK_SOC(tmp, "MSM8905",        "205",       SOC_SNAPD_MSM8905,        soc, 28) 
+  CHECK_SOC(tmp, "MSM8909",        "210 / 212", SOC_SNAPD_MSM8909,        soc, 28) // In the future, we can differenciate them using frequency
   CHECK_SOC(tmp, "QM215",          "215",       SOC_SNAPD_QM215,          soc, 28)
   // Snapdragon 4XX //
-  CHECK_SOC(tmp, "MSM8226",        "400",       SOC_SNAPD_MSM8226,        soc, 28)
-  CHECK_SOC(tmp, "MSM8926",        "400",       SOC_SNAPD_MSM8926,        soc, 28)
-  CHECK_SOC(tmp, "MSM8930",        "400",       SOC_SNAPD_MSM8930,        soc, 28)
-  CHECK_SOC(tmp, "MSM8928",        "400",       SOC_SNAPD_MSM8928,        soc, 28)
-  CHECK_SOC(tmp, "MSM8230AB",      "400",       SOC_SNAPD_MSM8230AB,      soc, 28)
+  CHECK_SOC(tmp, "APQ8028",        "400",       SOC_SNAPD_APQ8028,        soc, 28)
   CHECK_SOC(tmp, "MSM8228",        "400",       SOC_SNAPD_MSM8228,        soc, 28)
-  CHECK_SOC(tmp, "MSM8930AA",      "400",       SOC_SNAPD_MSM8930AA,      soc, 28)
-  CHECK_SOC(tmp, "MSM8916T",       "412",       SOC_SNAPD_MSM8916T,       soc, 28)
-  CHECK_SOC(tmp, "MSM8916",        "410",       SOC_SNAPD_MSM8916,        soc, 28)  
-  CHECK_SOC(tmp, "MSM8929",        "415",       SOC_SNAPD_MSM8929,        soc, 28)
-  CHECK_SOC(tmp, "MSM8917",        "425",       SOC_SNAPD_MSM8917,        soc, 28)
-  CHECK_SOC(tmp, "MSM8920",        "427",       SOC_SNAPD_MSM8920,        soc, 28)
-  CHECK_SOC(tmp, "SDM429",         "429",       SOC_SNAPD_SDM429,         soc, 12)
-  CHECK_SOC(tmp, "MSM8937",        "430",       SOC_SNAPD_MSM8937,        soc, 28)
-  CHECK_SOC(tmp, "MSM8940",        "435",       SOC_SNAPD_MSM8940,        soc, 28)
-  CHECK_SOC(tmp, "SDM439",         "439",       SOC_SNAPD_SDM439,         soc, 12)
-  CHECK_SOC(tmp, "SDM450",         "450",       SOC_SNAPD_SDM450,         soc, 14)
-  CHECK_SOC(tmp, "SM4250",         "460",       SOC_SNAPD_SM4250,         soc, 11)
+  CHECK_SOC(tmp, "MSM8628",        "400",       SOC_SNAPD_MSM8628,        soc, 28)
+  CHECK_SOC(tmp, "MSM8928",        "400",       SOC_SNAPD_MSM8928,        soc, 28)
+  CHECK_SOC(tmp, "MSM8926",        "400",       SOC_SNAPD_MSM8926,        soc, 28)
+  CHECK_SOC(tmp, "APQ8030AB",      "400",       SOC_SNAPD_APQ8030AB,      soc, 28)
+  CHECK_SOC(tmp, "MSM8226",        "400",       SOC_SNAPD_MSM8226,        soc, 28)
+  CHECK_SOC(tmp, "MSM8230AB",      "400",       SOC_SNAPD_MSM8230AB,      soc, 28)
+  CHECK_SOC(tmp, "MSM8626",        "400",       SOC_SNAPD_MSM8626,        soc, 28)
+  CHECK_SOC(tmp, "MSM8630",        "400",       SOC_SNAPD_MSM8630,        soc, 28)
+  CHECK_SOC(tmp, "MSM8630AB",      "400",       SOC_SNAPD_MSM8630AB,      soc, 28)
+  CHECK_SOC(tmp, "MSM8930",        "400",       SOC_SNAPD_MSM8930,        soc, 28)
+  CHECK_SOC(tmp, "MSM8930AB",      "400",       SOC_SNAPD_MSM8930AB,      soc, 28)
+  CHECK_SOC(tmp, "MSM8916",        "410 / 412", SOC_SNAPD_MSM8916,        soc, 28) 
+  CHECK_SOC(tmp, "MSM8929",        "415",       SOC_SNAPD_MSM8929,        soc, 28) 
+  CHECK_SOC(tmp, "MSM8917",        "425",       SOC_SNAPD_MSM8917,        soc, 28) 
+  CHECK_SOC(tmp, "MSM8920",        "427",       SOC_SNAPD_MSM8920,        soc, 28) 
+  CHECK_SOC(tmp, "SDM429",         "429",       SOC_SNAPD_SDM429,         soc, 12) 
+  CHECK_SOC(tmp, "MSM8937",        "430",       SOC_SNAPD_MSM8937,        soc, 28) 
+  CHECK_SOC(tmp, "MSM8940",        "435",       SOC_SNAPD_MSM8940,        soc, 28) 
+  CHECK_SOC(tmp, "SDM439",         "439",       SOC_SNAPD_SDM439,         soc, 12) 
+  CHECK_SOC(tmp, "SDM450",         "450",       SOC_SNAPD_SDM450,         soc, 14) 
+  CHECK_SOC(tmp, "SM4250-AA",      "460",       SOC_SNAPD_SM4250_AA,      soc, 11)
   // Snapdragon 6XX //
   CHECK_SOC(tmp, "APQ8064T",       "600",       SOC_SNAPD_APQ8064T,       soc, 28)
   CHECK_SOC(tmp, "MSM8936",        "610",       SOC_SNAPD_MSM8936,        soc, 28)
