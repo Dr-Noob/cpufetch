@@ -279,6 +279,9 @@ bool match_mediatek(char* soc_name, struct system_on_chip* soc) {
  * |     9 | LTE      |
  * *------------------* 
  * Ref: https://www.tomshardware.com/reviews/snapdragon-801-performance-xperia-z2,3777-2.html
+ * 
+ * If Qualcomm official website reports the SoC name without the initial two or three SKU name,
+ * we assume APQ if second number is 0, or MSM if second number is different than 0
  */
 bool match_qualcomm(char* soc_name, struct system_on_chip* soc) {
   char* tmp;
@@ -351,25 +354,26 @@ bool match_qualcomm(char* soc_name, struct system_on_chip* soc) {
   CHECK_SOC(tmp, "MSM8630AB",      "400",       SOC_SNAPD_MSM8630AB,      soc, 28)
   CHECK_SOC(tmp, "MSM8930",        "400",       SOC_SNAPD_MSM8930,        soc, 28)
   CHECK_SOC(tmp, "MSM8930AB",      "400",       SOC_SNAPD_MSM8930AB,      soc, 28)
-  CHECK_SOC(tmp, "MSM8916",        "410 / 412", SOC_SNAPD_MSM8916,        soc, 28) 
-  CHECK_SOC(tmp, "MSM8929",        "415",       SOC_SNAPD_MSM8929,        soc, 28) 
-  CHECK_SOC(tmp, "MSM8917",        "425",       SOC_SNAPD_MSM8917,        soc, 28) 
-  CHECK_SOC(tmp, "MSM8920",        "427",       SOC_SNAPD_MSM8920,        soc, 28) 
-  CHECK_SOC(tmp, "SDM429",         "429",       SOC_SNAPD_SDM429,         soc, 12) 
-  CHECK_SOC(tmp, "MSM8937",        "430",       SOC_SNAPD_MSM8937,        soc, 28) 
-  CHECK_SOC(tmp, "MSM8940",        "435",       SOC_SNAPD_MSM8940,        soc, 28) 
-  CHECK_SOC(tmp, "SDM439",         "439",       SOC_SNAPD_SDM439,         soc, 12) 
-  CHECK_SOC(tmp, "SDM450",         "450",       SOC_SNAPD_SDM450,         soc, 14) 
+  CHECK_SOC(tmp, "MSM8916",        "410 / 412", SOC_SNAPD_MSM8916,        soc, 28)
+  CHECK_SOC(tmp, "MSM8929",        "415",       SOC_SNAPD_MSM8929,        soc, 28)
+  CHECK_SOC(tmp, "MSM8917",        "425",       SOC_SNAPD_MSM8917,        soc, 28)
+  CHECK_SOC(tmp, "MSM8920",        "427",       SOC_SNAPD_MSM8920,        soc, 28)
+  CHECK_SOC(tmp, "SDM429",         "429",       SOC_SNAPD_SDM429,         soc, 12)
+  CHECK_SOC(tmp, "MSM8937",        "430",       SOC_SNAPD_MSM8937,        soc, 28)
+  CHECK_SOC(tmp, "MSM8940",        "435",       SOC_SNAPD_MSM8940,        soc, 28)
+  CHECK_SOC(tmp, "SDM439",         "439",       SOC_SNAPD_SDM439,         soc, 12)
+  CHECK_SOC(tmp, "SDM450",         "450",       SOC_SNAPD_SDM450,         soc, 14)
   CHECK_SOC(tmp, "SM4250-AA",      "460",       SOC_SNAPD_SM4250_AA,      soc, 11)
   // Snapdragon 6XX //
   CHECK_SOC(tmp, "APQ8064T",       "600",       SOC_SNAPD_APQ8064T,       soc, 28)
+  CHECK_SOC(tmp, "APQ8064M",       "600",       SOC_SNAPD_APQ8064M,       soc, 28)
   CHECK_SOC(tmp, "MSM8936",        "610",       SOC_SNAPD_MSM8936,        soc, 28)
   CHECK_SOC(tmp, "MSM8939",        "615 / 616", SOC_SNAPD_MSM8939,        soc, 28)
   CHECK_SOC(tmp, "MSM8952",        "617",       SOC_SNAPD_MSM8952,        soc, 28)
   CHECK_SOC(tmp, "MSM8953",        "625",       SOC_SNAPD_MSM8953,        soc, 14)
   CHECK_SOC(tmp, "MSM8953 PRO",    "626",       SOC_SNAPD_MSM8953_PRO,    soc, 14)
   CHECK_SOC(tmp, "SDM630",         "630",       SOC_SNAPD_SDM630,         soc, 14)
-  CHECK_SOC(tmp, "SDM632",         "632",       SOC_SNAPD_SDM632,         soc, 12)
+  CHECK_SOC(tmp, "SDM632",         "632",       SOC_SNAPD_SDM632,         soc, 14)
   CHECK_SOC(tmp, "SDM636",         "636",       SOC_SNAPD_SDM636,         soc, 14)
   CHECK_SOC(tmp, "MSM8956",        "650",       SOC_SNAPD_MSM8956,        soc, 28)
   CHECK_SOC(tmp, "MSM8976",        "652",       SOC_SNAPD_MSM8976,        soc, 28)
@@ -378,11 +382,11 @@ bool match_qualcomm(char* soc_name, struct system_on_chip* soc) {
   CHECK_SOC(tmp, "SM6115",         "662",       SOC_SNAPD_SM6115,         soc, 11)
   CHECK_SOC(tmp, "SM6125",         "665",       SOC_SNAPD_SM6125,         soc, 11)
   CHECK_SOC(tmp, "SDM670",         "670",       SOC_SNAPD_SDM670,         soc, 10)
-  CHECK_SOC(tmp, "SDM675",         "675",       SOC_SNAPD_SDM675,         soc, 11)
-  CHECK_SOC(tmp, "SDM690",         "690",       SOC_SNAPD_SDM690,         soc,  8)
+  CHECK_SOC(tmp, "SM6150",         "675",       SOC_SNAPD_SM6150,         soc, 11)
+  CHECK_SOC(tmp, "SM6350",         "690",       SOC_SNAPD_SM6350,         soc,  8)
   // Snapdragon 7XX //
-  //CHECK_SOC(tmp, "?",            "710",       SOC_SNAPD_,               soc, 10)
-  //CHECK_SOC(tmp, "?",            "712",       SOC_SNAPD_,               soc, 10)
+  CHECK_SOC(tmp, "SDM710",         "710",       SOC_SNAPD_SDM710,         soc, 10)
+  CHECK_SOC(tmp, "SDM712",         "712",       SOC_SNAPD_SDM712,         soc, 10)
   CHECK_SOC(tmp, "SM7125",         "720G",      SOC_SNAPD_SM7125,         soc,  8)
   CHECK_SOC(tmp, "SM7150-AA",      "730",       SOC_SNAPD_SM7150_AA,      soc,  8)
   CHECK_SOC(tmp, "SM7150-AB",      "730G",      SOC_SNAPD_SM7150_AB,      soc,  8)
@@ -392,7 +396,7 @@ bool match_qualcomm(char* soc_name, struct system_on_chip* soc) {
   CHECK_SOC(tmp, "SM7250-AB",      "765G",      SOC_SNAPD_SM7250_AB,      soc,  7)
   CHECK_SOC(tmp, "SM7250-AC",      "768G",      SOC_SNAPD_SM7250_AC,      soc,  7)
   // Snapdragon 8XX //
-  CHECK_SOC(tmp, "MSM8974AA",      "800",       SOC_SNAPD_MSM8974AA,      soc, 28)
+  CHECK_SOC(tmp, "MSM8974AA",      "800",       SOC_SNAPD_MSM8974AA,      soc, 28) // TODO: Review 800 and 801
   CHECK_SOC(tmp, "MSM8974AB",      "800",       SOC_SNAPD_MSM8974AB,      soc, 28)
   CHECK_SOC(tmp, "MSM8974AC",      "800",       SOC_SNAPD_MSM8974AC,      soc, 28)
   CHECK_SOC(tmp, "MSM8974PRO-AB",  "801",       SOC_SNAPD_MSM8974PRO_AB,  soc, 28)
@@ -402,14 +406,15 @@ bool match_qualcomm(char* soc_name, struct system_on_chip* soc) {
   CHECK_SOC(tmp, "MSM8994",        "810",       SOC_SNAPD_MSM8994,        soc, 20)
   CHECK_SOC(tmp, "MSM8996",        "820",       SOC_SNAPD_MSM8996,        soc, 14)
   CHECK_SOC(tmp, "MSM8996 PRO A",  "821",       SOC_SNAPD_MSM8996_PRO_A,  soc, 14)
-  CHECK_SOC(tmp, "MSM8996 PRO AB", "821 AB",    SOC_SNAPD_MSM8996_PRO_AB, soc, 14)
-  CHECK_SOC(tmp, "MSM8995",        "835",       SOC_SNAPD_MSM8995,        soc, 10)
-  //CHECK_SOC(tmp, "?",            "845",       SOC_SNAPD_,               soc, 10)
-  //CHECK_SOC(tmp, "?",            "850",       SOC_SNAPD_,               soc, 10)
+  CHECK_SOC(tmp, "MSM8998",        "835",       SOC_SNAPD_MSM8998,        soc, 10)
+  CHECK_SOC(tmp, "APQ8098",        "835",       SOC_SNAPD_APQ8098,        soc, 10)
+  CHECK_SOC(tmp, "SDM845",         "845",       SOC_SNAPD_SDM845,         soc, 10)
+  CHECK_SOC(tmp, "SDM850",         "850",       SOC_SNAPD_SDM850,         soc, 10)
   CHECK_SOC(tmp, "SM8150",         "855",       SOC_SNAPD_SM8150,         soc,  7)
-  //CHECK_SOC(tmp, "?",            "855+",      SOC_SNAPD_,               soc,  7)
+  CHECK_SOC(tmp, "SM8150-AC",      "855+",      SOC_SNAPD_SM8150_AC,      soc,  7)
   CHECK_SOC(tmp, "SM8250",         "865",       SOC_SNAPD_SM8250,         soc,  7)
   CHECK_SOC(tmp, "SM8250-AB",      "865+",      SOC_SNAPD_SM8250_AB,      soc,  7)
+  CHECK_SOC(tmp, "SM8350",         "888",       SOC_SNAPD_SM8350,         soc,  5)
   SOC_END
 }
 
