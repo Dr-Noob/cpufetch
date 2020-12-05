@@ -326,7 +326,7 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct colors* cs) {
 #endif
 
   for(int i=0; i < NUMBER_OF_LINES; i++)
-    strncpy(art->art[i], tmp + i*LINE_SIZE, LINE_SIZE);
+    memcpy(art->art[i], tmp + i*LINE_SIZE, LINE_SIZE);
 
   return art;
 }

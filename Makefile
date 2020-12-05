@@ -1,14 +1,14 @@
 CXX=gcc
 
 CXXFLAGS=-Wall -Wextra -Werror -pedantic -fstack-protector-all -pedantic -std=c99
-SANITY_FLAGS=-Wfloat-equal -Wshadow -Wpointer-arith -Wno-stringop-truncation
+SANITY_FLAGS=-Wfloat-equal -Wshadow -Wpointer-arith
 
 SRC_COMMON=src/common/
 
 COMMON_SRC = $(SRC_COMMON)main.c $(SRC_COMMON)cpu.c $(SRC_COMMON)udev.c $(SRC_COMMON)printer.c $(SRC_COMMON)args.c $(SRC_COMMON)global.c
 COMMON_HDR = $(SRC_COMMON)ascii.h $(SRC_COMMON)cpu.h $(SRC_COMMON)udev.h $(SRC_COMMON)printer.h $(SRC_COMMON)args.h $(SRC_COMMON)global.h
 
-ifneq ($(OS),Windows_NT)	
+ifneq ($(OS),Windows_NT)
 	arch := $(shell uname -m)
 	ifeq ($(arch), x86_64)
 		SRC_DIR=src/x86/
@@ -21,8 +21,8 @@ ifneq ($(OS),Windows_NT)
 		HEADERS += $(COMMON_HDR) $(SRC_DIR)midr.h $(SRC_DIR)uarch.h  $(SRC_DIR)soc.h $(SRC_DIR)udev.c $(SRC_DIR)socs.h
 		CXXFLAGS += -DARCH_ARM -Wno-unused-parameter
 	endif
-		
-	OUTPUT=cpufetch	
+
+	OUTPUT=cpufetch
 else
 	# Assume x86_64
 	SRC_DIR=src/x86/
@@ -36,7 +36,7 @@ endif
 all: $(OUTPUT)
 
 debug: CXXFLAGS += -g -O0
-debug: $(OUTPUT)	
+debug: $(OUTPUT)
 
 release: CXXFLAGS += -static -O3
 release: $(OUTPUT)
@@ -49,7 +49,7 @@ run: $(OUTPUT)
 
 clean:
 	@rm $(OUTPUT)
-	
+
 install: $(OUTPUT)
 	install -Dm755 "cpufetch"   "/usr/bin/cpufetch"
 	install -Dm644 "LICENSE"    "/usr/share/licenses/cpufetch-git/LICENSE"

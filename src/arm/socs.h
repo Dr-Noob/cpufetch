@@ -242,7 +242,7 @@ inline static VENDOR get_soc_vendor_from_soc(SOC soc) {
   else if(soc >= SOC_HISILICON_3620 && soc <= SOC_HISILICON_3690) return SOC_VENDOR_KIRIN;
   else if(soc >= SOC_EXYNOS_3475 && soc <= SOC_EXYNOS_880) return SOC_VENDOR_EXYNOS;
   else if(soc >= SOC_MTK_MT6873 && soc <= SOC_MTK_MT8783) return SOC_VENDOR_MEDIATEK;
-  else if(soc >= SOC_SNAPD_MSM7627A && soc <= SOC_SNAPD_SM8250_AB) return SOC_VENDOR_SNAPDRAGON;
+  else if(soc >= SOC_SNAPD_QSD8650 && soc <= SOC_SNAPD_SM8350) return SOC_VENDOR_SNAPDRAGON;
   return SOC_VENDOR_UNKNOWN;  
 }
 
