@@ -627,23 +627,22 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
     char* uarch = get_str_uarch(cpu);
     char* max_frequency = get_str_freq(cpu->freq);
     char* n_cores = get_str_topology(cpu, cpu->topo, false);
-    char* l1i = get_str_l1i(cpu->cach);
-    char* l1d = get_str_l1d(cpu->cach);
-    char* l2 = get_str_l2(cpu->cach);
-    char* l3 = get_str_l3(cpu->cach);
+    /*
+     * char* l1i = get_str_l1i(cpu->cach);
+     * char* l1d = get_str_l1d(cpu->cach);
+     * char* l2 = get_str_l2(cpu->cach);
+     * char* l3 = get_str_l3(cpu->cach);
+     * Do not setAttribute for caches.
+     * Cache functionality may be implemented
+     * in the future
+    */
   
     setAttribute(art,ATTRIBUTE_UARCH,uarch);
     setAttribute(art,ATTRIBUTE_FREQUENCY,max_frequency);
     setAttribute(art,ATTRIBUTE_NCORES,n_cores);
     if(features != NULL) {
       setAttribute(art, ATTRIBUTE_FEATURES, features);    
-    }
-    setAttribute(art,ATTRIBUTE_L1i,l1i);
-    setAttribute(art,ATTRIBUTE_L1d,l1d);
-    setAttribute(art,ATTRIBUTE_L2,l2);
-    if(l3 != NULL) {
-      setAttribute(art,ATTRIBUTE_L3,l3);
-    }
+    }    
   }
   else {
     struct cpuInfo* ptr = cpu;    
@@ -651,10 +650,15 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
       char* uarch = get_str_uarch(ptr);
       char* max_frequency = get_str_freq(ptr->freq);
       char* n_cores = get_str_topology(ptr, ptr->topo, false);      
-      char* l1i = get_str_l1i(ptr->cach);
-      char* l1d = get_str_l1d(ptr->cach);
-      char* l2 = get_str_l2(ptr->cach);
-      char* l3 = get_str_l3(ptr->cach);
+      /*
+       * char* l1i = get_str_l1i(cpu->cach);
+       * char* l1d = get_str_l1d(cpu->cach);
+       * char* l2 = get_str_l2(cpu->cach);
+       * char* l3 = get_str_l3(cpu->cach);
+       * Do not setAttribute for caches.
+       * Cache functionality may be implemented
+       * in the future
+       */
       
       char* cpu_num = malloc(sizeof(char) * 9);
       sprintf(cpu_num, "CPU %d:", i+1);
@@ -664,13 +668,7 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
       setAttribute(art, ATTRIBUTE_NCORES, n_cores);
       if(features != NULL) {
         setAttribute(art, ATTRIBUTE_FEATURES, features);    
-      }
-      setAttribute(art, ATTRIBUTE_L1i, l1i);
-      setAttribute(art, ATTRIBUTE_L1d, l1d);
-      setAttribute(art, ATTRIBUTE_L2, l2); 
-      if(l3 != NULL) {
-        setAttribute(art,ATTRIBUTE_L3,l3);
-      }
+      }      
     }
   }
   char* pp = get_str_peak_performance(cpu);
