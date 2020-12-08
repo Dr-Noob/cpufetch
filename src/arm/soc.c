@@ -515,7 +515,7 @@ struct system_on_chip* get_soc() {
   soc = guess_soc_from_cpuinfo(soc);
   if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) {
     if(soc->raw_name != NULL)
-      printBug("SoC detection failed using /proc/cpuinfo: Found '%s' string", soc->raw_name);   
+      printWarn("SoC detection failed using /proc/cpuinfo: Found '%s' string", soc->raw_name);   
     else
       printWarn("SoC detection failed using /proc/cpuinfo: No string found");
 #ifdef __ANDROID__
@@ -523,7 +523,7 @@ struct system_on_chip* get_soc() {
     if(soc->raw_name == NULL)
       printWarn("SoC detection failed using Android: No string found");
     else if(soc->soc_vendor == SOC_VENDOR_UNKNOWN)
-      printBug("SoC detection failed using Android: Found '%s' string", soc->raw_name);   
+      printWarn("SoC detection failed using Android: Found '%s' string", soc->raw_name);   
 #endif
   }
 
