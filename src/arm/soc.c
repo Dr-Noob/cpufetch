@@ -287,6 +287,10 @@ bool match_mediatek(char* soc_name, struct system_on_chip* soc) {
  *
  * If Qualcomm official website reports the SoC name without the initial two or three SKU name,
  * we assume APQ if second number is 0, or MSM if second number is different than 0
+ * 
+ * All SoC names here have been retrieved from official Qualcomm resources. However, Linux kernel
+ * and Android may report the SoC with slightly different. Therefore, this function needs some
+ * rework (e.g, debug with http://specdevice.com/unmoderated.php?lang=en)
  */
 bool match_qualcomm(char* soc_name, struct system_on_chip* soc) {
   char* tmp;
@@ -401,7 +405,7 @@ bool match_qualcomm(char* soc_name, struct system_on_chip* soc) {
   SOC_EQ(tmp, "SM7250-AB",      "765G",      SOC_SNAPD_SM7250_AB,      soc,  7)
   SOC_EQ(tmp, "SM7250-AC",      "768G",      SOC_SNAPD_SM7250_AC,      soc,  7)
   // Snapdragon 8XX //
-  SOC_EQ(tmp, "MSM8974AA",      "800",       SOC_SNAPD_MSM8974AA,      soc, 28) // TODO: Review 800 and 801
+  SOC_EQ(tmp, "MSM8974AA",      "800",       SOC_SNAPD_MSM8974AA,      soc, 28)
   SOC_EQ(tmp, "MSM8974AB",      "800",       SOC_SNAPD_MSM8974AB,      soc, 28)
   SOC_EQ(tmp, "MSM8974AC",      "800",       SOC_SNAPD_MSM8974AC,      soc, 28)
   SOC_EQ(tmp, "MSM8974PRO-AB",  "801",       SOC_SNAPD_MSM8974PRO_AB,  soc, 28)
