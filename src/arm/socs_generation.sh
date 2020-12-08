@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/bash -u
 
-SOC_LIST="$(grep CHECK_SOC soc.c | grep -v '//CHECK' | grep -v 'define' | cut -d',' -f2 | sed 's/"//')"
+SOC_LIST="$(grep SOC_EQ soc.c | grep -v '//SOC_EQ' | grep -v 'define' | cut -d',' -f2 | sed 's/"//')"
 
 IFS=$'"'
 
