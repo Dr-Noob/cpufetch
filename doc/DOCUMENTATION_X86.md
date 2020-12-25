@@ -1,5 +1,5 @@
 ### 2. Why differences between Intel and AMD?
-There are many different CPUID leaves [[1](#references)]. In some caseses, a given leaf does the same thing in Intel and AMD processors, but the majority of them, they don't. For example, leaf 0x4 gives you the caches information, but in AMD is a reserved (invalid) leaf! In the case of AMD, is more common to fetch information using extended levels than using the standard levels (the other way around with Intel).
+There are many different CPUID leaves [[1](#references)]. In some cases, a given leaf does the same thing in Intel and AMD processors, but in the majority of them, they don't. For example, leaf 0x4 gives you the caches information, but in AMD is a reserved (invalid) leaf! In the case of AMD, is more common to fetch information using extended levels than using the standard levels (the other way around with Intel).
 
 ### 3. How to get the frequency?
 __Involved code: [get_frequency_info (cpuid.c)](https://github.com/Dr-Noob/cpufetch/blob/master/src/x86/cpuid.c)__
@@ -13,8 +13,8 @@ If the CPU does not support supports such level:
 ### 4. How to get cache sizes?
 __Involved code: [get_cache_info (cpuid.c)](https://github.com/Dr-Noob/cpufetch/blob/master/src/x86/cpuid.c)__
 
-- Intel: CPUID leaf 0x4 is used (using __get_cache_info_general__). If CPU does not support it, cpufetch can't get this information.
-- AMD: Extended CPUID leaf 0x1D is used (using __get_cache_info_general__). If CPU does not support this level, cpufetch uses a fallback method, which uses extended leaves 0x5 and 0x6. This fallback method uses __get_cache_info_amd_fallback__.
+- Intel: CPUID leaf 0x4 is used (using __get_cache_info_general__). If the CPU does not support it, cpufetch can't get this information.
+- AMD: Extended CPUID leaf 0x1D is used (using __get_cache_info_general__). If the CPU does not support this level, cpufetch uses a fallback method, which uses extended leaves 0x5 and 0x6. This fallback method uses __get_cache_info_amd_fallback__.
 
 
 ### 5. How to get CPU microarchitecture?
@@ -27,12 +27,12 @@ CPUID leaf 0x1 is used. From there, we get:
 - Extended Family
 - Stepping
 
-Knowing this information, we can distinguish any CPU microarchitecture. Inside __uarch.c__ there is a function that behaves as a database or a lookup table. The function of this database is to find a match between the information obtained from 0x1 and what kind of microarchitecture the current CPU is. I got the data using and adapting the code form Todd Allen's cpuid program [[5](#references)]. Knowing the microarchitecture, we can obtain the manufacturing process (or technology, the size in nm of the transistors).
+Knowing this information, we can distinguish any CPU microarchitecture. Inside __uarch.c__ there is a function that behaves like a database or a lookup table. The function of this database is to find a match between the information obtained from 0x1 and what kind of microarchitecture the current CPU is. I got the data using and adapting the code from Todd Allen's cpuid program [[5](#references)]. Knowing the microarchitecture, we can obtain the manufacturing process (or technology, the size in nm of the transistors).
 
 ### 6. How to get CPU topology?
 __Involved code: [cpuid.h](https://github.com/Dr-Noob/cpufetch/blob/master/src/x86/cpuid.h), [get_topology_info (cpuid.c)](https://github.com/Dr-Noob/cpufetch/blob/master/src/x86/cpuid.c), [apic.c](https://github.com/Dr-Noob/cpufetch/blob/master/src/x86/apic.c)__
 
-cpufetch aims to support the most complex systems, so it supports multi socket CPUs and a detailed SMT (Intel HyperThreading) information. The CPU topology is stored in the following struct:
+cpufetch aims to support the most complex systems, so it supports multi-socket CPUs and detailed SMT (Intel HyperThreading) information. The CPU topology is stored in the following struct:
 
 ```
 struct topology {
@@ -50,7 +50,7 @@ This structure needs a bit of explanation, to know what are we looking for:
 - `logical_cores`: Number of logical cores. In a multi socket system, this field stores the number of logical cores for just one socket.
 - `total_cores`: Total number of logical cores. In a multi socket system, this field stores the number of logical cores for the entire system.
 - `sockets`: How many sockets the system has.
-- `smt_supported`: Stores if SMT (or Intel HT) is supported in the CPU, storing the number of threads per core. So, if `smt_supported == 1`, it means that there is 1 thread per core, and SMT is not supported. If SMT is supported, then `smt_supported >= 1`. Note this field tells if CPU if supports it, but not if SMT is activated or not.
+- `smt_supported`: Stores if SMT (or Intel HT) is supported in the CPU, storing the number of threads per core. So, if `smt_supported == 1`, it means that there is 1 thread per core, and SMT is not supported. If SMT is supported, then `smt_supported >= 1`. Note this field tells if the CPU if supports it, but not if SMT is activated or not.
 - `smt_available`: The same idea as `smt_supported`, but it stores if SMT is available. If SMT is not supported, then `smt_available` is always `1`. The differentiation between supported and available lets cpufetch distinguish when a CPU has SMT capabilities, but are disabled (probably in the BIOS).
 
 Let's give two CPU examples and the values that `struct topology` would have in these CPUs.
@@ -102,11 +102,11 @@ The topology of a cache gives us information about how many caches we have at a 
 - L2: If L2 is the last level cache, one L2. If not, the same as the number of cores (one L2 per core).
 - L3: One L3 cache per socket (shared among all cores).
 
-These assumptions are generally (but not always) true. For example, for the AMD Zen generation, or the Intel Xeon Phi KNL. Thus, cpufetch does not assume the topology, but obtains it instead.
+These assumptions are generally (but not always) true. For example, for the AMD Zen generation, or the Intel Xeon Phi KNL. Thus, cpufetch does not assume the topology but obtains it instead.
 
 - __Intel__: The idea is similar to the mentioned in CPU topology [[2](#references)](it also covers how to get cache topology using APIC id).
 
-- __AMD__: Again, we have to look another path for AMD. This time, the way to do it is easier and (I think) more solid and future proof. The idea is to use extended CPUID leaf 0x1D. If the CPU does not support it, we can still guess the topology of the caches (as mentioned earlier). If it does, CPUID can give us how many cores shares a given level of cache. So, if we have the number of cores, we can guess how many caches are there for any given level (see __get_cache_topology_amd__).
+- __AMD__: Again, we have to look for another path for AMD. This time, the way to do it is easier and (I think) more solid and future proof. The idea is to use extended CPUID leaf 0x1D. If the CPU does not support it, we can still guess the topology of the caches (as mentioned earlier). If it does, CPUID can give us how many cores shares a given level of cache. So, if we have the number of cores, we can guess how many caches are there for any given level (see __get_cache_topology_amd__).
 
 #### References
 - [1] [sandpile CPUID webpage](https://www.sandpile.org/x86/cpuid.htm)
@@ -117,4 +117,4 @@ These assumptions are generally (but not always) true. For example, for the AMD 
 - [6] [AMD specific CPUID specification](https://www.amd.com/system/files/TechDocs/25481.pdf)
 - [7] [Intel vs AMD CPU Architectural Differences: Chips and Chiplets](https://c.mi.com/thread-2585048-1-0.html)
 
-In addition to all these resources, I found very interesting to search in the Linux kernel source code (for example, the directory [`arch/x86/kernel/cpu/`](https://elixir.bootlin.com/linux/latest/source/arch/x86/kernel/cpu)), because sometetimes you can find ideas that cannot be found anywhere else!
+In addition to all these resources, I found it very interesting to search in the Linux kernel source code (for example, the directory [`arch/x86/kernel/cpu/`](https://elixir.bootlin.com/linux/latest/source/arch/x86/kernel/cpu)), because sometimes you can find ideas that cannot be found anywhere else!

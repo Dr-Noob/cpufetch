@@ -1,12 +1,15 @@
 # cpufetch programming documentation (v0.94)
-This documentation explains how cpufetch works internally and all the design decisions I made. The intention of this documentation is to be useful for me in the future, for everyone interested in the project, and for anyone who is trying to obtain any specific information from the CPU. In this way, this can be used as a manual or a page which collects interesting material in this area.
+This documentation explains how cpufetch works internally and all the design decisions I made. This document intends to be useful for me in the future, for everyone interested in the project, and for anyone who is trying to obtain any specific information from the CPU. In this way, this can be used as a manual or a page that collects interesting material in this area.
 
 ### 1. Basics
 cpufetch works for __x86_64__ (Intel and AMD) and  __ARM__ CPUs. However, cpufetch is expected to work better on x86_64, because the codebase is older and has been tested much more than the ARM version. Other kinds of x86_64 CPU are not supported (I don't think supporting other CPUs may pay off). Depending on the architecture, cpufetch choose certain files to be compiled. A summarized tree of the source code of cpufetch is shown below.
 
 ```
 cpufetch/
-├── DOCUMENTATION.md
+├── doc
+│   ├── DOCUMENTATION_ARM.md
+│   ├── DOCUMENTATION_X86.md
+│   └── README.md
 ├── Makefile
 ├── README.md
 └── src/
@@ -22,9 +25,9 @@ cpufetch/
         └── other files ...
 ```
 
-Source code is divided in three directories:
+Source code is divided into three directories:
 
-- `common/`: Source code shared beteen x86 and ARM
+- `common/`: Source code shared between x86 and ARM
 - `arm/`: ARM dependant source code
 - `x86/`: x86_64 dependant source code
 
@@ -44,13 +47,13 @@ struct cpuInfo {
 };
 ```
 
-To use any CPUID leaf, cpufetch always need to check that it is supported in the current CPU.
+To use any CPUID leaf, cpufetch always needs to check that it is supported in the current CPU.
 
 ##### 1.2 Basics (ARM)
-In ARM, __cpufetch works using the MIDR register and Linux filesystem__. MIDR (Main ID Register) is read from `/proc/cpuinfo`. It allows the detection of the microarchitecture of the cores. Furthermore, Linux filesystem `/sys/devices/system/cpu/` is used to fetch the number of cores, and other information. This is the main reason to explain __why `cpufetch` only works on Linux kernel based systems.__
+In ARM, __cpufetch works using the MIDR register and Linux filesystem__. MIDR (Main ID Register) is read from `/proc/cpuinfo`. It allows the detection of the microarchitecture of the cores. Furthermore, Linux filesystem `/sys/devices/system/cpu/` is used to fetch the number of cores and other information. This is the main reason to explain __why `cpufetch` only works on Linux kernel based systems.__
 
 ##### 1.3 Documentation organization
-The rest of the documentation is divided into x86 and ARM architectures, since each one need different implementations:
+The rest of the documentation is divided into x86 and ARM architectures since each one needs different implementations:
 
 - [DOCUMENTATION_X86.md](https://github.com/Dr-Noob/cpufetch/blob/master/doc/DOCUMENTATION_X86.md)
 - [DOCUMENTATION_ARM.md](https://github.com/Dr-Noob/cpufetch/blob/master/doc/DOCUMENTATION_ARM.md)

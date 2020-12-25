@@ -17,7 +17,7 @@ cpufetch currently supports x86 CPUs (both Intel and AMD CPUs)
 #### Linux
 There is a cpufetch package available in Arch Linux ([cpufetch-git](https://aur.archlinux.org/packages/cpufetch-git)).
 
-If you are in other distro, you can build `cpufetch` from source (see below)
+If you are in another distro, you can build `cpufetch` from source (see below)
 
 #### Windows
 In the [releases](https://github.com/Dr-Noob/cpufetch/releases) section you will find some cpufetch executables compiled for Windows. Just download and run it from Windows CMD.
@@ -59,7 +59,7 @@ In the case of setting the colors using RGB, 4 colors must be given in with the 
 See [cpufetch programming documentation](https://github.com/Dr-Noob/cpufetch/blob/master/doc/README.md).
 
 ### Bugs or improvements
-There are many open issues in github (see [issues](https://github.com/Dr-Noob/cpufetch/issues)). Feel free to open a new one report a issue or propose any improvement in `cpufetch`
+There are many open issues in github (see [issues](https://github.com/Dr-Noob/cpufetch/issues)). Feel free to open a new one report an issue or propose any improvement in `cpufetch`
 
 ### Testers
 I would like to thank [Gonzalocl](https://github.com/Gonzalocl) and [OdnetninI](https://github.com/OdnetninI) for their help, running `cpufetch` in many different CPUs they have access to, which makes it easier to debug and check the correctness of `cpufetch`.

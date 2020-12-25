@@ -6,23 +6,23 @@ __Involved code: [get_midr_from_cpuinfo (udev.c)](https://github.com/Dr-Noob/cpu
 
 Microarchitecture information is acquired from the Main ID Register (MIDR) [[2](#references)]. Currently, cpufetch rebuilds this register using `/proc/cpuinfo` file. While this file does not contain the value of the register per se, it contains the following fields:
 - `CPU implementer`,
-- `CPU archiecture`
+- `CPU architecture`
 - `CPU variant`
 - `CPU part`
 - `CPU revision`
 
 The MIDR register can be built with this information. Another posible approach is to read MIDR directly from `/sys/devices/system/cpu/cpu*/regs/identification/midr_el1`
 
-With the MIDR available, the approach is the same as the one used in x86_64 archiectures. cpufetch has a file which acts like a database that tries to match the MIDR register with the specific CPU microarchitecture.
+With the MIDR available, the approach is the same as the one used in x86_64 architectures. cpufetch has a file that acts like a database that tries to match the MIDR register with the specific CPU microarchitecture.
 
 ### 4. How to get CPU topology?
 __Involved code: [get_ncores_from_cpuinfo (udev.c)](https://github.com/Dr-Noob/cpufetch/blob/master/src/arm/udev.c), [midr.c](https://github.com/Dr-Noob/cpufetch/blob/master/src/arm/midr.c)__
 
-ARM provides a new interesting archiecture feature: big.LITTLE architectures [[4](#references)]. An ARM CPU can be organized like a typycal x86_64 CPU, where all cores share the same microarchitecture. However, ARM big.LITTLE archiecture break this schema. In a big.LITTLE CPU, two or more CPUs microarchitecture live in the same chip.
+ARM provides a new interesting architecture feature: big.LITTLE architectures [[4](#references)]. An ARM CPU can be organized like a typical x86_64 CPU, where all cores share the same microarchitecture. However, ARM big.LITTLE architecture breaks this schema. In a big.LITTLE CPU, two or more CPUs microarchitecture live in the same chip.
 
 This means that cpufetch can't just read which microarchitecture is the first core and assume that the rest of them shares the same microarchitecture. To get the CPU topology, cpufetch first reads the number of CPU cores. This can be obtained from `/sys/devices/system/cpu/present`
 
-Then, for each core, cpufetch reads the MIDR and also the frequency (see section 5). Then, cpufetch assumes that two cores are different when their MIDR are different. This idea allows cpufetch do detect big.LITTLE architectures, and to know how many cores of each archiecture the running CPU has.
+Then, for each core, cpufetch reads the MIDR and also the frequency (see section 5). Then, cpufetch assumes that two cores are different when their MIDR are different. This idea allows cpufetch to detect big.LITTLE architectures, and to know how many cores of each architecture the running CPU has.
 
 ### 5. How to get the frequency?
 Frequency is read directly from `/sys/devices/system/cpu/cpu*/cpufreq/cpuinfo_max_freq`
@@ -32,7 +32,7 @@ __Involved code: [soc.c](https://github.com/Dr-Noob/cpufetch/blob/master/src/arm
 
 System on chip (SoC) model is obtained using the same idea as the microarchitecture. First, SoC string is read. Then, the string has to be matched against a database-like function (__parse_soc_from_string__). The SoC string of the running CPU can be obtained using two different approaches:
 
-- Using `/proc/cpuinfo`. This is the first thing to try. Linux kernel usally provides the string under the `Hardware` keyword. However, it may happend that Linux kernel is unable of providing this information, or it may happen that this string is not found in the database-like function.
+- Using `/proc/cpuinfo`. This is the first thing to try. Linux kernel usually provides the string under the `Hardware` keyword. However, the Linux kernel may be unable to provide this information, or this string may not be found in the database-like function.
 - Using Android properties: This only works on Android systems. Android properties can be read using `__system_property_get` function. cpufetch tries to read two properties:
   - `ro.mediatek.platform`
   - `ro.product.board`
@@ -41,13 +41,13 @@ System on chip (SoC) model is obtained using the same idea as the microarchitect
 
 The expected strings have to be hardcoded. I found two ways of knowing which string should correspond to which SoC:
 
-  - Searching on the internet. Manufacturers __usually__ provide this information. For example, Qualcomm usually publish the chip name along with other characteristics (under the `Part` or `Part number` keyword [[6](#references)]).
+  - Searching on the internet. Manufacturers __usually__ provide this information. For example, Qualcomm usually publishes the chip name along with other characteristics (under the `Part` or `Part number` keyword [[6](#references)]).
   - "Hunting" for the strings. For example, finding smartphones with a given SoC and manually reading the `/proc/cpuinfo` or the `build.prop` file. A very good resource to do this is the SpecDevice webpage [[7](#references)]).
 
 ### 7. How to get cache size and topology?
-ARM archiecture supports reading the cache information via some registers (for example, the CCSIDR register  [[3](#references)]). As mentioned earlier, user level applications are not able to read these registers directly. The remaining option is to ask the operating system for this information. However, at the moment, __Linux kernel does not provide cache information__. Therefore, cpufetch does not print any cache information on ARM CPUs at the moment. There is, however, other approaches to be explored:
+ARM architecture supports reading the cache information via some registers (for example, the CCSIDR register  [[3](#references)]). As mentioned earlier, user level applications are not able to read these registers directly. The remaining option is to ask the operating system for this information. However, at the moment, the __Linux kernel does not provide cache information__. Therefore, cpufetch does not print any cache information on ARM CPUs at the moment. There are, however, other approaches to be explored:
 
-- Read the registers in kernel mode. This can be accomplished by running a kernel module [[4](#references)]. Unfortunately, running a custom kernel module is tricky, and sometimes imposible to do in a reasonable way (for example, in Android devices). In any case, my decision is to run cpufetch on user level only.
+- Read the registers in kernel mode. This can be accomplished by running a kernel module [[4](#references)]. Unfortunately, running a custom kernel module is tricky, and sometimes impossible to do reasonably (for example, in Android devices). In any case, my decision is to run cpufetch on user level only.
 - Hardcode the cache information for each SoC: Sometimes, manufacturers publish technical information about the chips, where cache topology and size are shown. This method is impractical, since this kind of information is very hard (or impossible) to find online, and the number of SoC is huge.
 
 #### References
