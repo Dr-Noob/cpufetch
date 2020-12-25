@@ -1,7 +1,7 @@
 # cpufetch
 
 Simplistic yet fancy CPU architecture fetching tool
-![cpu1](i9.png)
+![cpu1](pictures/i9.png)
 
 ### Platforms
 cpufetch currently supports x86 CPUs (both Intel and AMD CPUs)
@@ -34,13 +34,20 @@ make
 
 The Makefile is designed to work on both Linux and Windows.
 
-### Example
-
+### Examples
 Here are more examples of how `cpufetch` looks on different CPUs.
 
-![cpu2](epyc.png)
+##### x86_64 CPUs
 
-![cpu3](cascade_lake.png)
+![cpu2](pictures/epyc.png)
+
+![cpu3](pictures/cascade_lake.png)
+
+##### ARM CPUs
+
+![cpu4](pictures/exynos.png)
+
+![cpu5](pictures/snapdragon.png)
 
 ### Colors and style
 By default, `cpufetch` will print the CPU art with the system colorscheme. However, you can always set a custom color scheme, either
@@ -61,5 +68,5 @@ See [cpufetch programming documentation](https://github.com/Dr-Noob/cpufetch/blo
 ### Bugs or improvements
 There are many open issues in github (see [issues](https://github.com/Dr-Noob/cpufetch/issues)). Feel free to open a new one report an issue or propose any improvement in `cpufetch`
 
-### Testers
+### Testing
 I would like to thank [Gonzalocl](https://github.com/Gonzalocl) and [OdnetninI](https://github.com/OdnetninI) for their help, running `cpufetch` in many different CPUs they have access to, which makes it easier to debug and check the correctness of `cpufetch`.
