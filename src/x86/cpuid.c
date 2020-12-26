@@ -594,7 +594,7 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
 
   uint32_t level;
 
-  // We use standart 0x00000004 for Intel
+  // We use standard 0x00000004 for Intel
   // We use extended 0x8000001D for AMD
   // or 0x80000005/6 for old AMD
   if(cpu->cpu_vendor == CPU_VENDOR_INTEL) {
@@ -870,7 +870,7 @@ char* get_str_fma(struct cpuInfo* cpu) {
 
 void print_debug(struct cpuInfo* cpu) {
   printf("%s\n", cpu->cpu_name);
-  printf("- Max standart level: 0x%.8X\n", cpu->maxLevels);
+  printf("- Max standard level: 0x%.8X\n", cpu->maxLevels);
   printf("- Max extended level: 0x%.8X\n", cpu->maxExtendedLevels);
 
   free_cpuinfo_struct(cpu);
