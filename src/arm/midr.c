@@ -52,7 +52,7 @@ struct frequency* get_frequency_info(uint32_t core) {
   struct frequency* freq = malloc(sizeof(struct frequency));
 
   freq->base = UNKNOWN_FREQ;
-  freq->max = get_max_freq_from_file(core);
+  freq->max = get_max_freq_from_file(core, false);
 
   return freq;
 }
@@ -186,7 +186,7 @@ struct cpuInfo* get_cpu_info() {
       midr_array[i] = midr_array[0];
     }
     
-    freq_array[i] = get_max_freq_from_file(i);
+    freq_array[i] = get_max_freq_from_file(i, false);
     if(freq_array[i] == UNKNOWN_FREQ) {
       printWarn("Unable to fetch max frequency for core %d. This is probably because the core is offline", i);
       freq_array[i] = freq_array[0];
@@ -306,7 +306,7 @@ void print_debug(struct cpuInfo* cpu) {
   
   for(int i=0; i < ncores; i++) {
     printf("[Core %d] ", i);
-    long freq = get_max_freq_from_file(i);
+    long freq = get_max_freq_from_file(i, false);
     uint32_t midr = get_midr_from_cpuinfo(i, &success);
     if(!success) {
       printWarn("Unable to fetch MIDR for core %d. This is probably because the core is offline", i);
@@ -317,7 +317,7 @@ void print_debug(struct cpuInfo* cpu) {
     }
     if(freq == UNKNOWN_FREQ) {
       printWarn("Unable to fetch max frequency for core %d. This is probably because the core is offline", i);
-      printf("%ld MHz\n", get_max_freq_from_file(0));
+      printf("%ld MHz\n", get_max_freq_from_file(0, false));
     }
     else {
       printf("%ld MHz\n", freq);    

@@ -661,13 +661,28 @@ struct frequency* get_frequency_info(struct cpuInfo* cpu) {
   
   if(cpu->maxLevels < 0x00000016) {
     #ifdef _WIN32
-      printErr("Can't read frequency information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000016, cpu->maxLevels);
+      if(cpu->hv->present) {
+        printWarn("Can't read frequency information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000016, cpu->maxLevels);
+      }
+      else {
+        printErr("Can't read frequency information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000016, cpu->maxLevels);    
+      }
       freq->base = UNKNOWN_FREQ;
       freq->max = UNKNOWN_FREQ;
     #else
       printWarn("Can't read frequency information from cpuid (needed level is 0x%.8X, max is 0x%.8X). Using udev", 0x00000016, cpu->maxLevels);
       freq->base = UNKNOWN_FREQ;
-      freq->max = get_max_freq_from_file(0);
+      freq->max = get_max_freq_from_file(0, cpu->hv->present);
+      
+      if(freq->max == 0) {
+        if(cpu->hv->present) {
+          printWarn("Read max CPU frequency and got 0 MHz");
+        }
+        else {
+          printBug("Read max CPU frequency and got 0 MHz");    
+        }
+        freq->max = UNKNOWN_FREQ;
+      }
     #endif
   }
   else {
@@ -682,11 +697,21 @@ struct frequency* get_frequency_info(struct cpuInfo* cpu) {
     freq->max = ebx;    
     
     if(freq->base == 0) {
-      printWarn("Read base CPU frequency and got 0 MHz");
+      if(cpu->hv->present) {
+        printWarn("Read base CPU frequency and got 0 MHz");
+      }
+      else {
+        printBug("Read base CPU frequency and got 0 MHz");    
+      }
       freq->base = UNKNOWN_FREQ;
     }
     if(freq->max == 0) {
-      printWarn("Read max CPU frequency and got 0 MHz");
+      if(cpu->hv->present) {
+        printWarn("Read max CPU frequency and got 0 MHz");
+      }
+      else {
+        printBug("Read max CPU frequency and got 0 MHz");    
+      }
       freq->max = UNKNOWN_FREQ;
     }
   }
@@ -870,6 +895,7 @@ char* get_str_fma(struct cpuInfo* cpu) {
 
 void print_debug(struct cpuInfo* cpu) {
   printf("%s\n", cpu->cpu_name);
+  if(cpu->hv->present) printf("- Hypervisor: %s\n", cpu->hv->hv_name);
   printf("- Max standard level: 0x%.8X\n", cpu->maxLevels);
   printf("- Max extended level: 0x%.8X\n", cpu->maxExtendedLevels);
 

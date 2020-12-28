@@ -28,11 +28,21 @@ char* read_file(char* path, int* len) {
   return buf;
 }
 
-long get_freq_from_file(char* path) {
+long get_freq_from_file(char* path, bool hv_present) {
   int filelen;
   char* buf;
   if((buf = read_file(path, &filelen)) == NULL) {
-    printWarn("Could not open '%s'", path); 
+    #ifdef ARCH_X86
+      if(hv_present) {
+        printWarn("Could not open '%s'", path);
+      }
+      else {
+        perror("open");
+        printBug("Could not open '%s'", path);            
+      }
+    #elif ARCH_ARM
+      printWarn("Could not open '%s'", path); 
+    #endif
     return UNKNOWN_FREQ;
   }
 
@@ -59,14 +69,14 @@ long get_freq_from_file(char* path) {
   return ret/1000;
 }
 
-long get_max_freq_from_file(uint32_t core) {
+long get_max_freq_from_file(uint32_t core, bool hv_present) {
   char path[_PATH_FREQUENCY_MAX_LEN];
   sprintf(path, "%s%s/cpu%d%s%s", _PATH_SYS_SYSTEM, _PATH_SYS_CPU, core, _PATH_FREQUENCY, _PATH_FREQUENCY_MAX);
-  return get_freq_from_file(path);
+  return get_freq_from_file(path, hv_present);
 }
 
-long get_min_freq_from_file(uint32_t core) {
+long get_min_freq_from_file(uint32_t core, bool hv_present) {
   char path[_PATH_FREQUENCY_MAX_LEN];
   sprintf(path, "%s%s/cpu%d%s%s", _PATH_SYS_SYSTEM, _PATH_SYS_CPU, core, _PATH_FREQUENCY, _PATH_FREQUENCY_MIN);
-  return get_freq_from_file(path);
+  return get_freq_from_file(path, hv_present);
 }
