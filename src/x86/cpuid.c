@@ -27,7 +27,6 @@ static const char *hv_vendors_string[] = {
   [HV_VENDOR_VMWARE]    = "VMwareVMware",
   [HV_VENDOR_XEN]       = "XenVMMXenVMM",
   [HV_VENDOR_PARALLELS] = "lrpepyh vr",
-  [HV_VENDOR_INVALID]   = NULL
 };
 
 static char *hv_vendors_name[] = {
