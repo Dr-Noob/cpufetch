@@ -1,14 +1,17 @@
 #ifdef _WIN32
 #include <windows.h>
-#else
+#elif defined __linux__
 #define _GNU_SOURCE
 #include <sched.h>
+#elif defined __APPLE__
+#define UNUSED(x) (void)(x)
 #endif
 
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include "apic.h"
 #include "cpuid_asm.h"
@@ -66,6 +69,7 @@ uint32_t get_apic_id(bool x2apic_id) {
   }
 }
 
+#ifndef __APPLE__
 bool bind_to_cpu(int cpu_id) {
   #ifdef _WIN32
     HANDLE process = GetCurrentProcess();
@@ -82,6 +86,7 @@ bool bind_to_cpu(int cpu_id) {
     return true;
   #endif  
 }
+#endif
 
 bool fill_topo_masks_apic(struct topology* topo) {
   uint32_t eax = 0x00000001;
@@ -254,8 +259,60 @@ void get_cache_topology_from_apic(struct topology* topo) {
   }
 }
 
+bool apic_array_full(uint32_t* apic_ids, int n) {
+  for(int i=0; i < n; i++) {
+    if(apic_ids[i] == (uint32_t) -1) return false;
+  }
+  return true;
+}
+
+void add_apic_to_array(uint32_t apic, uint32_t* apic_ids, int n) {
+  int i=0;
+  int last=0;
+  bool found = false;
+
+  while(!found && i < n) {
+    if(apic_ids[i] == apic) found = true;
+    if(apic_ids[i] != (uint32_t) -1) last = i+1;
+    i++;
+  }
+  
+  if(!found) { 
+    apic_ids[last] = apic;
+    //printf("Added %d\n", apic);
+  }
+}
+
+bool fill_apic_ids(uint32_t* apic_ids, int n, bool x2apic_id) {
+#ifdef __APPLE__    
+  // macOS extremely dirty approach...
+  printf("cpufetch is computing APIC IDs, please wait...");
+  bool end = false;
+  uint32_t apic;
+  for(int i=0; i < n; i++) apic_ids[i] = (uint32_t) -1;
+
+  while(!end) {
+    apic = get_apic_id(x2apic_id);
+    
+    add_apic_to_array(apic, apic_ids, n);
+    end = apic_array_full(apic_ids, n);    
+    usleep(1000);
+  }        
+#else
+  for(int i=0; i < n; i++) {
+    if(!bind_to_cpu(i)) {
+      printErr("Failed binding to CPU %d", i);
+      return false;
+    }
+    apic_ids[i] = get_apic_id(x2apic_id);
+  }
+#endif
+  return true;
+}
+
 bool get_topology_from_apic(struct cpuInfo* cpu, struct topology* topo) { 
-  uint32_t apic_id;
+  uint32_t apic_id;  
+  uint32_t* apic_ids = malloc(sizeof(uint32_t) * topo->total_cores);
   uint32_t* apic_pkg = malloc(sizeof(uint32_t) * topo->total_cores);
   uint32_t* apic_core = malloc(sizeof(uint32_t) * topo->total_cores);
   uint32_t* apic_smt = malloc(sizeof(uint32_t) * topo->total_cores);
@@ -281,12 +338,11 @@ bool get_topology_from_apic(struct cpuInfo* cpu, struct topology* topo) {
   
   get_cache_topology_from_apic(topo);  
   
-  for(int i=0; i < topo->total_cores; i++) {
-    if(!bind_to_cpu(i)) {
-      printErr("Failed binding to CPU %d", i);
-      return false;
-    }
-    apic_id = get_apic_id(x2apic_id);
+  if(!fill_apic_ids(apic_ids, topo->total_cores, x2apic_id))
+    return false;
+  
+  for(int i=0; i < topo->total_cores; i++) {    
+    apic_id = apic_ids[i];
     
     apic_pkg[i] = (apic_id & topo->apic->pkg_mask) >> topo->apic->pkg_mask_shift;
     apic_core[i] = (apic_id & topo->apic->core_mask) >> topo->apic->smt_mask_width;
@@ -337,6 +393,10 @@ bool get_topology_from_apic(struct cpuInfo* cpu, struct topology* topo) {
 } 
 
 uint32_t is_smt_enabled_amd(struct topology* topo) {
+#ifdef __APPLE__
+  UNUSED(topo);
+  return 1;
+#else  
   uint32_t id;
   
   for(int i = 0; i < topo->total_cores; i++) {
@@ -349,4 +409,5 @@ uint32_t is_smt_enabled_amd(struct topology* topo) {
   }
   
   return 1;  
+#endif  
 }
