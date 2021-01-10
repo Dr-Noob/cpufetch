@@ -668,6 +668,10 @@ struct frequency* get_frequency_info(struct cpuInfo* cpu) {
       }
       freq->base = UNKNOWN_FREQ;
       freq->max = UNKNOWN_FREQ;
+    #elif defined __APPLE__
+      printErr("Can't read frequency information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000016, cpu->maxLevels);
+      freq->base = UNKNOWN_FREQ;
+      freq->max = UNKNOWN_FREQ;
     #else
       printWarn("Can't read frequency information from cpuid (needed level is 0x%.8X, max is 0x%.8X). Using udev", 0x00000016, cpu->maxLevels);
       freq->base = UNKNOWN_FREQ;
