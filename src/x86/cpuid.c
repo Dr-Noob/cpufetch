@@ -891,13 +891,19 @@ char* get_str_fma(struct cpuInfo* cpu) {
   return string;
 }
 
-/*** DEBUG ***/
-
 void print_debug(struct cpuInfo* cpu) {
+  uint32_t eax = 0x00000001;
+  uint32_t ebx = 0;
+  uint32_t ecx = 0;
+  uint32_t edx = 0;
+  
+  cpuid(&eax, &ebx, &ecx, &edx);
+  
   printf("%s\n", cpu->cpu_name);
   if(cpu->hv->present) printf("- Hypervisor: %s\n", cpu->hv->hv_name);
   printf("- Max standard level: 0x%.8X\n", cpu->maxLevels);
   printf("- Max extended level: 0x%.8X\n", cpu->maxExtendedLevels);
+  printf("- CPUID dump: 0x%.8X\n", eax);
 
   free_cpuinfo_struct(cpu);
 }
