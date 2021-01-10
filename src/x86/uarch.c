@@ -11,6 +11,7 @@
  *   http://www.etallen.com/cpuid.html
  * - This should be updated from time to time, to support newer CPUs. A good reference to look at:
  *   https://en.wikichip.org/
+ *   http://instlatx64.atw.hu/
  */
 
 // From Todd Allen:
@@ -63,6 +64,9 @@ enum {
   UARCH_BROADWELL,
   UARCH_AIRMONT,
   UARCH_KABY_LAKE,
+  UARCH_COMET_LAKE,
+  UARCH_AMBER_LAKE,
+  UARCH_WHISKEY_LAKE,
   UARCH_SKYLAKE,
   UARCH_CASCADE_LAKE,
   UARCH_COOPER_LAKE,
@@ -123,7 +127,7 @@ void fill_uarch(struct uarch* arch, char* str, MICROARCH u, uint32_t process) {
   arch->process= process;
 }
 
-// iNApired in Todd Allen's decode_uarch_intel
+// Inspired in Todd Allen's decode_uarch_intel
 struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, uint32_t m, int s) {
   struct uarch* arch = malloc(sizeof(struct uarch));
   
@@ -134,7 +138,7 @@ struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, u
   // S: Stepping                                                                   //
   // ----------------------------------------------------------------------------- //
   //                EF  F  EM   M   S                                              //
-  UARCH_START  
+  UARCH_START
   CHECK_UARCH(arch, 0,  5,  0,  0, NA, "P5",              UARCH_P5,              800)
   CHECK_UARCH(arch, 0,  5,  0,  1, NA, "P5",              UARCH_P5,              800)
   CHECK_UARCH(arch, 0,  5,  0,  2, NA, "P5",              UARCH_P5,              UNK)
@@ -215,7 +219,10 @@ struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, u
   CHECK_UARCH(arch, 0,  6,  8, 10, NA, "Tremont",         UARCH_TREMONT,          10) // no spec update; only geekbench.com example
   CHECK_UARCH(arch, 0,  6,  8, 12, NA, "Willow Cove",     UARCH_WILLOW_COVE,      10) // found only on en.wikichip.org
   CHECK_UARCH(arch, 0,  6,  8, 13, NA, "Willow Cove",     UARCH_WILLOW_COVE,      10) // LX*
-  CHECK_UARCH(arch, 0,  6,  8, 14, NA, "Kaby Lake",       UARCH_KABY_LAKE,        14)
+  CHECK_UARCH(arch, 0,  6,  8, 14,  9, "Amber Lake",      UARCH_AMBER_LAKE,       14) // wikichip
+  CHECK_UARCH(arch, 0,  6,  8, 14, 10, "Kaby Lake",       UARCH_KABY_LAKE,        14) // wikichip
+  CHECK_UARCH(arch, 0,  6,  8, 14, 11, "Whiskey Lake",    UARCH_WHISKEY_LAKE,     14) // wikichip
+  CHECK_UARCH(arch, 0,  6,  8, 14, 12, "Comet Lake",      UARCH_COMET_LAKE,       14) // wikichip
   CHECK_UARCH(arch, 0,  6,  9,  6, NA, "Tremont",         UARCH_TREMONT,          10) // LX*
   CHECK_UARCH(arch, 0,  6,  9, 12, NA, "Tremont",         UARCH_TREMONT,          10) // LX*
   CHECK_UARCH(arch, 0,  6,  9, 13, NA, "Sunny Cove",      UARCH_SUNNY_COVE,       10) // LX*
@@ -224,8 +231,8 @@ struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, u
   CHECK_UARCH(arch, 0,  6,  9, 14, 11, "Coffee Lake",     UARCH_COFFE_LAKE,       14)
   CHECK_UARCH(arch, 0,  6,  9, 14, 12, "Coffee Lake",     UARCH_COFFE_LAKE,       14)
   CHECK_UARCH(arch, 0,  6,  9, 14, 13, "Coffee Lake",     UARCH_COFFE_LAKE,       14)
-  CHECK_UARCH(arch, 0,  6, 10,  5, NA, "Kaby Lake",       UARCH_KABY_LAKE,        14) // LX*
-  CHECK_UARCH(arch, 0,  6, 10,  6, NA, "Kaby Lake",       UARCH_KABY_LAKE,        14) // no spec update; only iNAtlatx64 example
+  CHECK_UARCH(arch, 0,  6, 10,  5, NA, "Comet Lake",      UARCH_COMET_LAKE,       14) // wikichip
+  CHECK_UARCH(arch, 0,  6, 10,  6, NA, "Comet Lake",      UARCH_COMET_LAKE,       14) // instlatx64.atw.hu (i7-10710U)
   CHECK_UARCH(arch, 0, 11,  0,  0, NA, "Knights Ferry",   UARCH_KNIGHTS_FERRY,    45) // found only on en.wikichip.org
   CHECK_UARCH(arch, 0, 11,  0,  1, NA, "Knights Corner",  UARCH_KNIGHTS_CORNER,   22)
   CHECK_UARCH(arch, 0, 15,  0,  0, NA, "Willamette",      UARCH_WILLAMETTE,      180)
@@ -238,7 +245,7 @@ struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, u
   CHECK_UARCH(arch, 1, 15,  0,  1, NA, "Itanium2",        UARCH_ITANIUM2,        130)
   CHECK_UARCH(arch, 1, 15,  0,  2, NA, "Itanium2",        UARCH_ITANIUM2,        130)
   UARCH_END
-    
+ 
   return arch;
 }
 
@@ -351,7 +358,6 @@ struct uarch* get_uarch_from_cpuid(struct cpuInfo* cpu, uint32_t ef, uint32_t f,
 }
 
 bool vpus_are_AVX512(struct cpuInfo* cpu) {
-  return cpu->arch->uarch != UARCH_ICE_LAKE;    
   return cpu->arch->uarch != UARCH_ICE_LAKE;
 }
 
@@ -359,10 +365,7 @@ bool is_knights_landing(struct cpuInfo* cpu) {
   return cpu->arch->uarch == UARCH_KNIGHTS_LANDING;  
 }
 
-int get_number_of_vpus(struct cpuInfo* cpu) {
-  if(cpu->cpu_vendor == CPU_VENDOR_AMD)
-    return 1;
-  
+int get_number_of_vpus(struct cpuInfo* cpu) {  
   switch(cpu->arch->uarch) {
       case UARCH_HASWELL:
       case UARCH_BROADWELL:
@@ -370,13 +373,20 @@ int get_number_of_vpus(struct cpuInfo* cpu) {
       case UARCH_SKYLAKE:
       case UARCH_CASCADE_LAKE:                    
       case UARCH_KABY_LAKE:
+      case UARCH_COMET_LAKE:
+      case UARCH_AMBER_LAKE:
+      case UARCH_WHISKEY_LAKE:
       case UARCH_COFFE_LAKE:
       case UARCH_PALM_COVE:    
       
       case UARCH_KNIGHTS_LANDING:
       case UARCH_KNIGHTS_MILL:
           
-      case UARCH_ICE_LAKE:      
+      case UARCH_ICE_LAKE:   
+          
+      // Right now is just a guess!
+      case UARCH_ZEN2:
+      case UARCH_ZEN3:    
         return 2;
       default:
         return 1;
