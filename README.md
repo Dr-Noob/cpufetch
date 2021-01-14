@@ -4,13 +4,20 @@ Simplistic yet fancy CPU architecture fetching tool
 ![cpu1](pictures/i9.png)
 
 ### Platforms
-cpufetch currently supports x86 CPUs (both Intel and AMD CPUs)
+cpufetch currently supports x86_64 CPUs (both Intel and AMD) and ARM.
 
-| Platform  | Intel                     | AMD                      | Notes             |
-|:---------:|:-------------------------:|:------------------------:|:-----------------:|
-| Linux     | :heavy_check_mark:        | :heavy_check_mark:       | Prefered platform |
-| Windows   | :heavy_check_mark:        | :heavy_check_mark:       | Some information may be missing. <br> Colors will be used if supported |
-| macOS     | :heavy_exclamation_mark:  | :heavy_exclamation_mark: | Untested |
+| Platform  | x86_64                    | ARM                | Notes             |
+|:---------:|:------------------------:|:-------------------:|:-----------------:|
+| Linux     | :heavy_check_mark:        | :heavy_check_mark: | Prefered platform. <br> Experimental ARM support |
+| Windows   | :heavy_check_mark:        | :x:                | Some information may be missing. <br> Colors will be used if supported |
+| Android   | :heavy_exclamation_mark:  | :heavy_check_mark: | Experimental ARM support |
+| macOS     | :heavy_check_mark:        | :x:                | Some information may be missing |
+
+| Emoji                   | Meaning       |
+|:-----------------------:|:-------------:|
+|:heavy_check_mark:       | Supported     |
+|:x:                      | Not supported |
+|:heavy_exclamation_mark: | Not tested    |
 
 
 ### Usage and installation
