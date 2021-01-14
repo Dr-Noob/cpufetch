@@ -27,7 +27,6 @@ static const char *hv_vendors_string[] = {
   [HV_VENDOR_VMWARE]    = "VMwareVMware",
   [HV_VENDOR_XEN]       = "XenVMMXenVMM",
   [HV_VENDOR_PARALLELS] = "lrpepyh vr",
-  [HV_VENDOR_INVALID]   = NULL
 };
 
 static char *hv_vendors_name[] = {
@@ -667,6 +666,10 @@ struct frequency* get_frequency_info(struct cpuInfo* cpu) {
       else {
         printErr("Can't read frequency information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000016, cpu->maxLevels);    
       }
+      freq->base = UNKNOWN_FREQ;
+      freq->max = UNKNOWN_FREQ;
+    #elif defined __APPLE__
+      printErr("Can't read frequency information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000016, cpu->maxLevels);
       freq->base = UNKNOWN_FREQ;
       freq->max = UNKNOWN_FREQ;
     #else
