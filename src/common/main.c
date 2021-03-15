@@ -16,7 +16,7 @@
 static const char* VERSION = "0.95";
 
 void print_help(char *argv[]) {
-  printf("Usage: %s [--version] [--help] [--debug] [--style \"fancy\"|\"retro\"|\"legacy\"] [--color \"intel\"|\"amd\"|'R,G,B:R,G,B:R,G,B:R,G,B']\n\n", argv[0]);
+  printf("Usage: %s [--version] [--help] [--debug] [--raw] [--style \"fancy\"|\"retro\"|\"legacy\"] [--color \"intel\"|\"amd\"|'R,G,B:R,G,B:R,G,B:R,G,B']\n\n", argv[0]);
 
   printf("Options: \n\
   --color       Set the color scheme. By default, cpufetch uses the system color scheme. This option \n\
@@ -31,7 +31,8 @@ void print_help(char *argv[]) {
   --style       Set the style of CPU art: \n\
     * \"fancy\":  Default style      \n\
     * \"retro\":  Old cpufetch style \n\
-    * \"legacy\": Fallback style for terminals that does not support colors                       \n\n");
+    * \"legacy\": Fallback style for terminals that does not support colors \n\n\
+  --raw         Dump raw cpuid information \n\n");
 
 #ifdef ARCH_X86
   printf("  --debug       Prints CPU model and cpuid levels (debug purposes)\n\n");
@@ -78,6 +79,12 @@ int main(int argc, char* argv[]) {
   if(show_debug()) {
     print_version();
     print_debug(cpu);
+    return EXIT_SUCCESS;
+  }
+  
+  if(show_raw()) {
+    print_version();
+    print_raw(cpu);
     return EXIT_SUCCESS;
   }
   

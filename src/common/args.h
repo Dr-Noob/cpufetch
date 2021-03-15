@@ -30,6 +30,7 @@ enum {
 
 bool parse_args(int argc, char* argv[]);
 bool show_help();
+bool show_raw();
 bool show_debug();
 bool show_version();
 bool verbose_enabled();

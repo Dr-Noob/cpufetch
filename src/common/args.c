@@ -20,6 +20,7 @@ static const char *SYTLES_STR_LIST[] = {
 enum {
   ARG_CHAR_STYLE,
   ARG_CHAR_COLOR,
+  ARG_CHAR_RAW,
   ARG_CHAR_HELP,
   ARG_CHAR_DEBUG,
   ARG_CHAR_VERBOSE,
@@ -29,6 +30,7 @@ enum {
 struct args_struct {
   bool debug_flag;
   bool help_flag;
+  bool raw_flag;
   bool verbose_flag;
   bool version_flag;
   STYLE style;
@@ -55,6 +57,10 @@ bool show_version() {
 
 bool show_debug() {
   return args.debug_flag;
+}
+
+bool show_raw() {
+  return args.raw_flag;    
 }
 
 bool verbose_enabled() {
@@ -165,6 +171,7 @@ bool parse_args(int argc, char* argv[]) {
 
   bool color_flag = false;
   args.debug_flag = false;
+  args.raw_flag = false;
   args.verbose_flag = false;
   args.help_flag = false;
   args.style = STYLE_EMPTY;
@@ -173,6 +180,7 @@ bool parse_args(int argc, char* argv[]) {
   static struct option long_options[] = {
       {"style",    required_argument, 0, ARG_CHAR_STYLE   },
       {"color",    required_argument, 0, ARG_CHAR_COLOR   },
+      {"raw",      no_argument,       0, ARG_CHAR_RAW     },
       {"help",     no_argument,       0, ARG_CHAR_HELP    },
       {"debug",    no_argument,       0, ARG_CHAR_DEBUG   },
       {"verbose",  no_argument,       0, ARG_CHAR_VERBOSE },
@@ -204,6 +212,13 @@ bool parse_args(int argc, char* argv[]) {
          printErr("Invalid style '%s'",optarg);
          return false;
        }
+     }
+     else if(c == ARG_CHAR_RAW) {       
+       if(args.raw_flag) {
+         printErr("Raw option specified more than once");
+         return false;
+       }
+       args.raw_flag  = true;
      }
      else if(c == ARG_CHAR_HELP) {
        if(args.help_flag) {

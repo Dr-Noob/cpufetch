@@ -914,6 +914,74 @@ void print_debug(struct cpuInfo* cpu) {
   free_cpuinfo_struct(cpu);
 }
 
+// TODO: Fix on macOS
+// TODO: Query HV and Xeon Phi levels
+void print_raw(struct cpuInfo* cpu) {
+  uint32_t eax;
+  uint32_t ebx;
+  uint32_t ecx;
+  uint32_t edx;
+  printf("%s\n\n", cpu->cpu_name);
+  printf("  CPUID leaf sub   EAX        EBX        ECX        EDX       \n");
+  printf("--------------------------------------------------------------\n");
+  
+  for(int c=0; c < cpu->topo->total_cores; c++) {
+    if(!bind_to_cpu(c)) {
+      printErr("Failed binding to CPU %d", c);
+      return;
+    }
+    
+    printf("CPU %d:\n", c);    
+    
+    for(uint32_t reg=0x00000000; reg <= cpu->maxLevels; reg++) {
+      if(reg == 0x00000004) {
+        for(uint32_t reg2=0x00000000; reg2 < cpu->cach->max_cache_level; reg2++) {
+          eax = reg;
+          ebx = 0;
+          ecx = reg2;
+          edx = 0;
+      
+          cpuid(&eax, &ebx, &ecx, &edx);
+      
+          printf("  0x%.8X 0x%.2X: 0x%.8X 0x%.8X 0x%.8X 0x%.8X\n", reg, reg2, eax, ebx, ecx, edx);
+        }
+      }
+      else if(reg == 0x0000000B) {
+        for(uint32_t reg2=0x00000000; reg2 < cpu->topo->smt_supported; reg2++) {
+          eax = reg;
+          ebx = 0;
+          ecx = reg2;
+          edx = 0;
+      
+          cpuid(&eax, &ebx, &ecx, &edx);
+      
+          printf("  0x%.8X 0x%.2X: 0x%.8X 0x%.8X 0x%.8X 0x%.8X\n", reg, reg2, eax, ebx, ecx, edx);
+        }
+      }
+      else {
+        eax = reg;
+        ebx = 0;
+        ecx = 0;
+        edx = 0;
+      
+        cpuid(&eax, &ebx, &ecx, &edx);
+      
+        printf("  0x%.8X 0x%.2X: 0x%.8X 0x%.8X 0x%.8X 0x%.8X\n", reg, 0x00, eax, ebx, ecx, edx);    
+      }
+    }
+    for(uint32_t reg=0x80000000; reg <= cpu->maxExtendedLevels; reg++) {
+      eax = reg;
+      ebx = 0;
+      ecx = 0;
+      edx = 0;
+      
+      cpuid(&eax, &ebx, &ecx, &edx);
+      
+      printf("  0x%.8X 0x%.2X: 0x%.8X 0x%.8X 0x%.8X 0x%.8X\n", reg, 0x00, eax, ebx, ecx, edx);
+    }
+  }
+}
+
 void free_topo_struct(struct topology* topo) {
   free(topo->apic->cache_select_mask);
   free(topo->apic->cache_id_apic);
