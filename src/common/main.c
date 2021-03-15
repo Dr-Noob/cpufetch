@@ -51,7 +51,7 @@ NOTES: \n\
 }
 
 void print_version() {
-  printf("cpufetch v%s (%s)\n",VERSION, ARCH_STR);
+  printf("cpufetch v%s (%s) [outfile branch]\n",VERSION, ARCH_STR);
 }
 
 int main(int argc, char* argv[]) {

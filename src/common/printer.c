@@ -22,6 +22,7 @@
 #include <Windows.h>
 #endif
 
+#define OUTPUT_FILE "cpufetch.txt"
 #define max(a,b) (((a)>(b))?(a):(b))
 #define MAX_ATTRIBUTES      100
 
@@ -346,43 +347,43 @@ uint32_t longest_attribute_length(struct ascii* art) {
 }
 
 #ifdef ARCH_X86
-void print_algorithm_intel(struct ascii* art, int n, bool* flag) {
+void print_algorithm_intel(FILE *file, struct ascii* art, int n, bool* flag) {
   for(int i=0; i < LINE_SIZE; i++) {
     if(*flag) {
       if(art->art[n][i] == ' ') {
         *flag = false;
-        printf("%s%c%s", art->color2_ascii, art->ascii_chars[1], art->reset);
+        fprintf(file, "%s%c%s", art->color2_ascii, art->ascii_chars[1], art->reset);
       }
       else {
-        printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
+        fprintf(file, "%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
       }
     }
     else {
       if(art->art[n][i] != ' ' && art->art[n][i] != '\0') {
         *flag = true;
-        printf("%c",' ');
+        fprintf(file, "%c",' ');
       }
       else {
-        printf("%c",' ');
+        fprintf(file, "%c",' ');
       }
     }
   }
 }
 
-void print_algorithm_amd(struct ascii* art, int n, bool* flag) {
+void print_algorithm_amd(FILE *file, struct ascii* art, int n, bool* flag) {
   *flag = false; // dummy, just silence compiler error
   
   for(int i=0; i < LINE_SIZE; i++) {
     if(art->art[n][i] == '@')
-      printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
+      fprintf(file, "%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
     else if(art->art[n][i] == '#')
-      printf("%s%c%s", art->color2_ascii, art->ascii_chars[1], art->reset);
+      fprintf(file, "%s%c%s", art->color2_ascii, art->ascii_chars[1], art->reset);
     else
-      printf("%c",art->art[n][i]);
+      fprintf(file, "%c",art->art[n][i]);
   }
 }
 
-void print_ascii_x86(struct ascii* art, uint32_t la, void (*callback_print_algorithm)(struct ascii* art, int i, bool* flag)) {  
+void print_ascii_x86(FILE *file, struct ascii* art, uint32_t la, void (*callback_print_algorithm)(FILE *file, struct ascii* art, int i, bool* flag)) {  
   int attr_to_print = 0;
   int attr_type;
   char* attr_value;
@@ -391,9 +392,9 @@ void print_ascii_x86(struct ascii* art, uint32_t la, void (*callback_print_algor
   uint32_t space_down = NUMBER_OF_LINES - art->n_attributes_set - space_up;
   bool flag = false;
 
-  printf("\n");
+  fprintf(file, "\n");
   for(uint32_t n=0;n<NUMBER_OF_LINES;n++) {
-    callback_print_algorithm(art, n, &flag);
+    callback_print_algorithm(file, art, n, &flag);
 
     if(n > space_up-1 && n < NUMBER_OF_LINES-space_down) {
       attr_type = art->attributes[attr_to_print]->type;
@@ -401,20 +402,20 @@ void print_ascii_x86(struct ascii* art, uint32_t la, void (*callback_print_algor
       attr_to_print++;
       
       space_right = 1 + (la - strlen(ATTRIBUTE_FIELDS[attr_type]));
-      printf("%s%s%s%*s%s%s%s\n", art->color1_text, ATTRIBUTE_FIELDS[attr_type], art->reset, space_right, "", art->color2_text, attr_value, art->reset);
+      fprintf(file, "%s%s%s%*s%s%s%s\n", art->color1_text, ATTRIBUTE_FIELDS[attr_type], art->reset, space_right, "", art->color2_text, attr_value, art->reset);
     }
-    else printf("\n");
+    else fprintf(file, "\n");
   }
-  printf("\n");
+  fprintf(file, "\n");
 }
 
-void print_ascii(struct ascii* art) {
+void print_ascii(FILE *file, struct ascii* art) {
   uint32_t longest_attribute = longest_attribute_length(art);
   
   if(art->vendor == CPU_VENDOR_INTEL)
-    print_ascii_x86(art, longest_attribute, &print_algorithm_intel);
+    print_ascii_x86(file, art, longest_attribute, &print_algorithm_intel);
   else if(art->vendor == CPU_VENDOR_AMD)
-    print_ascii_x86(art, longest_attribute, &print_algorithm_amd);
+    print_ascii_x86(file, art, longest_attribute, &print_algorithm_amd);
   else {
     printBug("Invalid CPU vendor: %d\n", art->vendor);
   }
@@ -426,6 +427,8 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   if(art == NULL)
     return false;  
   
+  FILE *output_file;
+  
   char* uarch = get_str_uarch(cpu);
   char* manufacturing_process = get_str_process(cpu);
   char* sockets = get_str_sockets(cpu->topo);
@@ -435,7 +438,6 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   char* cpu_name = get_str_cpu_name(cpu);
   char* avx = get_str_avx(cpu);
   char* fma = get_str_fma(cpu);
-
 
   char* l1i = get_str_l1i(cpu->cach);
   char* l1d = get_str_l1d(cpu->cach);
@@ -472,9 +474,14 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   if(art->n_attributes_set > NUMBER_OF_LINES) {
     printBug("The number of attributes set is bigger than the max that can be displayed");
     return false;
+  }  
+  
+  if((output_file = fopen(OUTPUT_FILE, "w+")) == NULL) {
+    perror("fopen");
+    return false;    
   }
-
-  print_ascii(art);
+  
+  print_ascii(output_file, art);
 
   free(manufacturing_process);
   free(max_frequency);
