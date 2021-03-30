@@ -105,6 +105,7 @@ struct attribute {
 
 struct ascii {
   char art[NUMBER_OF_LINES][LINE_SIZE+1];
+  unsigned char* art_unicode;
   char color1_ascii[100];
   char color2_ascii[100];
   char color1_text[100];
@@ -159,8 +160,8 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct colors* cs) {
 
 #ifdef ARCH_X86  
   if(art->vendor == CPU_VENDOR_INTEL) {
-    COL_FANCY_1 = COLOR_BG_CYAN;
-    COL_FANCY_2 = COLOR_BG_WHITE;
+    COL_FANCY_1 = COLOR_FG_CYAN;
+    COL_FANCY_2 = COLOR_FG_WHITE;
     COL_FANCY_3 = COLOR_FG_CYAN;
     COL_FANCY_4 = COLOR_FG_WHITE;
     art->ascii_chars[0] = '#';
@@ -262,6 +263,12 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct colors* cs) {
       if(cs != NULL) {
         COL_FANCY_1 = rgb_to_ansi(cs->c1, true, true);
         COL_FANCY_2 = rgb_to_ansi(cs->c2, true, true);
+        #ifdef ARCH_X86
+        if(art->vendor == CPU_VENDOR_INTEL) {
+          COL_FANCY_1 = rgb_to_ansi(cs->c1, false, true);
+          COL_FANCY_2 = rgb_to_ansi(cs->c2, false, true);
+        }
+        #endif
         COL_FANCY_3 = rgb_to_ansi(cs->c3, false, true);
         COL_FANCY_4 = rgb_to_ansi(cs->c4, false, true);
       }
@@ -303,9 +310,11 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct colors* cs) {
   }
 
   char tmp[NUMBER_OF_LINES * LINE_SIZE + 1];
+  art->art_unicode = NULL;
+
 #ifdef ARCH_X86  
   if(art->vendor == CPU_VENDOR_INTEL)
-    strcpy(tmp, INTEL_ASCII);
+    art->art_unicode = art_unicode_intel;
   else if(art->vendor == CPU_VENDOR_AMD)
     strcpy(tmp, AMD_ASCII);
   else
@@ -325,8 +334,11 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct colors* cs) {
     strcpy(tmp, ARM_ASCII);
 #endif
 
-  for(int i=0; i < NUMBER_OF_LINES; i++)
-    memcpy(art->art[i], tmp + i*LINE_SIZE, LINE_SIZE);
+  if(art->art_unicode != NULL) {
+    for(int i=0; i < NUMBER_OF_LINES; i++) {
+      memcpy(art->art[i], tmp + i*LINE_SIZE, LINE_SIZE);
+    }
+  }
 
   return art;
 }
@@ -347,24 +359,50 @@ uint32_t longest_attribute_length(struct ascii* art) {
 
 #ifdef ARCH_X86
 void print_algorithm_intel(struct ascii* art, int n, bool* flag) {
-  for(int i=0; i < LINE_SIZE; i++) {
+  *flag = false;
+  int start = -1;
+  for(int i=0, newlines=0; newlines < n; i++) {
+    if(art->art_unicode[i] == '\n') {
+      newlines++;
+      start = i;
+    }
+  }
+  for(int i=start+1; art->art_unicode[i] != '\n'; i++) {
+    /*
     if(*flag) {
-      if(art->art[n][i] == ' ') {
+      if(art->art_unicode[n * LINE_SIZE + i] == ' ') {
         *flag = false;
-        printf("%s%c%s", art->color2_ascii, art->ascii_chars[1], art->reset);
+        printf("%c", ' ');
       }
       else {
-        printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
+        printf("%c", art->art_unicode[n * LINE_SIZE + i]);
+        printf("%c", art->art_unicode[n * LINE_SIZE + i + 1]);
+        printf("%c", art->art_unicode[n * LINE_SIZE + i + 2]);
+        i += 2;
       }
     }
     else {
-      if(art->art[n][i] != ' ' && art->art[n][i] != '\0') {
+      if(art->art_unicode[n * LINE_SIZE + i] != ' ' && art->art_unicode[n * LINE_SIZE + i] != '\n') {
         *flag = true;
-        printf("%c",' ');
+        printf("%c", art->art_unicode[n * LINE_SIZE + i]);
+        printf("%c", art->art_unicode[n * LINE_SIZE + i + 1]);
+        printf("%c", art->art_unicode[n * LINE_SIZE + i + 2]);
+        i += 2;
       }
       else {
         printf("%c",' ');
       }
+    }*/
+    if(art->art_unicode[i] == ' ') {
+      printf(" ");
+    }
+    else {
+      printf("%s", art->color1_ascii);
+      printf("%c", art->art_unicode[i]);
+      printf("%c", art->art_unicode[i + 1]);
+      printf("%c", art->art_unicode[i + 2]);
+      printf("%s", COLOR_RESET);
+      i += 2;
     }
   }
 }
