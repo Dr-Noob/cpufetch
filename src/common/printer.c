@@ -367,22 +367,13 @@ void print_algorithm_intel(struct ascii* art, int n, bool* flag) {
       start = i;
     }
   }
+
   for(int i=start+1, x=0; art->art_unicode[i] != '\n'; i++, x++) {
     if(art->art_unicode[i] == ' ') {
-      if(x > 2 && x < (LINE_SIZE-2) && n < NUMBER_OF_LINES-1) {
-        printf("%s", art->color2_ascii);
-        printf("%c", 0xE2);
-        printf("%c", 0x96);
-        printf("%c", 0x88);
-        printf("%s", COLOR_RESET);
-      }
-      else {
-        printf(" ");
-      }
+      printf(" ");
     }
     else {
-      // 15,125,194:230,230,230:40,150,220:230,230,230
-      printf("%s", "\x1b[38;2;15;125;194;48;2;230;230;230m");
+      printf("%s", art->color1_ascii);
       printf("%c", art->art_unicode[i]);
       printf("%c", art->art_unicode[i + 1]);
       printf("%c", art->art_unicode[i + 2]);
