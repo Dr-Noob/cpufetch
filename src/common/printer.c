@@ -367,37 +367,22 @@ void print_algorithm_intel(struct ascii* art, int n, bool* flag) {
       start = i;
     }
   }
-  for(int i=start+1; art->art_unicode[i] != '\n'; i++) {
-    /*
-    if(*flag) {
-      if(art->art_unicode[n * LINE_SIZE + i] == ' ') {
-        *flag = false;
-        printf("%c", ' ');
-      }
-      else {
-        printf("%c", art->art_unicode[n * LINE_SIZE + i]);
-        printf("%c", art->art_unicode[n * LINE_SIZE + i + 1]);
-        printf("%c", art->art_unicode[n * LINE_SIZE + i + 2]);
-        i += 2;
-      }
-    }
-    else {
-      if(art->art_unicode[n * LINE_SIZE + i] != ' ' && art->art_unicode[n * LINE_SIZE + i] != '\n') {
-        *flag = true;
-        printf("%c", art->art_unicode[n * LINE_SIZE + i]);
-        printf("%c", art->art_unicode[n * LINE_SIZE + i + 1]);
-        printf("%c", art->art_unicode[n * LINE_SIZE + i + 2]);
-        i += 2;
-      }
-      else {
-        printf("%c",' ');
-      }
-    }*/
+  for(int i=start+1, x=0; art->art_unicode[i] != '\n'; i++, x++) {
     if(art->art_unicode[i] == ' ') {
-      printf(" ");
+      if(x > 2 && x < (LINE_SIZE-2) && n < NUMBER_OF_LINES-1) {
+        printf("%s", art->color2_ascii);
+        printf("%c", 0xE2);
+        printf("%c", 0x96);
+        printf("%c", 0x88);
+        printf("%s", COLOR_RESET);
+      }
+      else {
+        printf(" ");
+      }
     }
     else {
-      printf("%s", art->color1_ascii);
+      // 15,125,194:230,230,230:40,150,220:230,230,230
+      printf("%s", "\x1b[38;2;15;125;194;48;2;230;230;230m");
       printf("%c", art->art_unicode[i]);
       printf("%c", art->art_unicode[i + 1]);
       printf("%c", art->art_unicode[i + 2]);
