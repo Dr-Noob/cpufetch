@@ -309,6 +309,13 @@ struct cpuInfo* get_cpu_info() {
     printWarn("Can't read cpu name from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x80000004, cpu->maxExtendedLevels);        
   }
   
+  cpu->topology_extensions = false;
+  if(cpu->cpu_vendor == CPU_VENDOR_AMD && cpu->maxExtendedLevels >= 0x80000001) {
+    eax = 0x80000001;
+    cpuid(&eax, &ebx, &ecx, &edx);      
+    cpu->topology_extensions = (ecx >> 22) & 1;
+  }
+  
   cpu->arch = get_cpu_uarch(cpu);
   cpu->freq = get_frequency_info(cpu);
   cpu->cach = get_cache_info(cpu);
@@ -321,7 +328,7 @@ struct cpuInfo* get_cpu_info() {
 }
 
 bool get_cache_topology_amd(struct cpuInfo* cpu, struct topology* topo) {    
-  if(cpu->maxExtendedLevels >= 0x8000001D) {  
+  if(cpu->maxExtendedLevels >= 0x8000001D && cpu->topology_extensions) {  
     uint32_t i, eax, ebx, ecx, edx, num_sharing_cache, cache_type, cache_level;
     
     i = 0;
@@ -379,7 +386,7 @@ bool get_cache_topology_amd(struct cpuInfo* cpu, struct topology* topo) {
     } while (cache_type > 0);        
   }
   else {
-    printWarn("Can't read topology information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X). Guessing cache sizes", 0x8000001D, cpu->maxExtendedLevels); 
+    printWarn("Can't read topology information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X and topology_extensions=%s). Guessing cache topology", 0x8000001D, cpu->maxExtendedLevels, cpu->topology_extensions ? "true" : "false"); 
     topo->cach->L1i->num_caches = topo->physical_cores;
     topo->cach->L1d->num_caches = topo->physical_cores;
     
@@ -440,13 +447,13 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
         cpuid(&eax, &ebx, &ecx, &edx);        
         topo->logical_cores = (ecx & 0xFF) + 1;
  
-        if (cpu->maxExtendedLevels >= 0x8000001E) {
+        if (cpu->maxExtendedLevels >= 0x8000001E && cpu->topology_extensions) {
           eax = 0x8000001E;  
           cpuid(&eax, &ebx, &ecx, &edx);
           topo->smt_supported = ((ebx >> 8) & 0x03) + 1;          
         }
         else {
-          printWarn("Can't read topology information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x8000001E, cpu->maxExtendedLevels); 
+          printWarn("Can't read topology information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X and topology_extensions=%s)", 0x8000001E, cpu->maxExtendedLevels, cpu->topology_extensions ? "true" : "false"); 
           topo->smt_supported = 1;       
         }        
       }
@@ -611,8 +618,8 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
   }
   else {
     level = 0x8000001D;
-    if(cpu->maxExtendedLevels < level) {
-      printWarn("Can't read cache information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", level, cpu->maxExtendedLevels);
+    if(cpu->maxExtendedLevels < level || !cpu->topology_extensions) {
+      printWarn("Can't read cache information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X and topology_extensions=%s)", level, cpu->maxExtendedLevels, cpu->topology_extensions ? "true" : "false"); 
       level = 0x80000006;
       if(cpu->maxExtendedLevels < level) {
         printErr("Can't read cache information from cpuid using old method (needed extended level is 0x%.8X, max is 0x%.8X)", level, cpu->maxExtendedLevels);    
@@ -906,9 +913,14 @@ void print_debug(struct cpuInfo* cpu) {
   cpuid(&eax, &ebx, &ecx, &edx);
   
   printf("%s\n", cpu->cpu_name);
-  if(cpu->hv->present) printf("- Hypervisor: %s\n", cpu->hv->hv_name);
+  if(cpu->hv->present) {
+    printf("- Hypervisor: %s\n", cpu->hv->hv_name);
+  }
   printf("- Max standard level: 0x%.8X\n", cpu->maxLevels);
   printf("- Max extended level: 0x%.8X\n", cpu->maxExtendedLevels);
+  if(cpu->cpu_vendor == CPU_VENDOR_AMD) {
+    printf("- AMD topology extensions: %d\n", cpu->topology_extensions);    
+  }
   printf("- CPUID dump: 0x%.8X\n", eax);
 
   free_cpuinfo_struct(cpu);

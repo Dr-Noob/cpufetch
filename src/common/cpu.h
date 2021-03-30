@@ -119,6 +119,8 @@ struct cpuInfo {
   uint32_t maxLevels;
   // Max cpuids extended levels
   uint32_t maxExtendedLevels;
+  // Topology Extensions (AMD only)
+  bool topology_extensions;
 #elif ARCH_ARM
   // Main ID register
   uint32_t midr;
