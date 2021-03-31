@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "args.h"
 #include "printer.h"
@@ -16,38 +17,52 @@
 static const char* VERSION = "0.96";
 
 void print_help(char *argv[]) {
-  printf("Usage: %s [--version] [--help] [--debug] [--style \"fancy\"|\"retro\"|\"legacy\"] [--color \"intel\"|\"amd\"|'R,G,B:R,G,B:R,G,B:R,G,B']\n\n", argv[0]);
+  const char **t = args_str;
+  const char *c = args_chr;  
+  int max_len = max_arg_str_length();
 
-  printf("Options: \n\
-  --color       Set the color scheme. By default, cpufetch uses the system color scheme. This option \n\
-                lets the user use different colors to print the CPU art:  \n\
-   * \"intel\":   Use Intel default color scheme \n\
-   * \"amd\":     Use AMD default color scheme \n\
-   * \"arm\":     Use ARM default color scheme \n\
-   * custom:    If color argument do not match \"Intel\", \"AMD\" or \"ARM\", a custom scheme can be specified: \n\
-                4 colors must be given in RGB with the format: R,G,B:R,G,B:... \n\
-                These colors correspond to CPU art color (2 colors) and for the text colors (following 2) \n\
-                For example: --color 239,90,45:210,200,200:100,200,45:0,200,200 \n\n\
-  --style       Set the style of CPU art: \n\
-    * \"fancy\":  Default style      \n\
-    * \"retro\":  Old cpufetch style \n\
-    * \"legacy\": Fallback style for terminals that does not support colors                       \n\n");
+  printf("Usage: %s [OPTION]...\n", argv[0]);
+  printf("Simplistic yet fancy CPU architecture fetching tool\n\n");
 
+  printf("Options: \n");
+  printf("  -%c, --%s %*s Set the color scheme (by default, cpufetch uses the system color scheme)\n", c[ARG_COLOR], t[ARG_COLOR], (int) (max_len-strlen(t[ARG_COLOR])), "");
+  printf("  -%c, --%s %*s Set the style of CPU art\n", c[ARG_STYLE], t[ARG_STYLE], (int) (max_len-strlen(t[ARG_STYLE])), "");
 #ifdef ARCH_X86
-  printf("  --debug       Prints CPU model and cpuid levels (debug purposes)\n\n");
+  printf("  -%c, --%s %*s Prints CPU model and cpuid levels (debug purposes)\n", c[ARG_DEBUG], t[ARG_DEBUG], (int) (max_len-strlen(t[ARG_DEBUG])), "");
 #elif ARCH_ARM
-  printf("  --debug       Prints main ID register values for all cores (debug purposes)\n\n");
+  printf("  -%c, --%s %*s Prints main ID register values for all cores (debug purposes)\n", c[ARG_DEBUG], t[ARG_DEBUG], (int) (max_len-strlen(t[ARG_DEBUG])), "");
 #endif
-
-  printf("  --verbose     Prints extra information (if available) about how cpufetch tried fetching information\n\n\
-  --help        Prints this help and exit\n\n\
-  --version     Prints cpufetch version and exit\n\n\
-                                                   \n\
-NOTES: \n\
-  - Bugs or improvements should be submitted to: github.com/Dr-Noob/cpufetch/issues        \n\
-  - Peak performance information is NOT accurate. cpufetch computes peak performance using the max   \n\
-    frequency. However, to properly compute peak performance, you need to know the frequency of the  \n\
-    CPU running AVX code, which is not be fetched by cpufetch since it depends on each specific CPU. \n");
+  printf("  -%c, --%s %*s Prints extra information (if available) about how cpufetch tried fetching information\n", c[ARG_VERBOSE], t[ARG_VERBOSE], (int) (max_len-strlen(t[ARG_VERBOSE])), "");
+  printf("  -%c, --%s %*s Prints this help and exit\n", c[ARG_HELP], t[ARG_HELP], (int) (max_len-strlen(t[ARG_HELP])), "");
+  printf("  -%c, --%s %*s Prints cpufetch version and exit\n", c[ARG_VERSION], t[ARG_VERSION], (int) (max_len-strlen(t[ARG_VERSION])), "");
+  
+  printf("\nCOLORS: \n");
+  printf("  * \"intel\":     Use Intel default color scheme \n");
+  printf("  * \"amd\":       Use AMD default color scheme \n");
+  printf("  * \"arm\":       Use ARM default color scheme \n");
+  printf("  * custom:      If color argument do not match \"intel\", \"amd\" or \"arm\", a custom scheme can be specified.\n");
+  printf("                 4 colors must be given in RGB with the format: R,G,B:R,G,B:...\n");
+  printf("                 The first 2 colors are the CPU art color and the next 2 colors are the text colors\n");
+  
+  printf("\nSTYLES: \n");
+  printf("  * \"fancy\":     Default style\n");
+  printf("  * \"retro\":     Old cpufetch style\n");
+  printf("  * \"legacy\":    Fallback style for terminals that do not support colors\n");
+  
+  printf("\nEXAMPLES: \n");
+  printf("  Run peakperf with Intel color scheme:\n");
+  printf("    ./cpufetch --color intel\n");
+  printf("  Run peakperf with a custom color scheme:\n");
+  printf("    ./cpufetch --color 239,90,45:210,200,200:100,200,45:0,200,200\n");
+  
+  printf("\nBUGS: \n");
+  printf("    Report bugs to https://github.com/Dr-Noob/cpufetch/issues\n");
+  
+  printf("\nNOTE: \n");
+  printf("    Peak performance information is NOT accurate. cpufetch computes peak performance using the max\n");
+  printf("    frequency. However, to properly compute peak performance, you need to know the frequency of the\n");
+  printf("    CPU running AVX code, which is not be fetched by cpufetch since it depends on each specific CPU.\n");
+  printf("    For peak performance measurement see: https://github.com/Dr-Noob/peakperf\n");
 }
 
 void print_version() {
@@ -59,7 +74,6 @@ int main(int argc, char* argv[]) {
     return EXIT_FAILURE;
 
   if(show_help()) {
-    print_version();
     print_help(argv);
     return EXIT_SUCCESS;
   }

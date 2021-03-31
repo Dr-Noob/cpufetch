@@ -17,15 +17,6 @@ static const char *SYTLES_STR_LIST[] = {
   [STYLE_INVALID] = NULL
 };
 
-enum {
-  ARG_CHAR_STYLE,
-  ARG_CHAR_COLOR,
-  ARG_CHAR_HELP,
-  ARG_CHAR_DEBUG,
-  ARG_CHAR_VERBOSE,
-  ARG_CHAR_VERSION
-};
-
 struct args_struct {
   bool debug_flag;
   bool help_flag;
@@ -33,6 +24,24 @@ struct args_struct {
   bool version_flag;
   STYLE style;
   struct colors* colors;
+};
+
+const char args_chr[] = {
+  /* [ARG_CHAR_STYLE]   = */ 's',
+  /* [ARG_CHAR_COLOR]   = */ 'c',
+  /* [ARG_CHAR_HELP]    = */ 'h',
+  /* [ARG_CHAR_DEBUG]   = */ 'd',
+  /* [ARG_CHAR_VERBOSE] = */ 'v',
+  /* [ARG_CHAR_VERSION] = */ 'V',
+};
+
+const char *args_str[] = {
+  /* [ARG_CHAR_STYLE]   = */ "style",
+  /* [ARG_CHAR_COLOR]   = */ "color",
+  /* [ARG_CHAR_HELP]    = */ "help",
+  /* [ARG_CHAR_DEBUG]   = */ "debug",
+  /* [ARG_CHAR_VERBOSE] = */ "verbose",
+  /* [ARG_CHAR_VERSION] = */ "version",
 };
 
 static struct args_struct args;
@@ -59,6 +68,15 @@ bool show_debug() {
 
 bool verbose_enabled() {
   return args.verbose_flag;
+}
+
+int max_arg_str_length() {
+  int max_len = -1;
+  int len = sizeof(args_str) / sizeof(args_str[0]);
+  for(int i=0; i < len; i++) {
+    max_len = max(max_len, (int) strlen(args_str[i]));
+  }    
+  return max_len;
 }
 
 STYLE parse_style(char* style) {
@@ -158,8 +176,21 @@ bool parse_color(char* optarg_str, struct colors** cs) {
   return true;      
 }
 
+char* build_short_options() {
+  const char *c = args_chr;
+  int len = sizeof(args_chr) / sizeof(args_chr[0]);
+  char* str = (char *) malloc(sizeof(char) * (len*2 + 1));
+  memset(str, 0, sizeof(char) * (len*2 + 1));
+
+  sprintf(str, "%c:%c:%c%c%c%c",
+  c[ARG_STYLE], c[ARG_COLOR], c[ARG_HELP],
+  c[ARG_DEBUG], c[ARG_VERBOSE], c[ARG_VERSION]);
+
+  return str;
+}
+
 bool parse_args(int argc, char* argv[]) {
-  int c;
+  int opt;
   int option_index = 0;  
   opterr = 0;
 
@@ -170,82 +201,65 @@ bool parse_args(int argc, char* argv[]) {
   args.style = STYLE_EMPTY;
   args.colors = NULL;
 
-  static struct option long_options[] = {
-      {"style",    required_argument, 0, ARG_CHAR_STYLE   },
-      {"color",    required_argument, 0, ARG_CHAR_COLOR   },
-      {"help",     no_argument,       0, ARG_CHAR_HELP    },
-      {"debug",    no_argument,       0, ARG_CHAR_DEBUG   },
-      {"verbose",  no_argument,       0, ARG_CHAR_VERBOSE },
-      {"version",  no_argument,       0, ARG_CHAR_VERSION },
-      {0, 0, 0, 0}
+  const struct option long_options[] = {
+    {args_str[ARG_STYLE],   required_argument, 0, args_chr[ARG_STYLE]   },
+    {args_str[ARG_COLOR],   required_argument, 0, args_chr[ARG_COLOR]   },
+    {args_str[ARG_HELP],    no_argument,       0, args_chr[ARG_HELP]    },
+    {args_str[ARG_DEBUG],   no_argument,       0, args_chr[ARG_DEBUG]   },
+    {args_str[ARG_VERBOSE], no_argument,       0, args_chr[ARG_VERBOSE] },
+    {args_str[ARG_VERSION], no_argument,       0, args_chr[ARG_VERSION] },
+    {0, 0, 0, 0}
   };
 
-  c = getopt_long(argc, argv, "", long_options, &option_index);
+  char* short_options = build_short_options();
+  opt = getopt_long(argc, argv, short_options, long_options, &option_index);
 
-  while (c != -1) {
-     if(c == ARG_CHAR_COLOR) {
-       if(color_flag) {
-         printErr("Color option specified more than once");
-         return false;
-       }
-       color_flag  = true;       
-       if(!parse_color(optarg, &args.colors)) {
-         printErr("Color parsing failed");
-         return false;
-       }
-     }
-     else if(c == ARG_CHAR_STYLE) {
-       if(args.style != STYLE_EMPTY) {
-         printErr("Style option specified more than once");
-         return false;
-       }
-       args.style = parse_style(optarg);
-       if(args.style == STYLE_INVALID) {
-         printErr("Invalid style '%s'",optarg);
-         return false;
-       }
-     }
-     else if(c == ARG_CHAR_HELP) {
-       if(args.help_flag) {
-         printErr("Help option specified more than once");
-         return false;
-       }
-       args.help_flag  = true;
-     }
-     else if(c == ARG_CHAR_VERBOSE) {
-       if(args.verbose_flag) {
-         printErr("Verbose option specified more than once");
-         return false;
-       }
-       args.verbose_flag  = true;
-     }
-     else if(c == ARG_CHAR_DEBUG) {
-       if(args.debug_flag) {
-         printErr("Debug option specified more than once");
-         return false;
-       }
-       args.debug_flag  = true;
-     }
-     else if (c == ARG_CHAR_VERSION) {
-       if(args.version_flag) {
-         printErr("Version option specified more than once");
-         return false;
-       }
-       args.version_flag = true;
-     }
-     else if(c == '?') {
-       printWarn("Invalid options");
-       args.help_flag  = true;
-       break;
-     }
-     else
-      printBug("Bug at line number %d in file %s", __LINE__, __FILE__);
+  while (!args.help_flag && !args.debug_flag && !args.version_flag && opt != -1) {
+    if(opt == args_chr[ARG_COLOR]) {
+      if(color_flag) {
+        printErr("Color option specified more than once");
+        return false;
+      }
+      color_flag  = true;       
+      if(!parse_color(optarg, &args.colors)) {
+        printErr("Color parsing failed");
+        return false;
+      }
+    }
+    else if(opt == args_chr[ARG_STYLE]) {
+      if(args.style != STYLE_EMPTY) {
+        printErr("Style option specified more than once");
+        return false;
+      }
+      args.style = parse_style(optarg);
+      if(args.style == STYLE_INVALID) {
+        printErr("Invalid style '%s'",optarg);
+        return false;
+      }
+      break;
+    }
+    else if(opt == args_chr[ARG_HELP]) {
+      args.help_flag  = true;
+    }
+    else if(opt == args_chr[ARG_VERBOSE]) {
+      args.verbose_flag  = true;
+    }
+    else if(opt == args_chr[ARG_DEBUG]) {
+      args.debug_flag  = true;
+    }
+    else if(opt == args_chr[ARG_VERSION]) {
+      args.version_flag = true;
+    }
+    else {    
+      printWarn("Invalid options");
+      args.help_flag  = true;
+    }
 
     option_index = 0;
-    c = getopt_long(argc, argv,"",long_options, &option_index);
+    opt = getopt_long(argc, argv, short_options, long_options, &option_index);
   }
 
-  if (optind < argc) {
+  if(optind < argc) {
     printWarn("Invalid options");
     args.help_flag  = true;
   }

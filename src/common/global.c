@@ -64,3 +64,7 @@ void set_log_level(bool verbose) {
   if(verbose) LOG_LEVEL = LOG_LEVEL_VERBOSE;
   else LOG_LEVEL = LOG_LEVEL_NORMAL;
 }
+
+int max(int a, int b) {
+  return a > b ? a : b;
+}
