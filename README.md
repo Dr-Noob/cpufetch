@@ -2,10 +2,10 @@
 
 <div align="center">
 
-![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/Dr-Noob/cpufetch?label=cpufetch) &nbsp;
-![GitHub Repo stars](https://img.shields.io/github/stars/Dr-Noob/cpufetch?color=4CC61F) &nbsp;
-![GitHub issues](https://img.shields.io/github/issues/Dr-Noob/cpufetch) &nbsp;
-![Contributions welcome](https://img.shields.io/badge/contributions-welcome-orange.svg) &nbsp;
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/Dr-Noob/cpufetch?label=cpufetch)
+![GitHub Repo stars](https://img.shields.io/github/stars/Dr-Noob/cpufetch?color=4CC61F)
+![GitHub issues](https://img.shields.io/github/issues/Dr-Noob/cpufetch)
+![Contributions welcome](https://img.shields.io/badge/contributions-welcome-orange.svg)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 <h4 align="center">Simplistic yet fancy CPU architecture fetching tool</h4>
