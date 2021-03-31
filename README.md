@@ -1,9 +1,42 @@
-# cpufetch
+<p align="center"><img width=60% src="./pictures/cpufetch.png"></p>
 
-Simplistic yet fancy CPU architecture fetching tool
+<div align="center">
+
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/Dr-Noob/cpufetch?label=cpufetch) &nbsp;
+![GitHub Repo stars](https://img.shields.io/github/stars/Dr-Noob/cpufetch?color=4CC61F) &nbsp;
+![GitHub issues](https://img.shields.io/github/issues/Dr-Noob/cpufetch) &nbsp;
+![Contributions welcome](https://img.shields.io/badge/contributions-welcome-orange.svg) &nbsp;
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
+<h3 align="center">Simplistic yet fancy CPU architecture fetching tool</h3>
+
 ![cpu1](pictures/i9.png)
 
-### Platforms
+</div>
+
+**Table of Contents**
+<!-- UPDATE with: doctoc --notitle README.md -->
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+
+- [1. Support](#1-support)
+- [2. Installation](#2-installation)
+  - [2.1 Building from source](#21-building-from-source)
+  - [2.2 Linux](#22-linux)
+  - [2.2 Windows](#22-windows)
+  - [2.3 macOS](#23-macos)
+  - [2.4 Android](#24-android)
+- [3. Examples](#3-examples)
+  - [3.1 x86_64 CPUs](#31-x86_64-cpus)
+  - [3.2 ARM CPUs](#32-arm-cpus)
+- [4. Colors and style](#4-colors-and-style)
+- [5. Implementation](#5-implementation)
+- [6. Bugs or improvements](#6-bugs-or-improvements)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+# 1. Support
 cpufetch currently supports x86_64 CPUs (both Intel and AMD) and ARM.
 
 | Platform  | x86_64                    | ARM                | Notes             |
@@ -20,16 +53,8 @@ cpufetch currently supports x86_64 CPUs (both Intel and AMD) and ARM.
 |:heavy_exclamation_mark: | Not tested    |
 
 
-### Usage and installation
-#### Linux
-There is a cpufetch package available in Arch Linux ([cpufetch-git](https://aur.archlinux.org/packages/cpufetch-git)).
-
-If you are in another distro, you can build `cpufetch` from source (see below)
-
-#### Windows
-In the [releases](https://github.com/Dr-Noob/cpufetch/releases) section you will find some cpufetch executables compiled for Windows. Just download and run it from Windows CMD.
-
-#### Building from source
+# 2. Installation
+## 2.1 Building from source
 Just clone the repo and use `make` to compile it
 
 ```
@@ -39,24 +64,42 @@ make
 ./cpufetch
 ```
 
-The Makefile is designed to work on both Linux and Windows.
+The Makefile is designed to work on Linux, Windows and macOS.
 
-### Examples
+## 2.2 Linux
+There is a cpufetch package available in Arch Linux ([cpufetch-git](https://aur.archlinux.org/packages/cpufetch-git)). If you are in another distribution, you can build `cpufetch` from source.
+
+## 2.2 Windows
+In the [releases](https://github.com/Dr-Noob/cpufetch/releases) section you will find some cpufetch executables compiled for Windows. Just download and run it from Windows CMD. You can also build `cpufetch` from source.
+
+## 2.3 macOS
+You need to build `cpufetch` from source.
+
+## 2.4 Android
+1. Install `termux` app (terminal emulator)
+2. Run `pkg install -y git make clang` inside termux.
+3. Build from source normally:
+  - git clone https://github.com/Dr-Noob/cpufetch
+  - cd cpufetch
+  - make
+  - ./cpufetch
+
+# 3. Examples
 Here are more examples of how `cpufetch` looks on different CPUs.
 
-##### x86_64 CPUs
+## 3.1 x86_64 CPUs
 
 ![cpu2](pictures/epyc.png)
 
 ![cpu3](pictures/cascade_lake.png)
 
-##### ARM CPUs
+## 3.2 ARM CPUs
 
 ![cpu4](pictures/exynos.png)
 
 ![cpu5](pictures/snapdragon.png)
 
-### Colors and style
+# 4. Colors and style
 By default, `cpufetch` will print the CPU art with the system colorscheme. However, you can always set a custom color scheme, either
 specifying Intel or AMD, or specifying the colors in RGB format:
 
@@ -68,12 +111,11 @@ specifying Intel or AMD, or specifying the colors in RGB format:
 
 In the case of setting the colors using RGB, 4 colors must be given in with the format: ``[R,G,B:R,G,B:R,G,B:R,G,B]``. These colors correspond to CPU art color (2 colors) and for the text colors (following 2). Thus, you can customize all the colors.
 
-### Implementation
+# 5. Implementation
 
 See [cpufetch programming documentation](https://github.com/Dr-Noob/cpufetch/blob/master/doc/README.md).
 
-### Bugs or improvements
+# 6. Bugs or improvements
 There are many open issues in github (see [issues](https://github.com/Dr-Noob/cpufetch/issues)). Feel free to open a new one report an issue or propose any improvement in `cpufetch`
 
-### Testing
 I would like to thank [Gonzalocl](https://github.com/Gonzalocl) and [OdnetninI](https://github.com/OdnetninI) for their help, running `cpufetch` in many different CPUs they have access to, which makes it easier to debug and check the correctness of `cpufetch`.
