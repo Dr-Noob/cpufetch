@@ -1,4 +1,4 @@
-<p align="center"><img width=60% src="./pictures/cpufetch.png"></p>
+<p align="center"><img width=50% src="./pictures/cpufetch.png"></p>
 
 <div align="center">
 
@@ -8,13 +8,14 @@
 ![Contributions welcome](https://img.shields.io/badge/contributions-welcome-orange.svg) &nbsp;
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-<h3 align="center">Simplistic yet fancy CPU architecture fetching tool</h3>
+<h4 align="center">Simplistic yet fancy CPU architecture fetching tool</h4>
+&nbsp;
 
 ![cpu1](pictures/i9.png)
 
 </div>
 
-**Table of Contents**
+# Table of contents
 <!-- UPDATE with: doctoc --notitle README.md -->
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
