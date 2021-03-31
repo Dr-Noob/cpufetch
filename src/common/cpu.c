@@ -147,18 +147,18 @@ char* get_str_l3(struct cache* cach) {
 
 char* get_str_freq(struct frequency* freq) {
   //Max 3 digits and 3 for '(M/G)Hz' plus 1 for '\0'
-  uint32_t size = (4+3+1);
+  uint32_t size = (5+1+3+1);
   assert(strlen(STRING_UNKNOWN)+1 <= size);
   char* string = malloc(sizeof(char)*size);
   memset(string, 0, sizeof(char)*size);
-  
+
   if(freq->max == UNKNOWN_FREQ || freq->max < 0)
     snprintf(string,strlen(STRING_UNKNOWN)+1,STRING_UNKNOWN);
   else if(freq->max >= 1000)
-    snprintf(string,size,"%.2f"STRING_GIGAHERZ,(float)(freq->max)/1000);
+    snprintf(string,size,"%.3f "STRING_GIGAHERZ,(float)(freq->max)/1000);
   else
-    snprintf(string,size,"%d"STRING_MEGAHERZ,freq->max);
-  
+    snprintf(string,size,"%d "STRING_MEGAHERZ,freq->max);
+
   return string;
 }
 
