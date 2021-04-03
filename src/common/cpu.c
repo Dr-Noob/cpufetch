@@ -145,6 +145,12 @@ char* get_str_l3(struct cache* cach) {
   return get_str_cache(cach->L3->size, cach->L3->num_caches);
 }
 
+char* get_str_l4(struct cache* cach) {
+  if(!cach->L4->exists)
+    return NULL;  
+  return get_str_cache(cach->L4->size, cach->L4->num_caches);
+}
+
 char* get_str_freq(struct frequency* freq) {
   //Max 3 digits and 3 for '(M/G)Hz' plus 1 for '\0'
   uint32_t size = (5+1+3+1);

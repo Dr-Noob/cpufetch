@@ -61,6 +61,7 @@ struct cache {
   struct cach* L1d;
   struct cach* L2;
   struct cach* L3;
+  struct cach* L4;
   struct cach** cach_arr;
 
   uint8_t max_cache_level;
@@ -149,6 +150,7 @@ char* get_str_l1i(struct cache* cach);
 char* get_str_l1d(struct cache* cach);
 char* get_str_l2(struct cache* cach);
 char* get_str_l3(struct cache* cach);
+char* get_str_l4(struct cache* cach);
 char* get_str_freq(struct frequency* freq);
 
 void free_cache_struct(struct cache* cach);

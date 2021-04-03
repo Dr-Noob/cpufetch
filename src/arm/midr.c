@@ -20,6 +20,7 @@ void init_cache_struct(struct cache* cach) {
   cach->L1d = malloc(sizeof(struct cach));
   cach->L2 = malloc(sizeof(struct cach));
   cach->L3 = malloc(sizeof(struct cach));
+  cach->L4 = malloc(sizeof(struct cach));
 
   cach->cach_arr = malloc(sizeof(struct cach*) * 4);
   cach->cach_arr[0] = cach->L1i;
@@ -32,6 +33,7 @@ void init_cache_struct(struct cache* cach) {
   cach->L1d->exists = false;
   cach->L2->exists = false;
   cach->L3->exists = false;
+  cach->L4->exists = false;
 }
 
 struct cache* get_cache_info(struct cpuInfo* cpu) { 

@@ -68,6 +68,7 @@ enum {
   ATTRIBUTE_L1d,
   ATTRIBUTE_L2,
   ATTRIBUTE_L3,
+  ATTRIBUTE_L4,
   ATTRIBUTE_PEAK
 };
 
@@ -95,6 +96,7 @@ static const char* ATTRIBUTE_FIELDS [] = {
   "L1d Size:",
   "L2 Size:",
   "L3 Size:",
+  "L4 Size:",
   "Peak Performance:",
 };
 
@@ -441,6 +443,7 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   char* l1d = get_str_l1d(cpu->cach);
   char* l2 = get_str_l2(cpu->cach);
   char* l3 = get_str_l3(cpu->cach);
+  char* l4 = get_str_l4(cpu->cach);
   char* pp = get_str_peak_performance(cpu,cpu->topo,get_freq(cpu->freq));
 
   setAttribute(art,ATTRIBUTE_NAME,cpu_name);
@@ -466,6 +469,9 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   setAttribute(art,ATTRIBUTE_L2,l2);
   if(l3 != NULL) {
     setAttribute(art,ATTRIBUTE_L3,l3);
+  }
+  if(l4 != NULL) {
+    setAttribute(art,ATTRIBUTE_L4,l4);
   }
   setAttribute(art,ATTRIBUTE_PEAK,pp);
   

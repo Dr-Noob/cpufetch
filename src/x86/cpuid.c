@@ -66,18 +66,21 @@ void init_cache_struct(struct cache* cach) {
   cach->L1d = malloc(sizeof(struct cach));
   cach->L2 = malloc(sizeof(struct cach));
   cach->L3 = malloc(sizeof(struct cach));
+  cach->L4 = malloc(sizeof(struct cach));
   
-  cach->cach_arr = malloc(sizeof(struct cach*) * 4);
+  cach->cach_arr = malloc(sizeof(struct cach*) * 5);
   cach->cach_arr[0] = cach->L1i;
   cach->cach_arr[1] = cach->L1d;
   cach->cach_arr[2] = cach->L2;
   cach->cach_arr[3] = cach->L3;
+  cach->cach_arr[4] = cach->L4;
   
   cach->max_cache_level = 0;
   cach->L1i->exists = false;
   cach->L1d->exists = false;
   cach->L2->exists = false;
   cach->L3->exists = false;
+  cach->L4->exists = false;
 }
 
 void get_name_cpuid(char* name, uint32_t reg1, uint32_t reg2, uint32_t reg3) {
@@ -360,8 +363,11 @@ bool get_cache_topology_amd(struct cpuInfo* cpu, struct topology* topo) {
             else if(cache_level == 3) {
               topo->cach->L3->num_caches = topo->logical_cores / num_sharing_cache;
             }
+            else if(cache_level == 4) {
+              topo->cach->L4->num_caches = topo->logical_cores / num_sharing_cache;
+            }
             else {
-              printBug("Found unified cache at level %d (expected == 2 or 3)", cache_level);
+              printBug("Found unified cache at level %d (expected == 2, 3 or 4)", cache_level);
               return false;
             }
             break;
@@ -503,8 +509,11 @@ struct cache* get_cache_info_amd_fallback(struct cache* cach) {
   cach->L1d->exists = cach->L1d->size > 0;
   cach->L2->exists = cach->L2->size > 0;
   cach->L3->exists = cach->L3->size > 0;
+  cach->L4->exists = cach->L4->size > 0;
 
-  if(cach->L3->exists)
+  if(cach->L4->exists)
+   cach->max_cache_level = 5;
+  else if(cach->L3->exists)
    cach->max_cache_level = 4;
   else
    cach->max_cache_level = 3;
@@ -569,8 +578,12 @@ struct cache* get_cache_info_general(struct cache* cach, uint32_t level) {
             cach->L3->size = cache_total_size;
             cach->L3->exists = true;
           }
+          else if(cache_level == 4) {
+            cach->L4->size = cache_total_size;
+            cach->L4->exists = true;
+          }
           else {
-            printBug("Found unified cache at level %d (expected == 2 or 3)", cache_level);
+            printBug("Found unified cache at level %d (expected == 2, 3 or 4)", cache_level);
             return NULL;
           }
           break;
@@ -645,6 +658,10 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
   }
   if(cach->L3->exists && cach->L3->size > 100 * 1048576) {
     printBug("Invalid L3 size: %dMB", cach->L3->size/(1048576));
+    return NULL;
+  }
+  if(cach->L4->exists && cach->L4->size > 256 * 1048576) {
+    printBug("Invalid L4 size: %dMB", cach->L4->size/(1048576));
     return NULL;
   }
   if(!cach->L2->exists) {
