@@ -318,7 +318,22 @@ bool get_topology_from_apic(struct cpuInfo* cpu, struct topology* topo) {
   uint32_t* apic_smt = malloc(sizeof(uint32_t) * topo->total_cores);
   uint32_t** cache_smt_id_apic = malloc(sizeof(uint32_t*) * topo->total_cores);
   uint32_t** cache_id_apic = malloc(sizeof(uint32_t*) * topo->total_cores);
-  bool x2apic_id = cpu->maxLevels >= 0x0000000B;
+  bool x2apic_id;
+
+  if(cpu->maxLevels >= 0x0000000B) {
+    uint32_t eax = 0;
+    uint32_t ebx = 0;
+    uint32_t ecx = 0;
+    uint32_t edx = 0;
+
+    cpuid(&eax, &ebx, &ecx, &edx);
+
+    if(ebx == 0) x2apic_id = false;
+    else x2apic_id = true;
+  }
+  else {
+    x2apic_id = false;
+  }
   
   for(int i=0; i < topo->total_cores; i++) {
     cache_smt_id_apic[i] = malloc(sizeof(uint32_t) * (topo->cach->max_cache_level));
