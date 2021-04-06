@@ -32,17 +32,11 @@ long get_freq_from_file(char* path, bool hv_present) {
   int filelen;
   char* buf;
   if((buf = read_file(path, &filelen)) == NULL) {
-    #ifdef ARCH_X86
-      if(hv_present) {
-        printWarn("Could not open '%s'", path);
-      }
-      else {
-        perror("open");
-        printBug("Could not open '%s'", path);            
-      }
-    #elif ARCH_ARM
-      printWarn("Could not open '%s'", path); 
-    #endif
+    if(hv_present)
+      printWarn("Could not open '%s' (HV is present)", path);
+    else
+      printWarn("Could not open '%s'", path);
+
     return UNKNOWN_FREQ;
   }
 
