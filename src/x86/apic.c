@@ -321,7 +321,7 @@ bool get_topology_from_apic(struct cpuInfo* cpu, struct topology* topo) {
   bool x2apic_id;
 
   if(cpu->maxLevels >= 0x0000000B) {
-    uint32_t eax = 0;
+    uint32_t eax = 0x0000000B;
     uint32_t ebx = 0;
     uint32_t ecx = 0;
     uint32_t edx = 0;
