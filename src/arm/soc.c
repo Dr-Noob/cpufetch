@@ -435,12 +435,21 @@ bool match_special(char* soc_name, struct system_on_chip* soc) {
     fill_soc(soc, "665", SOC_SNAPD_SM6125, 11);
     return true;
   }
-  
-  return false;  
+
+  // Snapdragon 730 reported as "Qualcomm Technologies, Inc. SDMMAGPIE"
+  if((tmp = strstr(soc_name, "SDMMAGPIE")) != NULL) {
+    fill_soc(soc, "730", SOC_SNAPD_SM7150_AA, 8);
+    return true;
+  }
+
+  return false;
 }
 
 struct system_on_chip* parse_soc_from_string(struct system_on_chip* soc) {
   char* raw_name = soc->raw_name;
+
+  if(match_special(raw_name, soc))
+    return soc;
   
   if (match_qualcomm(raw_name, soc))
     return soc;
@@ -454,10 +463,7 @@ struct system_on_chip* parse_soc_from_string(struct system_on_chip* soc) {
   if(match_hisilicon(raw_name, soc))
     return soc;
   
-  if(match_broadcom(raw_name, soc))
-    return soc;
-  
-  match_special(raw_name, soc);  
+  match_broadcom(raw_name, soc);
   
   return soc;
 }
