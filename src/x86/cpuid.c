@@ -982,14 +982,28 @@ void print_raw(struct cpuInfo* cpu) {
       }
     }
     for(uint32_t reg=0x80000000; reg <= cpu->maxExtendedLevels; reg++) {
-      eax = reg;
-      ebx = 0;
-      ecx = 0;
-      edx = 0;
+      if(reg == 0x8000001D) {
+        for(uint32_t reg2=0x00000000; reg2 < cpu->cach->max_cache_level; reg2++) {
+          eax = reg;
+          ebx = 0;
+          ecx = reg2;
+          edx = 0;
       
-      cpuid(&eax, &ebx, &ecx, &edx);
+          cpuid(&eax, &ebx, &ecx, &edx);
       
-      printf("  0x%.8X 0x%.2X: 0x%.8X 0x%.8X 0x%.8X 0x%.8X\n", reg, 0x00, eax, ebx, ecx, edx);
+          printf("  0x%.8X 0x%.2X: 0x%.8X 0x%.8X 0x%.8X 0x%.8X\n", reg, reg2, eax, ebx, ecx, edx);
+        }
+      }
+      else {
+        eax = reg;
+        ebx = 0;
+        ecx = 0;
+        edx = 0;
+      
+        cpuid(&eax, &ebx, &ecx, &edx);
+      
+        printf("  0x%.8X 0x%.2X: 0x%.8X 0x%.8X 0x%.8X 0x%.8X\n", reg, 0x00, eax, ebx, ecx, edx);
+      }
     }
   }
 }
