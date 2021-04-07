@@ -22,7 +22,7 @@ void print_help(char *argv[]) {
   int max_len = max_arg_str_length();
 
   printf("Usage: %s [OPTION]...\n", argv[0]);
-  printf("Simplistic yet fancy CPU architecture fetching tool\n\n");
+  printf("Simple yet fancy CPU architecture fetching tool\n\n");
 
   printf("Options: \n");
   printf("  -%c, --%s %*s Set the color scheme (by default, cpufetch uses the system color scheme)\n", c[ARG_COLOR], t[ARG_COLOR], (int) (max_len-strlen(t[ARG_COLOR])), "");
