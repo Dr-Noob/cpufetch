@@ -364,13 +364,12 @@ bool get_cache_topology_amd(struct cpuInfo* cpu, struct topology* topo) {
               topo->cach->L3->num_caches = topo->logical_cores / num_sharing_cache;
             }
             else {
-              printBug("Found unified cache at level %d (expected == 2 or 3)", cache_level);
-              return false;
+              printWarn("Found unknown unified cache at level %d", cache_level);
             }
             break;
           
-          default: // Unknown Type Cache
-            printBug("Unknown Type Cache found at ID %d", i);
+          default: // Unknown cache type
+            printBug("Unknown cache type %d with level %d found at i=%d", cache_type, cache_level, i);
             return false; 
         }   
       }
@@ -573,13 +572,12 @@ struct cache* get_cache_info_general(struct cache* cach, uint32_t level) {
             cach->L3->exists = true;
           }
           else {
-            printBug("Found unified cache at level %d (expected == 2 or 3)", cache_level);
-            return NULL;
+            printWarn("Found unknown unified cache at level %d (size is %d bytes)", cache_level, cache_total_size);
           }
           break;
           
-        default: // Unknown Type Cache
-          printBug("Unknown Type Cache found at ID %d", i);
+        default: // Unknown cache type
+          printBug("Unknown cache type %d with level %d found at i=%d", cache_type, cache_level, i);
           return NULL;                  
       }
     }    
