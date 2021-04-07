@@ -154,6 +154,10 @@ static const ISA isas_uarch[] = {
 };
 
 static char* isas_string[] = {
+  [ISA_ARMv6]  = "ARMv6",
+  [ISA_ARMv6_T2] = "ARMv6T2",
+  [ISA_ARMv6_KZ] = "ARMv6KZ",
+  [ISA_ARMv6_K] = "ARMv6K",
   [ISA_ARMv7_A] = "ARMv7",
   [ISA_ARMv8_A] = "ARMv8",
   [ISA_ARMv8_A_AArch32] = "ARMv8 AArch32",
