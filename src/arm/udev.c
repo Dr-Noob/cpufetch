@@ -20,6 +20,7 @@ int get_ncores_from_cpuinfo() {
   // 0-271
   // 0-5
   // 0-7
+  /*
   int filelen;
   char* buf;
   if((buf = read_file(_PATH_CPUS_PRESENT, &filelen)) == NULL) {
@@ -42,9 +43,9 @@ int get_ncores_from_cpuinfo() {
     return UNKNOWN;
   }
 
-  free(buf);
+  free(buf);*/
 
-  return ncores;
+  return 1;
 }
 
 long parse_cpuinfo_field(char* buf, char* field_str, int field_base) {
