@@ -633,35 +633,6 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
     }
   }
 
-  // Sanity checks. If we read values greater than this, they can't be valid ones
-  // The values were chosen by me
-  if(cach->L1i->size > 64 * 1024) {
-    printBug("Invalid L1i size: %dKB", cach->L1i->size/1024);
-    //return NULL;
-  }
-  if(cach->L1d->size > 64 * 1024) {
-    printBug("Invalid L1d size: %dKB", cach->L1d->size/1024);
-    //return NULL;
-  }
-  if(cach->L2->exists) {
-    if(cach->L3->exists && cach->L2->size > 2 * 1048576) {
-      printBug("Invalid L2 size: %dMB", cach->L2->size/(1048576));
-      //return NULL;
-    }
-    else if(cach->L2->size > 100 * 1048576) {
-      printBug("Invalid L2 size: %dMB", cach->L2->size/(1048576));
-      //return NULL;
-    }
-  }
-  if(cach->L3->exists && cach->L3->size > 100 * 1048576) {
-    printBug("Invalid L3 size: %dMB", cach->L3->size/(1048576));
-    //return NULL;
-  }
-  if(!cach->L2->exists) {
-    printBug("Could not find L2 cache");
-    //return NULL;
-  }
-
   return cach;
 }
 
