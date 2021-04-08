@@ -58,6 +58,7 @@ void init_topology_struct(struct topology* topo, struct cache* cach) {
   topo->smt_supported = 0;
   topo->sockets = 0;
   topo->apic = malloc(sizeof(struct apic));
+  memset(topo->apic, 0, sizeof(struct apic));
   topo->cach = cach;
 }
 
