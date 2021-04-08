@@ -8,7 +8,7 @@
 ![Contributions welcome](https://img.shields.io/badge/contributions-welcome-orange.svg)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-<h4 align="center">Simplistic yet fancy CPU architecture fetching tool</h4>
+<h4 align="center">Simple yet fancy CPU architecture fetching tool</h4>
 &nbsp;
 
 ![cpu1](pictures/i9.png)

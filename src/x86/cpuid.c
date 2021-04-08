@@ -364,13 +364,12 @@ bool get_cache_topology_amd(struct cpuInfo* cpu, struct topology* topo) {
               topo->cach->L3->num_caches = topo->logical_cores / num_sharing_cache;
             }
             else {
-              printBug("Found unified cache at level %d (expected == 2 or 3)", cache_level);
-              return false;
+              printWarn("Found unknown unified cache at level %d", cache_level);
             }
             break;
           
-          default: // Unknown Type Cache
-            printBug("Unknown Type Cache found at ID %d", i);
+          default: // Unknown cache type
+            printBug("Unknown cache type %d with level %d found at i=%d", cache_type, cache_level, i);
             return false; 
         }   
       }
@@ -427,7 +426,7 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
         get_topology_from_apic(cpu, topo);
       }
       else {                
-        printErr("Can't read topology information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000001, cpu->maxLevels); 
+        printWarn("Can't read topology information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000001, cpu->maxLevels); 
         topo->physical_cores = 1;
         topo->logical_cores = 1;
         topo->smt_available = 1;
@@ -451,7 +450,7 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
         }        
       }
       else {
-        printErr("Can't read topology information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x80000008, cpu->maxExtendedLevels); 
+        printWarn("Can't read topology information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x80000008, cpu->maxExtendedLevels); 
         topo->physical_cores = 1;
         topo->logical_cores = 1;
         topo->smt_supported = 1;         
@@ -573,13 +572,12 @@ struct cache* get_cache_info_general(struct cache* cach, uint32_t level) {
             cach->L3->exists = true;
           }
           else {
-            printBug("Found unified cache at level %d (expected == 2 or 3)", cache_level);
-            return NULL;
+            printWarn("Found unknown unified cache at level %d (size is %d bytes)", cache_level, cache_total_size);
           }
           break;
           
-        default: // Unknown Type Cache
-          printBug("Unknown Type Cache found at ID %d", i);
+        default: // Unknown cache type
+          printBug("Unknown cache type %d with level %d found at i=%d", cache_type, cache_level, i);
           return NULL;                  
       }
     }    
@@ -602,7 +600,7 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
   if(cpu->cpu_vendor == CPU_VENDOR_INTEL) {
     level = 0x00000004;    
     if(cpu->maxLevels < level) {
-      printErr("Can't read cache information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", level, cpu->maxLevels);    
+      printWarn("Can't read cache information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", level, cpu->maxLevels);    
       return NULL;
     }
     else {
@@ -615,7 +613,7 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
       printWarn("Can't read cache information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", level, cpu->maxExtendedLevels);
       level = 0x80000006;
       if(cpu->maxExtendedLevels < level) {
-        printErr("Can't read cache information from cpuid using old method (needed extended level is 0x%.8X, max is 0x%.8X)", level, cpu->maxExtendedLevels);    
+        printWarn("Can't read cache information from cpuid using old method (needed extended level is 0x%.8X, max is 0x%.8X)", level, cpu->maxExtendedLevels);
         return NULL;
       }
       printWarn("Fallback to old method using 0x%.8X and 0x%.8X", level-1, level);
@@ -656,30 +654,21 @@ struct frequency* get_frequency_info(struct cpuInfo* cpu) {
   struct frequency* freq = malloc(sizeof(struct frequency));
   
   if(cpu->maxLevels < 0x00000016) {
-    #ifdef _WIN32
-      if(cpu->hv->present) {
-        printWarn("Can't read frequency information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000016, cpu->maxLevels);
-      }
-      else {
-        printErr("Can't read frequency information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000016, cpu->maxLevels);    
-      }
-      freq->base = UNKNOWN_FREQ;
-      freq->max = UNKNOWN_FREQ;
-    #elif defined __APPLE__
-      printErr("Can't read frequency information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000016, cpu->maxLevels);
+    #if defined (_WIN32) || defined (__APPLE__)
+      printWarn("Can't read frequency information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000016, cpu->maxLevels);
       freq->base = UNKNOWN_FREQ;
       freq->max = UNKNOWN_FREQ;
     #else
       printWarn("Can't read frequency information from cpuid (needed level is 0x%.8X, max is 0x%.8X). Using udev", 0x00000016, cpu->maxLevels);
       freq->base = UNKNOWN_FREQ;
       freq->max = get_max_freq_from_file(0, cpu->hv->present);
-      
+
       if(freq->max == 0) {
         if(cpu->hv->present) {
           printWarn("Read max CPU frequency and got 0 MHz");
         }
         else {
-          printBug("Read max CPU frequency and got 0 MHz");    
+          printBug("Read max CPU frequency and got 0 MHz");
         }
         freq->max = UNKNOWN_FREQ;
       }
