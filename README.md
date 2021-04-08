@@ -106,7 +106,7 @@ specifying Intel or AMD, or specifying the colors in RGB format:
 
 ```
 ./cpufetch --color intel (default color for Intel)
-./cpufetch --color amd (default color for AND)
+./cpufetch --color amd (default color for AMD)
 ./cpufetch --color 239,90,45:210,200,200:100,200,45:0,200,200 (example)
 ```
 
