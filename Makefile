@@ -1,3 +1,5 @@
+INSTALL_PREFIX ?= /usr/local
+
 CC=gcc
 
 CFLAGS=-Wall -Wextra -Werror -pedantic -fstack-protector-all -pedantic -std=c99
@@ -51,6 +53,11 @@ clean:
 	@rm $(OUTPUT)
 
 install: $(OUTPUT)
-	install -Dm755 "cpufetch"   "/usr/bin/cpufetch"
-	install -Dm644 "LICENSE"    "/usr/share/licenses/cpufetch-git/LICENSE"
-	install -Dm644 "cpufetch.8" "/usr/share/man/man8/cpufetch.8.gz"
+	install -Dm755 "cpufetch"   "$(INSTALL_PREFIX)/bin/cpufetch"
+	install -Dm644 "LICENSE"    "$(INSTALL_PREFIX)/share/licenses/cpufetch-git/LICENSE"
+	install -Dm644 "cpufetch.8" "$(INSTALL_PREFIX)/share/man/man8/cpufetch.8.gz"
+
+uninstall:
+	rm -f "$(INSTALL_PREFIX)/bin/cpufetch"
+	rm -f "$(INSTALL_PREFIX)/share/licenses/cpufetch-git/LICENSE"
+	rm -f "$(INSTALL_PREFIX)/share/man/man8/cpufetch.8.gz"
