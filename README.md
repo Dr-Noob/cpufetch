@@ -38,21 +38,14 @@
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # 1. Support
-cpufetch currently supports x86_64 CPUs (both Intel and AMD) and ARM.
+cpufetch supports x86, x86_64 (Intel and AMD) and ARM.
 
 | Platform  | x86_64                    | ARM                | Notes             |
 |:---------:|:------------------------:|:-------------------:|:-----------------:|
-| Linux     | :heavy_check_mark:        | :heavy_check_mark: | Prefered platform. <br> Experimental ARM support |
+| GNU/Linux | :heavy_check_mark:        | :heavy_check_mark: | Best support      |
 | Windows   | :heavy_check_mark:        | :x:                | Some information may be missing. <br> Colors will be used if supported |
-| Android   | :heavy_exclamation_mark:  | :heavy_check_mark: | Experimental ARM support |
-| macOS     | :heavy_check_mark:        | :x:                | Some information may be missing |
-
-| Emoji                   | Meaning       |
-|:-----------------------:|:-------------:|
-|:heavy_check_mark:       | Supported     |
-|:x:                      | Not supported |
-|:heavy_exclamation_mark: | Not tested    |
-
+| Android   | :heavy_exclamation_mark:  | :heavy_check_mark: | Some information may be missing. <br> Not tested under x86_64 |
+| macOS     | :heavy_check_mark:        | :x:                | Some information may be missing. <br> Apple M1 support may be added <br> in the future (see [#47](https://github.com/Dr-Noob/cpufetch/issues/47))|
 
 # 2. Installation
 ## 2.1 Building from source
@@ -106,7 +99,7 @@ specifying Intel or AMD, or specifying the colors in RGB format:
 
 ```
 ./cpufetch --color intel (default color for Intel)
-./cpufetch --color amd (default color for AND)
+./cpufetch --color amd (default color for AMD)
 ./cpufetch --color 239,90,45:210,200,200:100,200,45:0,200,200 (example)
 ```
 
