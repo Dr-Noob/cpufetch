@@ -38,6 +38,8 @@
 
 typedef uint32_t MICROARCH;
 
+#define STRING_UNKNOWN    "Unknown"
+
 // Data not available
 #define NA                   -1
 
@@ -398,14 +400,19 @@ char* get_str_uarch(struct cpuInfo* cpu) {
 }
 
 char* get_str_process(struct cpuInfo* cpu) {
-  char* str = malloc(sizeof(char) * (4+2+1));
-  uint32_t process = cpu->arch->process;
-  
-  if(process > 100)    
+  char* str = malloc(sizeof(char) * (strlen(STRING_UNKNOWN)+1));
+  int32_t process = cpu->arch->process;
+
+  if(process == UNK) {
+    snprintf(str, strlen(STRING_UNKNOWN)+1, STRING_UNKNOWN);
+  }
+  else if(process > 100) {
     sprintf(str, "%.2fum", (double)process/100);
-  else
+  }
+  else {
     sprintf(str, "%dnm", process);
-  
+  }
+
   return str;
 }
 
