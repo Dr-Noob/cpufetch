@@ -3,6 +3,8 @@ CC=gcc
 CFLAGS=-Wall -Wextra -Werror -pedantic -fstack-protector-all -pedantic -std=c99
 SANITY_FLAGS=-Wfloat-equal -Wshadow -Wpointer-arith
 
+PREFIX ?= /usr
+
 SRC_COMMON=src/common/
 
 COMMON_SRC = $(SRC_COMMON)main.c $(SRC_COMMON)cpu.c $(SRC_COMMON)udev.c $(SRC_COMMON)printer.c $(SRC_COMMON)args.c $(SRC_COMMON)global.c
@@ -51,6 +53,11 @@ clean:
 	@rm $(OUTPUT)
 
 install: $(OUTPUT)
-	install -Dm755 "cpufetch"   "/usr/bin/cpufetch"
-	install -Dm644 "LICENSE"    "/usr/share/licenses/cpufetch-git/LICENSE"
-	install -Dm644 "cpufetch.8" "/usr/share/man/man8/cpufetch.8.gz"
+	install -Dm755 "cpufetch"   "$(PREFIX)/bin/cpufetch"
+	install -Dm644 "LICENSE"    "$(PREFIX)/share/licenses/cpufetch-git/LICENSE"
+	install -Dm644 "cpufetch.8" "$(PREFIX)/share/man/man8/cpufetch.8.gz"
+
+uninstall:
+	rm -f "$(PREFIX)/bin/cpufetch"
+	rm -f "$(PREFIX)/share/licenses/cpufetch-git/LICENSE"
+	rm -f "$(PREFIX)/share/man/man8/cpufetch.8.gz"
