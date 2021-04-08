@@ -1,4 +1,5 @@
 #ifdef _WIN32
+#define NOMINMAX
 #include <windows.h>
 #elif defined __linux__
 #define _GNU_SOURCE
