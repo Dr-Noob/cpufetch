@@ -1,10 +1,11 @@
 #ifdef _WIN32
-#include <windows.h>
+  #define NOMINMAX
+  #include <windows.h>
 #elif defined __linux__
-#define _GNU_SOURCE
-#include <sched.h>
+  #define _GNU_SOURCE
+  #include <sched.h>
 #elif defined __APPLE__
-#define UNUSED(x) (void)(x)
+  #define UNUSED(x) (void)(x)
 #endif
 
 #include <stdlib.h>
