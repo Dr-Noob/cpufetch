@@ -95,6 +95,17 @@ int main(int argc, char* argv[]) {
     return EXIT_SUCCESS;
   }
   
+  if(show_raw()) {
+  #ifdef ARCH_X86
+    print_version();
+    print_raw(cpu);
+    return EXIT_SUCCESS;
+  #else
+    printErr("raw option is valid only in x86_64");
+    return EXIT_FAILURE;
+  #endif
+  }
+  
   if(print_cpufetch(cpu, get_style(), get_colors()))
     return EXIT_SUCCESS;
   else

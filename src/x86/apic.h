@@ -17,4 +17,8 @@ struct apic {
 bool get_topology_from_apic(struct cpuInfo* cpu, struct topology* topo);
 uint32_t is_smt_enabled_amd(struct topology* topo);
 
+#ifndef __APPLE__
+bool bind_to_cpu(int cpu_id);
+#endif
+
 #endif

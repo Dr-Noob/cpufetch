@@ -310,11 +310,18 @@ struct cpuInfo* get_cpu_info() {
     printWarn("Can't read cpu name from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x80000004, cpu->maxExtendedLevels);        
   }
   
+  cpu->topology_extensions = false;
+  if(cpu->cpu_vendor == CPU_VENDOR_AMD && cpu->maxExtendedLevels >= 0x80000001) {
+    eax = 0x80000001;
+    cpuid(&eax, &ebx, &ecx, &edx);      
+    cpu->topology_extensions = (ecx >> 22) & 1;
+  }
+  
   cpu->arch = get_cpu_uarch(cpu);
   cpu->freq = get_frequency_info(cpu);
   cpu->cach = get_cache_info(cpu);
   cpu->topo = get_topology_info(cpu, cpu->cach);
-  
+
   if(cpu->cach == NULL || cpu->topo == NULL) {
     return NULL;
   }
@@ -322,7 +329,7 @@ struct cpuInfo* get_cpu_info() {
 }
 
 bool get_cache_topology_amd(struct cpuInfo* cpu, struct topology* topo) {    
-  if(cpu->maxExtendedLevels >= 0x8000001D) {  
+  if(cpu->maxExtendedLevels >= 0x8000001D && cpu->topology_extensions) {  
     uint32_t i, eax, ebx, ecx, edx, num_sharing_cache, cache_type, cache_level;
     
     i = 0;
@@ -379,7 +386,7 @@ bool get_cache_topology_amd(struct cpuInfo* cpu, struct topology* topo) {
     } while (cache_type > 0);        
   }
   else {
-    printWarn("Can't read topology information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X). Guessing cache sizes", 0x8000001D, cpu->maxExtendedLevels); 
+    printWarn("Can't read topology information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X and topology_extensions=%s). Guessing cache topology", 0x8000001D, cpu->maxExtendedLevels, cpu->topology_extensions ? "true" : "false"); 
     topo->cach->L1i->num_caches = topo->physical_cores;
     topo->cach->L1d->num_caches = topo->physical_cores;
     
@@ -440,13 +447,13 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
         cpuid(&eax, &ebx, &ecx, &edx);        
         topo->logical_cores = (ecx & 0xFF) + 1;
  
-        if (cpu->maxExtendedLevels >= 0x8000001E) {
+        if (cpu->maxExtendedLevels >= 0x8000001E && cpu->topology_extensions) {
           eax = 0x8000001E;  
           cpuid(&eax, &ebx, &ecx, &edx);
           topo->smt_supported = ((ebx >> 8) & 0x03) + 1;          
         }
         else {
-          printWarn("Can't read topology information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x8000001E, cpu->maxExtendedLevels); 
+          printWarn("Can't read topology information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X and topology_extensions=%s)", 0x8000001E, cpu->maxExtendedLevels, cpu->topology_extensions ? "true" : "false"); 
           topo->smt_supported = 1;       
         }        
       }
@@ -610,8 +617,8 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
   }
   else {
     level = 0x8000001D;
-    if(cpu->maxExtendedLevels < level) {
-      printWarn("Can't read cache information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", level, cpu->maxExtendedLevels);
+    if(cpu->maxExtendedLevels < level || !cpu->topology_extensions) {
+      printWarn("Can't read cache information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X and topology_extensions=%s)", level, cpu->maxExtendedLevels, cpu->topology_extensions ? "true" : "false"); 
       level = 0x80000006;
       if(cpu->maxExtendedLevels < level) {
         printWarn("Can't read cache information from cpuid using old method (needed extended level is 0x%.8X, max is 0x%.8X)", level, cpu->maxExtendedLevels);
@@ -623,29 +630,6 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
     else {
       cach = get_cache_info_general(cach, level);    
     }
-  }
-
-  // Sanity checks. If we read values greater than this, they can't be valid ones
-  // The values were chosen by me
-  if(cach->L1i->size > 64 * 1024) {
-    printBug("Invalid L1i size: %dKB", cach->L1i->size/1024);
-  }
-  if(cach->L1d->size > 64 * 1024) {
-    printBug("Invalid L1d size: %dKB", cach->L1d->size/1024);
-  }
-  if(cach->L2->exists) {
-    if(cach->L3->exists && cach->L2->size > 2 * 1048576) {
-      printBug("Invalid L2 size: %dMB", cach->L2->size/(1048576));
-    }
-    else if(cach->L2->size > 100 * 1048576) {
-      printBug("Invalid L2 size: %dMB", cach->L2->size/(1048576));
-    }
-  }
-  if(cach->L3->exists && cach->L3->size > 100 * 1048576) {
-    printBug("Invalid L3 size: %dMB", cach->L3->size/(1048576));
-  }
-  if(!cach->L2->exists) {
-    printBug("Could not find L2 cache");
   }
 
   return cach;
@@ -890,12 +874,99 @@ void print_debug(struct cpuInfo* cpu) {
   cpuid(&eax, &ebx, &ecx, &edx);
   
   printf("%s\n", cpu->cpu_name);
-  if(cpu->hv->present) printf("- Hypervisor: %s\n", cpu->hv->hv_name);
+  if(cpu->hv->present) {
+    printf("- Hypervisor: %s\n", cpu->hv->hv_name);
+  }
   printf("- Max standard level: 0x%.8X\n", cpu->maxLevels);
   printf("- Max extended level: 0x%.8X\n", cpu->maxExtendedLevels);
+  if(cpu->cpu_vendor == CPU_VENDOR_AMD) {
+    printf("- AMD topology extensions: %d\n", cpu->topology_extensions);    
+  }
   printf("- CPUID dump: 0x%.8X\n", eax);
 
   free_cpuinfo_struct(cpu);
+}
+
+// TODO: Fix on macOS
+// TODO: Query HV and Xeon Phi levels
+void print_raw(struct cpuInfo* cpu) {
+  uint32_t eax;
+  uint32_t ebx;
+  uint32_t ecx;
+  uint32_t edx;
+  printf("%s\n\n", cpu->cpu_name);
+  printf("  CPUID leaf sub   EAX        EBX        ECX        EDX       \n");
+  printf("--------------------------------------------------------------\n");
+  
+  for(int c=0; c < cpu->topo->total_cores; c++) {
+    if(!bind_to_cpu(c)) {
+      printErr("Failed binding to CPU %d", c);
+      return;
+    }
+    
+    printf("CPU %d:\n", c);    
+    
+    for(uint32_t reg=0x00000000; reg <= cpu->maxLevels; reg++) {
+      if(reg == 0x00000004) {
+        for(uint32_t reg2=0x00000000; reg2 < cpu->cach->max_cache_level; reg2++) {
+          eax = reg;
+          ebx = 0;
+          ecx = reg2;
+          edx = 0;
+      
+          cpuid(&eax, &ebx, &ecx, &edx);
+      
+          printf("  0x%.8X 0x%.2X: 0x%.8X 0x%.8X 0x%.8X 0x%.8X\n", reg, reg2, eax, ebx, ecx, edx);
+        }
+      }
+      else if(reg == 0x0000000B) {
+        for(uint32_t reg2=0x00000000; reg2 < cpu->topo->smt_supported; reg2++) {
+          eax = reg;
+          ebx = 0;
+          ecx = reg2;
+          edx = 0;
+      
+          cpuid(&eax, &ebx, &ecx, &edx);
+      
+          printf("  0x%.8X 0x%.2X: 0x%.8X 0x%.8X 0x%.8X 0x%.8X\n", reg, reg2, eax, ebx, ecx, edx);
+        }
+      }
+      else {
+        eax = reg;
+        ebx = 0;
+        ecx = 0;
+        edx = 0;
+      
+        cpuid(&eax, &ebx, &ecx, &edx);
+      
+        printf("  0x%.8X 0x%.2X: 0x%.8X 0x%.8X 0x%.8X 0x%.8X\n", reg, 0x00, eax, ebx, ecx, edx);    
+      }
+    }
+    for(uint32_t reg=0x80000000; reg <= cpu->maxExtendedLevels; reg++) {
+      if(reg == 0x8000001D) {
+        for(uint32_t reg2=0x00000000; reg2 < cpu->cach->max_cache_level; reg2++) {
+          eax = reg;
+          ebx = 0;
+          ecx = reg2;
+          edx = 0;
+      
+          cpuid(&eax, &ebx, &ecx, &edx);
+      
+          printf("  0x%.8X 0x%.2X: 0x%.8X 0x%.8X 0x%.8X 0x%.8X\n", reg, reg2, eax, ebx, ecx, edx);
+        }
+      }
+      else {
+        eax = reg;
+        ebx = 0;
+        ecx = 0;
+        edx = 0;
+      
+        cpuid(&eax, &ebx, &ecx, &edx);
+      
+        printf("  0x%.8X 0x%.2X: 0x%.8X 0x%.8X 0x%.8X 0x%.8X\n", reg, 0x00, eax, ebx, ecx, edx);
+      }
+    }
+  }
 }
 
 void free_topo_struct(struct topology* topo) {
