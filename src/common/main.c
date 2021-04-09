@@ -50,9 +50,9 @@ void print_help(char *argv[]) {
   printf("  * \"legacy\":    Fallback style for terminals that do not support colors\n");
   
   printf("\nEXAMPLES: \n");
-  printf("  Run peakperf with Intel color scheme:\n");
+  printf("  Run cpufetch with Intel color scheme:\n");
   printf("    ./cpufetch --color intel\n");
-  printf("  Run peakperf with a custom color scheme:\n");
+  printf("  Run cpufetch with a custom color scheme:\n");
   printf("    ./cpufetch --color 239,90,45:210,200,200:100,200,45:0,200,200\n");
   
   printf("\nBUGS: \n");
