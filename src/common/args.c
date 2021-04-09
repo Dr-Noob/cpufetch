@@ -192,11 +192,13 @@ char* build_short_options() {
 #ifdef ARCH_X86
   sprintf(str, "%c%c:%c:%c%c%c%c",
   c[ARG_RAW],
-#else
-  sprintf(str, "%c:%c:%c%c%c%c",
-#endif
   c[ARG_STYLE], c[ARG_COLOR], c[ARG_HELP],
   c[ARG_DEBUG], c[ARG_VERBOSE], c[ARG_VERSION]);
+#else
+  sprintf(str, "%c:%c:%c%c%c%c",
+  c[ARG_STYLE], c[ARG_COLOR], c[ARG_HELP],
+  c[ARG_DEBUG], c[ARG_VERBOSE], c[ARG_VERSION]);
+#endif
 
   return str;
 }
