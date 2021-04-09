@@ -65,6 +65,7 @@ enum {
   UARCH_AIRMONT,
   UARCH_KABY_LAKE,
   UARCH_COMET_LAKE,
+  UARCH_ROCKET_LAKE,
   UARCH_AMBER_LAKE,
   UARCH_WHISKEY_LAKE,
   UARCH_SKYLAKE,
@@ -233,6 +234,7 @@ struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, u
   CHECK_UARCH(arch, 0,  6,  9, 14, 13, "Coffee Lake",     UARCH_COFFE_LAKE,       14)
   CHECK_UARCH(arch, 0,  6, 10,  5, NA, "Comet Lake",      UARCH_COMET_LAKE,       14) // wikichip
   CHECK_UARCH(arch, 0,  6, 10,  6, NA, "Comet Lake",      UARCH_COMET_LAKE,       14) // instlatx64.atw.hu (i7-10710U)
+  CHECK_UARCH(arch, 0,  6, 10,  7, NA, "Rocket Lake",     UARCH_ROCKET_LAKE,      14) // instlatx64.atw.hu (i7-11700K)
   CHECK_UARCH(arch, 0, 11,  0,  0, NA, "Knights Ferry",   UARCH_KNIGHTS_FERRY,    45) // found only on en.wikichip.org
   CHECK_UARCH(arch, 0, 11,  0,  1, NA, "Knights Corner",  UARCH_KNIGHTS_CORNER,   22)
   CHECK_UARCH(arch, 0, 15,  0,  0, NA, "Willamette",      UARCH_WILLAMETTE,      180)
@@ -367,6 +369,7 @@ bool is_knights_landing(struct cpuInfo* cpu) {
 
 int get_number_of_vpus(struct cpuInfo* cpu) {  
   switch(cpu->arch->uarch) {
+      // Intel
       case UARCH_HASWELL:
       case UARCH_BROADWELL:
           
@@ -374,6 +377,7 @@ int get_number_of_vpus(struct cpuInfo* cpu) {
       case UARCH_CASCADE_LAKE:                    
       case UARCH_KABY_LAKE:
       case UARCH_COMET_LAKE:
+      case UARCH_ROCKET_LAKE:
       case UARCH_AMBER_LAKE:
       case UARCH_WHISKEY_LAKE:
       case UARCH_COFFE_LAKE:
@@ -384,7 +388,7 @@ int get_number_of_vpus(struct cpuInfo* cpu) {
           
       case UARCH_ICE_LAKE:   
           
-      // Right now is just a guess!
+      // AMD
       case UARCH_ZEN2:
       case UARCH_ZEN3:    
         return 2;
