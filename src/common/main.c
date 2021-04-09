@@ -14,7 +14,7 @@
   #include "../arm/midr.h"
 #endif
 
-static const char* VERSION = "0.96";
+static const char* VERSION = "0.97";
 
 void print_help(char *argv[]) {
   const char **t = args_str;

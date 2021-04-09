@@ -887,7 +887,6 @@ void print_debug(struct cpuInfo* cpu) {
   free_cpuinfo_struct(cpu);
 }
 
-// TODO: Fix on macOS
 // TODO: Query HV and Xeon Phi levels
 void print_raw(struct cpuInfo* cpu) {
   uint32_t eax;
@@ -899,10 +898,12 @@ void print_raw(struct cpuInfo* cpu) {
   printf("--------------------------------------------------------------\n");
   
   for(int c=0; c < cpu->topo->total_cores; c++) {
+    #ifndef __APPLE__
     if(!bind_to_cpu(c)) {
       printErr("Failed binding to CPU %d", c);
       return;
     }
+    #endif
     
     printf("CPU %d:\n", c);    
     
