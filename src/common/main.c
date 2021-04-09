@@ -33,6 +33,9 @@ void print_help(char *argv[]) {
   printf("  -%c, --%s %*s Prints main ID register values for all cores (debug purposes)\n", c[ARG_DEBUG], t[ARG_DEBUG], (int) (max_len-strlen(t[ARG_DEBUG])), "");
 #endif
   printf("  -%c, --%s %*s Prints extra information (if available) about how cpufetch tried fetching information\n", c[ARG_VERBOSE], t[ARG_VERBOSE], (int) (max_len-strlen(t[ARG_VERBOSE])), "");
+#ifdef ARCH_X86
+  printf("  -%c, --%s %*s Prints raw cpuid data\n", c[ARG_RAW], t[ARG_RAW], (int) (max_len-strlen(t[ARG_RAW])), "");
+#endif
   printf("  -%c, --%s %*s Prints this help and exit\n", c[ARG_HELP], t[ARG_HELP], (int) (max_len-strlen(t[ARG_HELP])), "");
   printf("  -%c, --%s %*s Prints cpufetch version and exit\n", c[ARG_VERSION], t[ARG_VERSION], (int) (max_len-strlen(t[ARG_VERSION])), "");
   

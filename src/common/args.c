@@ -189,8 +189,13 @@ char* build_short_options() {
   char* str = (char *) malloc(sizeof(char) * (len*2 + 1));
   memset(str, 0, sizeof(char) * (len*2 + 1));
 
-  sprintf(str, "%c:%c:%c%c%c%c%c",
-  c[ARG_STYLE], c[ARG_COLOR], c[ARG_HELP], c[ARG_RAW],
+#ifdef ARCH_X86
+  sprintf(str, "%c%c:%c:%c%c%c%c",
+  c[ARG_RAW],
+#else
+  sprintf(str, "%c:%c:%c%c%c%c",
+#endif
+  c[ARG_STYLE], c[ARG_COLOR], c[ARG_HELP],
   c[ARG_DEBUG], c[ARG_VERBOSE], c[ARG_VERSION]);
 
   return str;
@@ -213,7 +218,9 @@ bool parse_args(int argc, char* argv[]) {
     {args_str[ARG_STYLE],   required_argument, 0, args_chr[ARG_STYLE]   },
     {args_str[ARG_COLOR],   required_argument, 0, args_chr[ARG_COLOR]   },
     {args_str[ARG_HELP],    no_argument,       0, args_chr[ARG_HELP]    },
+#ifdef ARCH_X86
     {args_str[ARG_RAW],     no_argument,       0, args_chr[ARG_RAW]     },
+#endif
     {args_str[ARG_DEBUG],   no_argument,       0, args_chr[ARG_DEBUG]   },
     {args_str[ARG_VERBOSE], no_argument,       0, args_chr[ARG_VERBOSE] },
     {args_str[ARG_VERSION], no_argument,       0, args_chr[ARG_VERSION] },
