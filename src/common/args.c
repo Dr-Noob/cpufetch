@@ -20,6 +20,7 @@ static const char *SYTLES_STR_LIST[] = {
 struct args_struct {
   bool debug_flag;
   bool help_flag;
+  bool loop_flag;
   bool raw_flag;
   bool verbose_flag;
   bool version_flag;
@@ -30,6 +31,7 @@ struct args_struct {
 const char args_chr[] = {
   /* [ARG_CHAR_STYLE]   = */ 's',
   /* [ARG_CHAR_COLOR]   = */ 'c',
+  /* [ARG_CHAR_LOPP]    = */ 'l',
   /* [ARG_CHAR_HELP]    = */ 'h',
   /* [ARG_CHAR_RAW]     = */ 'r',
   /* [ARG_CHAR_DEBUG]   = */ 'd',
@@ -40,6 +42,7 @@ const char args_chr[] = {
 const char *args_str[] = {
   /* [ARG_CHAR_STYLE]   = */ "style",
   /* [ARG_CHAR_COLOR]   = */ "color",
+  /* [ARG_CHAR_LOOP]    = */ "loop",
   /* [ARG_CHAR_HELP]    = */ "help",
   /* [ARG_CHAR_RAW]     = */ "raw",
   /* [ARG_CHAR_DEBUG]   = */ "debug",
@@ -65,12 +68,16 @@ bool show_version() {
   return args.version_flag;
 }
 
+bool loop_mode() {
+  return args.loop_flag;
+}
+
 bool show_debug() {
   return args.debug_flag;
 }
 
 bool show_raw() {
-  return args.raw_flag;    
+  return args.raw_flag;
 }
 
 bool verbose_enabled() {
@@ -190,13 +197,13 @@ char* build_short_options() {
   memset(str, 0, sizeof(char) * (len*2 + 1));
 
 #ifdef ARCH_X86
-  sprintf(str, "%c:%c:%c%c%c%c%c",
+  sprintf(str, "%c:%c:%c%c%c%c%c%c",
   c[ARG_STYLE], c[ARG_COLOR], c[ARG_HELP], c[ARG_RAW],
-  c[ARG_DEBUG], c[ARG_VERBOSE], c[ARG_VERSION]);
+  c[ARG_DEBUG], c[ARG_VERBOSE], c[ARG_VERSION], c[ARG_LOOP]);
 #else
-  sprintf(str, "%c:%c:%c%c%c%c",
+  sprintf(str, "%c:%c:%c%c%c%c%c",
   c[ARG_STYLE], c[ARG_COLOR], c[ARG_HELP],
-  c[ARG_DEBUG], c[ARG_VERBOSE], c[ARG_VERSION]);
+  c[ARG_DEBUG], c[ARG_VERBOSE], c[ARG_VERSION], c[ARG_LOOP]);
 #endif
 
   return str;
@@ -210,6 +217,7 @@ bool parse_args(int argc, char* argv[]) {
   bool color_flag = false;
   args.debug_flag = false;
   args.raw_flag = false;
+  args.loop_flag = false;
   args.verbose_flag = false;
   args.help_flag = false;
   args.style = STYLE_EMPTY;
@@ -223,6 +231,7 @@ bool parse_args(int argc, char* argv[]) {
     {args_str[ARG_RAW],     no_argument,       0, args_chr[ARG_RAW]     },
 #endif
     {args_str[ARG_DEBUG],   no_argument,       0, args_chr[ARG_DEBUG]   },
+    {args_str[ARG_LOOP],    no_argument,       0, args_chr[ARG_LOOP]    },
     {args_str[ARG_VERBOSE], no_argument,       0, args_chr[ARG_VERBOSE] },
     {args_str[ARG_VERSION], no_argument,       0, args_chr[ARG_VERSION] },
     {0, 0, 0, 0}
@@ -254,6 +263,9 @@ bool parse_args(int argc, char* argv[]) {
         return false;
       }
       break;
+    }
+    else if(opt == args_chr[ARG_LOOP]) {
+      args.loop_flag = true;
     }
     else if(opt == args_chr[ARG_HELP]) {
       args.help_flag  = true;

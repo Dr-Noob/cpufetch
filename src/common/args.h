@@ -29,6 +29,7 @@ enum {
 enum {
   ARG_STYLE,
   ARG_COLOR,
+  ARG_LOOP,
   ARG_HELP,
   ARG_RAW,
   ARG_DEBUG,
@@ -44,6 +45,7 @@ extern const char *args_str[];
 int max_arg_str_length();
 bool parse_args(int argc, char* argv[]);
 bool show_help();
+bool loop_mode();
 bool show_raw();
 bool show_debug();
 bool show_version();

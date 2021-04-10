@@ -1,3 +1,12 @@
+#ifdef _WIN32
+  #define NOMINMAX
+  #include <Windows.h>
+#else
+  #define _POSIX_C_SOURCE 199309L
+  #include <unistd.h>
+#endif
+
+#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -15,11 +24,6 @@
   #include "../arm/uarch.h"
   #include "../arm/midr.h"
   #include "../arm/soc.h"
-#endif
-
-#ifdef _WIN32
-#define NOMINMAX
-#include <Windows.h>
 #endif
 
 #define max(a,b) (((a)>(b))?(a):(b))
@@ -117,6 +121,24 @@ struct ascii {
   VENDOR vendor;
   STYLE style;
 };
+
+volatile sig_atomic_t loop = 1;
+
+#ifdef _WIN32
+BOOL WINAPI loop_mode_handler(DWORD signum) {
+  if (signum == CTRL_C_EVENT) {
+    loop = 0;
+  }
+
+  return TRUE;
+}
+#else
+void loop_mode_handler(int signum) {
+  if(signum == SIGINT) {
+    loop = 0;
+  }
+}
+#endif
 
 void setAttribute(struct ascii* art, int type, char* value) {
   art->attributes[art->n_attributes_set]->value = value;
@@ -408,9 +430,36 @@ void print_ascii_x86(struct ascii* art, uint32_t la, void (*callback_print_algor
   printf("\n");
 }
 
-void print_ascii(struct ascii* art) {
+bool run_loop_mode() {
+#ifdef _WIN32
+  if (!SetConsoleCtrlHandler(loop_mode_handler, TRUE)) {
+    printErr("SetConsoleCtrlHandler failed");
+    return false;
+  }
+  #else
+    struct sigaction act;
+    memset(&act, 0, sizeof(struct sigaction));
+    act.sa_handler = loop_mode_handler;
+    if(sigaction(SIGINT, &act, NULL) == -1) {
+      perror("sigaction");
+      return false;
+    }
+  #endif
+
+  while (loop) {
+    #ifdef _WIN32
+      Sleep(1000);
+    #else
+      sleep(1);
+    #endif
+  }
+
+  return true;
+}
+
+bool print_ascii(struct ascii* art) {
   uint32_t longest_attribute = longest_attribute_length(art);
-  
+
   if(art->vendor == CPU_VENDOR_INTEL)
     print_ascii_x86(art, longest_attribute, &print_algorithm_intel);
   else if(art->vendor == CPU_VENDOR_AMD)
@@ -418,7 +467,12 @@ void print_ascii(struct ascii* art) {
   else {
     printBug("Invalid CPU vendor: %d\n", art->vendor);
   }
-  
+
+  if(loop_mode()) {
+    return run_loop_mode();
+  }
+
+  return true;
 }
 
 bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct colors* cs) {

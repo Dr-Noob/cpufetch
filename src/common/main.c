@@ -27,6 +27,7 @@ void print_help(char *argv[]) {
   printf("Options: \n");
   printf("  -%c, --%s %*s Set the color scheme (by default, cpufetch uses the system color scheme)\n", c[ARG_COLOR], t[ARG_COLOR], (int) (max_len-strlen(t[ARG_COLOR])), "");
   printf("  -%c, --%s %*s Set the style of CPU art\n", c[ARG_STYLE], t[ARG_STYLE], (int) (max_len-strlen(t[ARG_STYLE])), "");
+  printf("  -%c, --%s %*s Runs cpufetch in a loop\n", c[ARG_LOOP], t[ARG_LOOP], (int) (max_len-strlen(t[ARG_LOOP])), "");
 #ifdef ARCH_X86
   printf("  -%c, --%s %*s Prints CPU model and cpuid levels (debug purposes)\n", c[ARG_DEBUG], t[ARG_DEBUG], (int) (max_len-strlen(t[ARG_DEBUG])), "");
 #elif ARCH_ARM
