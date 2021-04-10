@@ -227,6 +227,11 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct colors* cs) {
   art->ascii_chars[1] = '#';
 
   #ifdef _WIN32
+    // Old Windows do not define the flag
+    #ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
+      #define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
+    #endif
+
     HANDLE std_handle = GetStdHandle(STD_OUTPUT_HANDLE);
     DWORD console_mode;
 
