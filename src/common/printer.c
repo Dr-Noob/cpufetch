@@ -1,8 +1,10 @@
 #ifdef _WIN32
   #define NOMINMAX
   #include <Windows.h>
-#else
+#elif defined __linux__
   #define _POSIX_C_SOURCE 199309L
+  #include <unistd.h>
+#elif defined __APPLE__
   #include <unistd.h>
 #endif
 
