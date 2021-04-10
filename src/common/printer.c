@@ -1,10 +1,11 @@
 #ifdef _WIN32
   #define NOMINMAX
   #include <Windows.h>
-#elif defined __linux__
-  #define _POSIX_C_SOURCE 199309L
-  #include <unistd.h>
-#elif defined __APPLE__
+#else
+  #ifdef  __linux__
+    #define _POSIX_C_SOURCE 199309L
+  #endif
+  #include <sys/ioctl.h>
   #include <unistd.h>
 #endif
 
@@ -122,6 +123,11 @@ struct ascii {
   uint32_t additional_spaces;
   VENDOR vendor;
   STYLE style;
+};
+
+struct terminal {
+  int w;
+  int h;
 };
 
 volatile sig_atomic_t loop = 1;
@@ -433,45 +439,59 @@ void print_algorithm_amd(struct ascii* art, int n, bool* flag) {
   }
 }
 
-void print_ascii_x86(struct ascii* art, uint32_t la, void (*callback_print_algorithm)(struct ascii* art, int i, bool* flag)) {  
+void print_ascii_x86(struct ascii* art, struct terminal* term, uint32_t la, void (*callback_print_algorithm)(struct ascii* art, int i, bool* flag)) {  
   int attr_to_print = 0;
   int attr_type;
   char* attr_value;
+  int attr_print_len;
+  uint32_t attr_space_left;
   uint32_t space_right;
   uint32_t space_up = (NUMBER_OF_LINES - art->n_attributes_set)/2;
   uint32_t space_down = NUMBER_OF_LINES - art->n_attributes_set - space_up;
   bool flag = false;
+  bool print_ascii_art;
+
+  if(term->w - LINE_SIZE - 1 - (int) la > 0) {
+    print_ascii_art = true;
+    attr_space_left = term->w - LINE_SIZE - 1 - la;
+  }
+  else {
+    print_ascii_art = false;
+    attr_space_left = term->w - 1 - la;
+  }
 
   printf("\n");
   for(uint32_t n=0;n<NUMBER_OF_LINES;n++) {
-    callback_print_algorithm(art, n, &flag);
+    if(print_ascii_art) callback_print_algorithm(art, n, &flag);
 
     if(n > space_up-1 && n < NUMBER_OF_LINES-space_down) {
       attr_type = art->attributes[attr_to_print]->type;
       attr_value = art->attributes[attr_to_print]->value;
       attr_to_print++;
-      
+
+      attr_print_len = min(strlen(attr_value), attr_space_left);
+      attr_print_len = max(attr_print_len, 0);
       space_right = 1 + (la - strlen(ATTRIBUTE_FIELDS[attr_type]));
-      printf("%s%s%s%*s%s%s%s\n", art->color1_text, ATTRIBUTE_FIELDS[attr_type], art->reset, space_right, "", art->color2_text, attr_value, art->reset);
+      printf("%s%s%s%*s%s%.*s%s\n", art->color1_text, ATTRIBUTE_FIELDS[attr_type], art->reset, space_right, "", art->color2_text, attr_print_len, attr_value, art->reset);
     }
     else printf("\n");
   }
   printf("\n");
 }
 
-void print_ascii(struct ascii* art) {
+void print_ascii(struct ascii* art, struct terminal* term) {
   uint32_t longest_attribute = longest_attribute_length(art);
 
   if(art->vendor == CPU_VENDOR_INTEL)
-    print_ascii_x86(art, longest_attribute, &print_algorithm_intel);
+    print_ascii_x86(art, term, longest_attribute, &print_algorithm_intel);
   else if(art->vendor == CPU_VENDOR_AMD)
-    print_ascii_x86(art, longest_attribute, &print_algorithm_amd);
+    print_ascii_x86(art, term, longest_attribute, &print_algorithm_amd);
   else {
     printBug("Invalid CPU vendor: %d\n", art->vendor);
   }
 }
 
-bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
+bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct colors* cs, struct terminal* term) {
   struct ascii* art = set_ascii(get_cpu_vendor(cpu), s, cs);
   if(art == NULL)
     return false;  
@@ -485,7 +505,6 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   char* cpu_name = get_str_cpu_name(cpu);
   char* avx = get_str_avx(cpu);
   char* fma = get_str_fma(cpu);
-
 
   char* l1i = get_str_l1i(cpu->cach);
   char* l1d = get_str_l1d(cpu->cach);
@@ -524,7 +543,7 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
     return false;
   }
 
-  print_ascii(art);
+  print_ascii(art, term);
 
   if(loop_mode()) {
     return run_loop_mode();
@@ -596,7 +615,7 @@ void print_algorithm_arm(struct ascii* art, int n) {
   }
 }
 
-void print_ascii_arm(struct ascii* art, uint32_t la, void (*callback_print_algorithm)(struct ascii* art, int n)) {  
+void print_ascii_arm(struct ascii* art, struct terminal* term, uint32_t la, void (*callback_print_algorithm)(struct ascii* art, int n)) {  
   int attr_to_print = 0;
   int attr_type;
   char* attr_value;
@@ -655,18 +674,18 @@ void print_ascii(struct ascii* art) {
   uint32_t longest_attribute = longest_attribute_length(art);
   
   if(art->vendor == SOC_VENDOR_SNAPDRAGON || art->vendor == SOC_VENDOR_MEDIATEK || art->vendor == SOC_VENDOR_KIRIN || art->vendor == SOC_VENDOR_BROADCOM)
-    print_ascii_arm(art, longest_attribute, &print_algorithm_snapd_mtk);      
+    print_ascii_arm(art, term, longest_attribute, &print_algorithm_snapd_mtk);      
   else if(art->vendor == SOC_VENDOR_EXYNOS)
-    print_ascii_arm(art, longest_attribute, &print_algorithm_samsung);      
+    print_ascii_arm(art, term, longest_attribute, &print_algorithm_samsung);      
   else {
     if(art->vendor != SOC_VENDOR_UNKNOWN)
       printWarn("Invalid SOC vendor: %d\n", art->vendor);
-    print_ascii_arm(art, longest_attribute, &print_algorithm_arm);
+    print_ascii_arm(art, term, longest_attribute, &print_algorithm_arm);
   }
   
 }
 
-bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct colors* cs) {   
+bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct colors* cs, struct terminal* term) {   
   struct ascii* art = set_ascii(get_soc_vendor(cpu->soc), s, cs);
   if(art == NULL)
     return false;  
@@ -734,7 +753,7 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   if(cpu->hv->present)
     setAttribute(art, ATTRIBUTE_HYPERVISOR, cpu->hv->hv_name);
 
-  print_ascii(art);
+  print_ascii(art, term);
 
   if(loop_mode()) {
     return run_loop_mode();
@@ -755,6 +774,31 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
 }
 #endif
 
+struct terminal* get_terminal_size() {
+  struct terminal* term = malloc(sizeof(struct terminal));
+  memset(term, 0, sizeof(struct terminal));
+
+#ifdef _WIN32
+  CONSOLE_SCREEN_BUFFER_INFO csbi;
+  if(GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi) == 0) {
+    printWarn("GetConsoleScreenBufferInfo failed");
+    return term;
+  }
+  term->w = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+  term->h = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+#else
+  struct winsize w;
+  if(ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == -1) {
+    perror("ioctl");
+    return term;
+  }
+  term->h = w.ws_row;
+  term->w = w.ws_col;
+#endif
+
+  return term;
+}
+
 bool print_cpufetch(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   // Sanity check of ASCII arts
   int len = sizeof(ASCII_ARRAY) / sizeof(ASCII_ARRAY[0]);
@@ -765,10 +809,12 @@ bool print_cpufetch(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
       return false;
     }
   }
-  
+
+  struct terminal* term = get_terminal_size();
+
 #ifdef ARCH_X86
-  return print_cpufetch_x86(cpu, s, cs);
+  return print_cpufetch_x86(cpu, s, cs, term);
 #elif ARCH_ARM
-  return print_cpufetch_arm(cpu, s, cs);  
+  return print_cpufetch_arm(cpu, s, cs, term);
 #endif
 }
