@@ -369,6 +369,33 @@ uint32_t longest_attribute_length(struct ascii* art) {
   return max;
 }
 
+bool run_loop_mode() {
+#ifdef _WIN32
+  if (!SetConsoleCtrlHandler(loop_mode_handler, TRUE)) {
+    printErr("SetConsoleCtrlHandler failed");
+    return false;
+  }
+  #else
+    struct sigaction act;
+    memset(&act, 0, sizeof(struct sigaction));
+    act.sa_handler = loop_mode_handler;
+    if(sigaction(SIGINT, &act, NULL) == -1) {
+      perror("sigaction");
+      return false;
+    }
+  #endif
+
+  while (loop) {
+    #ifdef _WIN32
+      Sleep(1000);
+    #else
+      sleep(1);
+    #endif
+  }
+
+  return true;
+}
+
 #ifdef ARCH_X86
 void print_algorithm_intel(struct ascii* art, int n, bool* flag) {
   for(int i=0; i < LINE_SIZE; i++) {
@@ -432,34 +459,7 @@ void print_ascii_x86(struct ascii* art, uint32_t la, void (*callback_print_algor
   printf("\n");
 }
 
-bool run_loop_mode() {
-#ifdef _WIN32
-  if (!SetConsoleCtrlHandler(loop_mode_handler, TRUE)) {
-    printErr("SetConsoleCtrlHandler failed");
-    return false;
-  }
-  #else
-    struct sigaction act;
-    memset(&act, 0, sizeof(struct sigaction));
-    act.sa_handler = loop_mode_handler;
-    if(sigaction(SIGINT, &act, NULL) == -1) {
-      perror("sigaction");
-      return false;
-    }
-  #endif
-
-  while (loop) {
-    #ifdef _WIN32
-      Sleep(1000);
-    #else
-      sleep(1);
-    #endif
-  }
-
-  return true;
-}
-
-bool print_ascii(struct ascii* art) {
+void print_ascii(struct ascii* art) {
   uint32_t longest_attribute = longest_attribute_length(art);
 
   if(art->vendor == CPU_VENDOR_INTEL)
@@ -469,12 +469,6 @@ bool print_ascii(struct ascii* art) {
   else {
     printBug("Invalid CPU vendor: %d\n", art->vendor);
   }
-
-  if(loop_mode()) {
-    return run_loop_mode();
-  }
-
-  return true;
 }
 
 bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
@@ -531,6 +525,10 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   }
 
   print_ascii(art);
+
+  if(loop_mode()) {
+    return run_loop_mode();
+  }
 
   free(manufacturing_process);
   free(max_frequency);
@@ -737,6 +735,10 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
     setAttribute(art, ATTRIBUTE_HYPERVISOR, cpu->hv->hv_name);
 
   print_ascii(art);
+
+  if(loop_mode()) {
+    return run_loop_mode();
+  }
 
   free(manufacturing_process);  
   free(pp);
