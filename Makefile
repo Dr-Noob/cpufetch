@@ -53,11 +53,11 @@ clean:
 	@rm $(OUTPUT)
 
 install: $(OUTPUT)
-	install -Dm755 "cpufetch"   "$(PREFIX)/bin/cpufetch"
-	install -Dm644 "LICENSE"    "$(PREFIX)/share/licenses/cpufetch-git/LICENSE"
-	install -Dm644 "cpufetch.8" "$(PREFIX)/share/man/man8/cpufetch.8.gz"
+	install -Dm755 "cpufetch"   "${DESTDIR}$(PREFIX)/bin/cpufetch"
+	install -Dm644 "LICENSE"    "${DESTDIR}$(PREFIX)/share/licenses/cpufetch-git/LICENSE"
+	install -Dm644 "cpufetch.8" "${DESTDIR}$(PREFIX)/share/man/man8/cpufetch.8.gz"
 
 uninstall:
-	rm -f "$(PREFIX)/bin/cpufetch"
-	rm -f "$(PREFIX)/share/licenses/cpufetch-git/LICENSE"
-	rm -f "$(PREFIX)/share/man/man8/cpufetch.8.gz"
+	rm -f "${DESTDIR}$(PREFIX)/bin/cpufetch"
+	rm -f "${DESTDIR}$(PREFIX)/share/licenses/cpufetch-git/LICENSE"
+	rm -f "${DESTDIR}$(PREFIX)/share/man/man8/cpufetch.8.gz"
