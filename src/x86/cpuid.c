@@ -649,12 +649,7 @@ struct frequency* get_frequency_info(struct cpuInfo* cpu) {
       freq->max = get_max_freq_from_file(0, cpu->hv->present);
 
       if(freq->max == 0) {
-        if(cpu->hv->present) {
-          printWarn("Read max CPU frequency and got 0 MHz");
-        }
-        else {
-          printBug("Read max CPU frequency and got 0 MHz");
-        }
+        printWarn("Read max CPU frequency from udev and got 0 MHz");
         freq->max = UNKNOWN_FREQ;
       }
     #endif
@@ -664,32 +659,27 @@ struct frequency* get_frequency_info(struct cpuInfo* cpu) {
     uint32_t ebx = 0;
     uint32_t ecx = 0;
     uint32_t edx = 0;
-    
+
     cpuid(&eax, &ebx, &ecx, &edx);
-    
+
     freq->base = eax;
-    freq->max = ebx;    
-    
+    freq->max = ebx;
+
     if(freq->base == 0) {
-      if(cpu->hv->present) {
-        printWarn("Read base CPU frequency and got 0 MHz");
-      }
-      else {
-        printBug("Read base CPU frequency and got 0 MHz");    
-      }
+      printWarn("Read base CPU frequency from CPUID and got 0 MHz");
       freq->base = UNKNOWN_FREQ;
     }
     if(freq->max == 0) {
-      if(cpu->hv->present) {
-        printWarn("Read max CPU frequency and got 0 MHz");
+      printWarn("Read max CPU frequency from CPUID and got 0 MHz. Using udev");
+      freq->max = get_max_freq_from_file(0, cpu->hv->present);
+
+      if(freq->max == 0) {
+        printWarn("Read max CPU frequency from udev and got 0 MHz");
+        freq->max = UNKNOWN_FREQ;
       }
-      else {
-        printBug("Read max CPU frequency and got 0 MHz");    
-      }
-      freq->max = UNKNOWN_FREQ;
     }
   }
-  
+
   return freq;
 }
 
