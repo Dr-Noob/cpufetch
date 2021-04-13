@@ -50,7 +50,7 @@ run: $(OUTPUT)
 	./$(OUTPUT)
 
 clean:
-	@rm $(OUTPUT)
+	@rm -f $(OUTPUT)
 
 install: $(OUTPUT)
 	install -Dm755 "cpufetch"   "${DESTDIR}$(PREFIX)/bin/cpufetch"
