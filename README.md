@@ -3,10 +3,10 @@
 <div align="center">
 
 ![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/Dr-Noob/cpufetch?label=cpufetch)
-![GitHub Repo stars](https://img.shields.io/github/stars/Dr-Noob/cpufetch?color=4CC61F)
-![GitHub issues](https://img.shields.io/github/issues/Dr-Noob/cpufetch)
-![Contributions welcome](https://img.shields.io/badge/contributions-welcome-orange.svg)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![GitHub Repo stars](https://img.shields.io/github/stars/Dr-Noob/cpufetch?color=4CC61F)](https://github.com/Dr-Noob/cpufetch/stargazers)
+[![GitHub issues](https://img.shields.io/github/issues/Dr-Noob/cpufetch)](https://github.com/Dr-Noob/cpufetch/issues)
+[![Packaging status](https://repology.org/badge/tiny-repos/cpufetch.svg)](https://repology.org/project/cpufetch/versions)
+[![License](https://img.shields.io/github/license/Dr-Noob/cpufetch?color=orange)](https://github.com/Dr-Noob/cpufetch/blob/master/LICENSE)
 
 <h4 align="center">Simple yet fancy CPU architecture fetching tool</h4>
 &nbsp;
@@ -23,11 +23,9 @@
 
 - [1. Support](#1-support)
 - [2. Installation](#2-installation)
-  - [2.1 Building from source](#21-building-from-source)
-  - [2.2 Linux](#22-linux)
-  - [2.2 Windows](#22-windows)
-  - [2.3 macOS](#23-macos)
-  - [2.4 Android](#24-android)
+  - [2.1 Available packages](#21-available-packages)
+  - [2.2 Building from source (Linux/Windows/macOS)](#22-building-from-source-linuxwindowsmacos)
+  - [2.3 Android](#23-android)
 - [3. Examples](#3-examples)
   - [3.1 x86_64 CPUs](#31-x86_64-cpus)
   - [3.2 ARM CPUs](#32-arm-cpus)
@@ -48,7 +46,14 @@ cpufetch supports x86, x86_64 (Intel and AMD) and ARM.
 | macOS     | :heavy_check_mark:        | :x:                | Some information may be missing. <br> Apple M1 support may be added <br> in the future (see [#47](https://github.com/Dr-Noob/cpufetch/issues/47))|
 
 # 2. Installation
-## 2.1 Building from source
+## 2.1 Installing from a package
+Choose the right package for your operating system:
+
+[![Packaging status](https://repology.org/badge/vertical-allrepos/cpufetch.svg)](https://repology.org/project/cpufetch/versions)
+
+If there is no available package for your OS, you can download the cpufetch binary from [the releases page](https://github.com/Dr-Noob/cpufetch/releases), or [build cpufetch from source](#22-building-from-source-linuxwindowsmacos) (see below).
+
+## 2.2 Building from source (Linux/Windows/macOS)
 Just clone the repo and use `make` to compile it
 
 ```
@@ -60,16 +65,7 @@ make
 
 The Makefile is designed to work on Linux, Windows and macOS.
 
-## 2.2 Linux
-There is a cpufetch package available in Arch Linux ([cpufetch-git](https://aur.archlinux.org/packages/cpufetch-git)). If you are in another distribution, you can build `cpufetch` from source.
-
-## 2.2 Windows
-In the [releases](https://github.com/Dr-Noob/cpufetch/releases) section you will find some cpufetch executables compiled for Windows. Just download and run it from Windows CMD. You can also build `cpufetch` from source.
-
-## 2.3 macOS
-You need to build `cpufetch` from source.
-
-## 2.4 Android
+## 2.3 Android
 1. Install `termux` app (terminal emulator)
 2. Run `pkg install -y git make clang` inside termux.
 3. Build from source normally:
