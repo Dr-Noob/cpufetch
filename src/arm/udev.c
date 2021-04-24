@@ -18,25 +18,34 @@
 int get_ncores_from_cpuinfo() {
   // Examples:
   // 0-271
-  // 0-5
   // 0-7
+  // 0
+
   int filelen;
   char* buf;
   if((buf = read_file(_PATH_CPUS_PRESENT, &filelen)) == NULL) {
     perror("open");
-    return UNKNOWN;    
+    return UNKNOWN;
   }
-  
-  int ncores = 0;
-  char* tmp1 = strstr(buf, "-") + 1;
+
+  int ncores;
+  char* tmp1;
+  if((tmp1 = strstr(buf, "-")) == NULL) {
+    // file contains no - character, we assume that it contains 0,
+    // which means that the CPU contains only one core
+    return 1;
+  }
+  else {
+    tmp1++;
+  }
   char* tmp2 = strstr(buf, "\n");
   char ncores_str[filelen];
   memset(ncores_str, 0, sizeof(char) * filelen);
   memcpy(ncores_str, tmp1, tmp2-tmp1);
-  
+
   char* end;
   errno = 0;
-  ncores = strtol(ncores_str, &end, 10) + 1;  
+  ncores = strtol(ncores_str, &end, 10) + 1;
   if(errno != 0) {
     perror("strtol");
     return UNKNOWN;

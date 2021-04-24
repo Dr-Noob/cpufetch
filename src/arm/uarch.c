@@ -24,6 +24,10 @@ struct uarch {
 };
 
 enum {
+  ISA_ARMv6,
+  ISA_ARMv6_T2,
+  ISA_ARMv6_KZ,
+  ISA_ARMv6_K,
   ISA_ARMv7_A,
   ISA_ARMv8_A,
   ISA_ARMv8_A_AArch32,
@@ -36,8 +40,11 @@ enum {
   UARCH_UNKNOWN,
   // ARM
   UARCH_ARM7,
-  UARCH_ARM9,  
-  UARCH_ARM11,       // ARM 1136, ARM 1156, ARM 1176, or ARM 11MPCore.
+  UARCH_ARM9,
+  UARCH_ARM1136,
+  UARCH_ARM1156,
+  UARCH_ARM1176,
+  UARCH_ARM11MPCORE,
   UARCH_CORTEX_A5,  
   UARCH_CORTEX_A7,  
   UARCH_CORTEX_A8,    
@@ -98,6 +105,10 @@ enum {
 };
 
 static const ISA isas_uarch[] = {
+  [UARCH_ARM1136]      = ISA_ARMv6,
+  [UARCH_ARM1156]      = ISA_ARMv6_T2,
+  [UARCH_ARM1176]      = ISA_ARMv6_KZ,
+  [UARCH_ARM11MPCORE]  = ISA_ARMv6_K,
   [UARCH_CORTEX_A5]    = ISA_ARMv7_A,
   [UARCH_CORTEX_A7]    = ISA_ARMv7_A,
   [UARCH_CORTEX_A8]    = ISA_ARMv7_A,
@@ -143,6 +154,10 @@ static const ISA isas_uarch[] = {
 };
 
 static char* isas_string[] = {
+  [ISA_ARMv6]  = "ARMv6",
+  [ISA_ARMv6_T2] = "ARMv6T2",
+  [ISA_ARMv6_KZ] = "ARMv6KZ",
+  [ISA_ARMv6_K] = "ARMv6K",
   [ISA_ARMv7_A] = "ARMv7",
   [ISA_ARMv8_A] = "ARMv8",
   [ISA_ARMv8_A_AArch32] = "ARMv8 AArch32",
@@ -181,7 +196,7 @@ struct uarch* get_uarch_from_midr(uint32_t midr, struct cpuInfo* cpu) {
   uint32_t p = midr_get_part(midr);
   uint32_t v = midr_get_variant(midr);
   uint32_t r = midr_get_revision(midr);
-  
+
   // ----------------------------------------------------------------------- //
   // IM: Implementer                                                         //
   // P:  Part                                                                //
@@ -189,7 +204,11 @@ struct uarch* get_uarch_from_midr(uint32_t midr, struct cpuInfo* cpu) {
   // R:  Revision                                                            //
   // ----------------------------------------------------------------------- //
   //                     IM   P      V   R                                   //
-  UARCH_START  
+  UARCH_START
+  CHECK_UARCH(arch, cpu, 'A', 0xB36, NA, NA, "ARM1136",               UARCH_ARM1136,      CPU_VENDOR_ARM)
+  CHECK_UARCH(arch, cpu, 'A', 0xB56, NA, NA, "ARM1156",               UARCH_ARM1156,      CPU_VENDOR_ARM)
+  CHECK_UARCH(arch, cpu, 'A', 0xB76, NA, NA, "ARM1176",               UARCH_ARM1176,      CPU_VENDOR_ARM)
+  CHECK_UARCH(arch, cpu, 'A', 0xB02, NA, NA, "ARM11 MPCore",          UARCH_ARM11MPCORE,  CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xC05, NA, NA, "Cortex-A5",             UARCH_CORTEX_A5,    CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xC07, NA, NA, "Cortex-A7",             UARCH_CORTEX_A7,    CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xC08, NA, NA, "Cortex-A8",             UARCH_CORTEX_A8,    CPU_VENDOR_ARM)
