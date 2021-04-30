@@ -581,6 +581,7 @@ struct cache* get_cache_info_general(struct cache* cach, uint32_t level) {
           }
           else {
             printWarn("Found unknown unified cache at level %d (size is %d bytes)", cache_level, cache_total_size);
+            cach->max_cache_level--;
           }
           break;
           

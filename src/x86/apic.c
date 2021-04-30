@@ -232,6 +232,7 @@ bool build_topo_from_apic(uint32_t* apic_pkg, uint32_t* apic_smt, uint32_t** cac
       if(apic_id[c] > 0) num_caches++;
     }
     
+    printf("[i=%d]: %p\n", i, (void *) topo->cach->cach_arr[i]);
     topo->cach->cach_arr[i]->num_caches = num_caches;
   }
   
