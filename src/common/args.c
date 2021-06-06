@@ -109,10 +109,24 @@ void free_colors_struct(struct colors* cs) {
 
 bool parse_color(char* optarg_str, struct colors** cs) {
   *cs = malloc(sizeof(struct colors));        
+  if(!*cs)
+    return false;
   (*cs)->c1 = malloc(sizeof(struct color));
   (*cs)->c2 = malloc(sizeof(struct color));
   (*cs)->c3 = malloc(sizeof(struct color));
   (*cs)->c4 = malloc(sizeof(struct color));
+  if (!(*cs)->c1 || !(*cs)->c2 || !(*cs)->c3 || !(*cs)->c4) {
+    if ((*cs)->c1)
+      free((*cs)->c1);
+    if ((*cs)->c2)
+      free((*cs)->c2);
+    if ((*cs)->c3)
+      free((*cs)->c3);
+    if ((*cs)->c4)
+      free((*cs)->c4);
+    free(*cs);
+    return false;
+  }
   struct color** c1 = &((*cs)->c1);
   struct color** c2 = &((*cs)->c2);
   struct color** c3 = &((*cs)->c3);
@@ -123,16 +137,40 @@ bool parse_color(char* optarg_str, struct colors** cs) {
   
   if(strcmp(optarg_str, COLOR_STR_INTEL) == 0) {
     str_to_parse = malloc(sizeof(char) * 46);
+    if(!str_to_parse) {
+      free((*cs)->c1);
+      free((*cs)->c2);
+      free((*cs)->c3);
+      free((*cs)->c4);
+      free(*cs);
+      return false;
+    }
     strcpy(str_to_parse, COLOR_DEFAULT_INTEL);
     free_ptr = true;
   }
   else if(strcmp(optarg_str, COLOR_STR_AMD) == 0) {
     str_to_parse = malloc(sizeof(char) * 44);
+    if(!str_to_parse) {
+      free((*cs)->c1);
+      free((*cs)->c2);
+      free((*cs)->c3);
+      free((*cs)->c4);
+      free(*cs);
+      return false;
+    }
     strcpy(str_to_parse, COLOR_DEFAULT_AMD);  
     free_ptr = true;
   }
   else if(strcmp(optarg_str, COLOR_STR_ARM) == 0) {
     str_to_parse = malloc(sizeof(char) * 46);
+    if(!str_to_parse) {
+      free((*cs)->c1);
+      free((*cs)->c2);
+      free((*cs)->c3);
+      free((*cs)->c4);
+      free(*cs);
+      return false;
+    }
     strcpy(str_to_parse, COLOR_DEFAULT_ARM);  
     free_ptr = true;
   }
@@ -149,32 +187,74 @@ bool parse_color(char* optarg_str, struct colors** cs) {
   
   if(ret != 12) {
     printErr("Expected to read 12 values for color but read %d", ret);
+    if(free_ptr) free (str_to_parse);
+    free((*cs)->c1);
+    free((*cs)->c2);
+    free((*cs)->c3);
+    free((*cs)->c4);
+    free(*cs);
     return false;    
   }
   
   //TODO: Refactor c1->R c2->R ... to c[i]->R
   if((*c1)->R < 0 || (*c1)->R > 255) {
     printErr("Red in color 1 is invalid. Must be in range (0, 255)");
+    if(free_ptr) free (str_to_parse);
+    free((*cs)->c1);
+    free((*cs)->c2);
+    free((*cs)->c3);
+    free((*cs)->c4);
+    free(*cs);
     return false;
   }
   if((*c1)->G < 0 || (*c1)->G > 255) {
     printErr("Green in color 1 is invalid. Must be in range (0, 255)");
+    if(free_ptr) free (str_to_parse);
+    free((*cs)->c1);
+    free((*cs)->c2);
+    free((*cs)->c3);
+    free((*cs)->c4);
+    free(*cs);
     return false;
   }
   if((*c1)->B < 0 || (*c1)->B > 255) {
     printErr("Blue in color 1 is invalid. Must be in range (0, 255)");
+    if(free_ptr) free (str_to_parse);
+    free((*cs)->c1);
+    free((*cs)->c2);
+    free((*cs)->c3);
+    free((*cs)->c4);
+    free(*cs);
     return false;
   }
   if((*c2)->R < 0 || (*c2)->R > 255) {
     printErr("Red in color 2 is invalid. Must be in range (0, 255)");
+    if(free_ptr) free (str_to_parse);
+    free((*cs)->c1);
+    free((*cs)->c2);
+    free((*cs)->c3);
+    free((*cs)->c4);
+    free(*cs);
     return false;
   }
   if((*c2)->G < 0 || (*c2)->G > 255) {
     printErr("Green in color 2 is invalid. Must be in range (0, 255)");
+    if(free_ptr) free (str_to_parse);
+    free((*cs)->c1);
+    free((*cs)->c2);
+    free((*cs)->c3);
+    free((*cs)->c4);
+    free(*cs);
     return false;
   }
   if((*c2)->B < 0 || (*c2)->B > 255) {
     printErr("Blue in color 2 is invalid. Must be in range (0, 255)");
+    if(free_ptr) free (str_to_parse);
+    free((*cs)->c1);
+    free((*cs)->c2);
+    free((*cs)->c3);
+    free((*cs)->c4);
+    free(*cs);
     return false;
   }  
   
@@ -187,6 +267,8 @@ char* build_short_options() {
   const char *c = args_chr;
   int len = sizeof(args_chr) / sizeof(args_chr[0]);
   char* str = (char *) malloc(sizeof(char) * (len*2 + 1));
+  if(!str)
+    return NULL;
   memset(str, 0, sizeof(char) * (len*2 + 1));
 
 #ifdef ARCH_X86
@@ -229,28 +311,34 @@ bool parse_args(int argc, char* argv[]) {
   };
 
   char* short_options = build_short_options();
+  if(!short_options)
+    return false;
   opt = getopt_long(argc, argv, short_options, long_options, &option_index);
 
   while (!args.help_flag && !args.debug_flag && !args.version_flag && opt != -1) {
     if(opt == args_chr[ARG_COLOR]) {
       if(color_flag) {
         printErr("Color option specified more than once");
+        free(short_options);
         return false;
       }
       color_flag  = true;       
       if(!parse_color(optarg, &args.colors)) {
         printErr("Color parsing failed");
+        free(short_options);
         return false;
       }
     }
     else if(opt == args_chr[ARG_STYLE]) {
       if(args.style != STYLE_EMPTY) {
         printErr("Style option specified more than once");
+        free(short_options);
         return false;
       }
       args.style = parse_style(optarg);
       if(args.style == STYLE_INVALID) {
         printErr("Invalid style '%s'",optarg);
+        free(short_options);
         return false;
       }
       break;
@@ -289,5 +377,6 @@ bool parse_args(int argc, char* argv[]) {
     args.help_flag  = true;
   }
 
+  free(short_options);
   return true;
 }
