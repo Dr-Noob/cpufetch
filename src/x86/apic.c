@@ -47,9 +47,8 @@ uint32_t create_mask(uint32_t num_entries, uint32_t *mask_width) {
   }
 
   if (mask_width) *mask_width = i;
-  if (i == 31) return (uint32_t ) -1;
 
-  return (1 << i) -1;
+  return (1ULL << i) -1;
 }
 
 uint32_t get_apic_id(bool x2apic_id) {
