@@ -38,8 +38,11 @@ char* get_str_cpu_name(struct cpuInfo* cpu) {
 char* get_str_sockets(struct topology* topo) {
   char* string = malloc(sizeof(char) * 2);
   int32_t sanity_ret = snprintf(string, 2, "%d", topo->sockets);
+  if(!string)
+    return NULL;
   if(sanity_ret < 0) {
     printBug("get_str_sockets: snprintf returned a negative value for input: '%d'", topo->sockets);
+    free(string);
     return NULL;
   }
   return string;
@@ -54,6 +57,8 @@ int32_t get_value_as_smallest_unit(char ** str, uint32_t value) {
   int32_t sanity_ret;
   *str = malloc(sizeof(char)* 11); //8 for digits, 2 for units
 
+  if(!*str)
+    return -1;
   if(value/1024 >= 1024)
     sanity_ret = snprintf(*str, 10,"%.4g"STRING_MEGABYTES, (double)value/(1<<20));
   else
@@ -68,17 +73,32 @@ char* get_str_cache_two(int32_t cache_size, uint32_t physical_cores) {
   uint32_t max_size = 4+2 + 2 + 4+2 + 7 + 1;
   int32_t sanity_ret;
   char* string = malloc(sizeof(char) * max_size);  
-  char* tmp1;
-  char* tmp2;  
+  char* tmp1 = NULL;
+  char* tmp2 = NULL;
   int32_t tmp1_len = get_value_as_smallest_unit(&tmp1, cache_size);
   int32_t tmp2_len = get_value_as_smallest_unit(&tmp2, cache_size * physical_cores);
   
+  if(!string || !tmp1 || !tmp2) {
+    if(tmp1)
+      free(tmp1);
+    if(tmp2)
+      free(tmp2);
+    if(string)
+      free(string);
+    return NULL;
+  }
   if(tmp1_len < 0) {
     printBug("get_value_as_smallest_unit: snprintf returned a negative value for input: %d\n", cache_size);
+    free(tmp1);
+    free(tmp2);
+    free(string);
     return NULL;    
   }
   if(tmp2_len < 0) {
     printBug("get_value_as_smallest_unit: snprintf returned a negative value for input: %d\n", cache_size * physical_cores);
+    free(tmp1);
+    free(tmp2);
+    free(string);
     return NULL;    
   }
     
@@ -87,6 +107,9 @@ char* get_str_cache_two(int32_t cache_size, uint32_t physical_cores) {
   
   if(sanity_ret < 0) {
     printBug("get_str_cache_two: snprintf returned a negative value for input: '%s' and '%s'\n", tmp1, tmp2);
+    free(tmp1);
+    free(tmp2);
+    free(string);
     return NULL;    
   }
   
@@ -100,10 +123,19 @@ char* get_str_cache_one(int32_t cache_size) {
   uint32_t max_size = 4+2 + 1;
   int32_t sanity_ret;
   char* string = malloc(sizeof(char) * max_size);  
-  char* tmp;
+  char* tmp = NULL;
   int32_t tmp_len = get_value_as_smallest_unit(&tmp, cache_size);
   
+  if(!string || !tmp) {
+    if(tmp)
+      free(tmp);
+    if(string)
+      free(string);
+    return NULL;
+  }
   if(tmp_len < 0) {
+    free(tmp);
+    free(string);
     printBug("get_value_as_smallest_unit: snprintf returned a negative value for input: %d", cache_size);
     return NULL;    
   }
@@ -113,6 +145,8 @@ char* get_str_cache_one(int32_t cache_size) {
   
   if(sanity_ret < 0) {
     printBug("get_str_cache_one: snprintf returned a negative value for input: '%s'", tmp);
+    free(tmp);
+    free(string);
     return NULL;    
   }
   free(tmp);
@@ -163,6 +197,8 @@ char* get_str_freq(struct frequency* freq) {
 }
 
 void free_cache_struct(struct cache* cach) {
+  if(!cach)
+    return;
   for(int i=0; i < 4; i++) free(cach->cach_arr[i]);
   free(cach->cach_arr);
   free(cach);
