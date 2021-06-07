@@ -1,6 +1,6 @@
 CC ?= gcc
 
-CFLAGS+=-Wall -Wextra -pedantic -fstack-protector-all -pedantic -std=c99
+CFLAGS+=-D_FORTIFY_SOURCE=2 -Wall -Wextra -pedantic -fstack-protector-all -pedantic -std=c99
 SANITY_FLAGS=-Wfloat-equal -Wshadow -Wpointer-arith
 
 PREFIX ?= /usr
