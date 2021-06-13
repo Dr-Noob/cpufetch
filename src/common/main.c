@@ -14,7 +14,21 @@
   #include "../arm/midr.h"
 #endif
 
-static const char* VERSION = "0.97";
+#ifdef __linux__
+  #ifdef __ANDROID__
+    static const char* OS_STR = "Android";
+  #else
+    static const char* OS_STR = "Linux";
+  #endif
+#elif _WIN32
+  static const char* OS_STR = "Windows";
+#elif defined __APPLE__ || __MACH__
+  static const char* OS_STR = "macOS";
+#else
+  static const char* OS_STR = "Unknown OS";
+#endif
+
+static const char* VERSION = "0.98";
 
 void print_help(char *argv[]) {
   const char **t = args_str;
@@ -69,7 +83,7 @@ void print_help(char *argv[]) {
 }
 
 void print_version() {
-  printf("cpufetch v%s (%s)\n",VERSION, ARCH_STR);
+  printf("cpufetch v%s (%s %s)\n",VERSION, OS_STR, ARCH_STR);
 }
 
 int main(int argc, char* argv[]) {
