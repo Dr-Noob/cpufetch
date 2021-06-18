@@ -4,6 +4,9 @@
 #elif defined __linux__
   #define _GNU_SOURCE
   #include <sched.h>
+#elif defined __FreeBSD__
+  #include <sys/param.h>
+  #include <sys/cpuset.h>
 #elif defined __APPLE__
   #define UNUSED(x) (void)(x)
 #endif
@@ -76,12 +79,21 @@ bool bind_to_cpu(int cpu_id) {
     HANDLE process = GetCurrentProcess();
     DWORD_PTR processAffinityMask = 1 << cpu_id;
     return SetProcessAffinityMask(process, processAffinityMask);
-  #else    
+  #elif defined __linux__
     cpu_set_t currentCPU;
     CPU_ZERO(&currentCPU);
     CPU_SET(cpu_id, &currentCPU);
     if (sched_setaffinity (0, sizeof(currentCPU), &currentCPU) == -1) {
       perror("sched_setaffinity");
+      return false;
+    }
+    return true;
+  #elif defined __FreeBSD__
+    cpuset_t currentCPU;
+    CPU_ZERO(&currentCPU);
+    CPU_SET(cpu_id, &currentCPU);
+    if(cpuset_setaffinity(CPU_LEVEL_WHICH, CPU_WHICH_TID, -1, sizeof(cpuset_t), &currentCPU) == -1) { 
+      perror("cpuset_setaffinity");
       return false;
     }
     return true;
