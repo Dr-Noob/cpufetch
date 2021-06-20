@@ -20,6 +20,8 @@
   #else
     static const char* OS_STR = "Linux";
   #endif
+#elif __FreeBSD__
+  static const char* OS_STR = "FreeBSD";
 #elif _WIN32
   static const char* OS_STR = "Windows";
 #elif defined __APPLE__ || __MACH__
