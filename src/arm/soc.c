@@ -10,6 +10,7 @@
 
 #define min(a,b) (((a)<(b))?(a):(b))
 #define STRING_UNKNOWN    "Unknown"
+#define ARRAY_SIZE(arr)     (sizeof(arr) / sizeof((arr)[0]))
 
 static char* soc_trademark_string[] = {
   [SOC_VENDOR_SNAPDRAGON] = "Snapdragon ",
@@ -17,6 +18,13 @@ static char* soc_trademark_string[] = {
   [SOC_VENDOR_EXYNOS]     = "Exynos ",
   [SOC_VENDOR_KIRIN]      = "Kirin ",
   [SOC_VENDOR_BROADCOM]   = "Broadcom BCM",
+};
+
+static char* soc_rpi_string[] = {
+  "BCM2835",
+  "BCM2836",
+  "BCM2837",
+  "BCM2711"
 };
 
 void fill_soc(struct system_on_chip* soc, char* soc_name, SOC soc_model, int32_t process) {
@@ -502,7 +510,7 @@ struct system_on_chip* guess_soc_from_android(struct system_on_chip* soc) {
 #endif
 
 struct system_on_chip* guess_soc_from_cpuinfo(struct system_on_chip* soc) {
-  char* tmp = get_hardware_from_cpuinfo(&strlen);
+  char* tmp = get_hardware_from_cpuinfo();
   
   if(tmp != NULL) {
     soc->raw_name = tmp;
@@ -512,12 +520,69 @@ struct system_on_chip* guess_soc_from_cpuinfo(struct system_on_chip* soc) {
   return soc;
 }
 
+int hex2int(char c) {
+  if (c >= '0' && c <= '9')
+    return c - '0';
+  if (c >= 'A' && c <= 'F')
+    return c - 'A' + 10;
+  if (c >= 'a' && c <= 'f')
+    return c - 'a' + 10;
+
+  return -1;
+}
+
+// https://www.raspberrypi.org/documentation/hardware/raspberrypi/revision-codes/README.md
+struct system_on_chip* guess_soc_raspbery_pi(struct system_on_chip* soc) {
+  char* revision = get_revision_from_cpuinfo();
+
+  if(revision == NULL) {
+    printWarn("[RPi] Couldn't find revision field in cpuinfo");
+    return soc;
+  }
+
+  if(strlen(revision) != 6) {
+    printWarn("[RPi] Found invalid RPi revision code: '%s'", revision);
+    return soc;
+  }
+
+  int arr_size = ARRAY_SIZE(soc_rpi_string);
+  int pppp = hex2int(revision[2]);
+  if(pppp == -1) {
+    printErr("[RPi] Found invalid RPi PPPP code: %s", revision[2]);
+    return soc;
+  }
+
+  if(pppp > arr_size) {
+    printErr("[RPi] Found invalid RPi PPPP code: %d while max is %d", pppp, arr_size);
+    return soc;
+  }
+
+  char* soc_raw_name = soc_rpi_string[pppp];
+  /*int soc_len = strlen(soc_raw_name);
+  soc->raw_name = malloc(sizeof(char) * (soc_len + 1));
+  strncpy(soc->raw_name, soc_raw_name, soc_len + 1);*/
+
+  match_broadcom(soc_raw_name, soc);
+  return soc;
+}
+
 struct system_on_chip* get_soc() {
   struct system_on_chip* soc = malloc(sizeof(struct system_on_chip));
   soc->raw_name = NULL;
   soc->soc_vendor = SOC_VENDOR_UNKNOWN;
   soc->process = UNKNOWN;
-  
+
+  bool isRPi = is_raspberry_pi();
+  if(isRPi) {
+    soc = guess_soc_raspbery_pi(soc);
+    if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) {
+      printWarn("SoC detection failed using revision code");
+    }
+    else {
+      return soc;
+    }
+  }
+
   soc = guess_soc_from_cpuinfo(soc);
   if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) {
     if(soc->raw_name != NULL)

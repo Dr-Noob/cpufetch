@@ -1,6 +1,7 @@
 #include "udev.h"
 #include "midr.h"
 
+#define _PATH_DEVICETREE_MODEL       "/sys/firmware/devicetree/base/model"
 #define _PATH_CPUS_PRESENT           _PATH_SYS_SYSTEM _PATH_SYS_CPU "/present"
 #define _PATH_CPUINFO                "/proc/cpuinfo"
 //#define _PATH_CPUINFO                "cpuinfo_debug"
@@ -11,6 +12,7 @@
 #define CPUINFO_CPU_PART_STR         "CPU part\t: "
 #define CPUINFO_CPU_REVISION_STR     "CPU revision\t: "
 #define CPUINFO_HARDWARE_STR         "Hardware\t: "
+#define CPUINFO_REVISION_STR         "Revision\t: "
 
 #define CPUINFO_CPU_STRING "processor"
 
@@ -148,24 +150,45 @@ uint32_t get_midr_from_cpuinfo(uint32_t core, bool* success) {
   return midr;
 }
 
-char* get_hardware_from_cpuinfo() {
+char* get_field_from_cpuinfo(char* CPUINFO_FIELD) {
   int filelen;
   char* buf;
   if((buf = read_file(_PATH_CPUINFO, &filelen)) == NULL) {
     perror("open");
-    return NULL;    
+    return NULL;
   }
-  
-  char* tmp1 = strstr(buf, CPUINFO_HARDWARE_STR);
+
+  char* tmp1 = strstr(buf, CPUINFO_FIELD);
   if(tmp1 == NULL) return NULL;
-  tmp1 = tmp1 + strlen(CPUINFO_HARDWARE_STR);
+  tmp1 = tmp1 + strlen(CPUINFO_FIELD);
   char* tmp2 = strstr(tmp1, "\n");
-  
+
   int strlen = (1 + (tmp2-tmp1));
   char* hardware = malloc(sizeof(char) * strlen);
   memset(hardware, 0, sizeof(char) * strlen);
   strncpy(hardware, tmp1, tmp2-tmp1);
-  
+
   return hardware;
 }
 
+char* get_hardware_from_cpuinfo() {
+  return get_field_from_cpuinfo(CPUINFO_HARDWARE_STR);
+}
+
+char* get_revision_from_cpuinfo() {
+  return get_field_from_cpuinfo(CPUINFO_REVISION_STR);
+}
+
+bool is_raspberry_pi() {
+  int filelen;
+  char* buf;
+  if((buf = read_file(_PATH_DEVICETREE_MODEL, &filelen)) == NULL) {
+    return false;
+  }
+
+  char* tmp;
+  if((tmp = strstr(buf, "Raspberry Pi")) == NULL) {
+    return false;
+  }
+  return true;
+}
