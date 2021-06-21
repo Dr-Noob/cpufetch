@@ -50,9 +50,8 @@ uint32_t create_mask(uint32_t num_entries, uint32_t *mask_width) {
   }
 
   if (mask_width) *mask_width = i;
-  if (i == 31) return (uint32_t ) -1;
 
-  return (1 << i) -1;
+  return (1ULL << i) -1;
 }
 
 uint32_t get_apic_id(bool x2apic_id) {
@@ -329,8 +328,8 @@ bool get_topology_from_apic(struct cpuInfo* cpu, struct topology* topo) {
   uint32_t* apic_pkg = malloc(sizeof(uint32_t) * topo->total_cores);
   uint32_t* apic_core = malloc(sizeof(uint32_t) * topo->total_cores);
   uint32_t* apic_smt = malloc(sizeof(uint32_t) * topo->total_cores);
-  uint32_t** cache_smt_id_apic = malloc(sizeof(uint32_t*) * topo->total_cores);
-  uint32_t** cache_id_apic = malloc(sizeof(uint32_t*) * topo->total_cores);
+  uint32_t** cache_smt_id_apic = calloc(sizeof(uint32_t*), topo->total_cores);
+  uint32_t** cache_id_apic = calloc(sizeof(uint32_t*), topo->total_cores);
   bool x2apic_id;
 
   if(cpu->maxLevels >= 0x0000000B) {
@@ -356,18 +355,51 @@ bool get_topology_from_apic(struct cpuInfo* cpu, struct topology* topo) {
   topo->apic->cache_id_apic = malloc(sizeof(uint32_t) * (topo->cach->max_cache_level));
   
   if(x2apic_id) {
-    if(!fill_topo_masks_x2apic(topo))
+    if(!fill_topo_masks_x2apic(topo)) {
+      free(apic_ids);
+      free(apic_pkg);
+      free(apic_core);
+      free(apic_smt);
+      for(int i=0; i < topo->total_cores; i++) {
+        if(cache_smt_id_apic[i]) free(cache_smt_id_apic[i]);
+        if(cache_id_apic[i]) free(cache_id_apic[i]);
+      }
+      free(cache_smt_id_apic);
+      free(cache_id_apic);
       return false;
+    }
   }
   else {
-    if(!fill_topo_masks_apic(topo))
+    if(!fill_topo_masks_apic(topo)) {
+      free(apic_ids);
+      free(apic_pkg);
+      free(apic_core);
+      free(apic_smt);
+      for(int i=0; i < topo->total_cores; i++) {
+        if(cache_smt_id_apic[i]) free(cache_smt_id_apic[i]);
+        if(cache_id_apic[i]) free(cache_id_apic[i]);
+      }
+      free(cache_smt_id_apic);
+      free(cache_id_apic);
       return false;    
+    }
   }
   
   get_cache_topology_from_apic(topo);  
   
-  if(!fill_apic_ids(apic_ids, topo->total_cores, x2apic_id))
+  if(!fill_apic_ids(apic_ids, topo->total_cores, x2apic_id)) {
+    free(apic_ids);
+    free(apic_pkg);
+    free(apic_core);
+    free(apic_smt);
+    for(int i=0; i < topo->total_cores; i++) {
+      if(cache_smt_id_apic[i]) free(cache_smt_id_apic[i]);
+      if(cache_id_apic[i]) free(cache_id_apic[i]);
+    }
+    free(cache_smt_id_apic);
+    free(cache_id_apic);
     return false;
+  }
   
   for(int i=0; i < topo->total_cores; i++) {    
     apic_id = apic_ids[i];

@@ -207,7 +207,13 @@ struct hypervisor* get_hp_info(bool hv_present) {
 
 struct cpuInfo* get_cpu_info() {
   struct cpuInfo* cpu = malloc(sizeof(struct cpuInfo));
+  if(!cpu)
+    return NULL;
   struct features* feat = malloc(sizeof(struct features));
+  if(!feat) {
+    free(cpu);
+    return NULL;
+  }
   cpu->feat = feat;
   
   bool *ptr = &(feat->AES);
@@ -236,6 +242,8 @@ struct cpuInfo* get_cpu_info() {
   else {
     cpu->cpu_vendor = CPU_VENDOR_INVALID;
     printErr("Unknown CPU vendor: %s", name);
+    free(cpu);
+    free(feat);
     return NULL;
   }
 
@@ -265,8 +273,11 @@ struct cpuInfo* get_cpu_info() {
     feat->FMA3   = (ecx & ((int)1 << 12)) != 0;
     
     bool hv_present = (ecx & ((int)1 << 31)) != 0;    
-    if((cpu->hv = get_hp_info(hv_present)) == NULL)
+    if((cpu->hv = get_hp_info(hv_present)) == NULL) {
+      free(cpu);
+      free(feat);
       return NULL;
+    }
   }
   else {
     printWarn("Can't read features information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000001, cpu->maxLevels);
@@ -323,6 +334,14 @@ struct cpuInfo* get_cpu_info() {
   cpu->topo = get_topology_info(cpu, cpu->cach);
 
   if(cpu->cach == NULL || cpu->topo == NULL) {
+    free_cache_struct(cpu->cach);
+    free(cpu);
+    free(feat);
+    if(cpu->topo) {
+      if(cpu->topo->apic)
+        free(cpu->topo->apic);
+      free(cpu->topo);
+    }
     return NULL;
   }
   return cpu;
@@ -406,6 +425,8 @@ bool get_cache_topology_amd(struct cpuInfo* cpu, struct topology* topo) {
 // Very interesting resource: https://wiki.osdev.org/Detecting_CPU_Topology_(80x86)
 struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
   struct topology* topo = malloc(sizeof(struct topology));  
+  if(!topo)
+    return NULL;
   init_topology_struct(topo, cach);
   
   uint32_t eax = 0;
@@ -487,6 +508,9 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
       
     default:
       printBug("Cant get topology because VENDOR is empty");
+      if(topo && topo->apic)
+        free(topo->apic);
+      free(topo);
       return NULL;
   }
     
@@ -599,6 +623,8 @@ struct cache* get_cache_info_general(struct cache* cach, uint32_t level) {
 
 struct cache* get_cache_info(struct cpuInfo* cpu) {  
   struct cache* cach = malloc(sizeof(struct cache));
+  if(!cach)
+    return NULL;
   init_cache_struct(cach);
 
   uint32_t level;
@@ -610,10 +636,14 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
     level = 0x00000004;    
     if(cpu->maxLevels < level) {
       printWarn("Can't read cache information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", level, cpu->maxLevels);    
+      free_cache_struct(cach);
       return NULL;
     }
     else {
-      cach = get_cache_info_general(cach, level);
+      if(!get_cache_info_general(cach, level)) {
+        free_cache_struct(cach);
+        return NULL;
+      }
     }
   }
   else {
@@ -623,13 +653,20 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
       level = 0x80000006;
       if(cpu->maxExtendedLevels < level) {
         printWarn("Can't read cache information from cpuid using old method (needed extended level is 0x%.8X, max is 0x%.8X)", level, cpu->maxExtendedLevels);
+        free_cache_struct(cach);
         return NULL;
       }
       printWarn("Fallback to old method using 0x%.8X and 0x%.8X", level-1, level);
-      cach = get_cache_info_amd_fallback(cach);
+      if(!get_cache_info_amd_fallback(cach)) {
+        free_cache_struct(cach);
+        return NULL;
+      }
     }
     else {
-      cach = get_cache_info_general(cach, level);    
+      if(!get_cache_info_general(cach, level)) {
+        free_cache_struct(cach);
+        return NULL;
+      }
     }
   }
 
