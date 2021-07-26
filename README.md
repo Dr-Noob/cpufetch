@@ -23,7 +23,7 @@
 
 - [1. Support](#1-support)
 - [2. Installation](#2-installation)
-  - [2.1 Available packages](#21-available-packages)
+  - [2.1 Installing from a package](#21-installing-from-a-package)
   - [2.2 Building from source (Linux/Windows/macOS)](#22-building-from-source-linuxwindowsmacos)
   - [2.3 Android](#23-android)
 - [3. Examples](#3-examples)
@@ -32,6 +32,7 @@
 - [4. Colors and style](#4-colors-and-style)
 - [5. Implementation](#5-implementation)
 - [6. Bugs or improvements](#6-bugs-or-improvements)
+- [7. Acknowledgements](#7-acknowledgements)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
