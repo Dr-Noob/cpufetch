@@ -103,10 +103,12 @@ specifying Intel or AMD, or specifying the colors in RGB format:
 In the case of setting the colors using RGB, 4 colors must be given in with the format: ``[R,G,B:R,G,B:R,G,B:R,G,B]``. These colors correspond to CPU art color (2 colors) and for the text colors (following 2). Thus, you can customize all the colors.
 
 # 5. Implementation
-
-See [cpufetch programming documentation](https://github.com/Dr-Noob/cpufetch/blob/master/doc/README.md).
+See [cpufetch programming documentation](https://github.com/Dr-Noob/cpufetch/doc/README.md).
 
 # 6. Bugs or improvements
-There are many open issues in github (see [issues](https://github.com/Dr-Noob/cpufetch/issues)). Feel free to open a new one report an issue or propose any improvement in `cpufetch`
+See [cpufetch contributing guidelines](https://github.com/Dr-Noob/cpufetch/CONTRIBUTING.md)
 
-I would like to thank [Gonzalocl](https://github.com/Gonzalocl) and [OdnetninI](https://github.com/OdnetninI) for their help, running `cpufetch` in many different CPUs they have access to, which makes it easier to debug and check the correctness of `cpufetch`.
+# 7. Acknowledgements
+Special thanks to [Gonzalocl](https://github.com/Gonzalocl) and [OdnetninI](https://github.com/OdnetninI). They tested `cpufetch` in its beginnings in many different CPUs they have access to, which made it easier to debug and check the correctness of `cpufetch`.
+
+Special thanks too to the fellow contributors and interested people in the project!
