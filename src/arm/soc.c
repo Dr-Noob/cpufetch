@@ -67,6 +67,12 @@ char* toupperstr(char* str) {
 #define SOC_EQ(raw_name, expected_name, soc_name, soc_model, soc, process) \
    else if (match_soc(soc, raw_name, expected_name, soc_name, soc_model, process)) return true;
 #define SOC_END else { return false; }
+// Exynos special define
+#define SOC_EXY_EQ(raw_name, tmpsoc, soc_name, soc_model, soc, process)             \
+   sprintf(tmpsoc, "exynos%s", soc_name);                                           \
+   if (match_soc(soc, raw_name, tmpsoc, soc_name, soc_model, process)) return true; \
+   sprintf(tmpsoc, "universal%s", soc_name);                                        \
+   if (match_soc(soc, raw_name, tmpsoc, soc_name, soc_model, process)) return true;
 
 // https://en.wikipedia.org/wiki/Raspberry_Pi
 // http://phonedb.net/index.php?m=processor&id=562&c=broadcom_bcm21663
@@ -138,45 +144,54 @@ bool match_hisilicon(char* soc_name, struct system_on_chip* soc) {
 bool match_exynos(char* soc_name, struct system_on_chip* soc) {
   char* tmp;
 
-  if((tmp = strstr(soc_name, "universal")) == NULL)
-    return false;
-  
+  if((tmp = strstr(soc_name, "universal")) != NULL);
+  else if((tmp = strstr(soc_name, "exynos")) != NULL);
+  else return false;
+
+  // Because exynos are recently using "exynosXXXX" instead
+  // of "universalXXXX" as codenames, SOC_EXY_EQ will check for
+  // both cases, since it seems that there are some SoCs that
+  // can appear with both codenames
+
+  // Used by SOC_EXY_EQ
+  char tmpsoc[14];
+
   SOC_START
-  // universalXXXX //
-  SOC_EQ(tmp, "universal3475", "3475", SOC_EXYNOS_3475, soc, 28) 
-  SOC_EQ(tmp, "universal4210", "4210", SOC_EXYNOS_4210, soc, 45)
-  SOC_EQ(tmp, "universal4212", "4212", SOC_EXYNOS_4212, soc, 32)
-  SOC_EQ(tmp, "universal4412", "4412", SOC_EXYNOS_4412, soc, 32)
-  SOC_EQ(tmp, "universal5250", "5250", SOC_EXYNOS_5250, soc, 32)
-  SOC_EQ(tmp, "universal5410", "5410", SOC_EXYNOS_5410, soc, 28)
-  SOC_EQ(tmp, "universal5420", "5420", SOC_EXYNOS_5420, soc, 28)
-  SOC_EQ(tmp, "universal5422", "5422", SOC_EXYNOS_5422, soc, 28)
-  SOC_EQ(tmp, "universal5430", "5430", SOC_EXYNOS_5430, soc, 20)
-  SOC_EQ(tmp, "universal5433", "5433", SOC_EXYNOS_5433, soc, 20)
-  SOC_EQ(tmp, "universal5260", "5260", SOC_EXYNOS_5260, soc, 28)
-  SOC_EQ(tmp, "universal7270", "7270", SOC_EXYNOS_7270, soc, 14)
-  SOC_EQ(tmp, "universal7420", "7420", SOC_EXYNOS_7420, soc, 14)
-  SOC_EQ(tmp, "universal7570", "7570", SOC_EXYNOS_7570, soc, 14)
-  SOC_EQ(tmp, "universal7870", "7870", SOC_EXYNOS_7870, soc, 14)
-  SOC_EQ(tmp, "universal7872", "7872", SOC_EXYNOS_7872, soc, 14)
-  SOC_EQ(tmp, "universal7880", "7880", SOC_EXYNOS_7880, soc, 14)
-  SOC_EQ(tmp, "universal7884", "7884", SOC_EXYNOS_7884, soc, 14)
-  SOC_EQ(tmp, "universal7885", "7885", SOC_EXYNOS_7885, soc, 14)
-  SOC_EQ(tmp, "universal7904", "7904", SOC_EXYNOS_7904, soc, 14)
-  SOC_EQ(tmp, "universal8890", "8890", SOC_EXYNOS_8890, soc, 14)
-  SOC_EQ(tmp, "universal8895", "8895", SOC_EXYNOS_8895, soc, 10)
-  SOC_EQ(tmp, "universal9110", "9110", SOC_EXYNOS_9110, soc, 14)
-  SOC_EQ(tmp, "universal9609", "9609", SOC_EXYNOS_9609, soc, 10)
-  SOC_EQ(tmp, "universal9610", "9610", SOC_EXYNOS_9610, soc, 10)
-  SOC_EQ(tmp, "universal9611", "9611", SOC_EXYNOS_9611, soc, 10)
-  SOC_EQ(tmp, "universal9810", "9810", SOC_EXYNOS_9810, soc, 10)
-  SOC_EQ(tmp, "universal9820", "9820", SOC_EXYNOS_9820, soc,  8)
-  SOC_EQ(tmp, "universal9825", "9825", SOC_EXYNOS_9825, soc,  7)
-  // New exynos. Dont know if they will work //
-  SOC_EQ(tmp, "universal1080", "1080", SOC_EXYNOS_1080, soc,  5)  
-  SOC_EQ(tmp, "universal990",   "990", SOC_EXYNOS_990,  soc,  7)
-  SOC_EQ(tmp, "universal980",   "980", SOC_EXYNOS_980,  soc,  8)    
-  SOC_EQ(tmp, "universal880",   "880", SOC_EXYNOS_880,  soc,  8)
+  SOC_EXY_EQ(tmp, tmpsoc, "3475", SOC_EXYNOS_3475, soc, 28)
+  SOC_EXY_EQ(tmp, tmpsoc, "4210", SOC_EXYNOS_4210, soc, 45)
+  SOC_EXY_EQ(tmp, tmpsoc, "4212", SOC_EXYNOS_4212, soc, 32)
+  SOC_EXY_EQ(tmp, tmpsoc, "4412", SOC_EXYNOS_4412, soc, 32)
+  SOC_EXY_EQ(tmp, tmpsoc, "5250", SOC_EXYNOS_5250, soc, 32)
+  SOC_EXY_EQ(tmp, tmpsoc, "5410", SOC_EXYNOS_5410, soc, 28)
+  SOC_EXY_EQ(tmp, tmpsoc, "5420", SOC_EXYNOS_5420, soc, 28)
+  SOC_EXY_EQ(tmp, tmpsoc, "5422", SOC_EXYNOS_5422, soc, 28)
+  SOC_EXY_EQ(tmp, tmpsoc, "5430", SOC_EXYNOS_5430, soc, 20)
+  SOC_EXY_EQ(tmp, tmpsoc, "5433", SOC_EXYNOS_5433, soc, 20)
+  SOC_EXY_EQ(tmp, tmpsoc, "5260", SOC_EXYNOS_5260, soc, 28)
+  SOC_EXY_EQ(tmp, tmpsoc, "7270", SOC_EXYNOS_7270, soc, 14)
+  SOC_EXY_EQ(tmp, tmpsoc, "7420", SOC_EXYNOS_7420, soc, 14)
+  SOC_EXY_EQ(tmp, tmpsoc, "7570", SOC_EXYNOS_7570, soc, 14)
+  SOC_EXY_EQ(tmp, tmpsoc, "7570", SOC_EXYNOS_7570, soc, 14)
+  SOC_EXY_EQ(tmp, tmpsoc, "7870", SOC_EXYNOS_7870, soc, 14)
+  SOC_EXY_EQ(tmp, tmpsoc, "7870", SOC_EXYNOS_7870, soc, 14)
+  SOC_EXY_EQ(tmp, tmpsoc, "7872", SOC_EXYNOS_7872, soc, 14)
+  SOC_EXY_EQ(tmp, tmpsoc, "7880", SOC_EXYNOS_7880, soc, 14)
+  SOC_EXY_EQ(tmp, tmpsoc, "7884", SOC_EXYNOS_7884, soc, 14)
+  SOC_EXY_EQ(tmp, tmpsoc, "7885", SOC_EXYNOS_7885, soc, 14)
+  SOC_EXY_EQ(tmp, tmpsoc, "7904", SOC_EXYNOS_7904, soc, 14)
+  SOC_EXY_EQ(tmp, tmpsoc, "8890", SOC_EXYNOS_8890, soc, 14)
+  SOC_EXY_EQ(tmp, tmpsoc, "8895", SOC_EXYNOS_8895, soc, 10)
+  SOC_EXY_EQ(tmp, tmpsoc, "9110", SOC_EXYNOS_9110, soc, 14)
+  SOC_EXY_EQ(tmp, tmpsoc, "9609", SOC_EXYNOS_9609, soc, 10)
+  SOC_EXY_EQ(tmp, tmpsoc, "9610", SOC_EXYNOS_9610, soc, 10)
+  SOC_EXY_EQ(tmp, tmpsoc, "9611", SOC_EXYNOS_9611, soc, 10)
+  SOC_EXY_EQ(tmp, tmpsoc, "9810", SOC_EXYNOS_9810, soc, 10)
+  SOC_EXY_EQ(tmp, tmpsoc, "9820", SOC_EXYNOS_9820, soc,  8)
+  SOC_EXY_EQ(tmp, tmpsoc, "9825", SOC_EXYNOS_9825, soc,  7)
+  SOC_EXY_EQ(tmp, tmpsoc, "1080", SOC_EXYNOS_1080, soc,  5)
+  SOC_EXY_EQ(tmp, tmpsoc, "990",  SOC_EXYNOS_990,  soc,  7)
+  SOC_EXY_EQ(tmp, tmpsoc, "980",  SOC_EXYNOS_980,  soc,  8)
+  SOC_EXY_EQ(tmp, tmpsoc, "880",  SOC_EXYNOS_880,  soc,  8)
   SOC_END
 }
 
