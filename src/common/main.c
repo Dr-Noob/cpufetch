@@ -9,6 +9,9 @@
 #ifdef ARCH_X86
   static const char* ARCH_STR = "x86_64 build";
   #include "../x86/cpuid.h"
+#elif ARCH_PPC
+  static const char* ARCH_STR = "PowerPC build";
+  #include "../ppc/ppc.h"
 #elif ARCH_ARM
   static const char* ARCH_STR = "ARM build";
   #include "../arm/midr.h"

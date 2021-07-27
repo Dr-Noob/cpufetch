@@ -9,6 +9,8 @@
 
 #ifdef ARCH_X86
   #include "../x86/uarch.h"
+#elif ARCH_PPC
+  #include "../ppc/uarch.h"
 #elif ARCH_ARM
   #include "../arm/uarch.h"
 #endif
@@ -30,11 +32,13 @@ int64_t get_freq(struct frequency* freq) {
   return freq->max;
 }
 
-#ifdef ARCH_X86
+#if defined(ARCH_X86) || defined(ARCH_PPC)
 char* get_str_cpu_name(struct cpuInfo* cpu) {
   return cpu->cpu_name;    
 }
+#endif
 
+#ifdef ARCH_X86
 char* get_str_sockets(struct topology* topo) {
   char* string = malloc(sizeof(char) * 2);
   int32_t sanity_ret = snprintf(string, 2, "%d", topo->sockets);

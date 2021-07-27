@@ -94,7 +94,9 @@ struct features {
   bool SSE4_2;
   bool FMA3;
   bool FMA4;
-  bool SHA;  
+  bool SHA;
+#elif ARCH_PPC
+  bool altivec;
 #elif ARCH_ARM
   bool NEON;  
   bool SHA1;
@@ -111,7 +113,12 @@ struct cpuInfo {
   struct cache* cach;
   struct topology* topo;
   struct features* feat;
-  
+
+#ifdef ARCH_PPC
+  // CPU name from model
+  char* cpu_name;
+#endif
+
 #ifdef ARCH_X86
   // CPU name from model
   char* cpu_name;
@@ -140,6 +147,10 @@ struct cpuInfo {
 char* get_str_cpu_name(struct cpuInfo* cpu);
 char* get_str_sockets(struct topology* topo);
 uint32_t get_nsockets(struct topology* topo);
+#endif
+
+#ifdef ARCH_PPC
+char* get_str_cpu_name(struct cpuInfo* cpu);
 #endif
 
 VENDOR get_cpu_vendor(struct cpuInfo* cpu);

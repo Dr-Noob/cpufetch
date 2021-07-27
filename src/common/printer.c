@@ -11,6 +11,8 @@
 #ifdef ARCH_X86
   #include "../x86/uarch.h"
   #include "../x86/cpuid.h"
+#elif ARCH_PPC
+  #include "../ppc/ppc.h"
 #else
   #include "../arm/uarch.h"
   #include "../arm/midr.h"
@@ -45,7 +47,7 @@
 #define COLOR_RESET      "\x1b[m"
 
 enum {
-#ifdef ARCH_X86    
+#if defined(ARCH_X86) || defined(ARCH_PPC)
   ATTRIBUTE_NAME,
 #elif ARCH_ARM
   ATTRIBUTE_SOC,
@@ -72,9 +74,9 @@ enum {
 };
 
 static const char* ATTRIBUTE_FIELDS [] = {
-#ifdef ARCH_X86    
+#if defined(ARCH_X86) || defined(ARCH_PPC)
   "Name:",
- #elif ARCH_ARM 
+#elif ARCH_ARM
   "SoC:",
   "",
 #endif
@@ -88,7 +90,7 @@ static const char* ATTRIBUTE_FIELDS [] = {
 #ifdef ARCH_X86
   "AVX:",
   "FMA:",
-#elif ARCH_ARM
+#elif defined(ARCH_ARM) || defined(ARCH_PPC)
   "Features: ",  
 #endif
   "L1i Size:",
@@ -176,6 +178,12 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct colors* cs) {
     printBug("Invalid CPU vendor in set_ascii (%d)", art->vendor);    
     return NULL;
   }
+#elif ARCH_PPC
+  COL_FANCY_1 = COLOR_BG_CYAN;
+  COL_FANCY_2 = COLOR_BG_WHITE;
+  COL_FANCY_3 = COLOR_FG_CYAN;
+  COL_FANCY_4 = COLOR_FG_WHITE;
+  art->ascii_chars[0] = '#';
 #elif ARCH_ARM
   if(art->vendor == SOC_VENDOR_SNAPDRAGON) {
     COL_FANCY_1 = COLOR_BG_RED;
@@ -314,7 +322,9 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct colors* cs) {
   else if(art->vendor == CPU_VENDOR_AMD)
     strcpy(tmp, AMD_ASCII);
   else
-    strcpy(tmp, UNKNOWN_ASCII);  
+    strcpy(tmp, UNKNOWN_ASCII);
+#elif ARCH_PPC
+  strcpy(tmp, UNKNOWN_ASCII);
 #elif ARCH_ARM  
   if(art->vendor == SOC_VENDOR_SNAPDRAGON)
     strcpy(tmp, SNAPDRAGON_ASCII);
@@ -502,6 +512,110 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   free_topo_struct(cpu->topo);
   free_freq_struct(cpu->freq);
   free_cpuinfo_struct(cpu);
+
+  return true;
+}
+#endif
+
+#ifdef ARCH_PPC
+void print_algorithm_ppc(struct ascii* art, int n) {
+  for(int i=0; i < LINE_SIZE; i++) {
+    if(art->art[n][i] == '@')
+      printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
+    else if(art->art[n][i] == '#')
+      printf("%s%c%s", art->color2_ascii, art->ascii_chars[1], art->reset);
+    else
+      printf("%c",art->art[n][i]);
+  }
+}
+
+void print_ascii_ppc(struct ascii* art, uint32_t la) {
+  int attr_to_print = 0;
+  int attr_type;
+  char* attr_value;
+  uint32_t space_right;
+  uint32_t space_up = (NUMBER_OF_LINES - art->n_attributes_set)/2;
+  uint32_t space_down = NUMBER_OF_LINES - art->n_attributes_set - space_up;
+  bool flag = false;
+
+  printf("\n");
+  for(uint32_t n=0;n<NUMBER_OF_LINES;n++) {
+    print_algorithm_ppc(art, n);
+
+    if(n > space_up-1 && n < NUMBER_OF_LINES-space_down) {
+      attr_type = art->attributes[attr_to_print]->type;
+      attr_value = art->attributes[attr_to_print]->value;
+      attr_to_print++;
+
+      space_right = 1 + (la - strlen(ATTRIBUTE_FIELDS[attr_type]));
+      printf("%s%s%s%*s%s%s%s\n", art->color1_text, ATTRIBUTE_FIELDS[attr_type], art->reset, space_right, "", art->color2_text, attr_value, art->reset);
+    }
+    else printf("\n");
+  }
+  printf("\n");
+}
+
+void print_ascii(struct ascii* art) {
+  uint32_t longest_attribute = longest_attribute_length(art);
+
+  print_ascii_ppc(art, longest_attribute);
+}
+
+bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
+  struct ascii* art = set_ascii(get_cpu_vendor(cpu), s, cs);
+  if(art == NULL)
+    return false;  
+  
+  /*char* uarch = get_str_uarch(cpu);
+  char* manufacturing_process = get_str_process(cpu);
+  char* sockets = get_str_sockets(cpu->topo);
+  char* max_frequency = get_str_freq(cpu->freq);
+  char* n_cores = get_str_topology(cpu, cpu->topo, false);
+  char* n_cores_dual = get_str_topology(cpu, cpu->topo, true);
+  */
+  char* cpu_name = get_str_cpu_name(cpu);
+
+  /*
+  char* l1i = get_str_l1i(cpu->cach);
+  char* l1d = get_str_l1d(cpu->cach);
+  char* l2 = get_str_l2(cpu->cach);
+  char* l3 = get_str_l3(cpu->cach);
+  char* pp = get_str_peak_performance(cpu,cpu->topo,get_freq(cpu->freq));*/
+
+  setAttribute(art,ATTRIBUTE_NAME,cpu_name);
+  /*
+  if(cpu->hv->present) {
+    setAttribute(art, ATTRIBUTE_HYPERVISOR, cpu->hv->hv_name);
+  }
+  setAttribute(art,ATTRIBUTE_UARCH,uarch);
+  setAttribute(art,ATTRIBUTE_TECHNOLOGY,manufacturing_process);
+  setAttribute(art,ATTRIBUTE_FREQUENCY,max_frequency);
+  uint32_t socket_num = get_nsockets(cpu->topo);
+  if (socket_num > 1) {
+    setAttribute(art, ATTRIBUTE_SOCKETS, sockets);
+    setAttribute(art, ATTRIBUTE_NCORES,n_cores);
+    setAttribute(art, ATTRIBUTE_NCORES_DUAL, n_cores_dual);
+  }
+  else {
+    setAttribute(art,ATTRIBUTE_NCORES,n_cores);
+  }
+  setAttribute(art,ATTRIBUTE_AVX,avx);
+  setAttribute(art,ATTRIBUTE_FMA,fma);  
+  setAttribute(art,ATTRIBUTE_L1i,l1i);
+  setAttribute(art,ATTRIBUTE_L1d,l1d);
+  setAttribute(art,ATTRIBUTE_L2,l2);
+  if(l3 != NULL) {
+    setAttribute(art,ATTRIBUTE_L3,l3);
+  }
+  setAttribute(art,ATTRIBUTE_PEAK,pp);
+  */
+
+  if(art->n_attributes_set > NUMBER_OF_LINES) {
+    printBug("The number of attributes set is bigger than the max that can be displayed");
+    return false;
+  }
+
+  print_ascii(art);
 
   return true;
 }
@@ -715,7 +829,9 @@ bool print_cpufetch(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   
 #ifdef ARCH_X86
   return print_cpufetch_x86(cpu, s, cs);
+#elif ARCH_PPC
+  return print_cpufetch_ppc(cpu, s, cs);
 #elif ARCH_ARM
-  return print_cpufetch_arm(cpu, s, cs);  
+  return print_cpufetch_arm(cpu, s, cs);
 #endif
 }
