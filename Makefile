@@ -19,8 +19,8 @@ ifneq ($(OS),Windows_NT)
 		CFLAGS += -DARCH_X86
 	else ifeq ($(arch), $(filter $(arch), ppc64el ppc64le ppc32))
 		SRC_DIR=src/ppc/
-		SOURCE += $(COMMON_SRC) $(SRC_DIR)ppc.c $(SRC_DIR)uarch.c
-		HEADERS += $(COMMON_HDR) $(SRC_DIR)ppc.h $(SRC_DIR)uarch.h
+		SOURCE += $(COMMON_SRC) $(SRC_DIR)ppc.c $(SRC_DIR)uarch.c $(SRC_DIR)udev.c
+		HEADERS += $(COMMON_HDR) $(SRC_DIR)ppc.h $(SRC_DIR)uarch.h  $(SRC_DIR)udev.c
 		CFLAGS += -DARCH_PPC
 	else
 		# Assume ARM

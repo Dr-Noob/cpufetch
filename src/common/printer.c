@@ -568,11 +568,11 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   
   /*char* uarch = get_str_uarch(cpu);
   char* manufacturing_process = get_str_process(cpu);
+  */
   char* sockets = get_str_sockets(cpu->topo);
-  char* max_frequency = get_str_freq(cpu->freq);
+  // char* max_frequency = get_str_freq(cpu->freq);
   char* n_cores = get_str_topology(cpu, cpu->topo, false);
   char* n_cores_dual = get_str_topology(cpu, cpu->topo, true);
-  */
   char* cpu_name = get_str_cpu_name(cpu);
 
   /*
@@ -589,7 +589,7 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   }
   setAttribute(art,ATTRIBUTE_UARCH,uarch);
   setAttribute(art,ATTRIBUTE_TECHNOLOGY,manufacturing_process);
-  setAttribute(art,ATTRIBUTE_FREQUENCY,max_frequency);
+  setAttribute(art,ATTRIBUTE_FREQUENCY,max_frequency);*/
   uint32_t socket_num = get_nsockets(cpu->topo);
   if (socket_num > 1) {
     setAttribute(art, ATTRIBUTE_SOCKETS, sockets);
@@ -599,6 +599,7 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   else {
     setAttribute(art,ATTRIBUTE_NCORES,n_cores);
   }
+  /*
   setAttribute(art,ATTRIBUTE_AVX,avx);
   setAttribute(art,ATTRIBUTE_FMA,fma);  
   setAttribute(art,ATTRIBUTE_L1i,l1i);
