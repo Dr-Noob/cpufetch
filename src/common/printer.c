@@ -520,10 +520,8 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
 #ifdef ARCH_PPC
 void print_algorithm_ppc(struct ascii* art, int n) {
   for(int i=0; i < LINE_SIZE; i++) {
-    if(art->art[n][i] == '@')
+    if(art->art[n][i] == '#')
       printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
-    else if(art->art[n][i] == '#')
-      printf("%s%c%s", art->color2_ascii, art->ascii_chars[1], art->reset);
     else
       printf("%c",art->art[n][i]);
   }

@@ -7,6 +7,7 @@
 
 #define COLOR_STR_INTEL "intel"
 #define COLOR_STR_AMD   "amd"
+#define COLOR_STR_IBM   "ibm"
 #define COLOR_STR_ARM   "arm"
 
 static const char *SYTLES_STR_LIST[] = {
@@ -129,6 +130,11 @@ bool parse_color(char* optarg_str, struct colors** cs) {
   else if(strcmp(optarg_str, COLOR_STR_AMD) == 0) {
     str_to_parse = malloc(sizeof(char) * 44);
     strcpy(str_to_parse, COLOR_DEFAULT_AMD);  
+    free_ptr = true;
+  }
+  else if(strcmp(optarg_str, COLOR_STR_IBM) == 0) {
+    str_to_parse = malloc(sizeof(char) * 45);
+    strcpy(str_to_parse, COLOR_DEFAULT_IBM);
     free_ptr = true;
   }
   else if(strcmp(optarg_str, COLOR_STR_ARM) == 0) {
