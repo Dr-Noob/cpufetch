@@ -324,8 +324,8 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct colors* cs) {
   else
     strcpy(tmp, UNKNOWN_ASCII);
 #elif ARCH_PPC
-  strcpy(tmp, UNKNOWN_ASCII);
-#elif ARCH_ARM  
+  strcpy(tmp, IBM_ASCII);
+#elif ARCH_ARM
   if(art->vendor == SOC_VENDOR_SNAPDRAGON)
     strcpy(tmp, SNAPDRAGON_ASCII);
   else if(art->vendor == SOC_VENDOR_MEDIATEK)
