@@ -73,7 +73,7 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
   return cach;
 }
 
-struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
+struct topology* get_topology_info(struct cache* cach) {
   struct topology* topo = malloc(sizeof(struct topology));
   init_topology_struct(topo, cach);
 
@@ -142,9 +142,8 @@ static inline uint32_t mfpvr() {
     return pvr;
 }
 
-struct uarch* get_cpu_uarch() {
-  uint32_t pvr = mfpvr();
-  return get_uarch_from_pvr(pvr);
+struct uarch* get_cpu_uarch(struct cpuInfo* cpu) {
+  return get_uarch_from_pvr(cpu->pvr);
 }
 
 struct frequency* get_frequency_info() {
@@ -166,9 +165,10 @@ struct cpuInfo* get_cpu_info() {
     *ptr = false;
   }
 
-  cpu->arch = get_cpu_uarch();
+  cpu->pvr = mfpvr();
+  cpu->arch = get_cpu_uarch(cpu);
   cpu->freq = get_frequency_info();
-  cpu->topo = get_topology_info(cpu, cpu->cach);
+  cpu->topo = get_topology_info(cpu->cach);
   cpu->cach = get_cache_info(cpu);
 
   feat->altivec = has_altivec(cpu->arch);
@@ -219,7 +219,7 @@ char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64
   return string;
 }
 
-char* get_str_topology(struct cpuInfo* cpu, struct topology* topo, bool dual_socket) {
+char* get_str_topology(struct topology* topo, bool dual_socket) {
   char* string;
   if(topo->smt_supported > 1) {
     uint32_t size = 3+3+17+1;
@@ -242,5 +242,5 @@ char* get_str_topology(struct cpuInfo* cpu, struct topology* topo, bool dual_soc
 
 
 void print_debug(struct cpuInfo* cpu) {
-  printf("TODO\n");
+  printf("PVR: 0x%.8X\n", cpu->pvr);
 }

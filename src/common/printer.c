@@ -539,7 +539,6 @@ void print_ascii_ppc(struct ascii* art, uint32_t la) {
   uint32_t space_right;
   uint32_t space_up = (NUMBER_OF_LINES - art->n_attributes_set)/2;
   uint32_t space_down = NUMBER_OF_LINES - art->n_attributes_set - space_up;
-  bool flag = false;
 
   printf("\n");
   for(uint32_t n=0;n<NUMBER_OF_LINES;n++) {
@@ -573,8 +572,8 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   char* manufacturing_process = get_str_process(cpu);
   char* sockets = get_str_sockets(cpu->topo);
   char* max_frequency = get_str_freq(cpu->freq);
-  char* n_cores = get_str_topology(cpu, cpu->topo, false);
-  char* n_cores_dual = get_str_topology(cpu, cpu->topo, true);
+  char* n_cores = get_str_topology(cpu->topo, false);
+  char* n_cores_dual = get_str_topology(cpu->topo, true);
   char* altivec = get_str_altivec(cpu);
 
   char* l1i = get_str_l1i(cpu->cach);
