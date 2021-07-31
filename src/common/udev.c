@@ -177,9 +177,20 @@ int get_num_caches_from_files(char** paths, int num_paths) {
 
 int get_num_caches_by_level(struct cpuInfo* cpu, uint32_t level) {
   char** paths = malloc(sizeof(char *) * cpu->topo->total_cores);
+  char* cache_path = NULL;
+
+  if(level == 0) cache_path = _PATH_CACHE_L1I;
+  else if(level == 1) cache_path = _PATH_CACHE_L1D;
+  else if(level == 2) cache_path = _PATH_CACHE_L2;
+  else if(level == 3) cache_path = _PATH_CACHE_L3;
+  else {
+    printBug("Found invalid cache level to inspect: %d\n", level);
+    return -1;
+  }
+
   for(int i=0; i < cpu->topo->total_cores; i++) {
     paths[i] = malloc(sizeof(char) * _PATH_CACHE_MAX_LEN);
-    sprintf(paths[i], "%s%s/cpu%d%s%s",  _PATH_SYS_SYSTEM, _PATH_SYS_CPU, i, _PATH_CACHE_L3, _PATH_CACHE_SHARED_MAP);
+    sprintf(paths[i], "%s%s/cpu%d%s%s",  _PATH_SYS_SYSTEM, _PATH_SYS_CPU, i, cache_path, _PATH_CACHE_SHARED_MAP);
   }
 
   int ret = get_num_caches_from_files(paths, cpu->topo->total_cores);
