@@ -105,6 +105,19 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
   return topo;
 }
 
+static inline uint32_t mfpvr() {
+    uint32_t pvr;
+
+    asm ("mfpvr %0"
+         : "=r"(pvr));
+    return pvr;
+}
+
+struct uarch* get_cpu_uarch() {
+  uint32_t pvr = mfpvr();
+  return get_uarch_from_pvr(pvr);
+}
+
 struct cpuInfo* get_cpu_info() {
   struct cpuInfo* cpu = malloc(sizeof(struct cpuInfo));
   struct features* feat = malloc(sizeof(struct features));
@@ -118,7 +131,7 @@ struct cpuInfo* get_cpu_info() {
   cpu->cpu_name = malloc(sizeof(char) * strlen(STRING_UNKNOWN) + 1);
   snprintf(cpu->cpu_name, strlen(STRING_UNKNOWN) + 1, STRING_UNKNOWN);
 
-  cpu->arch = get_uarch_from_auxval(cpu);
+  cpu->arch = get_cpu_uarch();
   cpu->cach = get_cache_info(cpu);
   cpu->topo = get_topology_info(cpu, cpu->cach);
 
