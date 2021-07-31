@@ -6,6 +6,7 @@
 
 #include "ppc.h"
 #include "udev.h"
+#include "../common/udev.h"
 
 #define STRING_UNKNOWN    "Unknown"
 
@@ -118,6 +119,15 @@ struct uarch* get_cpu_uarch() {
   return get_uarch_from_pvr(pvr);
 }
 
+struct frequency* get_frequency_info() {
+  struct frequency* freq = malloc(sizeof(struct frequency));
+
+  freq->max = get_max_freq_from_file(0, false);
+  freq->base = get_min_freq_from_file(0, false);
+
+  return freq;
+}
+
 struct cpuInfo* get_cpu_info() {
   struct cpuInfo* cpu = malloc(sizeof(struct cpuInfo));
   struct features* feat = malloc(sizeof(struct features));
@@ -132,6 +142,7 @@ struct cpuInfo* get_cpu_info() {
   snprintf(cpu->cpu_name, strlen(STRING_UNKNOWN) + 1, STRING_UNKNOWN);
 
   cpu->arch = get_cpu_uarch();
+  cpu->freq = get_frequency_info();
   cpu->cach = get_cache_info(cpu);
   cpu->topo = get_topology_info(cpu, cpu->cach);
 
