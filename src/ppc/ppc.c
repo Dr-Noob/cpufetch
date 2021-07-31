@@ -44,6 +44,32 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
   struct cache* cach = malloc(sizeof(struct cache));
   init_cache_struct(cach);
 
+  cach->L1i->size = get_l1i_cache_size(0);
+  cach->L1d->size = get_l1d_cache_size(0);
+  cach->L2->size = get_l2_cache_size(0);
+  cach->L3->size = get_l3_cache_size(0);
+
+  if(cach->L1i->size > 0) {
+    cach->L1i->exists = true;
+    cach->L1i->num_caches = cpu->topo->physical_cores * cpu->topo->sockets;
+    cach->max_cache_level++;
+  }
+  if(cach->L1d->size > 0) {
+    cach->L1d->exists = true;
+    cach->L1d->num_caches = cpu->topo->physical_cores * cpu->topo->sockets;
+    cach->max_cache_level++;
+  }
+  if(cach->L2->size > 0) {
+    cach->L2->exists = true;
+    cach->L2->num_caches = cpu->topo->physical_cores * cpu->topo->sockets;
+    cach->max_cache_level++;
+  }
+  if(cach->L3->size > 0) {
+    cach->L3->exists = true;
+    cach->L3->num_caches = cpu->topo->physical_cores * cpu->topo->sockets; // does not have to be true!
+    cach->max_cache_level++;
+  }
+
   return cach;
 }
 
@@ -145,8 +171,8 @@ struct cpuInfo* get_cpu_info() {
 
   cpu->arch = get_cpu_uarch();
   cpu->freq = get_frequency_info();
-  cpu->cach = get_cache_info(cpu);
   cpu->topo = get_topology_info(cpu, cpu->cach);
+  cpu->cach = get_cache_info(cpu);
 
   feat->altivec = has_altivec(cpu->arch);
 

@@ -578,11 +578,10 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   char* cpu_name = get_str_cpu_name(cpu);
   char* altivec = get_str_altivec(cpu);
 
-  /*
   char* l1i = get_str_l1i(cpu->cach);
   char* l1d = get_str_l1d(cpu->cach);
   char* l2 = get_str_l2(cpu->cach);
-  char* l3 = get_str_l3(cpu->cach);*/
+  char* l3 = get_str_l3(cpu->cach);
   char* pp = get_str_peak_performance(cpu,cpu->topo,get_freq(cpu->freq));
 
   setAttribute(art,ATTRIBUTE_NAME,cpu_name);
@@ -603,13 +602,12 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
     setAttribute(art,ATTRIBUTE_NCORES, n_cores);
   }
   setAttribute(art,ATTRIBUTE_ALTIVEC, altivec);
-  /*
   setAttribute(art,ATTRIBUTE_L1i,l1i);
   setAttribute(art,ATTRIBUTE_L1d,l1d);
   setAttribute(art,ATTRIBUTE_L2,l2);
   if(l3 != NULL) {
     setAttribute(art,ATTRIBUTE_L3,l3);
-  }*/
+  }
   setAttribute(art,ATTRIBUTE_PEAK,pp);
 
   if(art->n_attributes_set > NUMBER_OF_LINES) {
