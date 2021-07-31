@@ -48,7 +48,7 @@
 #define COLOR_RESET      "\x1b[m"
 
 enum {
-#if defined(ARCH_X86) || defined(ARCH_PPC)
+#if defined(ARCH_X86)
   ATTRIBUTE_NAME,
 #elif ARCH_ARM
   ATTRIBUTE_SOC,
@@ -77,7 +77,7 @@ enum {
 };
 
 static const char* ATTRIBUTE_FIELDS [] = {
-#if defined(ARCH_X86) || defined(ARCH_PPC)
+#if defined(ARCH_X86)
   "Name:",
 #elif ARCH_ARM
   "SoC:",
@@ -575,7 +575,6 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   char* max_frequency = get_str_freq(cpu->freq);
   char* n_cores = get_str_topology(cpu, cpu->topo, false);
   char* n_cores_dual = get_str_topology(cpu, cpu->topo, true);
-  char* cpu_name = get_str_cpu_name(cpu);
   char* altivec = get_str_altivec(cpu);
 
   char* l1i = get_str_l1i(cpu->cach);
@@ -584,7 +583,6 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   char* l3 = get_str_l3(cpu->cach);
   char* pp = get_str_peak_performance(cpu,cpu->topo,get_freq(cpu->freq));
 
-  setAttribute(art,ATTRIBUTE_NAME,cpu_name);
   /*
   if(cpu->hv->present) {
     setAttribute(art, ATTRIBUTE_HYPERVISOR, cpu->hv->hv_name);

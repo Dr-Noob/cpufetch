@@ -166,9 +166,6 @@ struct cpuInfo* get_cpu_info() {
     *ptr = false;
   }
 
-  cpu->cpu_name = malloc(sizeof(char) * strlen(STRING_UNKNOWN) + 1);
-  snprintf(cpu->cpu_name, strlen(STRING_UNKNOWN) + 1, STRING_UNKNOWN);
-
   cpu->arch = get_cpu_uarch();
   cpu->freq = get_frequency_info();
   cpu->topo = get_topology_info(cpu, cpu->cach);

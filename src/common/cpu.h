@@ -116,11 +116,6 @@ struct cpuInfo {
   struct topology* topo;
   struct features* feat;
 
-#ifdef ARCH_PPC
-  // CPU name from model
-  char* cpu_name;
-#endif
-
 #ifdef ARCH_X86
   // CPU name from model
   char* cpu_name;

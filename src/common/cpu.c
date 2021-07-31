@@ -32,11 +32,13 @@ int64_t get_freq(struct frequency* freq) {
   return freq->max;
 }
 
-#if defined(ARCH_X86) || defined(ARCH_PPC)
+#ifdef ARCH_X86
 char* get_str_cpu_name(struct cpuInfo* cpu) {
   return cpu->cpu_name;
 }
+#endif
 
+#if defined(ARCH_X86) || defined(ARCH_PPC)
 char* get_str_sockets(struct topology* topo) {
   char* string = malloc(sizeof(char) * 2);
   int32_t sanity_ret = snprintf(string, 2, "%d", topo->sockets);
