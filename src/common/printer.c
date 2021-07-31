@@ -12,6 +12,7 @@
   #include "../x86/uarch.h"
   #include "../x86/cpuid.h"
 #elif ARCH_PPC
+  #include "../ppc/uarch.h"
   #include "../ppc/ppc.h"
 #else
   #include "../arm/uarch.h"
@@ -564,9 +565,8 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   if(art == NULL)
     return false;  
   
-  /*char* uarch = get_str_uarch(cpu);
+  char* uarch = get_str_uarch(cpu);
   char* manufacturing_process = get_str_process(cpu);
-  */
   char* sockets = get_str_sockets(cpu->topo);
   // char* max_frequency = get_str_freq(cpu->freq);
   char* n_cores = get_str_topology(cpu, cpu->topo, false);
@@ -584,10 +584,10 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   /*
   if(cpu->hv->present) {
     setAttribute(art, ATTRIBUTE_HYPERVISOR, cpu->hv->hv_name);
-  }
+  }*/
   setAttribute(art,ATTRIBUTE_UARCH,uarch);
   setAttribute(art,ATTRIBUTE_TECHNOLOGY,manufacturing_process);
-  setAttribute(art,ATTRIBUTE_FREQUENCY,max_frequency);*/
+  //setAttribute(art,ATTRIBUTE_FREQUENCY,max_frequency);
   uint32_t socket_num = get_nsockets(cpu->topo);
   if (socket_num > 1) {
     setAttribute(art, ATTRIBUTE_SOCKETS, sockets);
