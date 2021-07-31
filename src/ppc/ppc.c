@@ -3,8 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <assert.h>
 
 #include "ppc.h"
+#include "uarch.h"
 #include "udev.h"
 #include "../common/udev.h"
 
@@ -146,10 +148,52 @@ struct cpuInfo* get_cpu_info() {
   cpu->cach = get_cache_info(cpu);
   cpu->topo = get_topology_info(cpu, cpu->cach);
 
+  feat->altivec = has_altivec(cpu->arch);
+
   if(cpu->cach == NULL || cpu->topo == NULL) {
     return NULL;
   }
   return cpu;
+}
+
+char* get_str_altivec(struct cpuInfo* cpu) {
+  char* string = calloc(4, sizeof(char));
+
+  if(cpu->feat->altivec) strcpy(string, "Yes");
+  else strcpy(string, "No");
+
+  return string;
+}
+
+char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64_t freq) {
+  /*
+   * Not sure about this
+   * PP(SP) = N_CORES * FREQUENCY * 4(If altivec)
+   */
+
+  //7 for GFLOP/s and 6 for digits,eg 412.14
+  uint32_t size = 7+6+1+1;
+  assert(strlen(STRING_UNKNOWN)+1 <= size);
+  char* string = malloc(sizeof(char)*size);
+
+  //First check we have consistent data
+  if(freq == UNKNOWN_FREQ) {
+    snprintf(string,strlen(STRING_UNKNOWN)+1,STRING_UNKNOWN);
+    return string;
+  }
+
+  struct features* feat = cpu->feat;
+  double flops = topo->physical_cores * topo->sockets * (freq*1000000);
+  if(feat->altivec) flops = flops*4;
+
+  if(flops >= (double)1000000000000.0)
+    snprintf(string,size,"%.2f TFLOP/s",flops/1000000000000);
+  else if(flops >= 1000000000.0)
+    snprintf(string,size,"%.2f GFLOP/s",flops/1000000000);
+  else
+    snprintf(string,size,"%.2f MFLOP/s",flops/1000000);
+
+  return string;
 }
 
 char* get_str_topology(struct cpuInfo* cpu, struct topology* topo, bool dual_socket) {

@@ -219,6 +219,23 @@ struct uarch* get_uarch_from_pvr(uint32_t pvr) {
   return arch;
 }
 
+bool has_altivec(struct uarch* arch) {
+  switch(arch->uarch) {
+    case UARCH_PPC970FX:
+    case UARCH_PPC970MP:
+    case UARCH_CELLBE:
+    case UARCH_POWER6:
+    case UARCH_POWER7:
+    case UARCH_POWER7PLUS:
+    case UARCH_POWER8:
+    case UARCH_POWER9:
+    case UARCH_POWER10:
+      return true;
+    default:
+      return false;
+  }
+}
+
 char* get_str_uarch(struct cpuInfo* cpu) {
   return cpu->arch->uarch_str;    
 }

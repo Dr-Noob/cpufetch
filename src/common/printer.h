@@ -7,7 +7,9 @@ typedef int STYLE;
 
 #ifdef ARCH_X86
   #include "../x86/cpuid.h"
-#else
+#elif ARCH_PPC
+  #include "../ppc/ppc.h"
+#elif ARCH_ARM
   #include "../arm/midr.h"
 #endif
 

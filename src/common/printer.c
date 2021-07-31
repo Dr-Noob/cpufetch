@@ -64,6 +64,8 @@ enum {
 #ifdef ARCH_X86
   ATTRIBUTE_AVX,
   ATTRIBUTE_FMA,
+#elif ARCH_PPC
+  ATTRIBUTE_ALTIVEC,
 #elif ARCH_ARM
   ATTRIBUTE_FEATURES,
 #endif
@@ -91,8 +93,10 @@ static const char* ATTRIBUTE_FIELDS [] = {
 #ifdef ARCH_X86
   "AVX:",
   "FMA:",
-#elif defined(ARCH_ARM) || defined(ARCH_PPC)
-  "Features: ",  
+#elif ARCH_PPC
+  "Altivec: ",
+#elif defined(ARCH_ARM)
+  "Features: ",
 #endif
   "L1i Size:",
   "L1d Size:",
@@ -572,13 +576,14 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   char* n_cores = get_str_topology(cpu, cpu->topo, false);
   char* n_cores_dual = get_str_topology(cpu, cpu->topo, true);
   char* cpu_name = get_str_cpu_name(cpu);
+  char* altivec = get_str_altivec(cpu);
 
   /*
   char* l1i = get_str_l1i(cpu->cach);
   char* l1d = get_str_l1d(cpu->cach);
   char* l2 = get_str_l2(cpu->cach);
-  char* l3 = get_str_l3(cpu->cach);
-  char* pp = get_str_peak_performance(cpu,cpu->topo,get_freq(cpu->freq));*/
+  char* l3 = get_str_l3(cpu->cach);*/
+  char* pp = get_str_peak_performance(cpu,cpu->topo,get_freq(cpu->freq));
 
   setAttribute(art,ATTRIBUTE_NAME,cpu_name);
   /*
@@ -591,23 +596,21 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   uint32_t socket_num = get_nsockets(cpu->topo);
   if (socket_num > 1) {
     setAttribute(art, ATTRIBUTE_SOCKETS, sockets);
-    setAttribute(art, ATTRIBUTE_NCORES,n_cores);
+    setAttribute(art, ATTRIBUTE_NCORES, n_cores);
     setAttribute(art, ATTRIBUTE_NCORES_DUAL, n_cores_dual);
   }
   else {
-    setAttribute(art,ATTRIBUTE_NCORES,n_cores);
+    setAttribute(art,ATTRIBUTE_NCORES, n_cores);
   }
+  setAttribute(art,ATTRIBUTE_ALTIVEC, altivec);
   /*
-  setAttribute(art,ATTRIBUTE_AVX,avx);
-  setAttribute(art,ATTRIBUTE_FMA,fma);  
   setAttribute(art,ATTRIBUTE_L1i,l1i);
   setAttribute(art,ATTRIBUTE_L1d,l1d);
   setAttribute(art,ATTRIBUTE_L2,l2);
   if(l3 != NULL) {
     setAttribute(art,ATTRIBUTE_L3,l3);
-  }
+  }*/
   setAttribute(art,ATTRIBUTE_PEAK,pp);
-  */
 
   if(art->n_attributes_set > NUMBER_OF_LINES) {
     printBug("The number of attributes set is bigger than the max that can be displayed");
