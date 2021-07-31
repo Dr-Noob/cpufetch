@@ -17,10 +17,12 @@
 #define _PATH_FREQUENCY         "/cpufreq"
 #define _PATH_FREQUENCY_MAX     "/cpuinfo_max_freq"
 #define _PATH_FREQUENCY_MIN     "/cpuinfo_min_freq"
-#define _PATH_CACHE_L1D         "/cache/index0/size"
-#define _PATH_CACHE_L1I         "/cache/index1/size"
-#define _PATH_CACHE_L2          "/cache/index2/size"
-#define _PATH_CACHE_L3          "/cache/index3/size"
+#define _PATH_CACHE_L1D         "/cache/index0"
+#define _PATH_CACHE_L1I         "/cache/index1"
+#define _PATH_CACHE_L2          "/cache/index2"
+#define _PATH_CACHE_L3          "/cache/index3"
+#define _PATH_CACHE_SIZE        "/size"
+#define _PATH_CACHE_SHARED_MAP  "/shared_cpu_map"
 
 #define _PATH_FREQUENCY_MAX_LEN 100
 #define _PATH_CACHE_MAX_LEN     200

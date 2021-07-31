@@ -51,23 +51,23 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
 
   if(cach->L1i->size > 0) {
     cach->L1i->exists = true;
-    cach->L1i->num_caches = cpu->topo->physical_cores * cpu->topo->sockets;
-    cach->max_cache_level++;
+    cach->L1i->num_caches = get_num_caches_by_level(cpu, 0);
+    cach->max_cache_level = 1;
   }
   if(cach->L1d->size > 0) {
     cach->L1d->exists = true;
-    cach->L1d->num_caches = cpu->topo->physical_cores * cpu->topo->sockets;
-    cach->max_cache_level++;
+    cach->L1d->num_caches = get_num_caches_by_level(cpu, 1);
+    cach->max_cache_level = 2;
   }
   if(cach->L2->size > 0) {
     cach->L2->exists = true;
-    cach->L2->num_caches = cpu->topo->physical_cores * cpu->topo->sockets;
-    cach->max_cache_level++;
+    cach->L2->num_caches = get_num_caches_by_level(cpu, 2);
+    cach->max_cache_level = 3;
   }
   if(cach->L3->size > 0) {
     cach->L3->exists = true;
-    cach->L3->num_caches = cpu->topo->physical_cores * cpu->topo->sockets; // does not have to be true!
-    cach->max_cache_level++;
+    cach->L3->num_caches = get_num_caches_by_level(cpu, 3);
+    cach->max_cache_level = 4;
   }
 
   return cach;
