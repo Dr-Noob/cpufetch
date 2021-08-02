@@ -4,8 +4,11 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <errno.h>
-#include <sys/auxv.h>
-#include <asm/hwcap.h>
+
+#ifdef __linux__
+  #include <sys/auxv.h>
+  #include <asm/hwcap.h>  
+#endif
 
 #include "../common/global.h"
 #include "udev.h"
@@ -122,6 +125,7 @@ void init_cpu_info(struct cpuInfo* cpu) {
   cpu->next_cpu = NULL;
 }
 
+#ifdef __linux__
 // We assume all cpus share the same hardware
 // capabilities but I'm not sure it is always
 // true...
@@ -167,6 +171,18 @@ struct features* get_features_info() {
 
   return feat;
 }
+#elif defined __APPLE__ || __MACH__
+struct features* get_features_info() {
+  struct features* feat = malloc(sizeof(struct features));
+
+  bool *ptr = &(feat->AES);
+  for(uint32_t i = 0; i < sizeof(struct features)/sizeof(bool); i++, ptr++) {
+    *ptr = false;
+  }
+
+  return feat;
+}
+#endif
 
 struct cpuInfo* get_cpu_info() {
   struct cpuInfo* cpu = malloc(sizeof(struct cpuInfo));
