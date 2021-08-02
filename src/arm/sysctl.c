@@ -7,19 +7,19 @@
 #include "../common/global.h"
 #include "../common/cpu.h"
 
-struct topology* get_topology_from_sysctl() {
-  struct topology* t = malloc(sizeof(struct topology));
-  size_t dummy;
+uint32_t get_sys_info_by_name(char* name) {
+  size_t size = 0;
+  uint32_t ret = 0;
 
-  if(sysctlbyname("hw.physicalcpu_max", &t->total_cores, &dummy, NULL, 0) != 0) {
-    printWarn("sysctlbyname(\"hw.physicalcpu_max\") failed: %s\n", strerror(errno));
-    t->total_cores = 1;
+  if (sysctlbyname(name, NULL, &size, NULL, 0) != 0) {
+    printWarn("sysctlbyname(\"%s\") failed: %s", name, strerror(errno));
   }
-  else if(t->total_cores <= 0) {
-    printWarn("sysctlbyname(\"hw.physicalcpu_max\") returned invalid value: %d\n", t->total_cores);
-    t->total_cores = 1;
+  else if (size == sizeof(uint32_t)) {
+    sysctlbyname(name, &ret, &size, NULL, 0);
+  }
+  else {
+    printWarn("sysctl does not support non-integer lookup for (\"%s\")", name);
   }
 
-  return t;
+  return ret;
 }
-

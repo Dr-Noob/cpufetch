@@ -10,6 +10,12 @@
   #include <asm/hwcap.h>
 #elif defined __APPLE__ || __MACH__
   #include "sysctl.h"
+  #ifndef CPUFAMILY_ARM_FIRESTORM_ICESTORM
+    #define CPUFAMILY_ARM_FIRESTORM_ICESTORM 0x1B588BB3
+    // From arch/arm64/include/asm/cputype.h
+    #define MIDR_APPLE_M1_ICESTORM  0x610F0220
+    #define MIDR_APPLE_M1_FIRESTORM 0x610F0230
+  #endif
 #endif
 
 #include "../common/global.h"
@@ -171,12 +177,18 @@ struct features* get_features_info() {
       }
     #endif // ifdef __aarch64__
   #elif defined __APPLE__ || __MACH__
+    // Must be M1
+    feat->AES = true;
+    feat->CRC32 = true;
+    feat->SHA1 = true;
+    feat->SHA2 = true;
+    feat->NEON = true;
   #endif
 
   return feat;
 }
 
-void get_cpu_info_linux(struct cpuInfo* cpu) {
+struct cpuInfo* get_cpu_info_linux(struct cpuInfo* cpu) {
   int ncores = get_ncores_from_cpuinfo();
   bool success = false;
   int32_t* freq_array = malloc(sizeof(uint32_t) * ncores);
@@ -225,24 +237,62 @@ void get_cpu_info_linux(struct cpuInfo* cpu) {
   cpu->num_cpus = sockets;
   cpu->hv = malloc(sizeof(struct hypervisor));
   cpu->hv->present = false;
-  cpu->soc = get_soc();      
+  cpu->soc = get_soc();
+
+  return cpu;
 }
 
-void get_cpu_info_mach(struct cpuInfo* cpu) {  
-  cpu->midr = 0;
-  cpu->arch = get_uarch_from_midr(cpu->midr, cpu);
+void fill_cpu_info_firestorm_icestorm(struct cpuInfo* cpu) {
+  // 1. Fill ICESTORM
+  struct cpuInfo* ice = cpu;
 
-  cpu->cach = get_cache_info(cpu);
-  cpu->feat = get_features_info(); 
-  cpu->topo = get_topology_from_sysctl();
-  cpu->freq = malloc(sizeof(struct frequency));
-  cpu->freq->base = UNKNOWN_FREQ;
-  cpu->freq->max = 1000000000;
+  ice->midr = MIDR_APPLE_M1_ICESTORM;
+  ice->arch = get_uarch_from_midr(ice->midr, ice);
+  ice->cach = get_cache_info(ice);
+  ice->feat = get_features_info();
+  ice->topo = malloc(sizeof(struct topology));
+  ice->topo->cach = ice->cach;
+  ice->topo->total_cores = 4;
+  ice->freq = malloc(sizeof(struct frequency));
+  ice->freq->base = UNKNOWN_FREQ;
+  ice->freq->max = 2064;
+  ice->hv = malloc(sizeof(struct hypervisor));
+  ice->hv->present = false;
+  ice->next_cpu = malloc(sizeof(struct cpuInfo));
 
-  cpu->num_cpus = 1;
-  cpu->hv = malloc(sizeof(struct hypervisor));
-  cpu->hv->present = false;
-  cpu->soc = get_soc();    
+  // 2. Fill FIRESTORM
+  struct cpuInfo* fire = ice->next_cpu;
+  fire->midr = MIDR_APPLE_M1_FIRESTORM;
+  fire->arch = get_uarch_from_midr(fire->midr, fire);
+  fire->cach = get_cache_info(fire);
+  fire->feat = get_features_info();
+  fire->topo = malloc(sizeof(struct topology));
+  fire->topo->cach = fire->cach;
+  fire->topo->total_cores = 4;
+  fire->freq = malloc(sizeof(struct frequency));
+  fire->freq->base = UNKNOWN_FREQ;
+  fire->freq->max = 3200;
+  fire->hv = malloc(sizeof(struct hypervisor));
+  fire->hv->present = false;
+  fire->next_cpu = NULL;
+}
+
+struct cpuInfo* get_cpu_info_mach(struct cpuInfo* cpu) {
+  uint32_t cpu_family = get_sys_info_by_name("hw.cpufamily");
+
+  // Manually fill the cpuInfo assuming that the CPU
+  // is a ARM_FIRESTORM_ICESTORM (Apple M1)
+  if(cpu_family == CPUFAMILY_ARM_FIRESTORM_ICESTORM) {
+    cpu->num_cpus = 2;
+    cpu->soc = get_soc();
+    fill_cpu_info_firestorm_icestorm(cpu);
+  }
+  else {
+    printBug("Found invalid cpu_family: 0x%.8X", cpu_family);
+    return NULL;
+  }
+
+  return cpu;
 }
 
 struct cpuInfo* get_cpu_info() {
@@ -250,12 +300,10 @@ struct cpuInfo* get_cpu_info() {
   init_cpu_info(cpu);
 
   #ifdef __linux__
-    get_cpu_info_linux(cpu);    
+    return get_cpu_info_linux(cpu);
   #elif defined __APPLE__ || __MACH__
-     get_cpu_info_mach(cpu);
+    return get_cpu_info_mach(cpu);
   #endif
-
-  return cpu;
 }
 
 char* get_str_topology(struct cpuInfo* cpu, struct topology* topo, bool dual_socket) {

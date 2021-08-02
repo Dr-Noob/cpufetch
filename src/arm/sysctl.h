@@ -1,6 +1,6 @@
 #ifndef __SYSCTL__
 #define __SYSCTL__
 
-struct topology* get_topology_from_sysctl();
+uint32_t get_sys_info_by_name(char* name);
 
 #endif
