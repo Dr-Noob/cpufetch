@@ -39,7 +39,11 @@ enum {
   UARCH_POWER7PLUS,
   UARCH_POWER8,
   UARCH_POWER9,
-  UARCH_POWER10,  
+  UARCH_POWER9_DD20,
+  UARCH_POWER9_DD21,
+  UARCH_POWER9_DD22,
+  UARCH_POWER9_DD23,
+  UARCH_POWER10,
 };
 
 struct uarch {
@@ -65,26 +69,30 @@ void fill_uarch(struct uarch* arch, MICROARCH u) {
   bool fill = false;
 
   FILL_START
-  FILL_UARCH(arch->uarch, UARCH_UNKNOWN,    "Unknown",       UNK)
-  FILL_UARCH(arch->uarch, UARCH_PPC604,     "PowerPC 604",   500)
-  FILL_UARCH(arch->uarch, UARCH_PPCG3,      "PowerPC G3",    UNK) // varies
-  FILL_UARCH(arch->uarch, UARCH_PPCG4,      "PowerPC G4",    UNK) // varies
-  FILL_UARCH(arch->uarch, UARCH_PPC405,     "PowerPC 405",   UNK)
-  FILL_UARCH(arch->uarch, UARCH_PPC603,     "PowerPC 603",   UNK) // varies
-  FILL_UARCH(arch->uarch, UARCH_PPC440,     "PowerPC 440",   UNK)
-  FILL_UARCH(arch->uarch, UARCH_PPC470,     "PowerPC 470",    45) // strange...
-  FILL_UARCH(arch->uarch, UARCH_PPC970,     "PowerPC 970",   130)
-  FILL_UARCH(arch->uarch, UARCH_PPC970FX,   "PowerPC 970FX",  90)
-  FILL_UARCH(arch->uarch, UARCH_PPC970MP,   "PowerPC 970MP",  90)
-  FILL_UARCH(arch->uarch, UARCH_CELLBE,     "Cell BE",       UNK) // varies depending on manufacturer
-  FILL_UARCH(arch->uarch, UARCH_POWER5,     "POWER5",        130)
-  FILL_UARCH(arch->uarch, UARCH_POWER5PLUS, "POWER5+",        90)
-  FILL_UARCH(arch->uarch, UARCH_POWER6,     "POWER6",         65)
-  FILL_UARCH(arch->uarch, UARCH_POWER7,     "POWER7",         45)
-  FILL_UARCH(arch->uarch, UARCH_POWER7PLUS, "POWER7+",        32)
-  FILL_UARCH(arch->uarch, UARCH_POWER8,     "POWER8",         22)
-  FILL_UARCH(arch->uarch, UARCH_POWER9,     "POWER9",         14)
-  FILL_UARCH(arch->uarch, UARCH_POWER10,    "POWER10",         7)
+  FILL_UARCH(arch->uarch, UARCH_UNKNOWN,     "Unknown",       UNK)
+  FILL_UARCH(arch->uarch, UARCH_PPC604,      "PowerPC 604",   500)
+  FILL_UARCH(arch->uarch, UARCH_PPCG3,       "PowerPC G3",    UNK) // varies
+  FILL_UARCH(arch->uarch, UARCH_PPCG4,       "PowerPC G4",    UNK) // varies
+  FILL_UARCH(arch->uarch, UARCH_PPC405,      "PowerPC 405",   UNK)
+  FILL_UARCH(arch->uarch, UARCH_PPC603,      "PowerPC 603",   UNK) // varies
+  FILL_UARCH(arch->uarch, UARCH_PPC440,      "PowerPC 440",   UNK)
+  FILL_UARCH(arch->uarch, UARCH_PPC470,      "PowerPC 470",    45) // strange...
+  FILL_UARCH(arch->uarch, UARCH_PPC970,      "PowerPC 970",   130)
+  FILL_UARCH(arch->uarch, UARCH_PPC970FX,    "PowerPC 970FX",  90)
+  FILL_UARCH(arch->uarch, UARCH_PPC970MP,    "PowerPC 970MP",  90)
+  FILL_UARCH(arch->uarch, UARCH_CELLBE,      "Cell BE",       UNK) // varies depending on manufacturer
+  FILL_UARCH(arch->uarch, UARCH_POWER5,      "POWER5",        130)
+  FILL_UARCH(arch->uarch, UARCH_POWER5PLUS,  "POWER5+",        90)
+  FILL_UARCH(arch->uarch, UARCH_POWER6,      "POWER6",         65)
+  FILL_UARCH(arch->uarch, UARCH_POWER7,      "POWER7",         45)
+  FILL_UARCH(arch->uarch, UARCH_POWER7PLUS,  "POWER7+",        32)
+  FILL_UARCH(arch->uarch, UARCH_POWER8,      "POWER8",         22)
+  FILL_UARCH(arch->uarch, UARCH_POWER9,      "POWER9",         14)
+  FILL_UARCH(arch->uarch, UARCH_POWER9_DD20, "POWER9 (DD2.0)", 14)
+  FILL_UARCH(arch->uarch, UARCH_POWER9_DD21, "POWER9 (DD2.1)", 14)
+  FILL_UARCH(arch->uarch, UARCH_POWER9_DD22, "POWER9 (DD2.2)", 14)
+  FILL_UARCH(arch->uarch, UARCH_POWER9_DD23, "POWER9 (DD2.3)", 14)
+  FILL_UARCH(arch->uarch, UARCH_POWER10,     "POWER10",         7)
   FILL_END
 
   if(fill) {
@@ -123,9 +131,10 @@ struct uarch* get_uarch_from_pvr(uint32_t pvr) {
   CHECK_UARCH(arch, pvr, 0xffff0000, 0x004b0000, UARCH_POWER8)
   CHECK_UARCH(arch, pvr, 0xffff0000, 0x004c0000, UARCH_POWER8)
   CHECK_UARCH(arch, pvr, 0xffff0000, 0x004d0000, UARCH_POWER8)
-  CHECK_UARCH(arch, pvr, 0xffffefff, 0x004e0200, UARCH_POWER9)
-  CHECK_UARCH(arch, pvr, 0xffffefff, 0x004e0201, UARCH_POWER9)
-  CHECK_UARCH(arch, pvr, 0xffff0000, 0x004e0000, UARCH_POWER9)
+  CHECK_UARCH(arch, pvr, 0xffffefff, 0x004e0200, UARCH_POWER9_DD20)
+  CHECK_UARCH(arch, pvr, 0xffffefff, 0x004e0201, UARCH_POWER9_DD21)
+  CHECK_UARCH(arch, pvr, 0xffffefff, 0x004e0202, UARCH_POWER9_DD22)
+  CHECK_UARCH(arch, pvr, 0xffffefff, 0x004e0203, UARCH_POWER9_DD23)
   CHECK_UARCH(arch, pvr, 0xffff0000, 0x00800000, UARCH_POWER10)
   CHECK_UARCH(arch, pvr, 0xffff0000, 0x00700000, UARCH_CELLBE)
   // 32 bit
