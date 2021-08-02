@@ -7,7 +7,9 @@
 
 #ifdef __linux__
   #include <sys/auxv.h>
-  #include <asm/hwcap.h>  
+  #include <asm/hwcap.h>
+#elif defined __APPLE__ || __MACH__
+  #include "sysctl.h"
 #endif
 
 #include "../common/global.h"
@@ -232,7 +234,7 @@ void get_cpu_info_mach(struct cpuInfo* cpu) {
 
   cpu->cach = get_cache_info(cpu);
   cpu->feat = get_features_info(); 
-  cpu->topo = malloc(sizeof(struct topology));
+  cpu->topo = get_topology_from_sysctl();
   cpu->freq = malloc(sizeof(struct frequency));
   cpu->freq->base = UNKNOWN_FREQ;
   cpu->freq->max = 1000000000;
