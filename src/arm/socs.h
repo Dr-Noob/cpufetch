@@ -250,6 +250,8 @@ enum {
   SOC_SNAPD_SM8250,
   SOC_SNAPD_SM8250_AB,
   SOC_SNAPD_SM8350,
+  // APPLE
+  SOC_APPLE_M1
 };
 
 inline static VENDOR get_soc_vendor_from_soc(SOC soc) {
@@ -258,6 +260,7 @@ inline static VENDOR get_soc_vendor_from_soc(SOC soc) {
   else if(soc >= SOC_EXYNOS_3475 && soc <= SOC_EXYNOS_880) return SOC_VENDOR_EXYNOS;
   else if(soc >= SOC_MTK_MT6889 && soc <= SOC_MTK_MT8783) return SOC_VENDOR_MEDIATEK;
   else if(soc >= SOC_SNAPD_QSD8650 && soc <= SOC_SNAPD_SM8350) return SOC_VENDOR_SNAPDRAGON;
+  else if(soc >= SOC_APPLE_M1 && soc <= SOC_APPLE_M1) return SOC_VENDOR_APPLE;
   return SOC_VENDOR_UNKNOWN;  
 }
 

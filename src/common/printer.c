@@ -225,6 +225,13 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct colors* cs) {
     COL_FANCY_4 = COLOR_FG_RED;
     art->ascii_chars[0] = '@';
   }
+  else if(art->vendor == SOC_VENDOR_APPLE) {
+    COL_FANCY_1 = COLOR_BG_BLACK;
+    COL_FANCY_2 = COLOR_BG_BLACK;
+    COL_FANCY_3 = COLOR_FG_BLACK;
+    COL_FANCY_4 = COLOR_FG_BLACK;
+    art->ascii_chars[0] = '@';
+  }
   else {
     COL_FANCY_1 = COLOR_BG_CYAN;
     COL_FANCY_2 = COLOR_BG_CYAN;
@@ -341,6 +348,8 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct colors* cs) {
     strcpy(tmp, KIRIN_ASCII);
   else if(art->vendor == SOC_VENDOR_BROADCOM)
     strcpy(tmp, BROADCOM_ASCII);
+  else if(art->vendor == SOC_VENDOR_APPLE)
+    strcpy(tmp, APPLE_ASCII);
   else
     strcpy(tmp, ARM_ASCII);
 #endif

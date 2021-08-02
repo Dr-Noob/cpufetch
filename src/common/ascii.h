@@ -150,6 +150,27 @@
                 ########################                      \
                     ###############                           \
                                                               "
+                                                              
+#define APPLE_ASCII \
+"                                      ;'                      \
+                                  .clod.                      \
+                                 cdddd;                       \
+                                cdddo                         \
+                       ddddddd:`  dddddddd:                   \
+                    ,clooddoolcc:clloddddoll:                 \
+                  'lddddddddddddddddddddddddd'                \
+                 ;ddddddddddddddddddddddddd'                  \
+                .ddddddddddddddddddddddddd,                   \
+                .ddddddddddddddddddddddddd.                   \
+                .ddddddddddddddddddddddddd'                   \
+                 dddddddddddddddddddddddddo.                  \
+                 ,dddddddddddddddddddddddddoc.                \
+                  ldddddddddddddddddddddddddddl               \
+                   ldddddddddddddddddddddddddd                \
+                    'dddddddddddddddddddddddc                 \
+                      ldddddddddddddddddddd                   \
+                        .ddd         ldd'                     \
+                                                              "
                                                                                                               
 #define ARM_ASCII \
 "                                                              \
@@ -225,6 +246,7 @@ static const char* ASCII_ARRAY [] = {
   EXYNOS_ASCII,
   KIRIN_ASCII,
   BROADCOM_ASCII,
+  APPLE_ASCII,
   IBM_ASCII,
   UNKNOWN_ASCII
 };                                                             

@@ -18,6 +18,7 @@ static char* soc_trademark_string[] = {
   [SOC_VENDOR_EXYNOS]     = "Exynos ",
   [SOC_VENDOR_KIRIN]      = "Kirin ",
   [SOC_VENDOR_BROADCOM]   = "Broadcom BCM",
+  [SOC_VENDOR_APPLE]      = "Apple "
 };
 
 static char* soc_rpi_string[] = {
@@ -614,7 +615,7 @@ struct system_on_chip* get_soc() {
 #endif
   }
   #elif defined __APPLE__ || __MACH__
-    soc->raw_name = NULL;
+    fill_soc(soc, "M1", SOC_APPLE_M1, 5);
   #endif
 
   if(soc->raw_name == NULL) {
