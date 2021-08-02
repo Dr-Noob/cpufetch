@@ -587,6 +587,7 @@ struct system_on_chip* get_soc() {
   soc->soc_vendor = SOC_VENDOR_UNKNOWN;
   soc->process = UNKNOWN;
 
+  #ifdef __linux__
   bool isRPi = is_raspberry_pi();
   if(isRPi) {
     soc = guess_soc_raspbery_pi(soc);
@@ -612,6 +613,9 @@ struct system_on_chip* get_soc() {
       printWarn("SoC detection failed using Android: Found '%s' string", soc->raw_name);   
 #endif
   }
+  #elif defined __APPLE__ || __MACH__
+    soc->raw_name = NULL;
+  #endif
 
   if(soc->raw_name == NULL) {
     soc->raw_name = malloc(sizeof(char) * (strlen(STRING_UNKNOWN)+1));

@@ -125,7 +125,6 @@ void init_cpu_info(struct cpuInfo* cpu) {
   cpu->next_cpu = NULL;
 }
 
-#ifdef __linux__
 // We assume all cpus share the same hardware
 // capabilities but I'm not sure it is always
 // true...
@@ -137,57 +136,45 @@ struct features* get_features_info() {
   for(uint32_t i = 0; i < sizeof(struct features)/sizeof(bool); i++, ptr++) {
     *ptr = false;
   }
+
+  #ifdef __linux__  
+    errno = 0;
+    long hwcaps = getauxval(AT_HWCAP);
   
-  errno = 0;
-  long hwcaps = getauxval(AT_HWCAP);
-  
-  if(errno == ENOENT) {
-    printWarn("Unable to retrieve AT_HWCAP using getauxval");    
-  }
-#ifdef __aarch64__
-  else {
-    feat->AES = hwcaps & HWCAP_AES;
-    feat->CRC32 = hwcaps & HWCAP_CRC32;
-    feat->SHA1 = hwcaps & HWCAP_SHA1;
-    feat->SHA2 = hwcaps & HWCAP_SHA2;
-    feat->NEON = hwcaps & HWCAP_ASIMD;
-  }
-#else
-  else {
-    feat->NEON = hwcaps & HWCAP_NEON;
-  }
-  
-  hwcaps = getauxval(AT_HWCAP2);
-  if(errno == ENOENT) {
-    printWarn("Unable to retrieve AT_HWCAP2 using getauxval");
-  }
-  else {
-    feat->AES = hwcaps & HWCAP2_AES;
-    feat->CRC32 = hwcaps & HWCAP2_CRC32;
-    feat->SHA1 = hwcaps & HWCAP2_SHA1;
-    feat->SHA2 = hwcaps & HWCAP2_SHA2;
-  }
-#endif
+    if(errno == ENOENT) {
+      printWarn("Unable to retrieve AT_HWCAP using getauxval");    
+    }
+    #ifdef __aarch64__
+      else {
+        feat->AES = hwcaps & HWCAP_AES;
+        feat->CRC32 = hwcaps & HWCAP_CRC32;
+        feat->SHA1 = hwcaps & HWCAP_SHA1;
+        feat->SHA2 = hwcaps & HWCAP_SHA2;
+        feat->NEON = hwcaps & HWCAP_ASIMD;
+      }
+    #else
+      else {
+        feat->NEON = hwcaps & HWCAP_NEON;
+      }
+
+      hwcaps = getauxval(AT_HWCAP2);
+      if(errno == ENOENT) {
+        printWarn("Unable to retrieve AT_HWCAP2 using getauxval");
+      }
+      else {
+        feat->AES = hwcaps & HWCAP2_AES;
+        feat->CRC32 = hwcaps & HWCAP2_CRC32;
+        feat->SHA1 = hwcaps & HWCAP2_SHA1;
+        feat->SHA2 = hwcaps & HWCAP2_SHA2;
+      }
+    #endif // ifdef __aarch64__
+  #elif defined __APPLE__ || __MACH__
+  #endif
 
   return feat;
 }
-#elif defined __APPLE__ || __MACH__
-struct features* get_features_info() {
-  struct features* feat = malloc(sizeof(struct features));
 
-  bool *ptr = &(feat->AES);
-  for(uint32_t i = 0; i < sizeof(struct features)/sizeof(bool); i++, ptr++) {
-    *ptr = false;
-  }
-
-  return feat;
-}
-#endif
-
-struct cpuInfo* get_cpu_info() {
-  struct cpuInfo* cpu = malloc(sizeof(struct cpuInfo));
-  init_cpu_info(cpu);
-
+void get_cpu_info_linux(struct cpuInfo* cpu) {
   int ncores = get_ncores_from_cpuinfo();
   bool success = false;
   int32_t* freq_array = malloc(sizeof(uint32_t) * ncores);
@@ -236,7 +223,35 @@ struct cpuInfo* get_cpu_info() {
   cpu->num_cpus = sockets;
   cpu->hv = malloc(sizeof(struct hypervisor));
   cpu->hv->present = false;
-  cpu->soc = get_soc();  
+  cpu->soc = get_soc();      
+}
+
+void get_cpu_info_mach(struct cpuInfo* cpu) {  
+  cpu->midr = 0;
+  cpu->arch = get_uarch_from_midr(cpu->midr, cpu);
+
+  cpu->cach = get_cache_info(cpu);
+  cpu->feat = get_features_info(); 
+  cpu->topo = malloc(sizeof(struct topology));
+  cpu->freq = malloc(sizeof(struct frequency));
+  cpu->freq->base = UNKNOWN_FREQ;
+  cpu->freq->max = 1000000000;
+
+  cpu->num_cpus = 1;
+  cpu->hv = malloc(sizeof(struct hypervisor));
+  cpu->hv->present = false;
+  cpu->soc = get_soc();    
+}
+
+struct cpuInfo* get_cpu_info() {
+  struct cpuInfo* cpu = malloc(sizeof(struct cpuInfo));
+  init_cpu_info(cpu);
+
+  #ifdef __linux__
+    get_cpu_info_linux(cpu);    
+  #elif defined __APPLE__ || __MACH__
+     get_cpu_info_mach(cpu);
+  #endif
 
   return cpu;
 }
