@@ -251,20 +251,20 @@ struct cpuInfo* get_cpu_info() {
   if (cpu->maxLevels >= 0x00000001){
     eax = 0x00000001;
     cpuid(&eax, &ebx, &ecx, &edx);
-    feat->SSE    = (edx & ((int)1 << 25)) != 0;
-    feat->SSE2   = (edx & ((int)1 << 26)) != 0;
-    feat->SSE3   = (ecx & ((int)1 <<  0)) != 0;
+    feat->SSE    = (edx & (1U << 25)) != 0;
+    feat->SSE2   = (edx & (1U << 26)) != 0;
+    feat->SSE3   = (ecx & (1U <<  0)) != 0;
 
-    feat->SSSE3  = (ecx & ((int)1 <<  9)) != 0;
-    feat->SSE4_1 = (ecx & ((int)1 << 19)) != 0;
-    feat->SSE4_2 = (ecx & ((int)1 << 20)) != 0;
+    feat->SSSE3  = (ecx & (1U <<  9)) != 0;
+    feat->SSE4_1 = (ecx & (1U << 19)) != 0;
+    feat->SSE4_2 = (ecx & (1U << 20)) != 0;
 
-    feat->AES    = (ecx & ((int)1 << 25)) != 0;
+    feat->AES    = (ecx & (1U << 25)) != 0;
 
-    feat->AVX    = (ecx & ((int)1 << 28)) != 0;
-    feat->FMA3   = (ecx & ((int)1 << 12)) != 0;
-    
-    bool hv_present = (ecx & ((int)1 << 31)) != 0;    
+    feat->AVX    = (ecx & (1U << 28)) != 0;
+    feat->FMA3   = (ecx & (1U << 12)) != 0;
+
+    bool hv_present = (ecx & (1U << 31)) != 0;
     if((cpu->hv = get_hp_info(hv_present)) == NULL)
       return NULL;
   }
@@ -276,16 +276,16 @@ struct cpuInfo* get_cpu_info() {
     eax = 0x00000007;
     ecx = 0x00000000;
     cpuid(&eax, &ebx, &ecx, &edx);
-    feat->AVX2         = (ebx & ((int)1 <<  5)) != 0;
-    feat->SHA          = (ebx & ((int)1 << 29)) != 0;
-    feat->AVX512       = (((ebx & ((int)1 << 16)) != 0) ||
-                        ((ebx & ((int)1 << 28)) != 0)  ||
-                        ((ebx & ((int)1 << 26)) != 0)  ||
-                        ((ebx & ((int)1 << 27)) != 0)  ||
-                        ((ebx & ((int)1 << 31)) != 0)  ||
-                        ((ebx & ((int)1 << 30)) != 0)  ||
-                        ((ebx & ((int)1 << 17)) != 0)  ||
-                        ((ebx & ((int)1 << 21)) != 0));
+    feat->AVX2         = (ebx & (1U <<  5)) != 0;
+    feat->SHA          = (ebx & (1U << 29)) != 0;
+    feat->AVX512       = (((ebx & (1U << 16)) != 0) ||
+                        ((ebx & (1U << 28)) != 0)  ||
+                        ((ebx & (1U << 26)) != 0)  ||
+                        ((ebx & (1U << 27)) != 0)  ||
+                        ((ebx & (1U << 31)) != 0)  ||
+                        ((ebx & (1U << 30)) != 0)  ||
+                        ((ebx & (1U << 17)) != 0)  ||
+                        ((ebx & (1U << 21)) != 0));
   }
   else {
     printWarn("Can't read features information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000007, cpu->maxLevels);    
@@ -294,8 +294,8 @@ struct cpuInfo* get_cpu_info() {
   if (cpu->maxExtendedLevels >= 0x80000001){
     eax = 0x80000001;
     cpuid(&eax, &ebx, &ecx, &edx);
-    feat->SSE4a = (ecx & ((int)1 <<  6)) != 0;
-    feat->FMA4  = (ecx & ((int)1 << 16)) != 0;
+    feat->SSE4a = (ecx & (1U <<  6)) != 0;
+    feat->FMA4  = (ecx & (1U << 16)) != 0;
   }
   else {
     printWarn("Can't read features information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x80000001, cpu->maxExtendedLevels);        

@@ -27,7 +27,7 @@
  */
 unsigned char bit_scan_reverse(uint32_t* index, uint64_t mask) {
   for(uint64_t i = (8 * sizeof(uint64_t)); i > 0; i--) {
-    if((mask & (1LL << (i-1))) != 0) {
+    if((mask & (1ULL << (i-1))) != 0) {
       *index = (uint64_t) (i-1);
       break;
     }
