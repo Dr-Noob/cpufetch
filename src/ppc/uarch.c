@@ -238,6 +238,10 @@ bool has_altivec(struct uarch* arch) {
     case UARCH_POWER7PLUS:
     case UARCH_POWER8:
     case UARCH_POWER9:
+    case UARCH_POWER9_DD20:
+    case UARCH_POWER9_DD21:
+    case UARCH_POWER9_DD22:
+    case UARCH_POWER9_DD23:
     case UARCH_POWER10:
       return true;
     default:
