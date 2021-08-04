@@ -22,17 +22,17 @@ void init_topology_struct(struct topology* topo, struct cache* cach) {
 }
 
 void init_cache_struct(struct cache* cach) {
-  cach->L1i = malloc(sizeof(struct cach));
-  cach->L1d = malloc(sizeof(struct cach));
-  cach->L2 = malloc(sizeof(struct cach));
-  cach->L3 = malloc(sizeof(struct cach));
-  
-  cach->cach_arr = malloc(sizeof(struct cach*) * 4);
+  cach->L1i = emalloc(sizeof(struct cach));
+  cach->L1d = emalloc(sizeof(struct cach));
+  cach->L2 = emalloc(sizeof(struct cach));
+  cach->L3 = emalloc(sizeof(struct cach));
+
+  cach->cach_arr = emalloc(sizeof(struct cach*) * 4);
   cach->cach_arr[0] = cach->L1i;
   cach->cach_arr[1] = cach->L1d;
   cach->cach_arr[2] = cach->L2;
   cach->cach_arr[3] = cach->L3;
-  
+
   cach->max_cache_level = 0;
   cach->L1i->exists = false;
   cach->L1d->exists = false;
@@ -41,7 +41,7 @@ void init_cache_struct(struct cache* cach) {
 }
 
 struct cache* get_cache_info(struct cpuInfo* cpu) {
-  struct cache* cach = malloc(sizeof(struct cache));
+  struct cache* cach = emalloc(sizeof(struct cache));
   init_cache_struct(cach);
 
   cach->L1i->size = get_l1i_cache_size(0);
@@ -74,7 +74,7 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
 }
 
 struct topology* get_topology_info(struct cache* cach) {
-  struct topology* topo = malloc(sizeof(struct topology));
+  struct topology* topo = emalloc(sizeof(struct topology));
   init_topology_struct(topo, cach);
 
   // 1. Total cores detection
@@ -85,14 +85,14 @@ struct topology* get_topology_info(struct cache* cach) {
 
   // To find physical cores, we use topo->total_cores and core_ids
   // To find number of sockets, we use package_ids
-  int* core_ids = malloc(sizeof(int) * topo->total_cores);
-  int* package_ids = malloc(sizeof(int) * topo->total_cores);
+  int* core_ids = emalloc(sizeof(int) * topo->total_cores);
+  int* package_ids = emalloc(sizeof(int) * topo->total_cores);
 
   fill_core_ids_from_sys(core_ids, topo->total_cores);
   fill_package_ids_from_sys(package_ids, topo->total_cores);
 
   // 2. Socket detection
-  int *package_ids_count = malloc(sizeof(int) * topo->total_cores);
+  int *package_ids_count = emalloc(sizeof(int) * topo->total_cores);
   for(int i=0; i < topo->total_cores; i++) {
     package_ids_count[i] = 0;
   }
@@ -106,7 +106,7 @@ struct topology* get_topology_info(struct cache* cach) {
   }
 
   // 3. Physical cores detection
-  int *core_ids_unified = malloc(sizeof(int) * topo->total_cores);
+  int *core_ids_unified = emalloc(sizeof(int) * topo->total_cores);
   for(int i=0; i < topo->total_cores; i++) {
     core_ids_unified[i] = -1;
   }
@@ -147,7 +147,7 @@ struct uarch* get_cpu_uarch(struct cpuInfo* cpu) {
 }
 
 struct frequency* get_frequency_info() {
-  struct frequency* freq = malloc(sizeof(struct frequency));
+  struct frequency* freq = emalloc(sizeof(struct frequency));
 
   freq->max = get_max_freq_from_file(0, false);
   freq->base = get_min_freq_from_file(0, false);
@@ -156,8 +156,8 @@ struct frequency* get_frequency_info() {
 }
 
 struct cpuInfo* get_cpu_info() {
-  struct cpuInfo* cpu = malloc(sizeof(struct cpuInfo));
-  struct features* feat = malloc(sizeof(struct features));
+  struct cpuInfo* cpu = emalloc(sizeof(struct cpuInfo));
+  struct features* feat = emalloc(sizeof(struct features));
   cpu->feat = feat;
 
   bool *ptr = &(feat->AES);
@@ -180,7 +180,7 @@ struct cpuInfo* get_cpu_info() {
 }
 
 char* get_str_altivec(struct cpuInfo* cpu) {
-  char* string = calloc(4, sizeof(char));
+  char* string = ecalloc(4, sizeof(char));
 
   if(cpu->feat->altivec) strcpy(string, "Yes");
   else strcpy(string, "No");
@@ -197,7 +197,7 @@ char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64
   //7 for GFLOP/s and 6 for digits,eg 412.14
   uint32_t size = 7+6+1+1;
   assert(strlen(STRING_UNKNOWN)+1 <= size);
-  char* string = malloc(sizeof(char)*size);
+  char* string = emalloc(sizeof(char)*size);
 
   //First check we have consistent data
   if(freq == UNKNOWN_FREQ) {
@@ -223,7 +223,7 @@ char* get_str_topology(struct topology* topo, bool dual_socket) {
   char* string;
   if(topo->smt_supported > 1) {
     uint32_t size = 3+3+17+1;
-    string = malloc(sizeof(char)*size);
+    string = emalloc(sizeof(char)*size);
     if(dual_socket)
       snprintf(string, size, "%d cores (%d threads)", topo->physical_cores * topo->sockets, topo->logical_cores * topo->sockets);
     else
@@ -231,7 +231,7 @@ char* get_str_topology(struct topology* topo, bool dual_socket) {
   }
   else {
     uint32_t size = 3+7+1;
-    string = malloc(sizeof(char)*size);
+    string = emalloc(sizeof(char)*size);
     if(dual_socket)
       snprintf(string, size, "%d cores",topo->physical_cores * topo->sockets);
     else

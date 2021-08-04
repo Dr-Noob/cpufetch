@@ -1,5 +1,9 @@
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+
 #include "global.h"
 
 #ifdef _WIN32
@@ -67,4 +71,26 @@ void set_log_level(bool verbose) {
 
 int max(int a, int b) {
   return a > b ? a : b;
+}
+
+void* emalloc(size_t size) {
+  void* ptr = malloc(size);
+
+  if(ptr == NULL) {
+    printErr("malloc failed: %s", strerror(errno));
+    exit(1);
+  }
+
+  return ptr;
+}
+
+void* ecalloc(size_t nmemb, size_t size) {
+  void* ptr = calloc(nmemb, size);
+
+  if(ptr == NULL) {
+    printErr("calloc failed: %s", strerror(errno));
+    exit(1);
+  }
+
+  return ptr;
 }

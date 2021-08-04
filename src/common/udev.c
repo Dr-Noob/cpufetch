@@ -4,7 +4,7 @@
 
 char* read_file(char* path, int* len) {
   int fd = open(path, O_RDONLY);
-  
+
   if(fd == -1) {
     return NULL;
   }
@@ -13,17 +13,17 @@ char* read_file(char* path, int* len) {
   int bytes_read = 0;
   int offset = 0;
   int block = 128;
-  char* buf = malloc(sizeof(char)*DEFAULT_FILE_SIZE);
+  char* buf = emalloc(sizeof(char)*DEFAULT_FILE_SIZE);
   memset(buf, 0, sizeof(char)*DEFAULT_FILE_SIZE);
 
   while (  (bytes_read = read(fd, buf+offset, block)) > 0 ) {
     offset += bytes_read;
-  }    
-  
+  }
+
   if (close(fd) == -1) {
     return NULL;
   }
-  
+
   *len = offset;
   return buf;
 }
@@ -49,7 +49,7 @@ long get_freq_from_file(char* path, bool hv_present) {
     free(buf);
     return UNKNOWN_FREQ;
   }
-  
+
   // We will be getting the frequency in KHz
   // We consider it is an error if frequency is
   // greater than 10 GHz or less than 100 MHz
@@ -57,9 +57,9 @@ long get_freq_from_file(char* path, bool hv_present) {
     printBug("Invalid data was read from file '%s': %ld\n", path, ret);
     return UNKNOWN_FREQ;
   }
-  
+
   free(buf);
-  
+
   return ret/1000;
 }
 
@@ -128,7 +128,7 @@ int get_num_caches_from_files(char** paths, int num_paths) {
   int SHARED_MAP_MAX_LEN = 8 + 1;
   int filelen;
   char* buf;
-  uint32_t* shared_maps = malloc(sizeof(uint32_t *) * num_paths);
+  uint32_t* shared_maps = emalloc(sizeof(uint32_t *) * num_paths);
 
   // 1. Read cpu_shared_map from every core
   for(int i=0; i < num_paths; i++) {
@@ -158,7 +158,7 @@ int get_num_caches_from_files(char** paths, int num_paths) {
   // 2. Count number of different masks; this is the number of caches
   int num_caches = 0;
   bool found = false;
-  uint32_t* unique_shared_maps = malloc(sizeof(uint32_t *) * num_paths);
+  uint32_t* unique_shared_maps = emalloc(sizeof(uint32_t *) * num_paths);
   for(int i=0; i < num_paths; i++) unique_shared_maps[i] = 0;
 
   for(int i=0; i < num_paths; i++) {
@@ -176,7 +176,7 @@ int get_num_caches_from_files(char** paths, int num_paths) {
 }
 
 int get_num_caches_by_level(struct cpuInfo* cpu, uint32_t level) {
-  char** paths = malloc(sizeof(char *) * cpu->topo->total_cores);
+  char** paths = emalloc(sizeof(char *) * cpu->topo->total_cores);
   char* cache_path = NULL;
 
   if(level == 0) cache_path = _PATH_CACHE_L1I;
@@ -189,7 +189,7 @@ int get_num_caches_by_level(struct cpuInfo* cpu, uint32_t level) {
   }
 
   for(int i=0; i < cpu->topo->total_cores; i++) {
-    paths[i] = malloc(sizeof(char) * _PATH_CACHE_MAX_LEN);
+    paths[i] = emalloc(sizeof(char) * _PATH_CACHE_MAX_LEN);
     sprintf(paths[i], "%s%s/cpu%d%s%s",  _PATH_SYS_SYSTEM, _PATH_SYS_CPU, i, cache_path, _PATH_CACHE_SHARED_MAP);
   }
 

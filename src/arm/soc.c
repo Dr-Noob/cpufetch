@@ -32,34 +32,34 @@ void fill_soc(struct system_on_chip* soc, char* soc_name, SOC soc_model, int32_t
   soc->soc_vendor = get_soc_vendor_from_soc(soc_model);
   soc->process = process;
   int len = strlen(soc_name) + strlen(soc_trademark_string[soc->soc_vendor]) + 1;
-  soc->soc_name = malloc(sizeof(char) * len);
+  soc->soc_name = emalloc(sizeof(char) * len);
   memset(soc->soc_name, 0, sizeof(char) * len);
-  sprintf(soc->soc_name, "%s%s", soc_trademark_string[soc->soc_vendor], soc_name);    
+  sprintf(soc->soc_name, "%s%s", soc_trademark_string[soc->soc_vendor], soc_name);
 }
 
 bool match_soc(struct system_on_chip* soc, char* raw_name, char* expected_name, char* soc_name, SOC soc_model, int32_t process) {
   if(strlen(raw_name) > strlen(expected_name))
     return false;
-  
+
   int len = strlen(raw_name);
   if(strncmp(raw_name, expected_name, len) != 0) {
     return false;
   }
   else {
     fill_soc(soc, soc_name, soc_model, process);
-    return true;    
+    return true;
   }
 }
 
 char* toupperstr(char* str) {
   int len = strlen(str) + 1;
-  char* ret = malloc(sizeof(char) * len);
+  char* ret = emalloc(sizeof(char) * len);
   memset(ret, 0, sizeof(char) * len);
-  
+
   for(int i=0; i < len; i++) {
-    ret[i] = toupper((unsigned char) str[i]);    
+    ret[i] = toupper((unsigned char) str[i]);
   }
-  
+
   return ret;
 }
 
@@ -82,22 +82,22 @@ bool match_broadcom(char* soc_name, struct system_on_chip* soc) {
 
   if((tmp = strstr(soc_name, "BCM")) == NULL)
     return false;
-  
+
   SOC_START
-  SOC_EQ(tmp, "BCM2835",              "2835",              SOC_BCM_2835,   soc, 65)    
-  SOC_EQ(tmp, "BCM2836",              "2836",              SOC_BCM_2836,   soc, 40)    
-  SOC_EQ(tmp, "BCM2837",              "2837",              SOC_BCM_2837,   soc, 40) 
-  SOC_EQ(tmp, "BCM2837B0",            "2837B0",            SOC_BCM_2837B0, soc, 40) 
-  SOC_EQ(tmp, "BCM2711",              "2711",              SOC_BCM_2711,   soc, 28)  
-  SOC_EQ(tmp, "BCM21553",             "21553",             SOC_BCM_21553,  soc, 65)    
-  SOC_EQ(tmp, "BCM21553-Thunderbird", "21553 Thunderbird", SOC_BCM_21553T, soc, 65)      
-  SOC_EQ(tmp, "BCM21663",             "21663",             SOC_BCM_21663,  soc, 40) 
-  SOC_EQ(tmp, "BCM21664",             "21664",             SOC_BCM_21664,  soc, 40) 
-  SOC_EQ(tmp, "BCM28155",             "28155",             SOC_BCM_28155,  soc, 40) 
-  SOC_EQ(tmp, "BCM23550",             "23550",             SOC_BCM_23550,  soc, 40) 
-  SOC_EQ(tmp, "BCM28145",             "28145",             SOC_BCM_28145,  soc, 40) 
-  SOC_EQ(tmp, "BCM2157",              "2157",              SOC_BCM_2157,   soc, 65) 
-  SOC_EQ(tmp, "BCM21654",             "21654",             SOC_BCM_21654,  soc, 40) 
+  SOC_EQ(tmp, "BCM2835",              "2835",              SOC_BCM_2835,   soc, 65)
+  SOC_EQ(tmp, "BCM2836",              "2836",              SOC_BCM_2836,   soc, 40)
+  SOC_EQ(tmp, "BCM2837",              "2837",              SOC_BCM_2837,   soc, 40)
+  SOC_EQ(tmp, "BCM2837B0",            "2837B0",            SOC_BCM_2837B0, soc, 40)
+  SOC_EQ(tmp, "BCM2711",              "2711",              SOC_BCM_2711,   soc, 28)
+  SOC_EQ(tmp, "BCM21553",             "21553",             SOC_BCM_21553,  soc, 65)
+  SOC_EQ(tmp, "BCM21553-Thunderbird", "21553 Thunderbird", SOC_BCM_21553T, soc, 65)
+  SOC_EQ(tmp, "BCM21663",             "21663",             SOC_BCM_21663,  soc, 40)
+  SOC_EQ(tmp, "BCM21664",             "21664",             SOC_BCM_21664,  soc, 40)
+  SOC_EQ(tmp, "BCM28155",             "28155",             SOC_BCM_28155,  soc, 40)
+  SOC_EQ(tmp, "BCM23550",             "23550",             SOC_BCM_23550,  soc, 40)
+  SOC_EQ(tmp, "BCM28145",             "28145",             SOC_BCM_28145,  soc, 40)
+  SOC_EQ(tmp, "BCM2157",              "2157",              SOC_BCM_2157,   soc, 65)
+  SOC_EQ(tmp, "BCM21654",             "21654",             SOC_BCM_21654,  soc, 40)
   SOC_END
 }
 
@@ -108,7 +108,7 @@ bool match_hisilicon(char* soc_name, struct system_on_chip* soc) {
 
   if((tmp = strstr(soc_name, "Hi")) == NULL)
     return false;
-  
+
   SOC_START
   SOC_EQ(tmp, "Hi3620GFC",  "K3V2",  SOC_HISILICON_3620, soc, 40)
   //SOC_EQ(tmp, "?",        "K3V2E", SOC_KIRIN, soc,  ?)
@@ -200,16 +200,16 @@ bool match_mediatek(char* soc_name, struct system_on_chip* soc) {
 
   if((tmp = strstr(soc_name, "MT")) == NULL)
     return false;
-  
+
   SOC_START
   // Dimensity //
-  SOC_EQ(tmp, "MT6889",   "Dimensity 1000",  SOC_MTK_MT6889,   soc, 7) 
-  SOC_EQ(tmp, "MT6885Z",  "Dimensity 1000L", SOC_MTK_MT6885Z,  soc, 7) 
-  //SOC_EQ(tmp, "?",      "Dimensity 700",   SOC_MTK_,         soc, 7) 
-  SOC_EQ(tmp, "MT6853",   "Dimensity 720",   SOC_MTK_MT6853,   soc, 7) 
+  SOC_EQ(tmp, "MT6889",   "Dimensity 1000",  SOC_MTK_MT6889,   soc, 7)
+  SOC_EQ(tmp, "MT6885Z",  "Dimensity 1000L", SOC_MTK_MT6885Z,  soc, 7)
+  //SOC_EQ(tmp, "?",      "Dimensity 700",   SOC_MTK_,         soc, 7)
+  SOC_EQ(tmp, "MT6853",   "Dimensity 720",   SOC_MTK_MT6853,   soc, 7)
   SOC_EQ(tmp, "MT6873",   "Dimensity 800",   SOC_MTK_MT6873,   soc, 7)
   SOC_EQ(tmp, "MT6875",   "Dimensity 820",   SOC_MTK_MT6875,   soc, 7)
-  // Helio //  
+  // Helio //
   SOC_EQ(tmp, "MT6761D",  "Helio A20",       SOC_MTK_MT6761D,  soc, 12)
   SOC_EQ(tmp, "MT6761",   "Helio A22",       SOC_MTK_MT6761,   soc, 12)
   SOC_EQ(tmp, "MT6762D",  "Helio A25",       SOC_MTK_MT6762D,  soc, 12)
@@ -310,7 +310,7 @@ bool match_mediatek(char* soc_name, struct system_on_chip* soc) {
  *
  * If Qualcomm official website reports the SoC name without the initial two or three SKU name,
  * we assume APQ if second number is 0, or MSM if second number is different than 0
- * 
+ *
  * All SoC names here have been retrieved from official Qualcomm resources. However, Linux kernel
  * and Android may report the SoC with slightly different. Therefore, this function needs some
  * rework (e.g, debug with http://specdevice.com/unmoderated.php?lang=en)
@@ -322,11 +322,11 @@ bool match_qualcomm(char* soc_name, struct system_on_chip* soc) {
   if((tmp = strstr(soc_name_upper, "MSM")) != NULL);
   else if((tmp = strstr(soc_name_upper, "SDM")) != NULL);
   else if((tmp = strstr(soc_name_upper, "APQ")) != NULL);
-  else if((tmp = strstr(soc_name_upper, "SM")) != NULL);    
-  else if((tmp = strstr(soc_name_upper, "QM")) != NULL);      
+  else if((tmp = strstr(soc_name_upper, "SM")) != NULL);
+  else if((tmp = strstr(soc_name_upper, "QM")) != NULL);
   else if((tmp = strstr(soc_name_upper, "QSD")) != NULL);
   else return false;
-  
+
   SOC_START
   // Snapdragon S1 //
   SOC_EQ(tmp, "QSD8650",        "S1",        SOC_SNAPD_QSD8650,        soc, 65)
@@ -340,36 +340,36 @@ bool match_qualcomm(char* soc_name, struct system_on_chip* soc) {
   SOC_EQ(tmp, "MSM7625A",       "S1",        SOC_SNAPD_MSM7625A,       soc, 45)
   SOC_EQ(tmp, "MSM7225A",       "S1",        SOC_SNAPD_MSM7225A,       soc, 45)
   // Snapdragon S2 //
-  SOC_EQ(tmp, "MSM8655",        "S2",        SOC_SNAPD_MSM8655,        soc, 45) 
-  SOC_EQ(tmp, "MSM8255",        "S2",        SOC_SNAPD_MSM8255,        soc, 45) 
+  SOC_EQ(tmp, "MSM8655",        "S2",        SOC_SNAPD_MSM8655,        soc, 45)
+  SOC_EQ(tmp, "MSM8255",        "S2",        SOC_SNAPD_MSM8255,        soc, 45)
   SOC_EQ(tmp, "APQ8055",        "S2",        SOC_SNAPD_APQ8055,        soc, 45)
   SOC_EQ(tmp, "MSM7630",        "S2",        SOC_SNAPD_MSM7630,        soc, 45)
-  SOC_EQ(tmp, "MSM7230",        "S2",        SOC_SNAPD_MSM7230,        soc, 45)     
+  SOC_EQ(tmp, "MSM7230",        "S2",        SOC_SNAPD_MSM7230,        soc, 45)
   // Snapdragon S3 //
-  SOC_EQ(tmp, "MSM8660",        "S3",        SOC_SNAPD_MSM8660,        soc, 45) 
-  SOC_EQ(tmp, "MSM8260",        "S3",        SOC_SNAPD_MSM8260,        soc, 45)   
-  SOC_EQ(tmp, "APQ8060",        "S3",        SOC_SNAPD_APQ8060,        soc, 45) 
+  SOC_EQ(tmp, "MSM8660",        "S3",        SOC_SNAPD_MSM8660,        soc, 45)
+  SOC_EQ(tmp, "MSM8260",        "S3",        SOC_SNAPD_MSM8260,        soc, 45)
+  SOC_EQ(tmp, "APQ8060",        "S3",        SOC_SNAPD_APQ8060,        soc, 45)
   // Snapdragon S4 //
   SOC_EQ(tmp, "MSM8225",        "S4 Play",   SOC_SNAPD_MSM8225,        soc, 45)
   SOC_EQ(tmp, "MSM8625",        "S4 Play",   SOC_SNAPD_MSM8625,        soc, 45)
-  SOC_EQ(tmp, "APQ8060A",       "S4 Plus",   SOC_SNAPD_APQ8060A,       soc, 28) 
-  SOC_EQ(tmp, "MSM8960",        "S4 Plus",   SOC_SNAPD_MSM8960,        soc, 28) 
-  SOC_EQ(tmp, "MSM8260A",       "S4 Plus",   SOC_SNAPD_MSM8260A,       soc, 28) 
-  SOC_EQ(tmp, "MSM8627",        "S4 Plus",   SOC_SNAPD_MSM8627,        soc, 28)   
-  SOC_EQ(tmp, "MSM8227",        "S4 Plus",   SOC_SNAPD_MSM8227,        soc, 28)   
-  SOC_EQ(tmp, "APQ8064",        "S4 Pro",    SOC_SNAPD_APQ8064,        soc, 28) 
-  SOC_EQ(tmp, "MSM8960T",       "S4 Pro",    SOC_SNAPD_MSM8960T,       soc, 28) 
+  SOC_EQ(tmp, "APQ8060A",       "S4 Plus",   SOC_SNAPD_APQ8060A,       soc, 28)
+  SOC_EQ(tmp, "MSM8960",        "S4 Plus",   SOC_SNAPD_MSM8960,        soc, 28)
+  SOC_EQ(tmp, "MSM8260A",       "S4 Plus",   SOC_SNAPD_MSM8260A,       soc, 28)
+  SOC_EQ(tmp, "MSM8627",        "S4 Plus",   SOC_SNAPD_MSM8627,        soc, 28)
+  SOC_EQ(tmp, "MSM8227",        "S4 Plus",   SOC_SNAPD_MSM8227,        soc, 28)
+  SOC_EQ(tmp, "APQ8064",        "S4 Pro",    SOC_SNAPD_APQ8064,        soc, 28)
+  SOC_EQ(tmp, "MSM8960T",       "S4 Pro",    SOC_SNAPD_MSM8960T,       soc, 28)
   // Snapdragon 2XX //
-  SOC_EQ(tmp, "MSM8110",        "200",       SOC_SNAPD_MSM8110,        soc, 28) 
-  SOC_EQ(tmp, "MSM8210",        "200",       SOC_SNAPD_MSM8210,        soc, 28) 
-  SOC_EQ(tmp, "MSM8610",        "200",       SOC_SNAPD_MSM8610,        soc, 28) 
-  SOC_EQ(tmp, "MSM8112",        "200",       SOC_SNAPD_MSM8112,        soc, 28) 
-  SOC_EQ(tmp, "MSM8212",        "200",       SOC_SNAPD_MSM8212,        soc, 28) 
-  SOC_EQ(tmp, "MSM8612",        "200",       SOC_SNAPD_MSM8612,        soc, 28) 
-  SOC_EQ(tmp, "MSM8225Q",       "200",       SOC_SNAPD_MSM8225Q,       soc, 45) 
-  SOC_EQ(tmp, "MSM8625Q",       "200",       SOC_SNAPD_MSM8625Q,       soc, 45) 
-  SOC_EQ(tmp, "MSM8208",        "208",       SOC_SNAPD_MSM8208,        soc, 28) 
-  SOC_EQ(tmp, "MSM8905",        "205",       SOC_SNAPD_MSM8905,        soc, 28) 
+  SOC_EQ(tmp, "MSM8110",        "200",       SOC_SNAPD_MSM8110,        soc, 28)
+  SOC_EQ(tmp, "MSM8210",        "200",       SOC_SNAPD_MSM8210,        soc, 28)
+  SOC_EQ(tmp, "MSM8610",        "200",       SOC_SNAPD_MSM8610,        soc, 28)
+  SOC_EQ(tmp, "MSM8112",        "200",       SOC_SNAPD_MSM8112,        soc, 28)
+  SOC_EQ(tmp, "MSM8212",        "200",       SOC_SNAPD_MSM8212,        soc, 28)
+  SOC_EQ(tmp, "MSM8612",        "200",       SOC_SNAPD_MSM8612,        soc, 28)
+  SOC_EQ(tmp, "MSM8225Q",       "200",       SOC_SNAPD_MSM8225Q,       soc, 45)
+  SOC_EQ(tmp, "MSM8625Q",       "200",       SOC_SNAPD_MSM8625Q,       soc, 45)
+  SOC_EQ(tmp, "MSM8208",        "208",       SOC_SNAPD_MSM8208,        soc, 28)
+  SOC_EQ(tmp, "MSM8905",        "205",       SOC_SNAPD_MSM8905,        soc, 28)
   SOC_EQ(tmp, "MSM8909",        "210 / 212", SOC_SNAPD_MSM8909,        soc, 28) // In the future, we can differenciate them using frequency
   SOC_EQ(tmp, "QM215",          "215",       SOC_SNAPD_QM215,          soc, 28)
   // Snapdragon 4XX //
@@ -473,21 +473,21 @@ struct system_on_chip* parse_soc_from_string(struct system_on_chip* soc) {
 
   if(match_special(raw_name, soc))
     return soc;
-  
+
   if (match_qualcomm(raw_name, soc))
     return soc;
-  
+
   if(match_mediatek(raw_name, soc))
     return soc;
-  
+
   if(match_exynos(raw_name, soc))
     return soc;
-  
+
   if(match_hisilicon(raw_name, soc))
     return soc;
-  
+
   match_broadcom(raw_name, soc);
-  
+
   return soc;
 }
 
@@ -501,37 +501,37 @@ static inline int android_property_get(const char* key, char* value) {
 struct system_on_chip* guess_soc_from_android(struct system_on_chip* soc) {
   char tmp[100];
   int property_len = 0;
-  
+
   property_len = android_property_get("ro.mediatek.platform", (char *) &tmp);
   if(property_len > 0) {
-    soc->raw_name = malloc(sizeof(char) * (property_len + 1));
+    soc->raw_name = emalloc(sizeof(char) * (property_len + 1));
     strncpy(soc->raw_name, tmp, property_len + 1);
     soc->raw_name[property_len] = '\0';
     soc->soc_vendor = SOC_VENDOR_UNKNOWN;
     return parse_soc_from_string(soc);
   }
-  
+
   property_len = android_property_get("ro.product.board", (char *) &tmp);
-  if(property_len > 0) {    
-    soc->raw_name = malloc(sizeof(char) * (property_len + 1));
+  if(property_len > 0) {
+    soc->raw_name = emalloc(sizeof(char) * (property_len + 1));
     strncpy(soc->raw_name, tmp, property_len + 1);
     soc->raw_name[property_len] = '\0';
     soc->soc_vendor = SOC_VENDOR_UNKNOWN;
     return parse_soc_from_string(soc);
-  }    
-  
+  }
+
   return soc;
 }
 #endif
 
 struct system_on_chip* guess_soc_from_cpuinfo(struct system_on_chip* soc) {
   char* tmp = get_hardware_from_cpuinfo();
-  
+
   if(tmp != NULL) {
     soc->raw_name = tmp;
     return parse_soc_from_string(soc);
   }
-  
+
   return soc;
 }
 
@@ -574,7 +574,7 @@ struct system_on_chip* guess_soc_raspbery_pi(struct system_on_chip* soc) {
 
   char* soc_raw_name = soc_rpi_string[pppp];
   /*int soc_len = strlen(soc_raw_name);
-  soc->raw_name = malloc(sizeof(char) * (soc_len + 1));
+  soc->raw_name = emalloc(sizeof(char) * (soc_len + 1));
   strncpy(soc->raw_name, soc_raw_name, soc_len + 1);*/
 
   match_broadcom(soc_raw_name, soc);
@@ -582,7 +582,7 @@ struct system_on_chip* guess_soc_raspbery_pi(struct system_on_chip* soc) {
 }
 
 struct system_on_chip* get_soc() {
-  struct system_on_chip* soc = malloc(sizeof(struct system_on_chip));
+  struct system_on_chip* soc = emalloc(sizeof(struct system_on_chip));
   soc->raw_name = NULL;
   soc->soc_vendor = SOC_VENDOR_UNKNOWN;
   soc->process = UNKNOWN;
@@ -601,7 +601,7 @@ struct system_on_chip* get_soc() {
   soc = guess_soc_from_cpuinfo(soc);
   if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) {
     if(soc->raw_name != NULL)
-      printWarn("SoC detection failed using /proc/cpuinfo: Found '%s' string", soc->raw_name);   
+      printWarn("SoC detection failed using /proc/cpuinfo: Found '%s' string", soc->raw_name);
     else
       printWarn("SoC detection failed using /proc/cpuinfo: No string found");
 #ifdef __ANDROID__
@@ -609,16 +609,16 @@ struct system_on_chip* get_soc() {
     if(soc->raw_name == NULL)
       printWarn("SoC detection failed using Android: No string found");
     else if(soc->soc_vendor == SOC_VENDOR_UNKNOWN)
-      printWarn("SoC detection failed using Android: Found '%s' string", soc->raw_name);   
+      printWarn("SoC detection failed using Android: Found '%s' string", soc->raw_name);
 #endif
   }
 
   if(soc->raw_name == NULL) {
-    soc->raw_name = malloc(sizeof(char) * (strlen(STRING_UNKNOWN)+1));
+    soc->raw_name = emalloc(sizeof(char) * (strlen(STRING_UNKNOWN)+1));
     snprintf(soc->raw_name, strlen(STRING_UNKNOWN)+1, STRING_UNKNOWN);
   }
-  
-  return soc;    
+
+  return soc;
 }
 
 char* get_soc_name(struct system_on_chip* soc) {
@@ -633,16 +633,15 @@ VENDOR get_soc_vendor(struct system_on_chip* soc) {
 
 char* get_str_process(struct system_on_chip* soc) {
   char* str;
-  
+
   if(soc->process == UNKNOWN) {
-    str = malloc(sizeof(char) * (strlen(STRING_UNKNOWN)+1));
+    str = emalloc(sizeof(char) * (strlen(STRING_UNKNOWN)+1));
     snprintf(str, strlen(STRING_UNKNOWN)+1, STRING_UNKNOWN);
   }
   else {
-    str = malloc(sizeof(char) * 5);
+    str = emalloc(sizeof(char) * 5);
     memset(str, 0, sizeof(char) * 5);
-    snprintf(str, 5, "%dnm", soc->process);    
+    snprintf(str, 5, "%dnm", soc->process);
   }
   return str;
 }
-

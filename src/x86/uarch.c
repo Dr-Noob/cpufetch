@@ -124,7 +124,7 @@ struct uarch {
 #define UARCH_END else { printBug("Unknown microarchitecture detected: M=0x%.8X EM=0x%.8X F=0x%.8X EF=0x%.8X S=0x%.8X", m, em, f, ef, s); fill_uarch(arch, "Unknown", UARCH_UNKNOWN, 0); }
 
 void fill_uarch(struct uarch* arch, char* str, MICROARCH u, uint32_t process) {
-  arch->uarch_str = malloc(sizeof(char) * (strlen(str)+1));
+  arch->uarch_str = emalloc(sizeof(char) * (strlen(str)+1));
   strcpy(arch->uarch_str, str);
   arch->uarch = u;
   arch->process= process;
@@ -132,8 +132,8 @@ void fill_uarch(struct uarch* arch, char* str, MICROARCH u, uint32_t process) {
 
 // Inspired in Todd Allen's decode_uarch_intel
 struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, uint32_t m, int s) {
-  struct uarch* arch = malloc(sizeof(struct uarch));
-  
+  struct uarch* arch = emalloc(sizeof(struct uarch));
+
   // EF: Extended Family                                                           //
   // F:  Family                                                                    //
   // EM: Extended Model                                                            //
@@ -249,14 +249,14 @@ struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, u
   CHECK_UARCH(arch, 1, 15,  0,  1, NA, "Itanium2",        UARCH_ITANIUM2,        130)
   CHECK_UARCH(arch, 1, 15,  0,  2, NA, "Itanium2",        UARCH_ITANIUM2,        130)
   UARCH_END
- 
+
   return arch;
 }
 
 // iNApired in Todd Allen's decode_uarch_amd
 struct uarch* get_uarch_from_cpuid_amd(uint32_t ef, uint32_t f, uint32_t em, uint32_t m, int s) {
-  struct uarch* arch = malloc(sizeof(struct uarch));
-  
+  struct uarch* arch = emalloc(sizeof(struct uarch));
+
   // EF: Extended Family                                                           //
   // F:  Family                                                                    //
   // EM: Extended Model                                                            //
@@ -264,7 +264,7 @@ struct uarch* get_uarch_from_cpuid_amd(uint32_t ef, uint32_t f, uint32_t em, uin
   // S: Stepping                                                                   //
   // ----------------------------------------------------------------------------- //
   //                 EF  F  EM   M   S                                             //
-  UARCH_START  
+  UARCH_START
   CHECK_UARCH(arch,  0,  4,  0,  3, NA, "Am486",       UARCH_AM486,      UNK)
   CHECK_UARCH(arch,  0,  4,  0,  7, NA, "Am486",       UARCH_AM486,      UNK)
   CHECK_UARCH(arch,  0,  4,  0,  8, NA, "Am486",       UARCH_AM486,      UNK)
@@ -352,14 +352,14 @@ struct uarch* get_uarch_from_cpuid_amd(uint32_t ef, uint32_t f, uint32_t em, uin
   CHECK_UARCH(arch, 10, 15,  2,  1, NA, "Zen 3",       UARCH_ZEN3,         7) // instlatx64
   CHECK_UARCH(arch, 10, 15,  5,  0, NA, "Zen 3",       UARCH_ZEN3,         7) // instlatx64
   UARCH_END
-    
+
   return arch;
 }
 
 struct uarch* get_uarch_from_cpuid(struct cpuInfo* cpu, uint32_t ef, uint32_t f, uint32_t em, uint32_t m, int s) {
   if(cpu->cpu_vendor == CPU_VENDOR_INTEL)
     return get_uarch_from_cpuid_intel(ef, f, em, m, s);
-  else 
+  else
     return get_uarch_from_cpuid_amd(ef, f, em, m, s);
 }
 
@@ -368,33 +368,33 @@ bool vpus_are_AVX512(struct cpuInfo* cpu) {
 }
 
 bool is_knights_landing(struct cpuInfo* cpu) {
-  return cpu->arch->uarch == UARCH_KNIGHTS_LANDING;  
+  return cpu->arch->uarch == UARCH_KNIGHTS_LANDING;
 }
 
-int get_number_of_vpus(struct cpuInfo* cpu) {  
+int get_number_of_vpus(struct cpuInfo* cpu) {
   switch(cpu->arch->uarch) {
       // Intel
       case UARCH_HASWELL:
       case UARCH_BROADWELL:
-          
+
       case UARCH_SKYLAKE:
-      case UARCH_CASCADE_LAKE:                    
+      case UARCH_CASCADE_LAKE:
       case UARCH_KABY_LAKE:
       case UARCH_COMET_LAKE:
       case UARCH_ROCKET_LAKE:
       case UARCH_AMBER_LAKE:
       case UARCH_WHISKEY_LAKE:
       case UARCH_COFFE_LAKE:
-      case UARCH_PALM_COVE:    
-      
+      case UARCH_PALM_COVE:
+
       case UARCH_KNIGHTS_LANDING:
       case UARCH_KNIGHTS_MILL:
-          
-      case UARCH_ICE_LAKE:   
-          
+
+      case UARCH_ICE_LAKE:
+
       // AMD
       case UARCH_ZEN2:
-      case UARCH_ZEN3:    
+      case UARCH_ZEN3:
         return 2;
       default:
         return 1;
@@ -402,11 +402,11 @@ int get_number_of_vpus(struct cpuInfo* cpu) {
 }
 
 char* get_str_uarch(struct cpuInfo* cpu) {
-  return cpu->arch->uarch_str;    
+  return cpu->arch->uarch_str;
 }
 
 char* get_str_process(struct cpuInfo* cpu) {
-  char* str = malloc(sizeof(char) * (strlen(STRING_UNKNOWN)+1));
+  char* str = emalloc(sizeof(char) * (strlen(STRING_UNKNOWN)+1));
   int32_t process = cpu->arch->process;
 
   if(process == UNK) {
@@ -426,7 +426,7 @@ char* get_str_process(struct cpuInfo* cpu) {
   return str;
 }
 
-void free_uarch_struct(struct uarch* arch) {    
+void free_uarch_struct(struct uarch* arch) {
   free(arch->uarch_str);
   free(arch);
 }

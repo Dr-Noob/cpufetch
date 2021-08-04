@@ -81,8 +81,8 @@ uint32_t get_midr_from_cpuinfo(uint32_t core, bool* success) {
   *success = true;
   if((buf = read_file(_PATH_CPUINFO, &filelen)) == NULL) {
     perror("open");
-    *success = false;     
-    return 0;    
+    *success = false;
+    return 0;
   }
 
   char* tmp = strstr(buf, CPUINFO_CPU_STRING);
@@ -92,9 +92,9 @@ uint32_t get_midr_from_cpuinfo(uint32_t core, bool* success) {
     current_core++;
     tmp = strstr(tmp, CPUINFO_CPU_STRING);
   }
-  
+
   if(tmp == NULL) {
-    *success = false;    
+    *success = false;
     return 0;
   }
 
@@ -108,35 +108,35 @@ uint32_t get_midr_from_cpuinfo(uint32_t core, bool* success) {
 
   if ((ret = parse_cpuinfo_field(tmp, CPUINFO_CPU_IMPLEMENTER_STR, 16)) < 0) {
     printf("Failed parsing cpu_implementer\n");
-    *success = false;    
+    *success = false;
     return 0;
   }
   cpu_implementer = (uint32_t) ret;
 
   if ((ret = parse_cpuinfo_field(tmp, CPUINFO_CPU_ARCHITECTURE_STR, 10)) < 0) {
     printf("Failed parsing cpu_architecture\n");
-    *success = false;    
+    *success = false;
     return 0;
   }
   cpu_architecture = (uint32_t) 0xF; // Why?
 
   if ((ret = parse_cpuinfo_field(tmp, CPUINFO_CPU_VARIANT_STR, 16)) < 0) {
     printf("Failed parsing cpu_variant\n");
-    *success = false;    
+    *success = false;
     return 0;
   }
   cpu_variant = (uint32_t) ret;
 
   if ((ret = parse_cpuinfo_field(tmp, CPUINFO_CPU_PART_STR, 16)) < 0) {
     printf("Failed parsing cpu_part\n");
-    *success = false;    
+    *success = false;
     return 0;
   }
   cpu_part = (uint32_t) ret;
 
   if ((ret = parse_cpuinfo_field(tmp, CPUINFO_CPU_REVISION_STR, 10)) < 0) {
     printf("Failed parsing cpu_revision\n");
-    *success = false;    
+    *success = false;
     return 0;
   }
   cpu_revision = (uint32_t) ret;
@@ -164,7 +164,7 @@ char* get_field_from_cpuinfo(char* CPUINFO_FIELD) {
   char* tmp2 = strstr(tmp1, "\n");
 
   int strlen = (1 + (tmp2-tmp1));
-  char* hardware = malloc(sizeof(char) * strlen);
+  char* hardware = emalloc(sizeof(char) * strlen);
   memset(hardware, 0, sizeof(char) * strlen);
   strncpy(hardware, tmp1, tmp2-tmp1);
 

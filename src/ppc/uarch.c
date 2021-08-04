@@ -60,7 +60,7 @@ struct uarch {
 #define FILL_START if (false) {}
 #define FILL_UARCH(u, uarch, uarch_str, uarch_process) \
    else if(u == uarch) { fill = true; str = uarch_str; process = uarch_process; }
-#define FILL_END else { printBug("Found invalid microarchitecture: %d", u); } 
+#define FILL_END else { printBug("Found invalid microarchitecture: %d", u); }
 
 void fill_uarch(struct uarch* arch, MICROARCH u) {
   arch->uarch = u;
@@ -96,7 +96,7 @@ void fill_uarch(struct uarch* arch, MICROARCH u) {
   FILL_END
 
   if(fill) {
-    arch->uarch_str = malloc(sizeof(char) * (strlen(str)+1));
+    arch->uarch_str = emalloc(sizeof(char) * (strlen(str)+1));
     strcpy(arch->uarch_str, str);
     arch->process= process;
   }
@@ -104,11 +104,11 @@ void fill_uarch(struct uarch* arch, MICROARCH u) {
 
 /*
  * PVR masks/values from arch/powerpc/kernel/cputable.c (Linux kernel)
- * This list may be incorrect, incomplete or overly simplified, 
+ * This list may be incorrect, incomplete or overly simplified,
  * specially in the case of 32 bit entries
  */
 struct uarch* get_uarch_from_pvr(uint32_t pvr) {
-  struct uarch* arch = malloc(sizeof(struct uarch));
+  struct uarch* arch = emalloc(sizeof(struct uarch));
 
   UARCH_START
   // 64 bit
@@ -250,11 +250,11 @@ bool has_altivec(struct uarch* arch) {
 }
 
 char* get_str_uarch(struct cpuInfo* cpu) {
-  return cpu->arch->uarch_str;    
+  return cpu->arch->uarch_str;
 }
 
 char* get_str_process(struct cpuInfo* cpu) {
-  char* str = malloc(sizeof(char) * (strlen(STRING_UNKNOWN)+1));
+  char* str = emalloc(sizeof(char) * (strlen(STRING_UNKNOWN)+1));
   int32_t process = cpu->arch->process;
 
   if(process == UNK) {
