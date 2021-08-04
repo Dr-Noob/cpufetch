@@ -150,7 +150,8 @@
                 ########################                      \
                     ###############                           \
                                                               "
-                                                              
+
+// jp2a --height=19 apple.jpg
 #define APPLE_ASCII \
 "                                      ;'                      \
                                   .clod.                      \
