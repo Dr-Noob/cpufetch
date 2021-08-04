@@ -1,3 +1,4 @@
+#include "../common/global.h"
 #include "udev.h"
 #include "midr.h"
 

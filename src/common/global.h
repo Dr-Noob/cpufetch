@@ -2,6 +2,7 @@
 #define __GLOBAL__
 
 #include <stdbool.h>
+#include <stddef.h>
 
 void set_log_level(bool verbose);
 void printWarn(const char *fmt, ...);
