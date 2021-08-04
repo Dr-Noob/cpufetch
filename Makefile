@@ -50,6 +50,9 @@ debug: $(OUTPUT)
 static: CFLAGS += -static -O3
 static: $(OUTPUT)
 
+strict: CFLAGS += -O3 -Werror -fsanitize=undefined -D_FORTIFY_SOURCE=2
+strict: $(OUTPUT)
+
 $(OUTPUT): Makefile $(SOURCE) $(HEADERS)
 	$(CC) $(CFLAGS) $(SANITY_FLAGS) $(SOURCE) -o $(OUTPUT)
 
