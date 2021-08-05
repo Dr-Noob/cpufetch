@@ -9,7 +9,6 @@
 #include "../common/global.h"
 
 #define min(a,b) (((a)<(b))?(a):(b))
-#define STRING_UNKNOWN    "Unknown"
 #define ARRAY_SIZE(arr)     (sizeof(arr) / sizeof((arr)[0]))
 
 static char* soc_trademark_string[] = {

@@ -13,8 +13,6 @@
 #include "uarch.h"
 #include "soc.h"
 
-#define STRING_UNKNOWN    "Unknown"
-
 void init_cache_struct(struct cache* cach) {
   cach->L1i = emalloc(sizeof(struct cach));
   cach->L1d = emalloc(sizeof(struct cach));

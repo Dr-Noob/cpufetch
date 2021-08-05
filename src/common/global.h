@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#define STRING_UNKNOWN "Unknown"
+
 void set_log_level(bool verbose);
 void printWarn(const char *fmt, ...);
 void printErr(const char *fmt, ...);

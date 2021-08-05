@@ -15,7 +15,6 @@
   #include "../arm/uarch.h"
 #endif
 
-#define STRING_UNKNOWN    "Unknown"
 #define STRING_YES        "Yes"
 #define STRING_NO         "No"
 #define STRING_NONE       "None"

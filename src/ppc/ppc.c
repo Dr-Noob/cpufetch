@@ -11,8 +11,6 @@
 #include "../common/udev.h"
 #include "../common/global.h"
 
-#define STRING_UNKNOWN    "Unknown"
-
 void init_topology_struct(struct topology* topo, struct cache* cach) {
   topo->total_cores = 0;
   topo->physical_cores = 0;

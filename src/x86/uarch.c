@@ -38,8 +38,6 @@
 
 typedef uint32_t MICROARCH;
 
-#define STRING_UNKNOWN    "Unknown"
-
 // Data not available
 #define NA                   -1
 
@@ -121,7 +119,7 @@ struct uarch {
 #define UARCH_START if (false) {}
 #define CHECK_UARCH(arch, ef_, f_, em_, m_, s_, str, uarch, process) \
    else if (ef_ == ef && f_ == f && (em_ == NA || em_ == em) && (m_ == NA || m_ == m) && (s_ == NA || s_ == s)) fill_uarch(arch, str, uarch, process);
-#define UARCH_END else { printBug("Unknown microarchitecture detected: M=0x%.8X EM=0x%.8X F=0x%.8X EF=0x%.8X S=0x%.8X", m, em, f, ef, s); fill_uarch(arch, "Unknown", UARCH_UNKNOWN, 0); }
+#define UARCH_END else { printBug("Unknown microarchitecture detected: M=0x%.8X EM=0x%.8X F=0x%.8X EF=0x%.8X S=0x%.8X", m, em, f, ef, s); fill_uarch(arch, STRING_UNKNOWN, UARCH_UNKNOWN, 0); }
 
 void fill_uarch(struct uarch* arch, char* str, MICROARCH u, uint32_t process) {
   arch->uarch_str = emalloc(sizeof(char) * (strlen(str)+1));

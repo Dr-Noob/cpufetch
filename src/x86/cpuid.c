@@ -37,10 +37,8 @@ static char *hv_vendors_name[] = {
   [HV_VENDOR_VMWARE]    = "VMware",
   [HV_VENDOR_XEN]       = "Xen",
   [HV_VENDOR_PARALLELS] = "Parallels",
-  [HV_VENDOR_INVALID]   = "Unknown"
+  [HV_VENDOR_INVALID]   = STRING_UNKNOWN
 };
-
-#define STRING_UNKNOWN    "Unknown"
 
 #define HYPERVISOR_NAME_MAX_LENGTH 17
 
@@ -305,8 +303,8 @@ struct cpuInfo* get_cpu_info() {
     cpu->cpu_name = get_str_cpu_name_internal();
   }
   else {
-    cpu->cpu_name = emalloc(sizeof(char)*8);
-    sprintf(cpu->cpu_name,"Unknown");
+    cpu->cpu_name = emalloc(sizeof(char) * (strlen(STRING_UNKNOWN) + 1));
+    strcpy(cpu->cpu_name, STRING_UNKNOWN);
     printWarn("Can't read cpu name from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x80000004, cpu->maxExtendedLevels);
   }
 

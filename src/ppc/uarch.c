@@ -11,8 +11,6 @@
 
 typedef uint32_t MICROARCH;
 
-#define STRING_UNKNOWN    "Unknown"
-
 // Data not available
 #define NA                   -1
 
@@ -69,7 +67,7 @@ void fill_uarch(struct uarch* arch, MICROARCH u) {
   bool fill = false;
 
   FILL_START
-  FILL_UARCH(arch->uarch, UARCH_UNKNOWN,     "Unknown",       UNK)
+  FILL_UARCH(arch->uarch, UARCH_UNKNOWN,     STRING_UNKNOWN,  UNK)
   FILL_UARCH(arch->uarch, UARCH_PPC604,      "PowerPC 604",   500)
   FILL_UARCH(arch->uarch, UARCH_PPCG3,       "PowerPC G3",    UNK) // varies
   FILL_UARCH(arch->uarch, UARCH_PPCG4,       "PowerPC G4",    UNK) // varies

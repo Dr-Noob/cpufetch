@@ -7,8 +7,6 @@
 #include "uarch.h"
 #include "../common/global.h"
 
-#define STRING_UNKNOWN    "Unknown"
-
 // Data not available
 #define NA                   -1
 
