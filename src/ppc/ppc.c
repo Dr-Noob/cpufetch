@@ -9,6 +9,7 @@
 #include "uarch.h"
 #include "udev.h"
 #include "../common/udev.h"
+#include "../common/global.h"
 
 #define STRING_UNKNOWN    "Unknown"
 
