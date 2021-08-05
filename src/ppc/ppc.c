@@ -166,6 +166,11 @@ struct cpuInfo* get_cpu_info() {
     *ptr = false;
   }
 
+  int len;
+  char* path = emalloc(sizeof(char) * (strlen(_PATH_DT) + strlen(_PATH_DT_PART) + 1));
+  sprintf(path, "%s%s", _PATH_DT, _PATH_DT_PART);
+
+  cpu->cpu_name = read_file(path, &len);
   cpu->pvr = mfpvr();
   cpu->arch = get_cpu_uarch(cpu);
   cpu->freq = get_frequency_info();

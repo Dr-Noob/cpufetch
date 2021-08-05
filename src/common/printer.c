@@ -48,7 +48,7 @@
 #define COLOR_RESET      "\x1b[m"
 
 enum {
-#if defined(ARCH_X86)
+#if defined(ARCH_X86) || defined(ARCH_PPC)
   ATTRIBUTE_NAME,
 #elif ARCH_ARM
   ATTRIBUTE_SOC,
@@ -77,7 +77,7 @@ enum {
 };
 
 static const char* ATTRIBUTE_FIELDS [] = {
-#if defined(ARCH_X86)
+#if defined(ARCH_X86) || defined(ARCH_PPC)
   "Name:",
 #elif ARCH_ARM
   "SoC:",
@@ -572,6 +572,7 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   char* manufacturing_process = get_str_process(cpu);
   char* sockets = get_str_sockets(cpu->topo);
   char* max_frequency = get_str_freq(cpu->freq);
+  char* cpu_name = get_str_cpu_name(cpu);
   char* n_cores = get_str_topology(cpu->topo, false);
   char* n_cores_dual = get_str_topology(cpu->topo, true);
   char* altivec = get_str_altivec(cpu);
@@ -582,10 +583,9 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   char* l3 = get_str_l3(cpu->cach);
   char* pp = get_str_peak_performance(cpu,cpu->topo,get_freq(cpu->freq));
 
-  /*
-  if(cpu->hv->present) {
-    setAttribute(art, ATTRIBUTE_HYPERVISOR, cpu->hv->hv_name);
-  }*/
+  if(cpu_name != NULL) {
+    setAttribute(art,ATTRIBUTE_NAME,cpu_name);
+  }
   setAttribute(art,ATTRIBUTE_UARCH,uarch);
   setAttribute(art,ATTRIBUTE_TECHNOLOGY,manufacturing_process);
   setAttribute(art,ATTRIBUTE_FREQUENCY,max_frequency);

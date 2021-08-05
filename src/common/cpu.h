@@ -116,9 +116,12 @@ struct cpuInfo {
   struct topology* topo;
   struct features* feat;
 
-#ifdef ARCH_X86
+#if defined(ARCH_X86) || defined(ARCH_PPC)
   // CPU name from model
   char* cpu_name;
+#endif
+
+#ifdef ARCH_X86
   //  Max cpuids levels
   uint32_t maxLevels;
   // Max cpuids extended levels
