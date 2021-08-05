@@ -9,6 +9,7 @@
 
 #ifdef ARCH_X86
   #include "../x86/uarch.h"
+  #include "../x86/apic.h"
 #elif ARCH_PPC
   #include "../ppc/uarch.h"
 #elif ARCH_ARM
@@ -148,6 +149,40 @@ char* get_str_freq(struct frequency* freq) {
     snprintf(string,size,"%d "STRING_MEGAHERZ,freq->max);
 
   return string;
+}
+
+void init_topology_struct(struct topology* topo, struct cache* cach) {
+  topo->total_cores = 0;
+  topo->cach = cach;
+#if defined(ARCH_X86) || defined(ARCH_PPC)
+  topo->physical_cores = 0;
+  topo->logical_cores = 0;
+  topo->smt_supported = 0;
+  topo->sockets = 0;
+#ifdef ARCH_X86
+  topo->smt_available = 0;
+  topo->apic = emalloc(sizeof(struct apic));
+#endif
+#endif
+}
+
+void init_cache_struct(struct cache* cach) {
+  cach->L1i = emalloc(sizeof(struct cach));
+  cach->L1d = emalloc(sizeof(struct cach));
+  cach->L2 = emalloc(sizeof(struct cach));
+  cach->L3 = emalloc(sizeof(struct cach));
+
+  cach->cach_arr = emalloc(sizeof(struct cach*) * 4);
+  cach->cach_arr[0] = cach->L1i;
+  cach->cach_arr[1] = cach->L1d;
+  cach->cach_arr[2] = cach->L2;
+  cach->cach_arr[3] = cach->L3;
+
+  cach->max_cache_level = 0;
+  cach->L1i->exists = false;
+  cach->L1d->exists = false;
+  cach->L2->exists = false;
+  cach->L3->exists = false;
 }
 
 void free_cache_struct(struct cache* cach) {

@@ -13,25 +13,6 @@
 #include "uarch.h"
 #include "soc.h"
 
-void init_cache_struct(struct cache* cach) {
-  cach->L1i = emalloc(sizeof(struct cach));
-  cach->L1d = emalloc(sizeof(struct cach));
-  cach->L2 = emalloc(sizeof(struct cach));
-  cach->L3 = emalloc(sizeof(struct cach));
-
-  cach->cach_arr = emalloc(sizeof(struct cach*) * 4);
-  cach->cach_arr[0] = cach->L1i;
-  cach->cach_arr[1] = cach->L1d;
-  cach->cach_arr[2] = cach->L2;
-  cach->cach_arr[3] = cach->L3;
-
-  cach->max_cache_level = 0;
-  cach->L1i->exists = false;
-  cach->L1d->exists = false;
-  cach->L2->exists = false;
-  cach->L3->exists = false;
-}
-
 struct cache* get_cache_info(struct cpuInfo* cpu) {
   struct cache* cach = emalloc(sizeof(struct cache));
   init_cache_struct(cach);
@@ -57,9 +38,7 @@ struct frequency* get_frequency_info(uint32_t core) {
 
 struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach, uint32_t* midr_array, int socket_idx, int ncores) {
   struct topology* topo = emalloc(sizeof(struct topology));
-
-  topo->cach = cach;
-  topo->total_cores = 0;
+  init_topology_struct(topo, cach);
 
   int sockets_seen = 0;
   int first_core_idx = 0;

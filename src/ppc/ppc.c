@@ -11,34 +11,6 @@
 #include "../common/udev.h"
 #include "../common/global.h"
 
-void init_topology_struct(struct topology* topo, struct cache* cach) {
-  topo->total_cores = 0;
-  topo->physical_cores = 0;
-  topo->logical_cores = 0;
-  topo->smt_supported = 0;
-  topo->sockets = 0;
-  topo->cach = cach;
-}
-
-void init_cache_struct(struct cache* cach) {
-  cach->L1i = emalloc(sizeof(struct cach));
-  cach->L1d = emalloc(sizeof(struct cach));
-  cach->L2 = emalloc(sizeof(struct cach));
-  cach->L3 = emalloc(sizeof(struct cach));
-
-  cach->cach_arr = emalloc(sizeof(struct cach*) * 4);
-  cach->cach_arr[0] = cach->L1i;
-  cach->cach_arr[1] = cach->L1d;
-  cach->cach_arr[2] = cach->L2;
-  cach->cach_arr[3] = cach->L3;
-
-  cach->max_cache_level = 0;
-  cach->L1i->exists = false;
-  cach->L1d->exists = false;
-  cach->L2->exists = false;
-  cach->L3->exists = false;
-}
-
 struct cache* get_cache_info(struct cpuInfo* cpu) {
   struct cache* cach = emalloc(sizeof(struct cache));
   init_cache_struct(cach);
