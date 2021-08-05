@@ -215,6 +215,14 @@ char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64
   double flops = topo->physical_cores * topo->sockets * (freq*1000000);
   if(feat->altivec) flops = flops*4;
 
+  // POWER9 has the concept called "slices". Each SMT4 core has two super-slices,
+  // and each super-slice is capable of doing two FLOPS per cycle. In the case of
+  // SMT8, it has 4 super-slices, thus four FLOPS per cycle.
+  if(is_power9(cpu->arch)) {
+    int threads_per_core = topo->logical_cores / topo->physical_cores;
+    flops = flops * (threads_per_core / 2);
+  }
+
   if(flops >= (double)1000000000000.0)
     snprintf(string,size,"%.2f TFLOP/s",flops/1000000000000);
   else if(flops >= 1000000000.0)

@@ -249,6 +249,14 @@ bool has_altivec(struct uarch* arch) {
   }
 }
 
+bool is_power9(struct uarch* arch) {
+  return arch->uarch == UARCH_POWER9      ||
+         arch->uarch == UARCH_POWER9_DD20 ||
+         arch->uarch == UARCH_POWER9_DD21 ||
+         arch->uarch == UARCH_POWER9_DD22 ||
+         arch->uarch == UARCH_POWER9_DD23;
+}
+
 char* get_str_uarch(struct cpuInfo* cpu) {
   return cpu->arch->uarch_str;
 }
