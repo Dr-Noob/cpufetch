@@ -59,8 +59,14 @@ struct topology* get_topology_info(struct cache* cach) {
   int* core_ids = emalloc(sizeof(int) * topo->total_cores);
   int* package_ids = emalloc(sizeof(int) * topo->total_cores);
 
-  fill_core_ids_from_sys(core_ids, topo->total_cores);
-  fill_package_ids_from_sys(package_ids, topo->total_cores);
+  if(!fill_core_ids_from_sys(core_ids, topo->total_cores)) {
+    printWarn("fill_core_ids_from_sys failed, output may be incomplete/invalid");
+    for(int i=0; i < topo->total_cores; i++) core_ids[i] = 0;
+  }
+  if(!fill_package_ids_from_sys(package_ids, topo->total_cores)) {
+    printWarn("fill_package_ids_from_sys failed, output may be incomplete/invalid");
+    for(int i=0; i < topo->total_cores; i++) package_ids[i] = 0;
+  }
 
   // 2. Socket detection
   int *package_ids_count = emalloc(sizeof(int) * topo->total_cores);

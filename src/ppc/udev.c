@@ -1,3 +1,6 @@
+#include <errno.h>
+
+#include "../common/global.h"
 #include "udev.h"
 
 #define _PATH_TOPO_CORE_ID    "topology/core_id"
@@ -12,14 +15,14 @@ bool fill_array_from_sys(int *core_ids, int total_cores, char* SYS_PATH) {
   for(int i=0; i < total_cores; i++) {
     sprintf(path, "%s%s/cpu%d/%s", _PATH_SYS_SYSTEM, _PATH_SYS_CPU, i, SYS_PATH);
     if((buf = read_file(path, &filelen)) == NULL) {
-      perror("open");
+      printWarn("fill_array_from_sys: %s: %s", path, strerror(errno));
       return false;
     }
 
     errno = 0;
     core_ids[i] = strtol(buf, &end, 10);
     if(errno != 0) {
-      perror("strtol");
+      printWarn("fill_array_from_sys: %s:", strerror(errno));
       return false;
     }
     free(buf);
