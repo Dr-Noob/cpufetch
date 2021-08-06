@@ -61,6 +61,27 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach, uint
   return topo;
 }
 
+int64_t get_peak_performance(struct cpuInfo* cpu) {
+  struct cpuInfo* ptr = cpu;
+
+  //First check we have consistent data
+  for(int i=0; i < cpu->num_cpus; ptr = ptr->next_cpu, i++) {
+    if(get_freq(ptr->freq) == UNKNOWN_FREQ) {
+      return -1;
+    }
+  }
+
+  int64_t flops = 0;
+
+  ptr = cpu;
+  for(int i=0; i < cpu->num_cpus; ptr = ptr->next_cpu, i++) {
+    flops += ptr->topo->total_cores * (get_freq(ptr->freq) * 1000000);
+  }
+  if(cpu->feat->NEON) flops = flops * 4;
+
+  return flops;
+}
+
 bool cores_are_equal(int c1pos, int c2pos, uint32_t* midr_array, int32_t* freq_array) {
   return midr_array[c1pos] == midr_array[c2pos] && freq_array[c1pos] == freq_array[c2pos];
 }
@@ -198,6 +219,7 @@ struct cpuInfo* get_cpu_info() {
   cpu->hv = emalloc(sizeof(struct hypervisor));
   cpu->hv->present = false;
   cpu->soc = get_soc();
+  cpu->peak_performance = get_peak_performance(cpu);
 
   return cpu;
 }
@@ -208,27 +230,6 @@ char* get_str_topology(struct cpuInfo* cpu, struct topology* topo, bool dual_soc
   snprintf(string, size, "%d cores", topo->total_cores);
 
   return string;
-}
-
-bool get_peak_performance(struct cpuInfo* cpu, double* flops) {
-  struct cpuInfo* ptr = cpu;
-
-  //First check we have consistent data
-  for(int i=0; i < cpu->num_cpus; ptr = ptr->next_cpu, i++) {
-    if(get_freq(ptr->freq) == UNKNOWN_FREQ) {
-      return false;
-    }
-  }
-
-  *flops = 0.0;
-
-  ptr = cpu;
-  for(int i=0; i < cpu->num_cpus; ptr = ptr->next_cpu, i++) {
-    *flops += ptr->topo->total_cores * (get_freq(ptr->freq) * 1000000);
-  }
-  if(cpu->feat->NEON) *flops = *flops * 4;
-
-  return true;
 }
 
 char* get_str_features(struct cpuInfo* cpu) {

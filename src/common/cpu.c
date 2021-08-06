@@ -151,24 +151,25 @@ char* get_str_freq(struct frequency* freq) {
   return string;
 }
 
-char* get_str_peak_performance(double flops, bool valid_flops) {
+char* get_str_peak_performance(int64_t flops) {
   char* str;
 
-  if(!valid_flops) {
+  if(flops == -1) {
     str = emalloc(sizeof(char) * (strlen(STRING_UNKNOWN) + 1));
     strncpy(str, STRING_UNKNOWN, strlen(STRING_UNKNOWN) + 1);
   }
 
   // 7 for digits (e.g, XXXX.XX), 7 for XFLOP/s
+  double flopsd = (double) flops;
   uint32_t max_size = 7+1+7+1;
   str = ecalloc(max_size, sizeof(char));
 
-  if(flops >= (double)1000000000000.0)
-    snprintf(str, max_size, "%.2f TFLOP/s", flops/1000000000000);
-  else if(flops >= 1000000000.0)
-    snprintf(str, max_size, "%.2f GFLOP/s", flops/1000000000);
+  if(flopsd >= (double)1000000000000.0)
+    snprintf(str, max_size, "%.2f TFLOP/s", flopsd/1000000000000);
+  else if(flopsd >= 1000000000.0)
+    snprintf(str, max_size, "%.2f GFLOP/s", flopsd/1000000000);
   else
-    snprintf(str, max_size, "%.2f MFLOP/s", flops/1000000);
+    snprintf(str, max_size, "%.2f MFLOP/s", flopsd/1000000);
 
   return str;
 }

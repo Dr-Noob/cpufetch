@@ -133,6 +133,49 @@ struct uarch* get_cpu_uarch(struct cpuInfo* cpu) {
   return get_uarch_from_cpuid(cpu, efamily, family, emodel, model, (int)stepping);
 }
 
+int64_t get_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64_t freq) {
+  /*
+   * PP = PeakPerformance
+   * SP = SinglePrecision
+   *
+   * PP(SP) =
+   * N_CORES                             *
+   * FREQUENCY                           *
+   * 2(Two vector units)                 *
+   * 2(If cpu has fma)                   *
+   * 16(If AVX512), 8(If AVX), 4(If SSE) *
+   */
+
+  //First, check we have consistent data
+  if(freq == UNKNOWN_FREQ) {
+    return -1;
+  }
+
+  struct features* feat = cpu->feat;
+  int vpus = get_number_of_vpus(cpu);
+  int64_t flops = topo->physical_cores * topo->sockets * (freq*1000000) * vpus;
+
+  if(feat->FMA3 || feat->FMA4)
+    flops = flops*2;
+
+  // Ice Lake has AVX512, but it has 1 VPU for AVX512, while
+  // it has 2 for AVX2. If this is a Ice Lake CPU, we are computing
+  // the peak performance supposing AVX2, not AVX512
+  if(feat->AVX512 && vpus_are_AVX512(cpu))
+    flops = flops*16;
+  else if(feat->AVX || feat->AVX2)
+    flops = flops*8;
+  else if(feat->SSE)
+    flops = flops*4;
+
+  // See https://sites.utexas.edu/jdm4372/2018/01/22/a-peculiar-
+  // throughput-limitation-on-intels-xeon-phi-x200-knights-landing/
+  if(is_knights_landing(cpu))
+    flops = flops * 6 / 7;
+
+  return flops;
+}
+
 struct hypervisor* get_hp_info(bool hv_present) {
   struct hypervisor* hv = emalloc(sizeof(struct hypervisor));
   if(!hv_present) {
@@ -289,6 +332,7 @@ struct cpuInfo* get_cpu_info() {
   cpu->freq = get_frequency_info(cpu);
   cpu->cach = get_cache_info(cpu);
   cpu->topo = get_topology_info(cpu, cpu->cach);
+  cpu->peak_performance = get_peak_performance(cpu, cpu->topo, get_freq(cpu->freq));
 
   if(cpu->cach == NULL || cpu->topo == NULL) {
     return NULL;
@@ -656,49 +700,6 @@ struct frequency* get_frequency_info(struct cpuInfo* cpu) {
 }
 
 // STRING FUNCTIONS
-bool get_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64_t freq, double* flops) {
-  /*
-   * PP = PeakPerformance
-   * SP = SinglePrecision
-   *
-   * PP(SP) =
-   * N_CORES                             *
-   * FREQUENCY                           *
-   * 2(Two vector units)                 *
-   * 2(If cpu has fma)                   *
-   * 16(If AVX512), 8(If AVX), 4(If SSE) *
-   */
-
-  //First, check we have consistent data
-  if(freq == UNKNOWN_FREQ) {
-    return false;
-  }
-
-  struct features* feat = cpu->feat;
-  int vpus = get_number_of_vpus(cpu);
-  *flops = topo->physical_cores * topo->sockets * (freq*1000000) * vpus;
-
-  if(feat->FMA3 || feat->FMA4)
-    *flops = *flops*2;
-
-  // Ice Lake has AVX512, but it has 1 VPU for AVX512, while
-  // it has 2 for AVX2. If this is a Ice Lake CPU, we are computing
-  // the peak performance supposing AVX2, not AVX512
-  if(feat->AVX512 && vpus_are_AVX512(cpu))
-    *flops = *flops*16;
-  else if(feat->AVX || feat->AVX2)
-    *flops = *flops*8;
-  else if(feat->SSE)
-    *flops = *flops*4;
-
-  // See https://sites.utexas.edu/jdm4372/2018/01/22/a-peculiar-
-  // throughput-limitation-on-intels-xeon-phi-x200-knights-landing/
-  if(is_knights_landing(cpu))
-    *flops = *flops * 6 / 7;
-
-  return true;
-}
-
 // TODO: Refactoring
 char* get_str_topology(struct cpuInfo* cpu, struct topology* topo, bool dual_socket) {
   char* string;

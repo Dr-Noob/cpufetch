@@ -132,6 +132,32 @@ struct frequency* get_frequency_info() {
   return freq;
 }
 
+int64_t get_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64_t freq) {
+  /*
+   * Not sure about this
+   * PP(SP) = N_CORES * FREQUENCY * 4(If altivec)
+   */
+
+  //First check we have consistent data
+  if(freq == UNKNOWN_FREQ) {
+    return -1;
+  }
+
+  struct features* feat = cpu->feat;
+  int64_t flops = topo->physical_cores * topo->sockets * (freq * 1000000);
+  if(feat->altivec) flops = flops * 4;
+
+  // POWER9 has the concept called "slices". Each SMT4 core has two super-slices,
+  // and each super-slice is capable of doing two FLOPS per cycle. In the case of
+  // SMT8, it has 4 super-slices, thus four FLOPS per cycle.
+  if(is_power9(cpu->arch)) {
+    int threads_per_core = topo->logical_cores / topo->physical_cores;
+    flops = flops * (threads_per_core / 2);
+  }
+
+  return flops;
+}
+
 struct cpuInfo* get_cpu_info() {
   struct cpuInfo* cpu = emalloc(sizeof(struct cpuInfo));
   struct features* feat = emalloc(sizeof(struct features));
@@ -152,8 +178,8 @@ struct cpuInfo* get_cpu_info() {
   cpu->freq = get_frequency_info();
   cpu->topo = get_topology_info(cpu->cach);
   cpu->cach = get_cache_info(cpu);
-
   feat->altivec = has_altivec(cpu->arch);
+  cpu->peak_performance = get_peak_performance(cpu, cpu->topo, get_freq(cpu->freq));
 
   if(cpu->cach == NULL || cpu->topo == NULL) {
     return NULL;
@@ -168,32 +194,6 @@ char* get_str_altivec(struct cpuInfo* cpu) {
   else strcpy(string, "No");
 
   return string;
-}
-
-bool get_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64_t freq, double* flops) {
-  /*
-   * Not sure about this
-   * PP(SP) = N_CORES * FREQUENCY * 4(If altivec)
-   */
-
-  //First check we have consistent data
-  if(freq == UNKNOWN_FREQ) {
-    return false;
-  }
-
-  struct features* feat = cpu->feat;
-  *flops = topo->physical_cores * topo->sockets * (freq*1000000);
-  if(feat->altivec) *flops = *flops * 4;
-
-  // POWER9 has the concept called "slices". Each SMT4 core has two super-slices,
-  // and each super-slice is capable of doing two FLOPS per cycle. In the case of
-  // SMT8, it has 4 super-slices, thus four FLOPS per cycle.
-  if(is_power9(cpu->arch)) {
-    int threads_per_core = topo->logical_cores / topo->physical_cores;
-    *flops = *flops * (threads_per_core / 2);
-  }
-
-  return true;
 }
 
 char* get_str_topology(struct topology* topo, bool dual_socket) {
