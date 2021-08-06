@@ -210,37 +210,25 @@ char* get_str_topology(struct cpuInfo* cpu, struct topology* topo, bool dual_soc
   return string;
 }
 
-char* get_str_peak_performance(struct cpuInfo* cpu) {
-  //7 for GFLOP/s and 6 for digits,eg 412.14
-  uint32_t size = 7+6+1+1;
-  assert(strlen(STRING_UNKNOWN)+1 <= size);
-  char* string = emalloc(sizeof(char)*size);
+bool get_peak_performance(struct cpuInfo* cpu, double* flops) {
   struct cpuInfo* ptr = cpu;
 
   //First check we have consistent data
   for(int i=0; i < cpu->num_cpus; ptr = ptr->next_cpu, i++) {
     if(get_freq(ptr->freq) == UNKNOWN_FREQ) {
-      snprintf(string, strlen(STRING_UNKNOWN)+1, STRING_UNKNOWN);
-      return string;
+      return false;
     }
   }
 
-  double flops = 0.0;
+  *flops = 0.0;
 
   ptr = cpu;
   for(int i=0; i < cpu->num_cpus; ptr = ptr->next_cpu, i++) {
-    flops += ptr->topo->total_cores * (get_freq(ptr->freq) * 1000000);
+    *flops += ptr->topo->total_cores * (get_freq(ptr->freq) * 1000000);
   }
-  if(cpu->feat->NEON) flops = flops * 4;
+  if(cpu->feat->NEON) *flops = *flops * 4;
 
-  if(flops >= (double)1000000000000.0)
-    snprintf(string,size,"%.2f TFLOP/s",flops/1000000000000);
-  else if(flops >= 1000000000.0)
-    snprintf(string,size,"%.2f GFLOP/s",flops/1000000000);
-  else
-    snprintf(string,size,"%.2f MFLOP/s",flops/1000000);
-
-  return string;
+  return true;
 }
 
 char* get_str_features(struct cpuInfo* cpu) {

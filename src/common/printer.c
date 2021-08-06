@@ -446,6 +446,9 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   if(art == NULL)
     return false;
 
+  double flops;
+  bool valid_pp = get_peak_performance(cpu, cpu->topo, get_freq(cpu->freq), &flops);
+
   char* uarch = get_str_uarch(cpu);
   char* manufacturing_process = get_str_process(cpu);
   char* sockets = get_str_sockets(cpu->topo);
@@ -456,12 +459,11 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   char* avx = get_str_avx(cpu);
   char* fma = get_str_fma(cpu);
 
-
   char* l1i = get_str_l1i(cpu->cach);
   char* l1d = get_str_l1d(cpu->cach);
   char* l2 = get_str_l2(cpu->cach);
   char* l3 = get_str_l3(cpu->cach);
-  char* pp = get_str_peak_performance(cpu,cpu->topo,get_freq(cpu->freq));
+  char* pp = get_str_peak_performance(flops, valid_pp);
 
   setAttribute(art,ATTRIBUTE_NAME,cpu_name);
   if(cpu->hv->present) {
@@ -568,6 +570,9 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   if(art == NULL)
     return false;
 
+  double flops;
+  bool valid_pp = get_peak_performance(cpu, cpu->topo, get_freq(cpu->freq), &flops);
+
   char* uarch = get_str_uarch(cpu);
   char* manufacturing_process = get_str_process(cpu);
   char* sockets = get_str_sockets(cpu->topo);
@@ -581,7 +586,7 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
   char* l1d = get_str_l1d(cpu->cach);
   char* l2 = get_str_l2(cpu->cach);
   char* l3 = get_str_l3(cpu->cach);
-  char* pp = get_str_peak_performance(cpu,cpu->topo,get_freq(cpu->freq));
+  char* pp = get_str_peak_performance(flops, valid_pp);
 
   if(cpu_name != NULL) {
     setAttribute(art,ATTRIBUTE_NAME,cpu_name);
@@ -787,7 +792,9 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
       }
     }
   }
-  char* pp = get_str_peak_performance(cpu);
+  double flops;
+  bool valid_pp = get_peak_performance(cpu, &flops);
+  char* pp = get_str_peak_performance(flops, valid_pp);
   setAttribute(art,ATTRIBUTE_PEAK,pp);
 
   if(art->n_attributes_set > NUMBER_OF_LINES) {

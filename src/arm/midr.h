@@ -7,8 +7,9 @@ struct cpuInfo* get_cpu_info();
 
 uint32_t get_nsockets(struct topology* topo);
 char* get_str_topology(struct cpuInfo* cpu, struct topology* topo, bool dual_socket);
-char* get_str_peak_performance(struct cpuInfo* cpu);
 char* get_str_features(struct cpuInfo* cpu);
+
+bool get_peak_performance(struct cpuInfo* cpu, double* flops);
 
 void print_debug(struct cpuInfo* cpu);
 void free_topo_struct(struct topology* topo);

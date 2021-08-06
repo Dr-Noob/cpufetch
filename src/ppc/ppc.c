@@ -170,43 +170,30 @@ char* get_str_altivec(struct cpuInfo* cpu) {
   return string;
 }
 
-char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64_t freq) {
+bool get_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64_t freq, double* flops) {
   /*
    * Not sure about this
    * PP(SP) = N_CORES * FREQUENCY * 4(If altivec)
    */
 
-  //7 for GFLOP/s and 6 for digits,eg 412.14
-  uint32_t size = 7+6+1+1;
-  assert(strlen(STRING_UNKNOWN)+1 <= size);
-  char* string = emalloc(sizeof(char)*size);
-
   //First check we have consistent data
   if(freq == UNKNOWN_FREQ) {
-    snprintf(string,strlen(STRING_UNKNOWN)+1,STRING_UNKNOWN);
-    return string;
+    return false;
   }
 
   struct features* feat = cpu->feat;
-  double flops = topo->physical_cores * topo->sockets * (freq*1000000);
-  if(feat->altivec) flops = flops*4;
+  *flops = topo->physical_cores * topo->sockets * (freq*1000000);
+  if(feat->altivec) *flops = *flops * 4;
 
   // POWER9 has the concept called "slices". Each SMT4 core has two super-slices,
   // and each super-slice is capable of doing two FLOPS per cycle. In the case of
   // SMT8, it has 4 super-slices, thus four FLOPS per cycle.
   if(is_power9(cpu->arch)) {
     int threads_per_core = topo->logical_cores / topo->physical_cores;
-    flops = flops * (threads_per_core / 2);
+    *flops = *flops * (threads_per_core / 2);
   }
 
-  if(flops >= (double)1000000000000.0)
-    snprintf(string,size,"%.2f TFLOP/s",flops/1000000000000);
-  else if(flops >= 1000000000.0)
-    snprintf(string,size,"%.2f GFLOP/s",flops/1000000000);
-  else
-    snprintf(string,size,"%.2f MFLOP/s",flops/1000000);
-
-  return string;
+  return true;
 }
 
 char* get_str_topology(struct topology* topo, bool dual_socket) {

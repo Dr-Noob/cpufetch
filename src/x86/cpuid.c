@@ -655,65 +655,48 @@ struct frequency* get_frequency_info(struct cpuInfo* cpu) {
   return freq;
 }
 
-/*** STRING FUNCTIONS ***/
+// STRING FUNCTIONS
+bool get_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64_t freq, double* flops) {
+  /*
+   * PP = PeakPerformance
+   * SP = SinglePrecision
+   *
+   * PP(SP) =
+   * N_CORES                             *
+   * FREQUENCY                           *
+   * 2(Two vector units)                 *
+   * 2(If cpu has fma)                   *
+   * 16(If AVX512), 8(If AVX), 4(If SSE) *
+   */
 
-char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64_t freq) {
-  /***
-  PP = PeakPerformance
-  SP = SinglePrecision
-
-  PP(SP) =
-  N_CORES                             *
-  FREQUENCY                           *
-  2(Two vector units)                 *
-  2(If cpu has fma)                   *
-  16(If AVX512), 8(If AVX), 4(If SSE) *
-
-  ***/
-
-  //7 for GFLOP/s and 6 for digits,eg 412.14
-  uint32_t size = 7+6+1+1;
-  assert(strlen(STRING_UNKNOWN)+1 <= size);
-  char* string = emalloc(sizeof(char)*size);
-
-  //First check we have consistent data
+  //First, check we have consistent data
   if(freq == UNKNOWN_FREQ) {
-    snprintf(string,strlen(STRING_UNKNOWN)+1,STRING_UNKNOWN);
-    return string;
+    return false;
   }
 
   struct features* feat = cpu->feat;
-  double flops = topo->physical_cores * topo->sockets * (freq*1000000);
   int vpus = get_number_of_vpus(cpu);
-
-  flops = flops * vpus;
+  *flops = topo->physical_cores * topo->sockets * (freq*1000000) * vpus;
 
   if(feat->FMA3 || feat->FMA4)
-    flops = flops*2;
+    *flops = *flops*2;
 
   // Ice Lake has AVX512, but it has 1 VPU for AVX512, while
   // it has 2 for AVX2. If this is a Ice Lake CPU, we are computing
   // the peak performance supposing AVX2, not AVX512
   if(feat->AVX512 && vpus_are_AVX512(cpu))
-    flops = flops*16;
+    *flops = *flops*16;
   else if(feat->AVX || feat->AVX2)
-    flops = flops*8;
+    *flops = *flops*8;
   else if(feat->SSE)
-    flops = flops*4;
+    *flops = *flops*4;
 
   // See https://sites.utexas.edu/jdm4372/2018/01/22/a-peculiar-
   // throughput-limitation-on-intels-xeon-phi-x200-knights-landing/
   if(is_knights_landing(cpu))
-    flops = flops * 6 / 7;
+    *flops = *flops * 6 / 7;
 
-  if(flops >= (double)1000000000000.0)
-    snprintf(string,size,"%.2f TFLOP/s",flops/1000000000000);
-  else if(flops >= 1000000000.0)
-    snprintf(string,size,"%.2f GFLOP/s",flops/1000000000);
-  else
-    snprintf(string,size,"%.2f MFLOP/s",flops/1000000);
-
-  return string;
+  return true;
 }
 
 // TODO: Refactoring
