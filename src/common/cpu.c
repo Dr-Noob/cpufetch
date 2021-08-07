@@ -157,6 +157,7 @@ char* get_str_peak_performance(int64_t flops) {
   if(flops == -1) {
     str = emalloc(sizeof(char) * (strlen(STRING_UNKNOWN) + 1));
     strncpy(str, STRING_UNKNOWN, strlen(STRING_UNKNOWN) + 1);
+    return str;
   }
 
   // 7 for digits (e.g, XXXX.XX), 7 for XFLOP/s
