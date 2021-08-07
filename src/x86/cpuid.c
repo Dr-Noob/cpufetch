@@ -659,7 +659,7 @@ struct frequency* get_frequency_info(struct cpuInfo* cpu) {
     #else
       printWarn("Can't read frequency information from cpuid (needed level is 0x%.8X, max is 0x%.8X). Using udev", 0x00000016, cpu->maxLevels);
       freq->base = UNKNOWN_FREQ;
-      freq->max = get_max_freq_from_file(0, cpu->hv->present);
+      freq->max = get_max_freq_from_file(0);
 
       if(freq->max == 0) {
         printWarn("Read max CPU frequency from udev and got 0 MHz");
@@ -686,7 +686,7 @@ struct frequency* get_frequency_info(struct cpuInfo* cpu) {
       printWarn("Read max CPU frequency from CPUID and got 0 MHz");
       #ifdef __linux__
         printWarn("Using udev to detect frequency");
-        freq->max = get_max_freq_from_file(0, cpu->hv->present);
+        freq->max = get_max_freq_from_file(0);
 
         if(freq->max == 0) {
           printWarn("Read max CPU frequency from udev and got 0 MHz");

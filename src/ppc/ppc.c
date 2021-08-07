@@ -126,8 +126,8 @@ struct uarch* get_cpu_uarch(struct cpuInfo* cpu) {
 struct frequency* get_frequency_info() {
   struct frequency* freq = emalloc(sizeof(struct frequency));
 
-  freq->max = get_max_freq_from_file(0, false);
-  freq->base = get_min_freq_from_file(0, false);
+  freq->max = get_max_freq_from_file(0);
+  freq->base = get_min_freq_from_file(0);
 
   return freq;
 }

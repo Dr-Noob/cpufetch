@@ -29,8 +29,8 @@
 #define DEFAULT_FILE_SIZE       4096
 
 char* read_file(char* path, int* len);
-long get_max_freq_from_file(uint32_t core, bool hv_present);
-long get_min_freq_from_file(uint32_t core, bool hv_present);
+long get_max_freq_from_file(uint32_t core);
+long get_min_freq_from_file(uint32_t core);
 long get_l1i_cache_size(uint32_t core);
 long get_l1d_cache_size(uint32_t core);
 long get_l2_cache_size(uint32_t core);
