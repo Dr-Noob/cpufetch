@@ -702,42 +702,30 @@ struct frequency* get_frequency_info(struct cpuInfo* cpu) {
 }
 
 // STRING FUNCTIONS
-// TODO: Refactoring
 char* get_str_topology(struct cpuInfo* cpu, struct topology* topo, bool dual_socket) {
+  int topo_sockets = dual_socket ? topo->sockets : 1;
   char* string;
+
   if(topo->smt_supported > 1) {
-    //3 for digits, 21 for ' cores (SMT disabled)' which is the longest possible output
-    uint32_t size = 3+21+1;
-    string = emalloc(sizeof(char)*size);
-    if(dual_socket) {
-      if(topo->smt_available > 1)
-        snprintf(string, size, "%d cores (%d threads)",topo->physical_cores * topo->sockets, topo->logical_cores * topo->sockets);
-      else {
-        if(cpu->cpu_vendor == CPU_VENDOR_AMD)
-          snprintf(string, size, "%d cores (SMT disabled)",topo->physical_cores * topo->sockets);
-        else
-          snprintf(string, size, "%d cores (HT disabled)",topo->physical_cores * topo->sockets);
-      }
-    }
+    // 4 for digits, 21 for ' cores (SMT disabled)' which is the longest possible output
+    uint32_t max_size = 4+21+1;
+    string = emalloc(sizeof(char) * max_size);
+
+    if(topo->smt_available > 1)
+      snprintf(string, max_size, "%d cores (%d threads)", topo->physical_cores * topo_sockets, topo->logical_cores * topo_sockets);
     else {
-      if(topo->smt_available > 1)
-        snprintf(string, size, "%d cores (%d threads)",topo->physical_cores,topo->logical_cores);
-      else {
-        if(cpu->cpu_vendor == CPU_VENDOR_AMD)
-          snprintf(string, size, "%d cores (SMT disabled)",topo->physical_cores);
-        else
-          snprintf(string, size, "%d cores (HT disabled)",topo->physical_cores);
-      }
+      if(cpu->cpu_vendor == CPU_VENDOR_AMD)
+        snprintf(string, max_size, "%d cores (SMT disabled)", topo->physical_cores * topo_sockets);
+      else
+        snprintf(string, max_size, "%d cores (HT disabled)", topo->physical_cores * topo_sockets);
     }
   }
   else {
-    uint32_t size = 3+7+1;
-    string = emalloc(sizeof(char)*size);
-    if(dual_socket)
-      snprintf(string, size, "%d cores",topo->physical_cores * topo->sockets);
-    else
-      snprintf(string, size, "%d cores",topo->physical_cores);
+    uint32_t max_size = 4+7+1;
+    string = emalloc(sizeof(char) * max_size);
+    snprintf(string, max_size, "%d cores",topo->physical_cores * topo_sockets);
   }
+
   return string;
 }
 
