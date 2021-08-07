@@ -33,11 +33,11 @@
   static const char* OS_STR = "Unknown OS";
 #endif
 
-static const char* VERSION = "0.98";
+static const char* VERSION = "0.99";
 
 void print_help(char *argv[]) {
   const char **t = args_str;
-  const char *c = args_chr;  
+  const char *c = args_chr;
   int max_len = max_arg_str_length();
 
   printf("Usage: %s [OPTION]...\n", argv[0]);
