@@ -50,8 +50,8 @@ struct topology* get_topology_info(struct cache* cach) {
 
   // 1. Total cores detection
   if((topo->total_cores = sysconf(_SC_NPROCESSORS_ONLN)) == -1) {
-    perror("sysconf");
-    return NULL;
+    printWarn("sysconf(_SC_NPROCESSORS_ONLN): %s", strerror(errno));
+    topo->total_cores = 1; // fallback
   }
 
   // To find physical cores, we use topo->total_cores and core_ids

@@ -16,6 +16,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include "apic.h"
 #include "cpuid_asm.h"
@@ -84,7 +85,7 @@ bool bind_to_cpu(int cpu_id) {
     CPU_ZERO(&currentCPU);
     CPU_SET(cpu_id, &currentCPU);
     if (sched_setaffinity (0, sizeof(currentCPU), &currentCPU) == -1) {
-      perror("sched_setaffinity");
+      printWarn("sched_setaffinity: %s", strerror(errno));
       return false;
     }
     return true;
@@ -93,7 +94,7 @@ bool bind_to_cpu(int cpu_id) {
     CPU_ZERO(&currentCPU);
     CPU_SET(cpu_id, &currentCPU);
     if(cpuset_setaffinity(CPU_LEVEL_WHICH, CPU_WHICH_TID, -1, sizeof(cpuset_t), &currentCPU) == -1) {
-      perror("cpuset_setaffinity");
+      printWarn("cpuset_setaffinity: %s", strerror(errno));
       return false;
     }
     return true;

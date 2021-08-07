@@ -44,8 +44,7 @@ long get_freq_from_file(char* path, bool hv_present) {
   errno = 0;
   long ret = strtol(buf, &end, 10);
   if(errno != 0) {
-    perror("strtol");
-    printBug("Failed parsing '%s' file. Read data was: '%s'", path, buf);
+    printBug("strtol: %s", strerror(errno));
     free(buf);
     return UNKNOWN_FREQ;
   }
@@ -77,8 +76,7 @@ long get_cache_size_from_file(char* path) {
   errno = 0;
   long ret = strtol(buf, &end, 10);
   if(errno != 0) {
-    perror("strtol");
-    printBug("Failed parsing '%s' file. Read data was: '%s'", path, buf);
+    printBug("strtol: %s", strerror(errno));
     free(buf);
     return -1;
   }
@@ -146,8 +144,7 @@ int get_num_caches_from_files(char** paths, int num_paths) {
     errno = 0;
     long ret = strtol(buf, &end, 16);
     if(errno != 0) {
-      perror("strtol");
-      printBug("Failed parsing '%s' file. Read data was: '%s'", paths[i], buf);
+      printBug("strtol: %s", strerror(errno));
       free(buf);
       return -1;
     }

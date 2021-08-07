@@ -27,7 +27,7 @@ int get_ncores_from_cpuinfo() {
   int filelen;
   char* buf;
   if((buf = read_file(_PATH_CPUS_PRESENT, &filelen)) == NULL) {
-    perror("open");
+    printWarn("read_file: %s: %s\n", _PATH_CPUS_PRESENT, strerror(errno));
     return UNKNOWN;
   }
 
@@ -50,7 +50,7 @@ int get_ncores_from_cpuinfo() {
   errno = 0;
   ncores = strtol(ncores_str, &end, 10) + 1;
   if(errno != 0) {
-    perror("strtol");
+    printWarn("strtol: %s:\n", strerror(errno));
     return UNKNOWN;
   }
 
@@ -68,7 +68,7 @@ long parse_cpuinfo_field(char* buf, char* field_str, int field_base) {
   errno = 0;
   long ret = strtol(tmp, &end, field_base);
   if(errno != 0) {
-    perror("strtol");
+    printWarn("strtol: %s:\n", strerror(errno));
     return -1;
   }
 
@@ -81,7 +81,7 @@ uint32_t get_midr_from_cpuinfo(uint32_t core, bool* success) {
   char* buf;
   *success = true;
   if((buf = read_file(_PATH_CPUINFO, &filelen)) == NULL) {
-    perror("open");
+    printWarn("read_file: %s: %s\n", _PATH_CPUINFO, strerror(errno));
     *success = false;
     return 0;
   }
@@ -108,35 +108,35 @@ uint32_t get_midr_from_cpuinfo(uint32_t core, bool* success) {
   long ret;
 
   if ((ret = parse_cpuinfo_field(tmp, CPUINFO_CPU_IMPLEMENTER_STR, 16)) < 0) {
-    printf("Failed parsing cpu_implementer\n");
+    printBug("get_midr_from_cpuinfo: Failed parsing cpu_implementer\n");
     *success = false;
     return 0;
   }
   cpu_implementer = (uint32_t) ret;
 
   if ((ret = parse_cpuinfo_field(tmp, CPUINFO_CPU_ARCHITECTURE_STR, 10)) < 0) {
-    printf("Failed parsing cpu_architecture\n");
+    printBug("get_midr_from_cpuinfo: Failed parsing cpu_architecture\n");
     *success = false;
     return 0;
   }
   cpu_architecture = (uint32_t) 0xF; // Why?
 
   if ((ret = parse_cpuinfo_field(tmp, CPUINFO_CPU_VARIANT_STR, 16)) < 0) {
-    printf("Failed parsing cpu_variant\n");
+    printBug("get_midr_from_cpuinfo: Failed parsing cpu_variant\n");
     *success = false;
     return 0;
   }
   cpu_variant = (uint32_t) ret;
 
   if ((ret = parse_cpuinfo_field(tmp, CPUINFO_CPU_PART_STR, 16)) < 0) {
-    printf("Failed parsing cpu_part\n");
+    printBug("get_midr_from_cpuinfo: Failed parsing cpu_part\n");
     *success = false;
     return 0;
   }
   cpu_part = (uint32_t) ret;
 
   if ((ret = parse_cpuinfo_field(tmp, CPUINFO_CPU_REVISION_STR, 10)) < 0) {
-    printf("Failed parsing cpu_revision\n");
+    printBug("get_midr_from_cpuinfo: Failed parsing cpu_revision\n");
     *success = false;
     return 0;
   }
@@ -155,7 +155,7 @@ char* get_field_from_cpuinfo(char* CPUINFO_FIELD) {
   int filelen;
   char* buf;
   if((buf = read_file(_PATH_CPUINFO, &filelen)) == NULL) {
-    perror("open");
+    printWarn("read_file: %s: %s:\n", _PATH_CPUINFO, strerror(errno));
     return NULL;
   }
 

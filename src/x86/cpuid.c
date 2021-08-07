@@ -435,7 +435,7 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
     topo->total_cores = info.dwNumberOfProcessors;
   #else
     if((topo->total_cores = sysconf(_SC_NPROCESSORS_ONLN)) == -1) {
-      perror("sysconf");
+      printWarn("sysconf(_SC_NPROCESSORS_ONLN): %s", strerror(errno));
       topo->total_cores = topo->logical_cores; // fallback
     }
   #endif
