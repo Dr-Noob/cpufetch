@@ -117,31 +117,21 @@ bool parse_color(char* optarg_str, struct color*** cs) {
   struct color** c = *cs;
   int32_t ret;
   char* str_to_parse = NULL;
-  bool free_ptr;
+  char* color_to_copy = NULL;
+  bool free_ptr = true;
 
-  if(strcmp(optarg_str, COLOR_STR_INTEL) == 0) {
-    str_to_parse = emalloc(sizeof(char) * 46);
-    strcpy(str_to_parse, COLOR_DEFAULT_INTEL);
-    free_ptr = true;
-  }
-  else if(strcmp(optarg_str, COLOR_STR_AMD) == 0) {
-    str_to_parse = emalloc(sizeof(char) * 44);
-    strcpy(str_to_parse, COLOR_DEFAULT_AMD);
-    free_ptr = true;
-  }
-  else if(strcmp(optarg_str, COLOR_STR_IBM) == 0) {
-    str_to_parse = emalloc(sizeof(char) * 45);
-    strcpy(str_to_parse, COLOR_DEFAULT_IBM);
-    free_ptr = true;
-  }
-  else if(strcmp(optarg_str, COLOR_STR_ARM) == 0) {
-    str_to_parse = emalloc(sizeof(char) * 46);
-    strcpy(str_to_parse, COLOR_DEFAULT_ARM);
-    free_ptr = true;
-  }
+  if(strcmp(optarg_str, COLOR_STR_INTEL) == 0) color_to_copy = COLOR_DEFAULT_INTEL;
+  else if(strcmp(optarg_str, COLOR_STR_AMD) == 0) color_to_copy = COLOR_DEFAULT_AMD;
+  else if(strcmp(optarg_str, COLOR_STR_IBM) == 0) color_to_copy = COLOR_DEFAULT_IBM;
+  else if(strcmp(optarg_str, COLOR_STR_ARM) == 0) color_to_copy = COLOR_DEFAULT_ARM;
   else {
     str_to_parse = optarg_str;
     free_ptr = false;
+  }
+
+  if(str_to_parse == NULL) {
+    str_to_parse = emalloc(sizeof(char) * (strlen(color_to_copy) + 1));
+    strcpy(str_to_parse, color_to_copy);
   }
 
   ret = sscanf(str_to_parse, "%d,%d,%d:%d,%d,%d:%d,%d,%d:%d,%d,%d",
