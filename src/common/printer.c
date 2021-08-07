@@ -150,7 +150,7 @@ char* rgb_to_ansi(struct color* c, bool background, bool bold) {
   return str;
 }
 
-struct ascii* set_ascii(VENDOR vendor, STYLE style, struct colors* cs) {
+struct ascii* set_ascii(VENDOR vendor, STYLE style, struct color** cs) {
   char *COL_FANCY_1, *COL_FANCY_2, *COL_FANCY_3, *COL_FANCY_4, *COL_RETRO_1, *COL_RETRO_2, *COL_RETRO_3, *COL_RETRO_4;
   struct ascii* art = emalloc(sizeof(struct ascii));
   art->n_attributes_set = 0;
@@ -278,10 +278,10 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct colors* cs) {
       break;
     case STYLE_FANCY:
       if(cs != NULL) {
-        COL_FANCY_1 = rgb_to_ansi(cs->c1, true, true);
-        COL_FANCY_2 = rgb_to_ansi(cs->c2, true, true);
-        COL_FANCY_3 = rgb_to_ansi(cs->c3, false, true);
-        COL_FANCY_4 = rgb_to_ansi(cs->c4, false, true);
+        COL_FANCY_1 = rgb_to_ansi(cs[0], true, true);
+        COL_FANCY_2 = rgb_to_ansi(cs[1], true, true);
+        COL_FANCY_3 = rgb_to_ansi(cs[2], false, true);
+        COL_FANCY_4 = rgb_to_ansi(cs[3], false, true);
       }
       art->ascii_chars[0] = ' ';
       art->ascii_chars[1] = ' ';
@@ -298,10 +298,10 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct colors* cs) {
       break;
     case STYLE_RETRO:
       if(cs != NULL) {
-        COL_RETRO_1 = rgb_to_ansi(cs->c1, false, true);
-        COL_RETRO_2 = rgb_to_ansi(cs->c2, false, true);
-        COL_RETRO_3 = rgb_to_ansi(cs->c3, false, true);
-        COL_RETRO_4 = rgb_to_ansi(cs->c4, false, true);
+        COL_RETRO_1 = rgb_to_ansi(cs[0], false, true);
+        COL_RETRO_2 = rgb_to_ansi(cs[1], false, true);
+        COL_RETRO_3 = rgb_to_ansi(cs[2], false, true);
+        COL_RETRO_4 = rgb_to_ansi(cs[3], false, true);
       }
       strcpy(art->color1_ascii,COL_RETRO_1);
       strcpy(art->color2_ascii,COL_RETRO_2);
@@ -441,7 +441,7 @@ void print_ascii(struct ascii* art) {
 
 }
 
-bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
+bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs) {
   struct ascii* art = set_ascii(get_cpu_vendor(cpu), s, cs);
   if(art == NULL)
     return false;
@@ -562,7 +562,7 @@ void print_ascii(struct ascii* art) {
   print_ascii_ppc(art, longest_attribute);
 }
 
-bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
+bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct color** cs) {
   struct ascii* art = set_ascii(get_cpu_vendor(cpu), s, cs);
   if(art == NULL)
     return false;
@@ -727,7 +727,7 @@ void print_ascii(struct ascii* art) {
 
 }
 
-bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
+bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct color** cs) {
   struct ascii* art = set_ascii(get_soc_vendor(cpu->soc), s, cs);
   if(art == NULL)
     return false;
@@ -812,7 +812,7 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
 }
 #endif
 
-bool print_cpufetch(struct cpuInfo* cpu, STYLE s, struct colors* cs) {
+bool print_cpufetch(struct cpuInfo* cpu, STYLE s, struct color** cs) {
   // Sanity check of ASCII arts
   int len = sizeof(ASCII_ARRAY) / sizeof(ASCII_ARRAY[0]);
   for(int i=0; i < len; i++) {

@@ -5,6 +5,8 @@
 #include "args.h"
 #include "global.h"
 
+#define NUM_COLORS      4
+
 #define COLOR_STR_INTEL "intel"
 #define COLOR_STR_AMD   "amd"
 #define COLOR_STR_IBM   "ibm"
@@ -25,7 +27,7 @@ struct args_struct {
   bool verbose_flag;
   bool version_flag;
   STYLE style;
-  struct colors* colors;
+  struct color** colors;
 };
 
 const char args_chr[] = {
@@ -54,7 +56,7 @@ STYLE get_style() {
   return args.style;
 }
 
-struct colors* get_colors() {
+struct color** get_colors() {
   return args.colors;
 }
 
@@ -100,24 +102,19 @@ STYLE parse_style(char* style) {
   return i;
 }
 
-void free_colors_struct(struct colors* cs) {
-  free(cs->c1);
-  free(cs->c2);
-  free(cs->c3);
-  free(cs->c4);
+void free_colors_struct(struct color** cs) {
+  for(int i=0; i < NUM_COLORS; i++) {
+    free(cs[i]);
+  }
   free(cs);
 }
 
-bool parse_color(char* optarg_str, struct colors** cs) {
-  *cs = emalloc(sizeof(struct colors));        
-  (*cs)->c1 = emalloc(sizeof(struct color));
-  (*cs)->c2 = emalloc(sizeof(struct color));
-  (*cs)->c3 = emalloc(sizeof(struct color));
-  (*cs)->c4 = emalloc(sizeof(struct color));
-  struct color** c1 = &((*cs)->c1);
-  struct color** c2 = &((*cs)->c2);
-  struct color** c3 = &((*cs)->c3);
-  struct color** c4 = &((*cs)->c4);
+bool parse_color(char* optarg_str, struct color*** cs) {
+  for(int i=0; i < NUM_COLORS; i++) {
+    (*cs)[i] = emalloc(sizeof(struct color));
+  }
+
+  struct color** c = *cs;
   int32_t ret;
   char* str_to_parse = NULL;
   bool free_ptr;
@@ -148,40 +145,29 @@ bool parse_color(char* optarg_str, struct colors** cs) {
   }
 
   ret = sscanf(str_to_parse, "%d,%d,%d:%d,%d,%d:%d,%d,%d:%d,%d,%d",
-               &(*c1)->R, &(*c1)->G, &(*c1)->B,
-               &(*c2)->R, &(*c2)->G, &(*c2)->B,
-               &(*c3)->R, &(*c3)->G, &(*c3)->B,
-               &(*c4)->R, &(*c4)->G, &(*c4)->B);
+               &c[0]->R, &c[0]->G, &c[0]->B,
+               &c[1]->R, &c[1]->G, &c[1]->B,
+               &c[2]->R, &c[2]->G, &c[2]->B,
+               &c[3]->R, &c[3]->G, &c[3]->B);
 
   if(ret != 12) {
     printErr("Expected to read 12 values for color but read %d", ret);
     return false;
   }
 
-  //TODO: Refactor c1->R c2->R ... to c[i]->R
-  if((*c1)->R < 0 || (*c1)->R > 255) {
-    printErr("Red in color 1 is invalid. Must be in range (0, 255)");
-    return false;
-  }
-  if((*c1)->G < 0 || (*c1)->G > 255) {
-    printErr("Green in color 1 is invalid. Must be in range (0, 255)");
-    return false;
-  }
-  if((*c1)->B < 0 || (*c1)->B > 255) {
-    printErr("Blue in color 1 is invalid. Must be in range (0, 255)");
-    return false;
-  }
-  if((*c2)->R < 0 || (*c2)->R > 255) {
-    printErr("Red in color 2 is invalid. Must be in range (0, 255)");
-    return false;
-  }
-  if((*c2)->G < 0 || (*c2)->G > 255) {
-    printErr("Green in color 2 is invalid. Must be in range (0, 255)");
-    return false;
-  }
-  if((*c2)->B < 0 || (*c2)->B > 255) {
-    printErr("Blue in color 2 is invalid. Must be in range (0, 255)");
-    return false;
+  for(int i=0; i < NUM_COLORS; i++) {
+    if(c[i]->R < 0 || c[i]->R > 255) {
+      printErr("Red in color %d is invalid: %d; must be in range (0, 255)", i+1, c[i]->R);
+      return false;
+    }
+    if(c[i]->G < 0 || c[i]->G > 255) {
+      printErr("Green in color %d is invalid: %d; must be in range (0, 255)", i+1, c[i]->G);
+      return false;
+    }
+    if(c[i]->B < 0 || c[i]->B > 255) {
+      printErr("Blue in color %d is invalid: %d; must be in range (0, 255)", i+1, c[i]->B);
+      return false;
+    }
   }
 
   if(free_ptr) free (str_to_parse);
@@ -244,8 +230,8 @@ bool parse_args(int argc, char* argv[]) {
         return false;
       }
       color_flag  = true;
+      args.colors = emalloc(sizeof(struct color *) * NUM_COLORS);
       if(!parse_color(optarg, &args.colors)) {
-        printErr("Color parsing failed");
         return false;
       }
     }

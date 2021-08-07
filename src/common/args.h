@@ -10,13 +10,6 @@ struct color {
   int32_t B;
 };
 
-struct colors {
-  struct color* c1;
-  struct color* c2;
-  struct color* c3;
-  struct color* c4;
-};
-
 enum {
   STYLE_EMPTY,
   STYLE_FANCY,
@@ -48,8 +41,8 @@ bool show_raw();
 bool show_debug();
 bool show_version();
 bool verbose_enabled();
-void free_colors_struct(struct colors* cs);
-struct colors* get_colors();
+void free_colors_struct(struct color** cs);
+struct color** get_colors();
 STYLE get_style();
 
 #endif
