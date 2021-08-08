@@ -322,22 +322,31 @@ void print_ascii_x86(struct ascii* art, uint32_t la) {
   int attr_type;
   char* attr_value;
   uint32_t space_right;
-  uint32_t space_up = (logo->height - art->n_attributes_set)/2;
-  uint32_t space_down = logo->height - art->n_attributes_set - space_up;
+  int32_t space_up = ((int)logo->height - (int)art->n_attributes_set)/2;
+  int32_t space_down = (int)logo->height - (int)art->n_attributes_set - (int)space_up;
   uint32_t logo_pos = 0;
+  int32_t iters = max(logo->height, art->n_attributes_set);
 
   printf("\n");
-  for(uint32_t n=0; n < logo->height; n++) {
-    for(uint32_t i=0; i < logo->width; i++) {
-      if(logo->art[logo_pos] == '$' && logo->art[logo_pos+1] == 'C') {
-        parse_print_color(logo, &logo_pos);
+  for(int32_t n=0; n < iters; n++) {
+    // 1. Print logo
+    if(space_up > 0 || (space_up + n >= 0 && n + space_down < (int)logo->height)) {
+      for(uint32_t i=0; i < logo->width; i++) {
+        if(logo->art[logo_pos] == '$' && logo->art[logo_pos+1] == 'C') {
+          parse_print_color(logo, &logo_pos);
+        }
+        printf("%c", logo->art[logo_pos]);
+        logo_pos++;
       }
-      printf("%c", logo->art[logo_pos]);
-      logo_pos++;
+      printf("%s", art->reset);
     }
-    printf("%s", art->reset);
+    else {
+      // If logo should not be printed, fill with spaces
+      printf("%*c", logo->width, ' ');
+    }
 
-    if(n > space_up-1 && n < logo->height - space_down) {
+    // 2. Print text
+    if(space_up < 0 || (n > space_up-1 && n < (int)logo->height - space_down)) {
       attr_type = art->attributes[attr_to_print]->type;
       attr_value = art->attributes[attr_to_print]->value;
       attr_to_print++;
@@ -355,7 +364,6 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs) {
   if(art == NULL)
     return false;
 
-  struct ascii_logo* logo = art->art;
   char* uarch = get_str_uarch(cpu);
   char* manufacturing_process = get_str_process(cpu);
   char* sockets = get_str_sockets(cpu->topo);
@@ -397,11 +405,6 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs) {
     setAttribute(art,ATTRIBUTE_L3,l3);
   }
   setAttribute(art,ATTRIBUTE_PEAK,pp);
-
-  if(art->n_attributes_set > logo->height) {
-    printBug("The number of attributes set is bigger than the max that can be displayed");
-    return false;
-  }
 
   uint32_t longest_attribute = longest_attribute_length(art);
   print_ascii_x86(art, longest_attribute);
