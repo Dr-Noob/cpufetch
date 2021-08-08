@@ -112,11 +112,6 @@ struct attribute {
 
 struct ascii {
   struct ascii_logo* art;
-  char color1_ascii[100];
-  char color2_ascii[100];
-  char color1_text[100];
-  char color2_text[100];
-  char ascii_chars[2];
   char reset[100];
   struct attribute** attributes;
   uint32_t n_attributes_set;
@@ -151,7 +146,7 @@ char* rgb_to_ansi(struct color* c, bool background, bool bold) {
 }
 
 struct ascii* set_ascii(VENDOR vendor, STYLE style, struct color** cs) {
-  char *COL_FANCY_1, *COL_FANCY_2, *COL_FANCY_3, *COL_FANCY_4, *COL_RETRO_1, *COL_RETRO_2, *COL_RETRO_3, *COL_RETRO_4;
+  char *COL_FANCY_1, *COL_FANCY_2, *COL_RETRO_1, *COL_RETRO_2;
   struct ascii* art = emalloc(sizeof(struct ascii));
   art->n_attributes_set = 0;
   art->additional_spaces = 0;
@@ -168,16 +163,10 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct color** cs) {
   if(art->vendor == CPU_VENDOR_INTEL) {
     COL_FANCY_1 = COLOR_FG_CYAN;
     COL_FANCY_2 = COLOR_FG_WHITE;
-    COL_FANCY_3 = COLOR_FG_CYAN;
-    COL_FANCY_4 = COLOR_FG_WHITE;
-    art->ascii_chars[0] = '#';
   }
   else if(art->vendor == CPU_VENDOR_AMD) {
     COL_FANCY_1 = COLOR_BG_WHITE;
     COL_FANCY_2 = COLOR_BG_GREEN;
-    COL_FANCY_3 = COLOR_FG_WHITE;
-    COL_FANCY_4 = COLOR_FG_GREEN;
-    art->ascii_chars[0] = '@';
   }
   else {
     printBug("Invalid CPU vendor in set_ascii (%d)", art->vendor);
@@ -186,58 +175,36 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct color** cs) {
 #elif ARCH_PPC
   COL_FANCY_1 = COLOR_BG_CYAN;
   COL_FANCY_2 = COLOR_BG_WHITE;
-  COL_FANCY_3 = COLOR_FG_CYAN;
-  COL_FANCY_4 = COLOR_FG_WHITE;
   art->ascii_chars[0] = '#';
 #elif ARCH_ARM
   if(art->vendor == SOC_VENDOR_SNAPDRAGON) {
     COL_FANCY_1 = COLOR_BG_RED;
     COL_FANCY_2 = COLOR_BG_WHITE;
-    COL_FANCY_3 = COLOR_FG_RED;
-    COL_FANCY_4 = COLOR_FG_WHITE;
-    art->ascii_chars[0] = '@';
   }
   else if(art->vendor == SOC_VENDOR_MEDIATEK) {
-    COL_FANCY_1 = COLOR_BG_BLUE;
-    COL_FANCY_2 = COLOR_BG_YELLOW;
-    COL_FANCY_3 = COLOR_FG_WHITE;
-    COL_FANCY_4 = COLOR_FG_BLUE;
-    art->ascii_chars[0] = '@';
+    COL_FANCY_1 = COLOR_FG_WHITE;
+    COL_FANCY_2 = COLOR_FG_BLUE;
   }
   else if(art->vendor == SOC_VENDOR_EXYNOS) {
     COL_FANCY_1 = COLOR_BG_BLUE;
     COL_FANCY_2 = COLOR_BG_WHITE;
-    COL_FANCY_3 = COLOR_FG_BLUE;
-    COL_FANCY_4 = COLOR_FG_WHITE;
-    art->ascii_chars[0] = '@';
   }
   else if(art->vendor == SOC_VENDOR_KIRIN) {
     COL_FANCY_1 = COLOR_BG_WHITE;
     COL_FANCY_2 = COLOR_BG_RED;
-    COL_FANCY_3 = COLOR_FG_WHITE;
-    COL_FANCY_4 = COLOR_FG_RED;
-    art->ascii_chars[0] = '@';
   }
   else if(art->vendor == SOC_VENDOR_BROADCOM) {
     COL_FANCY_1 = COLOR_BG_WHITE;
     COL_FANCY_2 = COLOR_BG_RED;
-    COL_FANCY_3 = COLOR_FG_WHITE;
-    COL_FANCY_4 = COLOR_FG_RED;
-    art->ascii_chars[0] = '@';
   }
   else {
-    COL_FANCY_1 = COLOR_BG_CYAN;
-    COL_FANCY_2 = COLOR_BG_CYAN;
-    COL_FANCY_3 = COLOR_FG_WHITE;
-    COL_FANCY_4 = COLOR_FG_CYAN;
-    art->ascii_chars[0] = '#';
+    COL_FANCY_1 = COLOR_FG_WHITE;
+    COL_FANCY_2 = COLOR_FG_CYAN;
   }
 #endif
-  COL_RETRO_1 = COL_FANCY_3;
-  COL_RETRO_2 = COL_FANCY_4;
-  COL_RETRO_3 = COL_RETRO_1;
-  COL_RETRO_4 = COL_RETRO_2;
-  art->ascii_chars[1] = '#';
+  // TODO
+  COL_RETRO_1 = COL_FANCY_1;
+  COL_RETRO_2 = COL_FANCY_2;
 
   #ifdef _WIN32
     // Old Windows do not define the flag
@@ -270,48 +237,26 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct color** cs) {
 
   switch(art->style) {
     case STYLE_LEGACY:
-      strcpy(art->color1_ascii, COLOR_NONE);
-      strcpy(art->color2_ascii, COLOR_NONE);
-      strcpy(art->color1_text, COLOR_NONE);
-      strcpy(art->color2_text, COLOR_NONE);
       art->reset[0] = '\0';
       break;
     case STYLE_FANCY:
       if(cs != NULL) {
         COL_FANCY_1 = rgb_to_ansi(cs[0], false, true);
         COL_FANCY_2 = rgb_to_ansi(cs[1], false, true);
-        COL_FANCY_3 = rgb_to_ansi(cs[2], false, true);
-        COL_FANCY_4 = rgb_to_ansi(cs[3], false, true);
       }
-      art->ascii_chars[0] = ' ';
-      art->ascii_chars[1] = ' ';
-      strcpy(art->color1_ascii,COL_FANCY_1);
-      strcpy(art->color2_ascii,COL_FANCY_2);
-      strcpy(art->color1_text,COL_FANCY_3);
-      strcpy(art->color2_text,COL_FANCY_4);
       if(cs != NULL) {
         free(COL_FANCY_1);
         free(COL_FANCY_2);
-        free(COL_FANCY_3);
-        free(COL_FANCY_4);
       }
       break;
     case STYLE_RETRO:
       if(cs != NULL) {
         COL_RETRO_1 = rgb_to_ansi(cs[0], false, true);
         COL_RETRO_2 = rgb_to_ansi(cs[1], false, true);
-        COL_RETRO_3 = rgb_to_ansi(cs[2], false, true);
-        COL_RETRO_4 = rgb_to_ansi(cs[3], false, true);
       }
-      strcpy(art->color1_ascii,COL_RETRO_1);
-      strcpy(art->color2_ascii,COL_RETRO_2);
-      strcpy(art->color1_text,COL_RETRO_3);
-      strcpy(art->color2_text,COL_RETRO_4);
       if(cs != NULL) {
         free(COL_RETRO_1);
         free(COL_RETRO_2);
-        free(COL_RETRO_3);
-        free(COL_RETRO_4);
       }
       break;
     case STYLE_INVALID:
@@ -362,6 +307,15 @@ uint32_t longest_attribute_length(struct ascii* art) {
 }
 
 #ifdef ARCH_X86
+void parse_print_color(struct ascii_logo* logo, uint32_t* logo_pos) {
+  char color_id_str = logo->art[*logo_pos + 2];
+  int color_id = (color_id_str - '0') - 1;
+
+  printf("%s", logo->color_ascii[color_id]);
+
+  *logo_pos+=3;
+}
+
 void print_ascii_x86(struct ascii* art, uint32_t la) {
   struct ascii_logo* logo = art->art;
   int attr_to_print = 0;
@@ -370,12 +324,18 @@ void print_ascii_x86(struct ascii* art, uint32_t la) {
   uint32_t space_right;
   uint32_t space_up = (logo->height - art->n_attributes_set)/2;
   uint32_t space_down = logo->height - art->n_attributes_set - space_up;
+  uint32_t logo_pos = 0;
 
   printf("\n");
   for(uint32_t n=0; n < logo->height; n++) {
     for(uint32_t i=0; i < logo->width; i++) {
-      printf("%s%c%s", art->color1_ascii, logo->art[n * logo->width + i], art->reset);
+      if(logo->art[logo_pos] == '$' && logo->art[logo_pos+1] == 'C') {
+        parse_print_color(logo, &logo_pos);
+      }
+      printf("%c", logo->art[logo_pos]);
+      logo_pos++;
     }
+    printf("%s", art->reset);
 
     if(n > space_up-1 && n < logo->height - space_down) {
       attr_type = art->attributes[attr_to_print]->type;
@@ -383,7 +343,7 @@ void print_ascii_x86(struct ascii* art, uint32_t la) {
       attr_to_print++;
 
       space_right = 1 + (la - strlen(ATTRIBUTE_FIELDS[attr_type]));
-      printf("%s%s%s%*s%s%s%s\n", art->color1_text, ATTRIBUTE_FIELDS[attr_type], art->reset, space_right, "", art->color2_text, attr_value, art->reset);
+      printf("%s%s%s%*s%s%s%s\n", logo->color_text[0], ATTRIBUTE_FIELDS[attr_type], art->reset, space_right, "", logo->color_text[1], attr_value, art->reset);
     }
     else printf("\n");
   }
@@ -765,7 +725,7 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct color** cs) {
 
 bool print_cpufetch(struct cpuInfo* cpu, STYLE s, struct color** cs) {
   // Sanity check of ASCII arts
-  int len = sizeof(ASCII_ARRAY) / sizeof(ASCII_ARRAY[0]);
+  /*int len = sizeof(ASCII_ARRAY) / sizeof(ASCII_ARRAY[0]);
   for(int i=0; i < len; i++) {
     const struct ascii_logo* logo = ASCII_ARRAY[i];
     if(strlen(logo->art) != (logo->width * logo->height)) {
@@ -773,7 +733,7 @@ bool print_cpufetch(struct cpuInfo* cpu, STYLE s, struct color** cs) {
                 i, strlen(logo->art), logo->height * logo->width);
       return false;
     }
-  }
+  }*/
 
 #ifdef ARCH_X86
   return print_cpufetch_x86(cpu, s, cs);
