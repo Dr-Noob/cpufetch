@@ -54,25 +54,20 @@ $C1##       ## ###      ###   ##     ##   \
 $C1##       ## ###      ###   #######     "
 
 #define ASCII_INTEL \
-"$C1                              ################                \
-$C1                      #######                #######          \
-$C1                 ####                              ####       \
-$C1             ###                                     ####     \
-$C1        ###                                             ###   \
-$C1        ###                                             ###   \
-$C1     #                    ###                ###        ###   \
-$C1   ##   ###   #########   ######   ######    ###        ###   \
-$C1  ##    ###   ###    ###  ###    ####  ####  ###        ###   \
-$C1 ##     ###   ###    ###  ###    ###    ###  ###       ###    \
-$C1##      ###   ###    ###  ###    ##########  ###     ####     \
-$C1##      ###   ###    ###  ###    ###         ###   #####      \
-$C1##       ##   ###    ###   #####  #########   ##  ###         \
-$C1###                                                           \
-$C1 ###                                                          \
-$C1 ####                                        ####             \
-$C1   #####                               ##########             \
-$C1     ##########               ################                \
-$C1         ###############################                      "
+"$C1                   ##################           \
+$C1               #######              #####       \
+$C1           #####                         ###    \
+$C1       ##                                  ###  \
+$C1    #  ##           ##              ##      ##  \
+$C1  ##       ######   ####   ######   ##      ##  \
+$C1 ##    ##  ##   ##  ##   ###   ###  ##     ###  \
+$C1##     ##  ##   ##  ##   #########  ##    ##    \
+$C1##     ##  ##   ##  ##    ##        ##   ##     \
+$C1##     ##  ##   ##  ####   #####    ##  ##      \
+$C1###                                             \
+$C1 ####                              #####        \
+$C1  ####                     ############         \
+$C1    ############################                "
 
 #define ASCII_SNAPD \
 "              $C1@@$C2########               \
@@ -178,7 +173,7 @@ typedef struct ascii_logo asciiL;
 //                     | LOGO          | W | H | REPLACE | COLORS LOGO (>0 && <10)        | COLORS TEXT (=2)                |
 //                     ------------------------------------------------------------------------------------------------------
 asciiL logo_amd      = { ASCII_AMD,      39, 15, false, {COLOR_FG_WHITE, COLOR_FG_GREEN}, {COLOR_FG_WHITE, COLOR_FG_GREEN}  };
-asciiL logo_intel    = { ASCII_INTEL,    62, 19, false, {COLOR_FG_CYAN},                  {COLOR_FG_CYAN,  COLOR_FG_WHITE}  };
+asciiL logo_intel    = { ASCII_INTEL,    48, 14, false, {COLOR_FG_CYAN},                  {COLOR_FG_CYAN,  COLOR_FG_WHITE}  };
 asciiL logo_snapd    = { ASCII_SNAPD,    39, 16, false, {COLOR_FG_RED, COLOR_FG_WHITE},   {COLOR_FG_RED,   COLOR_FG_WHITE}  };
 asciiL logo_mtk      = { ASCII_MTK,      59,  5, false, {COLOR_FG_BLUE, COLOR_FG_YELLOW}, {COLOR_FG_BLUE,  COLOR_FG_YELLOW} };
 asciiL logo_exynos   = { ASCII_EXYNOS,   22, 13, true,  {COLOR_BG_BLUE, COLOR_FG_WHITE},  {COLOR_FG_BLUE,  COLOR_FG_WHITE}  };
