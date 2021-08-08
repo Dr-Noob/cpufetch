@@ -28,25 +28,6 @@
 #define max(a,b) (((a)>(b))?(a):(b))
 #define MAX_ATTRIBUTES      100
 
-#define COLOR_NONE       ""
-#define COLOR_FG_BLACK   "\x1b[30;1m"
-#define COLOR_FG_RED     "\x1b[31;1m"
-#define COLOR_FG_GREEN   "\x1b[32;1m"
-#define COLOR_FG_YELLOW  "\x1b[33;1m"
-#define COLOR_FG_BLUE    "\x1b[34;1m"
-#define COLOR_FG_MAGENTA "\x1b[35;1m"
-#define COLOR_FG_CYAN    "\x1b[36;1m"
-#define COLOR_FG_WHITE   "\x1b[37;1m"
-#define COLOR_BG_BLACK   "\x1b[40;1m"
-#define COLOR_BG_RED     "\x1b[41;1m"
-#define COLOR_BG_GREEN   "\x1b[42;1m"
-#define COLOR_BG_YELLOW  "\x1b[43;1m"
-#define COLOR_BG_BLUE    "\x1b[44;1m"
-#define COLOR_BG_MAGENTA "\x1b[45;1m"
-#define COLOR_BG_CYAN    "\x1b[46;1m"
-#define COLOR_BG_WHITE   "\x1b[47;1m"
-#define COLOR_RESET      "\x1b[m"
-
 enum {
 #if defined(ARCH_X86) || defined(ARCH_PPC)
   ATTRIBUTE_NAME,
@@ -307,11 +288,17 @@ uint32_t longest_attribute_length(struct ascii* art) {
 }
 
 #ifdef ARCH_X86
-void parse_print_color(struct ascii_logo* logo, uint32_t* logo_pos) {
+void parse_print_color(struct ascii* art, uint32_t* logo_pos) {
+  struct ascii_logo* logo = art->art;
   char color_id_str = logo->art[*logo_pos + 2];
-  int color_id = (color_id_str - '0') - 1;
 
-  printf("%s", logo->color_ascii[color_id]);
+  if(color_id_str == 'R') {
+    printf("%s", art->reset);
+  }
+  else {
+    int color_id = (color_id_str - '0') - 1;
+    printf("%s", logo->color_ascii[color_id]);
+  }
 
   *logo_pos+=3;
 }
@@ -333,9 +320,13 @@ void print_ascii_x86(struct ascii* art, uint32_t la) {
     if(space_up > 0 || (space_up + n >= 0 && space_up + n < (int)logo->height)) {
       for(uint32_t i=0; i < logo->width; i++) {
         if(logo->art[logo_pos] == '$' && logo->art[logo_pos+1] == 'C') {
-          parse_print_color(logo, &logo_pos);
+          parse_print_color(art, &logo_pos);
         }
-        printf("%c", logo->art[logo_pos]);
+        if(logo->replace_blocks && logo->art[logo_pos] == '#')
+          printf("%s%c%s", logo->color_ascii[0], ' ', art->reset);
+        else
+          printf("%c", logo->art[logo_pos]);
+
         logo_pos++;
       }
       printf("%s", art->reset);
@@ -727,17 +718,6 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct color** cs) {
 #endif
 
 bool print_cpufetch(struct cpuInfo* cpu, STYLE s, struct color** cs) {
-  // Sanity check of ASCII arts
-  /*int len = sizeof(ASCII_ARRAY) / sizeof(ASCII_ARRAY[0]);
-  for(int i=0; i < len; i++) {
-    const struct ascii_logo* logo = ASCII_ARRAY[i];
-    if(strlen(logo->art) != (logo->width * logo->height)) {
-      printBug("ASCII art %d is wrong! ASCII length: %d, expected length: %d",
-                i, strlen(logo->art), logo->height * logo->width);
-      return false;
-    }
-  }*/
-
 #ifdef ARCH_X86
   return print_cpufetch_x86(cpu, s, cs);
 #elif ARCH_PPC
