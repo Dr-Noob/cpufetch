@@ -60,7 +60,7 @@ Choose the right package for your operating system:
 If there is no available package for your OS, you can download the cpufetch binary from [the releases page](https://github.com/Dr-Noob/cpufetch/releases), or [build cpufetch from source](#22-building-from-source-linuxwindowsmacos) (see below).
 
 ## 2.2 Building from source (Linux/Windows/macOS)
-Just clone the repo and use `make` to compile it
+You will need a C compiler (e.g, `gcc`), and `make` to compile `cpufetch`. To do so, just clone the repo and run `make`:
 
 ```
 git clone https://github.com/Dr-Noob/cpufetch
