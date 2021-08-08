@@ -1,16 +1,13 @@
 #ifndef __ASCII__
 #define __ASCII__
 
-#define NUMBER_OF_LINES   19
-#define LINE_SIZE         62
-
 struct ascii_logo {
   char* art;
-  int width;
-  int height;
+  uint32_t width;
+  uint32_t height;
 };
 
-#define AMD_ASCII \
+#define ASCII_AMD \
 "                                                              \
                                                               \
                                                               \
@@ -33,7 +30,7 @@ struct ascii_logo {
 
 //       1         2         3         4         5         6
 //3456789012345678901234567890123456789012345678901234567890
-#define INTEL_ASCII \
+#define ASCII_INTEL \
 "                              ################                \
                       #######                #######          \
                  ####                              ####       \
@@ -54,7 +51,7 @@ struct ascii_logo {
      ##########               ################                \
          ###############################                      "
 
-#define SNAPDRAGON_ASCII \
+#define ASCII_SNAPD \
 "                                                              \
                      @@########                               \
                   @@@@@###########                            \
@@ -74,8 +71,8 @@ struct ascii_logo {
                   @@@@###########                             \
                                                               \
                                                               "
-                                                             
-#define MEDIATEK_ASCII \
+
+#define ASCII_MTK \
 "                                                              \
                                                               \
                                                               \
@@ -96,7 +93,7 @@ struct ascii_logo {
                                                               \
                                                               "
 
-#define EXYNOS_ASCII \
+#define ASCII_EXYNOS \
 "                                                              \
                                                               \
                                                               \
@@ -116,8 +113,8 @@ struct ascii_logo {
                                                               \
                                                               \
                                                               "
-                                                              
-#define KIRIN_ASCII \
+
+#define ASCII_KIRIN \
 "                                                              \
                                                               \
                                                               \
@@ -136,9 +133,9 @@ struct ascii_logo {
      #########################                                \
    #########################                                  \
                                                               \
-                                                              "                                                                                                                           
-                                                              
-#define BROADCOM_ASCII \
+                                                              "
+
+#define ASCII_BROADCOM \
 "                                                              \
                     ################                          \
                ##########################                     \
@@ -159,7 +156,7 @@ struct ascii_logo {
                     ###############                           \
                                                               "
 
-#define ARM_ASCII \
+#define ASCII_ARM \
 "                                                              \
                                                               \
                                                               \
@@ -178,10 +175,10 @@ struct ascii_logo {
                                                               \
                                                               \
                                                               \
-                                                              "                                                                                                               
+                                                              "
 
 // jp2a --height=17 ibm.jpg
-#define IBM_ASCII \
+#define ASCII_IBM \
 "                                                              \
                                                               \
                                                               \
@@ -203,7 +200,7 @@ struct ascii_logo {
                                                               "
 
 
-#define UNKNOWN_ASCII \
+#define ASCII_UNKNOWN \
 "                                                              \
                                                               \
                                                               \
@@ -223,7 +220,29 @@ struct ascii_logo {
                                                               \
                                                               \
                                                               "
-static struct ascii_logo logo_intel = { INTEL_ASCII, 62, 19 };
-static struct ascii_logo logo_amd = { AMD_ASCII, 62, 19 };
+
+static struct ascii_logo logo_amd      = { ASCII_AMD,      62, 19 };
+static struct ascii_logo logo_intel    = { ASCII_INTEL,    62, 19 };
+static struct ascii_logo logo_snapd    = { ASCII_SNAPD,    62, 19 };
+static struct ascii_logo logo_mtk      = { ASCII_MTK,      62, 19 };
+static struct ascii_logo logo_exynos   = { ASCII_EXYNOS,   62, 19 };
+static struct ascii_logo logo_kirin    = { ASCII_KIRIN,    62, 19 };
+static struct ascii_logo logo_broadcom = { ASCII_BROADCOM, 62, 19 };
+static struct ascii_logo logo_arm      = { ASCII_ARM,      62, 19 };
+static struct ascii_logo logo_ibm      = { ASCII_IBM,      62, 19 };
+static struct ascii_logo logo_unknown  = { ASCII_UNKNOWN,  62, 19 };
+
+static struct ascii_logo* ASCII_ARRAY [] = {
+  &logo_amd,
+  &logo_intel,
+  &logo_snapd,
+  &logo_mtk,
+  &logo_exynos,
+  &logo_kirin,
+  &logo_broadcom,
+  &logo_arm,
+  &logo_ibm,
+  &logo_unknown
+};
 
 #endif

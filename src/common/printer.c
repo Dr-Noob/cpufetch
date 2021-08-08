@@ -320,29 +320,28 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct color** cs) {
       return NULL;
   }
 
-  char tmp[NUMBER_OF_LINES * LINE_SIZE + 1];
 #ifdef ARCH_X86
   if(art->vendor == CPU_VENDOR_INTEL)
     art->art = &logo_intel;
   else if(art->vendor == CPU_VENDOR_AMD)
     art->art = &logo_amd;
   else
-    strcpy(tmp, UNKNOWN_ASCII);
+    art->art = &logo_unknown;
 #elif ARCH_PPC
-  strcpy(tmp, IBM_ASCII);
+  art->art = &logo_ibm;
 #elif ARCH_ARM
   if(art->vendor == SOC_VENDOR_SNAPDRAGON)
-    strcpy(tmp, SNAPDRAGON_ASCII);
+    art->art = &logo_snapd;
   else if(art->vendor == SOC_VENDOR_MEDIATEK)
-    strcpy(tmp, MEDIATEK_ASCII);
+    art->art = &logo_mtk;
   else if(art->vendor == SOC_VENDOR_EXYNOS)
-    strcpy(tmp, EXYNOS_ASCII);
+    art->art = &logo_exynos;
   else if(art->vendor == SOC_VENDOR_KIRIN)
-    strcpy(tmp, KIRIN_ASCII);
+    art->art = &logo_kirin;
   else if(art->vendor == SOC_VENDOR_BROADCOM)
-    strcpy(tmp, BROADCOM_ASCII);
+    art->art = &logo_broadcom;
   else
-    strcpy(tmp, ARM_ASCII);
+    art->art = &logo_unknown;
 #endif
 
   return art;
@@ -363,31 +362,22 @@ uint32_t longest_attribute_length(struct ascii* art) {
 }
 
 #ifdef ARCH_X86
-void print_algorithm_intel(struct ascii* art, int n, bool* flag) {
+void print_ascii_x86(struct ascii* art, uint32_t la) {
   struct ascii_logo* logo = art->art;
-
-  for(int i=0; i < logo->width; i++) {
-    printf("%s%c%s", art->color1_ascii, logo->art[n * logo->width + i], art->reset);
-  }
-}
-
-void print_algorithm_amd(struct ascii* art, int n, bool* flag) {
-}
-
-void print_ascii_x86(struct ascii* art, uint32_t la, void (*callback_print_algorithm)(struct ascii* art, int i, bool* flag)) {
   int attr_to_print = 0;
   int attr_type;
   char* attr_value;
   uint32_t space_right;
-  uint32_t space_up = (NUMBER_OF_LINES - art->n_attributes_set)/2;
-  uint32_t space_down = NUMBER_OF_LINES - art->n_attributes_set - space_up;
-  bool flag = false;
+  uint32_t space_up = (logo->height - art->n_attributes_set)/2;
+  uint32_t space_down = logo->height - art->n_attributes_set - space_up;
 
   printf("\n");
-  for(uint32_t n=0;n<NUMBER_OF_LINES;n++) {
-    callback_print_algorithm(art, n, &flag);
+  for(uint32_t n=0; n < logo->height; n++) {
+    for(uint32_t i=0; i < logo->width; i++) {
+      printf("%s%c%s", art->color1_ascii, logo->art[n * logo->width + i], art->reset);
+    }
 
-    if(n > space_up-1 && n < NUMBER_OF_LINES-space_down) {
+    if(n > space_up-1 && n < logo->height - space_down) {
       attr_type = art->attributes[attr_to_print]->type;
       attr_value = art->attributes[attr_to_print]->value;
       attr_to_print++;
@@ -400,24 +390,12 @@ void print_ascii_x86(struct ascii* art, uint32_t la, void (*callback_print_algor
   printf("\n");
 }
 
-void print_ascii(struct ascii* art) {
-  uint32_t longest_attribute = longest_attribute_length(art);
-
-  if(art->vendor == CPU_VENDOR_INTEL)
-    print_ascii_x86(art, longest_attribute, &print_algorithm_intel);
-  else if(art->vendor == CPU_VENDOR_AMD)
-    print_ascii_x86(art, longest_attribute, &print_algorithm_amd);
-  else {
-    printBug("Invalid CPU vendor: %d\n", art->vendor);
-  }
-
-}
-
 bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs) {
   struct ascii* art = set_ascii(get_cpu_vendor(cpu), s, cs);
   if(art == NULL)
     return false;
 
+  struct ascii_logo* logo = art->art;
   char* uarch = get_str_uarch(cpu);
   char* manufacturing_process = get_str_process(cpu);
   char* sockets = get_str_sockets(cpu->topo);
@@ -460,12 +438,13 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs) {
   }
   setAttribute(art,ATTRIBUTE_PEAK,pp);
 
-  if(art->n_attributes_set > NUMBER_OF_LINES) {
+  if(art->n_attributes_set > logo->height) {
     printBug("The number of attributes set is bigger than the max that can be displayed");
     return false;
   }
 
-  print_ascii(art);
+  uint32_t longest_attribute = longest_attribute_length(art);
+  print_ascii_x86(art, longest_attribute);
 
   free(manufacturing_process);
   free(max_frequency);
@@ -786,7 +765,15 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct color** cs) {
 
 bool print_cpufetch(struct cpuInfo* cpu, STYLE s, struct color** cs) {
   // Sanity check of ASCII arts
-  // TODO with new logos
+  int len = sizeof(ASCII_ARRAY) / sizeof(ASCII_ARRAY[0]);
+  for(int i=0; i < len; i++) {
+    const struct ascii_logo* logo = ASCII_ARRAY[i];
+    if(strlen(logo->art) != (logo->width * logo->height)) {
+      printBug("ASCII art %d is wrong! ASCII length: %d, expected length: %d",
+                i, strlen(logo->art), logo->height * logo->width);
+      return false;
+    }
+  }
 
 #ifdef ARCH_X86
   return print_cpufetch_x86(cpu, s, cs);
