@@ -4,6 +4,12 @@
 #define NUMBER_OF_LINES   19
 #define LINE_SIZE         62
 
+struct ascii_logo {
+  char* art;
+  int width;
+  int height;
+};
+
 #define AMD_ASCII \
 "                                                              \
                                                               \
@@ -25,6 +31,8 @@
                                                               \
                                                               "
 
+//       1         2         3         4         5         6
+//3456789012345678901234567890123456789012345678901234567890
 #define INTEL_ASCII \
 "                              ################                \
                       #######                #######          \
@@ -45,7 +53,7 @@
    #####                               ##########             \
      ##########               ################                \
          ###############################                      "
-                                                             
+
 #define SNAPDRAGON_ASCII \
 "                                                              \
                      @@########                               \
@@ -150,7 +158,7 @@
                 ########################                      \
                     ###############                           \
                                                               "
-                                                                                                              
+
 #define ARM_ASCII \
 "                                                              \
                                                               \
@@ -215,18 +223,7 @@
                                                               \
                                                               \
                                                               "
-                                                             
-static const char* ASCII_ARRAY [] = {
-  AMD_ASCII,
-  INTEL_ASCII,
-  ARM_ASCII,
-  SNAPDRAGON_ASCII,
-  MEDIATEK_ASCII,
-  EXYNOS_ASCII,
-  KIRIN_ASCII,
-  BROADCOM_ASCII,
-  IBM_ASCII,
-  UNKNOWN_ASCII
-};                                                             
+static struct ascii_logo logo_intel = { INTEL_ASCII, 62, 19 };
+static struct ascii_logo logo_amd = { AMD_ASCII, 62, 19 };
 
 #endif

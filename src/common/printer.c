@@ -111,7 +111,7 @@ struct attribute {
 };
 
 struct ascii {
-  char art[NUMBER_OF_LINES][LINE_SIZE+1];
+  struct ascii_logo* art;
   char color1_ascii[100];
   char color2_ascii[100];
   char color1_text[100];
@@ -166,8 +166,8 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct color** cs) {
 
 #ifdef ARCH_X86
   if(art->vendor == CPU_VENDOR_INTEL) {
-    COL_FANCY_1 = COLOR_BG_CYAN;
-    COL_FANCY_2 = COLOR_BG_WHITE;
+    COL_FANCY_1 = COLOR_FG_CYAN;
+    COL_FANCY_2 = COLOR_FG_WHITE;
     COL_FANCY_3 = COLOR_FG_CYAN;
     COL_FANCY_4 = COLOR_FG_WHITE;
     art->ascii_chars[0] = '#';
@@ -278,8 +278,8 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct color** cs) {
       break;
     case STYLE_FANCY:
       if(cs != NULL) {
-        COL_FANCY_1 = rgb_to_ansi(cs[0], true, true);
-        COL_FANCY_2 = rgb_to_ansi(cs[1], true, true);
+        COL_FANCY_1 = rgb_to_ansi(cs[0], false, true);
+        COL_FANCY_2 = rgb_to_ansi(cs[1], false, true);
         COL_FANCY_3 = rgb_to_ansi(cs[2], false, true);
         COL_FANCY_4 = rgb_to_ansi(cs[3], false, true);
       }
@@ -323,9 +323,9 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct color** cs) {
   char tmp[NUMBER_OF_LINES * LINE_SIZE + 1];
 #ifdef ARCH_X86
   if(art->vendor == CPU_VENDOR_INTEL)
-    strcpy(tmp, INTEL_ASCII);
+    art->art = &logo_intel;
   else if(art->vendor == CPU_VENDOR_AMD)
-    strcpy(tmp, AMD_ASCII);
+    art->art = &logo_amd;
   else
     strcpy(tmp, UNKNOWN_ASCII);
 #elif ARCH_PPC
@@ -344,9 +344,6 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct color** cs) {
   else
     strcpy(tmp, ARM_ASCII);
 #endif
-
-  for(int i=0; i < NUMBER_OF_LINES; i++)
-    memcpy(art->art[i], tmp + i*LINE_SIZE, LINE_SIZE);
 
   return art;
 }
@@ -367,39 +364,14 @@ uint32_t longest_attribute_length(struct ascii* art) {
 
 #ifdef ARCH_X86
 void print_algorithm_intel(struct ascii* art, int n, bool* flag) {
-  for(int i=0; i < LINE_SIZE; i++) {
-    if(*flag) {
-      if(art->art[n][i] == ' ') {
-        *flag = false;
-        printf("%s%c%s", art->color2_ascii, art->ascii_chars[1], art->reset);
-      }
-      else {
-        printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
-      }
-    }
-    else {
-      if(art->art[n][i] != ' ' && art->art[n][i] != '\0') {
-        *flag = true;
-        printf("%c",' ');
-      }
-      else {
-        printf("%c",' ');
-      }
-    }
+  struct ascii_logo* logo = art->art;
+
+  for(int i=0; i < logo->width; i++) {
+    printf("%s%c%s", art->color1_ascii, logo->art[n * logo->width + i], art->reset);
   }
 }
 
 void print_algorithm_amd(struct ascii* art, int n, bool* flag) {
-  *flag = false; // dummy, just silence compiler error
-
-  for(int i=0; i < LINE_SIZE; i++) {
-    if(art->art[n][i] == '@')
-      printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
-    else if(art->art[n][i] == '#')
-      printf("%s%c%s", art->color2_ascii, art->ascii_chars[1], art->reset);
-    else
-      printf("%c",art->art[n][i]);
-  }
 }
 
 void print_ascii_x86(struct ascii* art, uint32_t la, void (*callback_print_algorithm)(struct ascii* art, int i, bool* flag)) {
@@ -814,14 +786,7 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct color** cs) {
 
 bool print_cpufetch(struct cpuInfo* cpu, STYLE s, struct color** cs) {
   // Sanity check of ASCII arts
-  int len = sizeof(ASCII_ARRAY) / sizeof(ASCII_ARRAY[0]);
-  for(int i=0; i < len; i++) {
-    const char* ascii = ASCII_ARRAY[i];
-    if(strlen(ascii) != (NUMBER_OF_LINES * LINE_SIZE)) {
-      printBug("ASCII art %d is wrong! ASCII length: %d, expected length: %d", i, strlen(ascii), (NUMBER_OF_LINES * LINE_SIZE));
-      return false;
-    }
-  }
+  // TODO with new logos
 
 #ifdef ARCH_X86
   return print_cpufetch_x86(cpu, s, cs);
