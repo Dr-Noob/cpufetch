@@ -136,38 +136,27 @@ $C2             ###############                \
 $C2                                            "
 
 #define ASCII_ARM \
-"                                                              \
-                                                              \
-                                                              \
-                                                              \
-                                                              \
-                                                              \
-      ############     ##########   ####  ######  ########    \
-   ###############     #########    #######################   \
-  ####        ####     ####         #####   #######   #####   \
- ####         ####     ####         ####     #####     ####   \
- ####         ####     ####         ####     ####      ####   \
-  ####       #####     ####         ####     ####      ####   \
-   ###############     ####         ####     ####      ####   \
-    ########  ####     ####         ####     ####      ####   \
-                                                              \
-                                                              \
-                                                              \
-                                                              \
-                                                              "
+"$C1   +###+ +##   #######  #######  ######   \
+$C1 ###    ####   ###      ####  ###   ###   \
+$C1###       ##   ###      ###    ##    ###  \
+$C1 ##       ##   ###      ###    ##    ###  \
+$C1  ###### ###   ###      ###    ##    ###  "
 
-// jp2a --width=50 ibm.jpg
+// jp2a --height=17 ibm.jpg
 #define ASCII_IBM \
-"$C1########## #############   #######       #######  \
-$C1########## ##############    ######     ######    \
-$C1########## ###############   #######   #######    \
-$C1   ####       ####    ####   ######## ########    \
-$C1   ####       ###########    #################    \
-$C1   ####       ###########    #################    \
-$C1   ####       ####   #####   #### ####### ####    \
-$C1########## ############### ######  #####  ######  \
-$C1########## ##############  ######   ###   ######  \
-$C1########## #############   ######    #    ######  "
+"$C1######### ################   #########        #########  \
+$C1                                                         \
+$C1######### ##################  ##########    ##########   \
+$C1                                                         \
+$C1  #####      ######    ######   ####################     \
+$C1                                                         \
+$C1  #####      ##############     ####################     \
+$C1                                                         \
+$C1  #####      ######    ######   #####  ######  #####     \
+$C1                                                         \
+$C1######### ################## ########   ####   ########  \
+$C1                                                         \
+$C1######### ################   ########    ##    ########  "
 
 #define ASCII_UNKNOWN \
 "                                                              \
@@ -199,8 +188,8 @@ static struct ascii_logo logo_mtk      = { ASCII_MTK,      59,  5, {COLOR_BLUE, 
 static struct ascii_logo logo_exynos   = { ASCII_EXYNOS,   22, 13, {COLOR_BLUE, COLOR_WHITE},  {COLOR_BLUE,  COLOR_WHITE}, };
 static struct ascii_logo logo_kirin    = { ASCII_KIRIN,    53, 12, {COLOR_RED},                {COLOR_WHITE, COLOR_RED}    };
 static struct ascii_logo logo_broadcom = { ASCII_BROADCOM, 44, 19, {COLOR_WHITE, COLOR_RED},   {COLOR_WHITE, COLOR_RED}    };
-static struct ascii_logo logo_arm      = { ASCII_ARM,      62, 19, {COLOR_CYAN},               {COLOR_WHITE, COLOR_CYAN}   };
-static struct ascii_logo logo_ibm      = { ASCII_IBM,      50, 10, {COLOR_CYAN, COLOR_WHITE},  {COLOR_CYAN,  COLOR_WHITE}, };
+static struct ascii_logo logo_arm      = { ASCII_ARM,      42,  5, {COLOR_CYAN},               {COLOR_WHITE, COLOR_CYAN}   };
+static struct ascii_logo logo_ibm      = { ASCII_IBM,      57, 14, {COLOR_CYAN, COLOR_WHITE},  {COLOR_CYAN,  COLOR_WHITE}, };
 static struct ascii_logo logo_unknown  = { ASCII_UNKNOWN,  62, 19, {COLOR_BLUE},               {COLOR_BLUE}                };
 
 static struct ascii_logo* ASCII_ARRAY [] = {
