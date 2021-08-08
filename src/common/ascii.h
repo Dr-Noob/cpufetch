@@ -168,8 +168,8 @@ static struct ascii_logo logo_exynos   = { ASCII_EXYNOS,   22, 13, {COLOR_BLUE, 
 static struct ascii_logo logo_kirin    = { ASCII_KIRIN,    53, 12, {COLOR_RED},                {COLOR_WHITE, COLOR_RED}    };
 static struct ascii_logo logo_broadcom = { ASCII_BROADCOM, 44, 19, {COLOR_WHITE, COLOR_RED},   {COLOR_WHITE, COLOR_RED}    };
 static struct ascii_logo logo_arm      = { ASCII_ARM,      42,  5, {COLOR_CYAN},               {COLOR_WHITE, COLOR_CYAN}   };
-static struct ascii_logo logo_ibm      = { ASCII_IBM,      57, 14, {COLOR_CYAN, COLOR_WHITE},  {COLOR_CYAN,  COLOR_WHITE}  };
-static struct ascii_logo logo_unknown  = { NULL,            0,  0, { },                        {"",          ""}           };
+static struct ascii_logo logo_ibm      = { ASCII_IBM,      57, 13, {COLOR_CYAN, COLOR_WHITE},  {COLOR_CYAN,  COLOR_WHITE}  };
+static struct ascii_logo logo_unknown  = { NULL,            0,  0, {"" },                      {"",          ""}           };
 
 static struct ascii_logo* ASCII_ARRAY [] = {
   &logo_amd,

@@ -330,7 +330,7 @@ void print_ascii_x86(struct ascii* art, uint32_t la) {
   printf("\n");
   for(int32_t n=0; n < iters; n++) {
     // 1. Print logo
-    if(space_up > 0 || (space_up + n >= 0 && n + space_down < (int)logo->height)) {
+    if(space_up > 0 || (space_up + n >= 0 && space_up + n < (int)logo->height)) {
       for(uint32_t i=0; i < logo->width; i++) {
         if(logo->art[logo_pos] == '$' && logo->art[logo_pos+1] == 'C') {
           parse_print_color(logo, &logo_pos);
