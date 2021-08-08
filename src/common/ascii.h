@@ -21,21 +21,21 @@ struct ascii_logo {
 //           1         2         3         4         5         6
 //0123456789012345678901234567890123456789012345678901234567890
 #define ASCII_AMD \
-"$C2           ':::::::::::::::                \
-$C2              ,ccccccccccccc               \
-$C2                       .cccc               \
-$C2               ;.      .cccc               \
-$C2             ::c.      .cccc               \
-$C2            :ccc.      .cccc               \
-$C2            cccc:::::.   :cc               \
-$C2            ccccccc.       ;               \
-                                           \
-$C1    @@@@      @@@       @@@   @@@@@@@@     \
-$C1   @@@@@@     @@@@@   @@@@@   @@@    @@@   \
-$C1  @@@  @@@    @@@@@@@@@@@@@   @@@      @@  \
-$C1 @@@    @@@   @@@  @@@  @@@   @@@      @@  \
-$C1@@@@@@@@@@@@  @@@       @@@   @@@    @@@   \
-$C1@@@      @@@  @@@       @@@   @@@@@@@@@    "
+"$C2          '###############             \
+$C2             ,#############            \
+$C2                      .####            \
+$C2              #.      .####            \
+$C2            :##.      .####            \
+$C2           :###.      .####            \
+$C2           #########.   :##            \
+$C2           #######.       ;            \
+$C1                                       \
+$C1    ###     ###      ###   #######     \
+$C1   ## ##    #####  #####   ##     ##   \
+$C1  ##   ##   ### #### ###   ##      ##  \
+$C1 #########  ###  ##  ###   ##      ##  \
+$C1##       ## ###      ###   ##     ##   \
+$C1##       ## ###      ###   #######     "
 
 //           1         2         3         4         5         6
 //  123456789012345678901234567890123456789012345678901234567890
@@ -232,7 +232,7 @@ $C1   #########################                                  \
 
 //                                         LOGO            W   H   COLORS LOGO (>0 && <10)     COLORS TEXT (=2)
 //                                         --------------------------------------------------------------------------------
-static struct ascii_logo logo_amd      = { ASCII_AMD,      43, 15, {COLOR_WHITE, COLOR_GREEN}, {COLOR_WHITE, COLOR_GREEN}  };
+static struct ascii_logo logo_amd      = { ASCII_AMD,      39, 15, {COLOR_WHITE, COLOR_GREEN}, {COLOR_WHITE, COLOR_GREEN}  };
 static struct ascii_logo logo_intel    = { ASCII_INTEL,    62, 19, {COLOR_CYAN},               {COLOR_CYAN,  COLOR_WHITE}  };
 static struct ascii_logo logo_snapd    = { ASCII_SNAPD,    62, 19, {COLOR_RED, COLOR_WHITE},   {COLOR_RED,   COLOR_WHITE}  };
 static struct ascii_logo logo_mtk      = { ASCII_MTK,      62, 19, {COLOR_BLUE, COLOR_YELLOW}, {COLOR_BLUE,  COLOR_YELLOW} };
