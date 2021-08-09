@@ -8,7 +8,7 @@
 [![Packaging status](https://repology.org/badge/tiny-repos/cpufetch.svg)](https://repology.org/project/cpufetch/versions)
 [![License](https://img.shields.io/github/license/Dr-Noob/cpufetch?color=orange)](https://github.com/Dr-Noob/cpufetch/blob/master/LICENSE)
 
-<h4 align="center">Simple yet fancy CPU architecture fetching tool</h4>
+<h4 align="center">Pimple yet fancy CPU architecture fetching tool</h4>
 &nbsp;
 
 ![cpu1](pictures/i9.png)
