@@ -26,7 +26,9 @@
   #include <Windows.h>
 #else
   #ifdef  __linux__
-    #define _POSIX_C_SOURCE 199309L
+    #ifndef _POSIX_C_SOURCE
+      #define _POSIX_C_SOURCE 199309L
+    #endif
   #endif
   #include <sys/ioctl.h>
   #include <unistd.h>
@@ -168,7 +170,6 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct color** cs) {
 #elif ARCH_PPC
   COL_FANCY_1 = COLOR_BG_CYAN;
   COL_FANCY_2 = COLOR_BG_WHITE;
-  art->ascii_chars[0] = '#';
 #elif ARCH_ARM
   if(art->vendor == SOC_VENDOR_SNAPDRAGON) {
     COL_FANCY_1 = COLOR_BG_RED;
@@ -352,8 +353,8 @@ uint32_t longest_field_length(struct ascii* art, int la) {
   return max;
 }
 
-#ifdef ARCH_X86
-void print_ascii_x86(struct ascii* art, uint32_t la) {
+#if defined(ARCH_X86) || defined(ARCH_PPC)
+void print_ascii_generic(struct ascii* art, uint32_t la) {
   struct ascii_logo* logo = art->art;
   int attr_to_print = 0;
   int attr_type;
@@ -402,7 +403,9 @@ void print_ascii_x86(struct ascii* art, uint32_t la) {
   }
   printf("\n");
 }
+#endif
 
+#ifdef ARCH_X86
 bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs, struct terminal* term) {
   struct ascii* art = set_ascii(get_cpu_vendor(cpu), s, cs);
   if(art == NULL)
@@ -454,7 +457,7 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
   uint32_t longest_field = longest_field_length(art, longest_attribute);
   choose_ascii_art(art, term, longest_field);
 
-  print_ascii_x86(art, longest_attribute);
+  print_ascii_generic(art, longest_attribute);
 
   free(manufacturing_process);
   free(max_frequency);
@@ -483,46 +486,7 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
 #endif
 
 #ifdef ARCH_PPC
-void print_algorithm_ppc(struct ascii* art, int n) {
-  for(int i=0; i < LINE_SIZE; i++) {
-    if(art->art[n][i] == '#')
-      printf("%s%c%s", art->color1_ascii, art->ascii_chars[0], art->reset);
-    else
-      printf("%c",art->art[n][i]);
-  }
-}
-
-void print_ascii_ppc(struct ascii* art, uint32_t la) {
-  int attr_to_print = 0;
-  int attr_type;
-  char* attr_value;
-  uint32_t space_right;
-  uint32_t space_up = (NUMBER_OF_LINES - art->n_attributes_set)/2;
-  uint32_t space_down = NUMBER_OF_LINES - art->n_attributes_set - space_up;
-
-  printf("\n");
-  for(uint32_t n=0;n<NUMBER_OF_LINES;n++) {
-    print_algorithm_ppc(art, n);
-
-    if(n > space_up-1 && n < NUMBER_OF_LINES-space_down) {
-      attr_type = art->attributes[attr_to_print]->type;
-      attr_value = art->attributes[attr_to_print]->value;
-      attr_to_print++;
-
-      space_right = 1 + (la - strlen(ATTRIBUTE_FIELDS[attr_type]));
-      printf("%s%s%s%*s%s%s%s\n", art->color1_text, ATTRIBUTE_FIELDS[attr_type], art->reset, space_right, "", art->color2_text, attr_value, art->reset);
-    }
-    else printf("\n");
-  }
-  printf("\n");
-}
-
-/*void print_ascii(struct ascii* art) {
-  uint32_t longest_attribute = longest_attribute_length(art);
-  print_ascii_ppc(art, longest_attribute);
-}*/
-
-bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct color** cs) {
+bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct color** cs, struct terminal* term) {
   struct ascii* art = set_ascii(get_cpu_vendor(cpu), s, cs);
   if(art == NULL)
     return false;
@@ -566,12 +530,11 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct color** cs) {
   }
   setAttribute(art,ATTRIBUTE_PEAK,pp);
 
-  if(art->n_attributes_set > NUMBER_OF_LINES) {
-    printBug("The number of attributes set is bigger than the max that can be displayed");
-    return false;
-  }
+  uint32_t longest_attribute = longest_attribute_length(art);
+  uint32_t longest_field = longest_field_length(art, longest_attribute);
+  choose_ascii_art(art, term, longest_field);
 
-  print_ascii(art);
+  print_ascii_generic(art, longest_attribute);
 
   return true;
 }
