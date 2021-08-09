@@ -341,6 +341,8 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct color** cs) {
     strcpy(tmp, KIRIN_ASCII);
   else if(art->vendor == SOC_VENDOR_BROADCOM)
     strcpy(tmp, BROADCOM_ASCII);
+  /* else if(art->vendor == SOC_VENDOR_APPLE)
+    strcpy(tmp, M1_ASCII); */
   else
     strcpy(tmp, ARM_ASCII);
 #endif

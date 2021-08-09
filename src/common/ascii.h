@@ -172,7 +172,7 @@
                                                               \
                                                               "                                                                                                               
 
-#define M1_ASCII \
+/* #define M1_ASCII \
 "                                                              \
                                                               \
                                                               \
@@ -191,7 +191,7 @@
       ##############       ###     ###     ###         ###    \
                                                               \
                                                               \
-                                                              "
+                                                              " */
 // jp2a --height=17 ibm.jpg
 #define IBM_ASCII \
 "                                                              \

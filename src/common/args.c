@@ -11,6 +11,7 @@
 #define COLOR_STR_AMD   "amd"
 #define COLOR_STR_IBM   "ibm"
 #define COLOR_STR_ARM   "arm"
+/* #define COLOR_STR_M1   "m1" */
 
 static const char *SYTLES_STR_LIST[] = {
   [STYLE_EMPTY]   = NULL,
@@ -124,6 +125,7 @@ bool parse_color(char* optarg_str, struct color*** cs) {
   else if(strcmp(optarg_str, COLOR_STR_AMD) == 0) color_to_copy = COLOR_DEFAULT_AMD;
   else if(strcmp(optarg_str, COLOR_STR_IBM) == 0) color_to_copy = COLOR_DEFAULT_IBM;
   else if(strcmp(optarg_str, COLOR_STR_ARM) == 0) color_to_copy = COLOR_DEFAULT_ARM;
+  /* else if(strcmp(optarg_str, COLOR_STR_M1) == 0) color_to_copy = COLOR_DEFAULT_M1; */
   else {
     str_to_parse = optarg_str;
     free_ptr = false;

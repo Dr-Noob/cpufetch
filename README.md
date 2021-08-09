@@ -43,13 +43,13 @@ cpufetch supports the following architectures:
 - ARM
 - PowerPC
 
-| OS        | x86_64 / x86              | ARM                | PowerPC            | Notes             |
-|:---------:|:------------------------:|:-------------------:|:------------------:|:----------:|
-| GNU/Linux | :heavy_check_mark:        | :heavy_check_mark: | :heavy_check_mark: | Best support      |
-| Windows   | :heavy_check_mark:        | :x:                | :x:                | Some information may be missing. <br> Colors will be used if supported |
-| Android   | :heavy_exclamation_mark:  | :heavy_check_mark: | :x:                | Some information may be missing. <br> Not tested under x86_64 |
-| macOS     | :heavy_check_mark:        | :x:                | :x:                | Some information may be missing. <br> Apple M1 support may be added <br> in the future (see [#47](https://github.com/Dr-Noob/cpufetch/issues/47))|
-| FreeBSD   | :heavy_check_mark:        | :x:                | :x:                | Some information may be missing.  |
+| OS        | x86_64 / x86              | ARM                     | PowerPC            | Notes             |
+|:---------:|:------------------------:|:------------------------:|:------------------:|:----------:|
+| GNU/Linux | :heavy_check_mark:        | :heavy_check_mark:      | :heavy_check_mark: | Best support      |
+| Windows   | :heavy_check_mark:        | :x:                     | :x:                | Some information may be missing. <br> Colors will be used if supported |
+| Android   | :heavy_exclamation_mark:  | :heavy_check_mark:      | :x:                | Some information may be missing. <br> Not tested under x86_64 |
+| macOS     | :heavy_check_mark:        | :heavy_exclamation_mark:| :x:                | Some information may be missing. <br> Apple M1 support may be added <br> in the future (see [#47](https://github.com/Dr-Noob/cpufetch/issues/47))|
+| FreeBSD   | :heavy_check_mark:        | :x:                     | :x:                | Some information may be missing.  |
 
 # 2. Installation
 ## 2.1 Installing from a package
