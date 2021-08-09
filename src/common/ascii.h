@@ -30,10 +30,18 @@ struct ascii_logo {
 };
 
 /*
- * Brief explanation:
+ * ASCII logos brief documentation
+ * ----------------------------------------------------
  * C1, C2, ...: ColorN, gets replaced by printer.c with
  *              the color in ascii_logo->color_ascii[N]
- * CR:          Color reset, gets replaced by the reset color by printer.c
+ * CR:          Color reset, gets replaced by the reset
+ *              color by printer.c
+ * Logos with replace_blocks are replaced by character
+ * blocks (actually, spaces with background color), so
+ * the color in the structure must be COLOR_BG_XXX. When
+ * replace_blocks is true, the characters '#' are replaced
+ * by spaces printed with color_ascii[0], and '@' are
+ * printed with color_ascii[1]
  */
 
 // SHORT LOGOS //
@@ -191,52 +199,38 @@ $C1  ######  ##   ###      ###    ##    ###  "
                                                               "
 
 #define ASCII_INTEL_L \
-"                              ################                \
-                      #######                #######          \
-                 ####                              ####       \
-             ###                                     ####     \
-        ###                                             ###   \
-        ###                                             ###   \
-     #                    ###                ###        ###   \
-   ##   ###   #########   ######   ######    ###        ###   \
-  ##    ###   ###    ###  ###    ####  ####  ###        ###   \
- ##     ###   ###    ###  ###    ###    ###  ###       ###    \
-##      ###   ###    ###  ###    ##########  ###     ####     \
-##      ###   ###    ###  ###    ###         ###   #####      \
-##       ##   ###    ###   #####  #########   ##  ###         \
-###                                                           \
- ###                                                          \
- ####                                        ####             \
-   #####                               ##########             \
-     ##########               ################                \
-         ###############################                      "
+"                               ###############@               \
+                       ######@                ######@         \
+                  ###@                              ###@      \
+              ##@                                     ###@    \
+         ##@                                             ##@  \
+         ##@                                             ##@  \
+      @                    ##@                ##@        ##@  \
+    #@   ##@   ########@   #####@   #####@    ##@        ##@  \
+   #@    ##@   ##@    ##@  ##@    ###@  ###@  ##@        ##@  \
+  #@     ##@   ##@    ##@  ##@    ##@    ##@  ##@       ##@   \
+ #@      ##@   ##@    ##@  ##@    #########@  ##@     ###@    \
+ #@      ##@   ##@    ##@  ##@    ##@         ##@   ####@     \
+ #@       #@   ##@    ##@   ####@  ########@   #@  ##@        \
+ ##@                                                          \
+  ##@                                                         \
+  ###@                                        ###@            \
+    ####@                               #########@            \
+      #########@               ###############@               \
+          ##############################@                     "
 
 #define ASCII_ARM_L \
-"                                                              \
-                                                              \
-                                                              \
-                                                              \
-                                                              \
-                                                              \
-      ############     ##########   ####  ######  ########    \
-   ###############     #########    #######################   \
-  ####        ####     ####         #####   #######   #####   \
- ####         ####     ####         ####     #####     ####   \
- ####         ####     ####         ####     ####      ####   \
-  ####       #####     ####         ####     ####      ####   \
-   ###############     ####         ####     ####      ####   \
-    ########  ####     ####         ####     ####      ####   \
-                                                              \
-                                                              \
-                                                              \
-                                                              \
-                                                              "
+"     ############     ##########   ####  ######  ########   \
+  ###############     #########    #######################  \
+ ####        ####     ####         #####   #######   #####  \
+####         ####     ####         ####     #####     ####  \
+####         ####     ####         ####     ####      ####  \
+ ####       #####     ####         ####     ####      ####  \
+  ###############     ####         ####     ####      ####  \
+   ########  ####     ####         ####     ####      ####  "
 
 #define ASCII_IBM_L \
-"                                                              \
-                                                              \
-                                                              \
- ############ ################   ##########        ########## \
+" ############ ################   ##########        ########## \
                                                               \
  ############ ################## ############    ############ \
                                                               \
@@ -248,10 +242,7 @@ $C1  ######  ##   ###      ###    ##    ###  "
                                                               \
  ############ ################## #########   ####   ######### \
                                                               \
- ############ ################   #########    ##    ######### \
-                                                              \
-                                                              \
-                                                              "
+ ############ ################   #########    ##    ######### "
 
 typedef struct ascii_logo asciiL;
 
@@ -268,10 +259,10 @@ asciiL logo_broadcom = { ASCII_BROADCOM, 44, 19, false, {COLOR_FG_WHITE, COLOR_F
 asciiL logo_arm      = { ASCII_ARM,      42,  5, false, {COLOR_FG_CYAN},                  {COLOR_FG_WHITE, COLOR_FG_CYAN}   };
 asciiL logo_ibm      = { ASCII_IBM,      57, 13, true,  {COLOR_BG_CYAN, COLOR_FG_WHITE},  {COLOR_FG_CYAN,  COLOR_FG_WHITE}  };
 // Long variants       | ----------------------------------------------------------------------------------------------------|
-asciiL logo_amd_l    = { ASCII_AMD_L,    62, 19, false, {COLOR_FG_WHITE, COLOR_FG_GREEN}, {COLOR_FG_WHITE, COLOR_FG_GREEN}  };
-asciiL logo_intel_l  = { ASCII_INTEL_L,  62, 19, false, {COLOR_FG_CYAN},                  {COLOR_FG_CYAN,  COLOR_FG_WHITE}  };
-asciiL logo_arm_l    = { ASCII_ARM_L,    62, 19, true,  {COLOR_FG_CYAN},                  {COLOR_FG_WHITE, COLOR_FG_CYAN}   };
-asciiL logo_ibm_l    = { ASCII_IBM_L,    62, 19, true,  {COLOR_BG_CYAN, COLOR_FG_WHITE},  {COLOR_FG_CYAN,  COLOR_FG_WHITE}  };
+asciiL logo_amd_l    = { ASCII_AMD_L,    62, 19, true,  {COLOR_BG_WHITE, COLOR_BG_GREEN}, {COLOR_FG_WHITE, COLOR_FG_GREEN}  };
+asciiL logo_intel_l  = { ASCII_INTEL_L,  62, 19, true,  {COLOR_BG_CYAN, COLOR_BG_WHITE},  {COLOR_FG_CYAN,  COLOR_FG_WHITE}  };
+asciiL logo_arm_l    = { ASCII_ARM_L,    60,  8, true,  {COLOR_BG_CYAN},                  {COLOR_FG_WHITE, COLOR_FG_CYAN}   };
+asciiL logo_ibm_l    = { ASCII_IBM_L,    62, 13, true,  {COLOR_BG_CYAN, COLOR_FG_WHITE},  {COLOR_FG_CYAN,  COLOR_FG_WHITE}  };
 asciiL logo_unknown  = { NULL,            0,  0, false, {COLOR_NONE},                     {COLOR_NONE,     COLOR_NONE}      };
 
 #endif

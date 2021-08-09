@@ -305,6 +305,8 @@ void choose_ascii_art(struct ascii* art, struct terminal* term, int lf) {
     art->art = &logo_arm;
   }
 #endif
+  // change
+  art->art = &logo_ibm_l;
 }
 
 uint32_t longest_attribute_length(struct ascii* art) {
@@ -372,8 +374,11 @@ void print_ascii_x86(struct ascii* art, uint32_t la) {
         if(logo->art[logo_pos] == '$' && logo->art[logo_pos+1] == 'C') {
           parse_print_color(art, &logo_pos);
         }
-        if(logo->replace_blocks && logo->art[logo_pos] == '#')
-          printf("%s%c%s", logo->color_ascii[0], ' ', art->reset);
+        if(logo->replace_blocks && logo->art[logo_pos] != ' ') {
+          if(logo->art[logo_pos] == '#') printf("%s%c%s", logo->color_ascii[0], ' ', art->reset);
+          else if(logo->art[logo_pos] == '@') printf("%s%c%s", logo->color_ascii[1], ' ', art->reset);
+          else printBug("ASCII art with replace_blocks has invalid character: '%c'", logo->art[logo_pos]);
+        }
         else
           printf("%c", logo->art[logo_pos]);
 
