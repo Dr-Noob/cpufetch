@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <errno.h>
 
 #include "printer.h"
 #include "ascii.h"
@@ -21,8 +22,14 @@
 #endif
 
 #ifdef _WIN32
-#define NOMINMAX
-#include <Windows.h>
+  #define NOMINMAX
+  #include <Windows.h>
+#else
+  #ifdef  __linux__
+    #define _POSIX_C_SOURCE 199309L
+  #endif
+  #include <sys/ioctl.h>
+  #include <unistd.h>
 #endif
 
 #define max(a,b) (((a)>(b))?(a):(b))
@@ -84,6 +91,11 @@ static const char* ATTRIBUTE_FIELDS [] = {
   "L2 Size:",
   "L3 Size:",
   "Peak Performance:",
+};
+
+struct terminal {
+  int w;
+  int h;
 };
 
 struct attribute {
@@ -246,15 +258,35 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct color** cs) {
       return NULL;
   }
 
+  return art;
+}
+
+bool ascii_fits_screen(int termw, struct ascii_logo logo, int lf) {
+  return termw - ((int) logo.width + lf) >= 0;
+}
+
+void choose_ascii_art(struct ascii* art, struct terminal* term, int lf) {
 #ifdef ARCH_X86
-  if(art->vendor == CPU_VENDOR_INTEL)
-    art->art = &logo_intel;
-  else if(art->vendor == CPU_VENDOR_AMD)
-    art->art = &logo_amd;
-  else
+  if(art->vendor == CPU_VENDOR_INTEL) {
+    if(ascii_fits_screen(term->w, logo_intel_l, lf))
+      art->art = &logo_intel_l;
+    else
+      art->art = &logo_intel;
+  }
+  else if(art->vendor == CPU_VENDOR_AMD) {
+    if(ascii_fits_screen(term->w, logo_amd_l, lf))
+      art->art = &logo_amd_l;
+    else
+      art->art = &logo_amd;
+  }
+  else {
     art->art = &logo_unknown;
+  }
 #elif ARCH_PPC
-  art->art = &logo_ibm;
+  if(ascii_fits_screen(term->w, logo_ibm_l, lf))
+    art->art = &logo_ibm_l;
+  else
+    art->art = &logo_ibm;
 #elif ARCH_ARM
   if(art->vendor == SOC_VENDOR_SNAPDRAGON)
     art->art = &logo_snapd;
@@ -266,11 +298,13 @@ struct ascii* set_ascii(VENDOR vendor, STYLE style, struct color** cs) {
     art->art = &logo_kirin;
   else if(art->vendor == SOC_VENDOR_BROADCOM)
     art->art = &logo_broadcom;
+  else {
+    if(ascii_fits_screen(term->w, logo_arm_l, lf))
+    art->art = &logo_arm_l;
   else
-    art->art = &logo_unknown;
+    art->art = &logo_arm;
+  }
 #endif
-
-  return art;
 }
 
 uint32_t longest_attribute_length(struct ascii* art) {
@@ -280,6 +314,22 @@ uint32_t longest_attribute_length(struct ascii* art) {
   for(uint32_t i=0; i < art->n_attributes_set; i++) {
     if(art->attributes[i]->value != NULL) {
       len = strlen(ATTRIBUTE_FIELDS[art->attributes[i]->type]);
+      if(len > max) max = len;
+    }
+  }
+
+  return max;
+}
+
+uint32_t longest_field_length(struct ascii* art, int la) {
+  uint32_t max = 0;
+  uint64_t len = 0;
+
+  for(uint32_t i=0; i < art->n_attributes_set; i++) {
+    if(art->attributes[i]->value != NULL) {
+      // longest attribute + 1 (space) + longest value
+      len = la + 1 + strlen(art->attributes[i]->value);
+
       if(len > max) max = len;
     }
   }
@@ -350,7 +400,7 @@ void print_ascii_x86(struct ascii* art, uint32_t la) {
   printf("\n");
 }
 
-bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs) {
+bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs, struct terminal* term) {
   struct ascii* art = set_ascii(get_cpu_vendor(cpu), s, cs);
   if(art == NULL)
     return false;
@@ -398,6 +448,9 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs) {
   setAttribute(art,ATTRIBUTE_PEAK,pp);
 
   uint32_t longest_attribute = longest_attribute_length(art);
+  uint32_t longest_field = longest_field_length(art, longest_attribute);
+  choose_ascii_art(art, term, longest_field);
+
   print_ascii_x86(art, longest_attribute);
 
   free(manufacturing_process);
@@ -717,12 +770,38 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct color** cs) {
 }
 #endif
 
+struct terminal* get_terminal_size() {
+  struct terminal* term = emalloc(sizeof(struct terminal));
+
+#ifdef _WIN32
+  CONSOLE_SCREEN_BUFFER_INFO csbi;
+  if(GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi) == 0) {
+    printWarn("GetConsoleScreenBufferInfo failed");
+    return NULL;
+  }
+  term->w = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+  term->h = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+#else
+  struct winsize w;
+  if(ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == -1) {
+    printErr("ioctl: %s", strerror(errno));
+    return NULL;
+  }
+  term->h = w.ws_row;
+  term->w = w.ws_col;
+#endif
+
+  return term;
+}
+
 bool print_cpufetch(struct cpuInfo* cpu, STYLE s, struct color** cs) {
+  struct terminal* term = get_terminal_size();
+
 #ifdef ARCH_X86
-  return print_cpufetch_x86(cpu, s, cs);
+  return print_cpufetch_x86(cpu, s, cs, term);
 #elif ARCH_PPC
-  return print_cpufetch_ppc(cpu, s, cs);
+  return print_cpufetch_ppc(cpu, s, cs, term);
 #elif ARCH_ARM
-  return print_cpufetch_arm(cpu, s, cs);
+  return print_cpufetch_arm(cpu, s, cs, term);
 #endif
 }
