@@ -204,6 +204,25 @@ bool ascii_fits_screen(int termw, struct ascii_logo logo, int lf) {
   return termw - ((int) logo.width + lf) >= 0;
 }
 
+// TODO: Instead of using a function to do so, change ascii.h
+// and store an color ID that is converted to BG or FG depending
+// on logo->replace_blocks
+void replace_bgbyfg_color(struct ascii_logo* logo) {
+  // Replace background by foreground color
+  for(int i=0; i < 2; i++) {
+    if(logo->color_ascii[i] == NULL) break;
+
+    if(strcmp(logo->color_ascii[i], COLOR_BG_BLACK) == 0) strcpy(logo->color_ascii[i], COLOR_FG_BLACK);
+    else if(strcmp(logo->color_ascii[i], COLOR_BG_RED) == 0) strcpy(logo->color_ascii[i], COLOR_FG_RED);
+    else if(strcmp(logo->color_ascii[i], COLOR_BG_GREEN) == 0) strcpy(logo->color_ascii[i], COLOR_FG_GREEN);
+    else if(strcmp(logo->color_ascii[i], COLOR_BG_YELLOW) == 0) strcpy(logo->color_ascii[i], COLOR_FG_YELLOW);
+    else if(strcmp(logo->color_ascii[i], COLOR_BG_BLUE) == 0) strcpy(logo->color_ascii[i], COLOR_FG_BLUE);
+    else if(strcmp(logo->color_ascii[i], COLOR_BG_MAGENTA) == 0) strcpy(logo->color_ascii[i], COLOR_FG_MAGENTA);
+    else if(strcmp(logo->color_ascii[i], COLOR_BG_CYAN) == 0) strcpy(logo->color_ascii[i], COLOR_FG_CYAN);
+    else if(strcmp(logo->color_ascii[i], COLOR_BG_WHITE) == 0) strcpy(logo->color_ascii[i], COLOR_FG_WHITE);
+  }
+}
+
 void choose_ascii_art(struct ascii* art, struct color** cs, struct terminal* term, int lf) {
   // 1. Choose logo
 #ifdef ARCH_X86
@@ -260,6 +279,7 @@ void choose_ascii_art(struct ascii* art, struct color** cs, struct terminal* ter
       break;
     case STYLE_RETRO:
       logo->replace_blocks = false;
+      replace_bgbyfg_color(logo);
       // fall through
     case STYLE_FANCY:
       if(cs != NULL) {
@@ -323,8 +343,9 @@ void print_ascii_generic(struct ascii* art, uint32_t la) {
     // 1. Print logo
     if(space_up > 0 || (space_up + n >= 0 && space_up + n < (int)logo->height)) {
       for(uint32_t i=0; i < logo->width; i++) {
-        if(logo->art[logo_pos] == '$' || logo->art[logo_pos] == '\x1b') {
-          parse_print_color(art, &logo_pos);
+        if(logo->art[logo_pos] == '$') {
+          if(logo->replace_blocks) logo_pos += 3;
+          else parse_print_color(art, &logo_pos);
         }
         if(logo->replace_blocks && logo->art[logo_pos] != ' ') {
           if(logo->art[logo_pos] == '#') printf("%s%c%s", logo->color_ascii[0], ' ', art->reset);
@@ -521,8 +542,9 @@ void print_ascii_arm(struct ascii* art, uint32_t la) {
     // 1. Print logo
     if(n >= (int) art->additional_spaces && n < (int) logo->height + (int) art->additional_spaces) {
       for(uint32_t i=0; i < logo->width; i++) {
-        if(logo->art[logo_pos] == '$' && logo->art[logo_pos+1] == 'C') {
-          parse_print_color(art, &logo_pos);
+        if(logo->art[logo_pos] == '$') {
+          if(logo->replace_blocks) logo_pos += 3;
+          else parse_print_color(art, &logo_pos);
         }
         if(logo->replace_blocks && logo->art[logo_pos] != ' ') {
           if(logo->art[logo_pos] == '#') printf("%s%c%s", logo->color_ascii[0], ' ', art->reset);
