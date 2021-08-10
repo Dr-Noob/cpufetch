@@ -25,8 +25,8 @@ struct ascii_logo {
   uint32_t width;
   uint32_t height;
   bool replace_blocks;
-  char* color_ascii[8];
-  char* color_text[2];
+  char color_ascii[8][100];
+  char color_text[2][100];
 };
 
 /*
