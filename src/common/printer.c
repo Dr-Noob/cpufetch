@@ -515,6 +515,27 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
 #endif
 
 #ifdef ARCH_ARM
+uint32_t longest_field_length_arm(struct ascii* art, int la) {
+  uint32_t max = 0;
+  uint64_t len = 0;
+
+  for(uint32_t i=0; i < art->n_attributes_set; i++) {
+    if(art->attributes[i]->value != NULL) {
+      // longest attribute + 1 (space) + longest value
+      len = la + 1 + strlen(art->attributes[i]->value);
+      if(art->attributes[i]->type == ATTRIBUTE_UARCH     ||
+         art->attributes[i]->type == ATTRIBUTE_FREQUENCY ||
+         art->attributes[i]->type == ATTRIBUTE_NCORES    ||
+         art->attributes[i]->type == ATTRIBUTE_FEATURES) {
+        len += 2;
+      }
+      if(len > max) max = len;
+    }
+  }
+
+  return max;
+}
+
 void print_ascii_arm(struct ascii* art, uint32_t la) {
   struct ascii_logo* logo = art->art;
   int attr_to_print = 0;
@@ -658,7 +679,7 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
   }
 
   uint32_t longest_attribute = longest_attribute_length(art);
-  uint32_t longest_field = longest_field_length(art, longest_attribute);
+  uint32_t longest_field = longest_field_length_arm(art, longest_attribute);
   choose_ascii_art(art, cs, term, longest_field);
 
   struct ascii_logo* logo = art->art;
