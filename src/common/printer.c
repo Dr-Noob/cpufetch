@@ -285,8 +285,8 @@ void choose_ascii_art(struct ascii* art, struct color** cs, struct terminal* ter
       if(cs != NULL) {
         strcpy(logo->color_text[0], rgb_to_ansi(cs[2], false, true));
         strcpy(logo->color_text[1], rgb_to_ansi(cs[3], false, true));
-        strcpy(logo->color_ascii[0], rgb_to_ansi(cs[0], true, true));
-        strcpy(logo->color_ascii[1], rgb_to_ansi(cs[1], true, true));
+        strcpy(logo->color_ascii[0], rgb_to_ansi(cs[0], logo->replace_blocks, true));
+        strcpy(logo->color_ascii[1], rgb_to_ansi(cs[1], logo->replace_blocks, true));
       }
       strcpy(art->reset, COLOR_RESET);
       break;
