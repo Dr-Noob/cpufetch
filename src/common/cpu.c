@@ -33,7 +33,10 @@ int64_t get_freq(struct frequency* freq) {
 }
 
 #if defined(ARCH_X86) || defined(ARCH_PPC)
-char* get_str_cpu_name(struct cpuInfo* cpu) {
+char* get_str_cpu_name(struct cpuInfo* cpu, bool fcpuname) {
+  if(cpu->cpu_vendor == CPU_VENDOR_INTEL && !fcpuname) {
+    abbreviate_intel_cpu_name(&cpu->cpu_name);
+  }
   return cpu->cpu_name;
 }
 

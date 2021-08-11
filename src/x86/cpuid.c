@@ -360,7 +360,6 @@ struct cpuInfo* get_cpu_info() {
 
   if (cpu->maxExtendedLevels >= 0x80000004){
     cpu->cpu_name = get_str_cpu_name_internal();
-    if(cpu->cpu_vendor == CPU_VENDOR_INTEL) abbreviate_intel_cpu_name(&cpu->cpu_name);
   }
   else {
     cpu->cpu_name = emalloc(sizeof(char) * (strlen(STRING_UNKNOWN) + 1));

@@ -24,6 +24,7 @@ struct args_struct {
   bool debug_flag;
   bool help_flag;
   bool raw_flag;
+  bool full_cpu_name_flag;
   bool verbose_flag;
   bool version_flag;
   STYLE style;
@@ -31,23 +32,25 @@ struct args_struct {
 };
 
 const char args_chr[] = {
-  /* [ARG_CHAR_STYLE]   = */ 's',
-  /* [ARG_CHAR_COLOR]   = */ 'c',
-  /* [ARG_CHAR_HELP]    = */ 'h',
-  /* [ARG_CHAR_RAW]     = */ 'r',
-  /* [ARG_CHAR_DEBUG]   = */ 'd',
-  /* [ARG_CHAR_VERBOSE] = */ 'v',
-  /* [ARG_CHAR_VERSION] = */ 'V',
+  /* [ARG_CHAR_STYLE]       = */ 's',
+  /* [ARG_CHAR_COLOR]       = */ 'c',
+  /* [ARG_CHAR_HELP]        = */ 'h',
+  /* [ARG_CHAR_RAW]         = */ 'r',
+  /* [ARG_CHAR_FULLCPUNAME] = */ 'F',
+  /* [ARG_CHAR_DEBUG]       = */ 'd',
+  /* [ARG_CHAR_VERBOSE]     = */ 'v',
+  /* [ARG_CHAR_VERSION]     = */ 'V',
 };
 
 const char *args_str[] = {
-  /* [ARG_CHAR_STYLE]   = */ "style",
-  /* [ARG_CHAR_COLOR]   = */ "color",
-  /* [ARG_CHAR_HELP]    = */ "help",
-  /* [ARG_CHAR_RAW]     = */ "raw",
-  /* [ARG_CHAR_DEBUG]   = */ "debug",
-  /* [ARG_CHAR_VERBOSE] = */ "verbose",
-  /* [ARG_CHAR_VERSION] = */ "version",
+  /* [ARG_CHAR_STYLE]       = */ "style",
+  /* [ARG_CHAR_COLOR]       = */ "color",
+  /* [ARG_CHAR_HELP]        = */ "help",
+  /* [ARG_CHAR_RAW]         = */ "raw",
+  /* [ARG_CHAR_FULLCPUNAME] = */ "full-cpu-name",
+  /* [ARG_CHAR_DEBUG]       = */ "debug",
+  /* [ARG_CHAR_VERBOSE]     = */ "verbose",
+  /* [ARG_CHAR_VERSION]     = */ "version",
 };
 
 static struct args_struct args;
@@ -74,6 +77,10 @@ bool show_debug() {
 
 bool show_raw() {
   return args.raw_flag;
+}
+
+bool show_full_cpu_name() {
+  return args.full_cpu_name_flag;
 }
 
 bool verbose_enabled() {
@@ -172,9 +179,10 @@ char* build_short_options() {
   memset(str, 0, sizeof(char) * (len*2 + 1));
 
 #ifdef ARCH_X86
-  sprintf(str, "%c:%c:%c%c%c%c%c",
+  sprintf(str, "%c:%c:%c%c%c%c%c%c",
   c[ARG_STYLE], c[ARG_COLOR], c[ARG_HELP], c[ARG_RAW],
-  c[ARG_DEBUG], c[ARG_VERBOSE], c[ARG_VERSION]);
+  c[ARG_FULLCPUNAME], c[ARG_DEBUG], c[ARG_VERBOSE],
+  c[ARG_VERSION]);
 #else
   sprintf(str, "%c:%c:%c%c%c%c",
   c[ARG_STYLE], c[ARG_COLOR], c[ARG_HELP],
@@ -191,6 +199,7 @@ bool parse_args(int argc, char* argv[]) {
 
   bool color_flag = false;
   args.debug_flag = false;
+  args.full_cpu_name_flag = false;
   args.raw_flag = false;
   args.verbose_flag = false;
   args.help_flag = false;
@@ -198,15 +207,16 @@ bool parse_args(int argc, char* argv[]) {
   args.colors = NULL;
 
   const struct option long_options[] = {
-    {args_str[ARG_STYLE],   required_argument, 0, args_chr[ARG_STYLE]   },
-    {args_str[ARG_COLOR],   required_argument, 0, args_chr[ARG_COLOR]   },
-    {args_str[ARG_HELP],    no_argument,       0, args_chr[ARG_HELP]    },
+    {args_str[ARG_STYLE],       required_argument, 0, args_chr[ARG_STYLE]       },
+    {args_str[ARG_COLOR],       required_argument, 0, args_chr[ARG_COLOR]       },
+    {args_str[ARG_HELP],        no_argument,       0, args_chr[ARG_HELP]        },
 #ifdef ARCH_X86
-    {args_str[ARG_RAW],     no_argument,       0, args_chr[ARG_RAW]     },
+    {args_str[ARG_FULLCPUNAME], no_argument,       0, args_chr[ARG_FULLCPUNAME] },
+    {args_str[ARG_RAW],         no_argument,       0, args_chr[ARG_RAW]         },
 #endif
-    {args_str[ARG_DEBUG],   no_argument,       0, args_chr[ARG_DEBUG]   },
-    {args_str[ARG_VERBOSE], no_argument,       0, args_chr[ARG_VERBOSE] },
-    {args_str[ARG_VERSION], no_argument,       0, args_chr[ARG_VERSION] },
+    {args_str[ARG_DEBUG],       no_argument,       0, args_chr[ARG_DEBUG]       },
+    {args_str[ARG_VERBOSE],     no_argument,       0, args_chr[ARG_VERBOSE]     },
+    {args_str[ARG_VERSION],     no_argument,       0, args_chr[ARG_VERSION]     },
     {0, 0, 0, 0}
   };
 
@@ -239,6 +249,9 @@ bool parse_args(int argc, char* argv[]) {
     }
     else if(opt == args_chr[ARG_HELP]) {
       args.help_flag  = true;
+    }
+    else if(opt == args_chr[ARG_FULLCPUNAME]) {
+       args.full_cpu_name_flag = true;
     }
     else if(opt == args_chr[ARG_RAW]) {
        args.raw_flag  = true;

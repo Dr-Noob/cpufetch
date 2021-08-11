@@ -53,6 +53,7 @@ void print_help(char *argv[]) {
 #endif
   printf("  -%c, --%s %*s Prints extra information (if available) about how cpufetch tried fetching information\n", c[ARG_VERBOSE], t[ARG_VERBOSE], (int) (max_len-strlen(t[ARG_VERBOSE])), "");
 #ifdef ARCH_X86
+  printf("  -%c, --%s %*s Show the full CPU name (do not abbreviate it)\n", c[ARG_FULLCPUNAME], t[ARG_FULLCPUNAME], (int) (max_len-strlen(t[ARG_FULLCPUNAME])), "");
   printf("  -%c, --%s %*s Prints raw cpuid data\n", c[ARG_RAW], t[ARG_RAW], (int) (max_len-strlen(t[ARG_RAW])), "");
 #endif
   printf("  -%c, --%s %*s Prints this help and exit\n", c[ARG_HELP], t[ARG_HELP], (int) (max_len-strlen(t[ARG_HELP])), "");
@@ -117,7 +118,7 @@ int main(int argc, char* argv[]) {
     print_debug(cpu);
     return EXIT_SUCCESS;
   }
-  
+
   if(show_raw()) {
   #ifdef ARCH_X86
     print_version();
@@ -128,8 +129,8 @@ int main(int argc, char* argv[]) {
     return EXIT_FAILURE;
   #endif
   }
-  
-  if(print_cpufetch(cpu, get_style(), get_colors()))
+
+  if(print_cpufetch(cpu, get_style(), get_colors(), show_full_cpu_name()))
     return EXIT_SUCCESS;
   else
     return EXIT_FAILURE;

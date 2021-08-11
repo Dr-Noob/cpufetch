@@ -24,6 +24,7 @@ enum {
   ARG_COLOR,
   ARG_HELP,
   ARG_RAW,
+  ARG_FULLCPUNAME,
   ARG_DEBUG,
   ARG_VERBOSE,
   ARG_VERSION
@@ -37,6 +38,7 @@ extern const char *args_str[];
 int max_arg_str_length();
 bool parse_args(int argc, char* argv[]);
 bool show_help();
+bool show_full_cpu_name();
 bool show_raw();
 bool show_debug();
 bool show_version();
