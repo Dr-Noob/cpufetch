@@ -46,7 +46,7 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach, uint
   int cores_in_socket = 0;
 
   while(socket_idx + 1 > sockets_seen) {
-    if(midr_array[first_core_idx] == midr_array[currrent_core_idx] && currrent_core_idx < ncores) {
+    if(currrent_core_idx < ncores && midr_array[first_core_idx] == midr_array[currrent_core_idx]) {
       currrent_core_idx++;
       cores_in_socket++;
     }
@@ -234,8 +234,9 @@ char* get_str_topology(struct cpuInfo* cpu, struct topology* topo, bool dual_soc
 
 char* get_str_features(struct cpuInfo* cpu) {
   struct features* feat = cpu->feat;
-  char* string = emalloc(sizeof(char) * 25);
+  uint32_t max_len = strlen("NEON,SHA1,SHA2,AES,CRC32,") + 1;
   uint32_t len = 0;
+  char* string = ecalloc(max_len, sizeof(char));
 
   if(feat->NEON) {
     strcat(string, "NEON,");
