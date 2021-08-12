@@ -116,7 +116,7 @@ char* get_str_cpu_name_internal() {
   return name;
 }
 
-void abbreviate_intel_cpu_name(char** name) {
+bool abbreviate_intel_cpu_name(char** name) {
   char* old_name = *name;
   char* new_name = ecalloc(strlen(old_name) + 1, sizeof(char));
 
@@ -125,41 +125,39 @@ void abbreviate_intel_cpu_name(char** name) {
   char* aux_ptr = NULL;
 
   // 1. Remove "(R)"
-  if(strncmp(old_name_ptr, "Intel(R)", 8) != 0) return;
+  old_name_ptr = strstr(old_name_ptr, "Intel(R)");
+  if(old_name_ptr == NULL) return false;
   strcpy(new_name_ptr, "Intel");
-  new_name_ptr += 5;
-  old_name_ptr += 8;
+  new_name_ptr += strlen("Intel");
+  old_name_ptr += strlen("Intel(R)");
 
   // 2. Remove "(R)" or "(TM)"
   aux_ptr = strstr(old_name_ptr, "(");
-  if(aux_ptr == NULL) return;
+  if(aux_ptr == NULL) return false;
   strncpy(new_name_ptr, old_name_ptr, aux_ptr-old_name_ptr);
 
   new_name_ptr += aux_ptr-old_name_ptr;
   strcpy(new_name_ptr, " ");
   new_name_ptr++;
   old_name_ptr = strstr(aux_ptr, ")");
-  if(old_name_ptr == NULL) return;
-  old_name_ptr += 2;
+  if(old_name_ptr == NULL) return false;
+  old_name_ptr++;
+  while(*old_name_ptr == ' ') old_name_ptr++;
 
-  // 3. Skip "CPU" (if exists)
-  if(strncmp(old_name_ptr, "CPU", 3) == 0) {
-    aux_ptr = strstr(old_name_ptr, " ");
-    if(aux_ptr == NULL) return;
-    old_name_ptr = aux_ptr + 1;
-  }
-
-  // 4. Copy the CPU name
-  aux_ptr = strstr(old_name_ptr, "CPU");
-  if(aux_ptr == NULL) {
-    // Name contains no "CPU" at the end, so ends with @
-    aux_ptr = strstr(old_name_ptr, "@");
-    if(aux_ptr == NULL) return;
-  }
+  // 3. Copy the CPU name
+  aux_ptr = strstr(old_name_ptr, "@");
+  if(aux_ptr == NULL) return false;
   strncpy(new_name_ptr, old_name_ptr, (aux_ptr-1)-old_name_ptr);
+
+  // 4. Remove dummy strings in Intel CPU names
+  strremove(new_name, " CPU");
+  strremove(new_name, " Dual");
+  strremove(new_name, " 0");
 
   free(old_name);
   *name = new_name;
+
+  return true;
 }
 
 struct uarch* get_cpu_uarch(struct cpuInfo* cpu) {
@@ -748,6 +746,15 @@ struct frequency* get_frequency_info(struct cpuInfo* cpu) {
 }
 
 // STRING FUNCTIONS
+char* get_str_cpu_name_abbreviated(struct cpuInfo* cpu) {
+  if(cpu->cpu_vendor == CPU_VENDOR_INTEL) {
+    if(!abbreviate_intel_cpu_name(&cpu->cpu_name)) {
+      printWarn("Failed to abbreviate CPU name");
+    }
+  }
+  return cpu->cpu_name;
+}
+
 char* get_str_topology(struct cpuInfo* cpu, struct topology* topo, bool dual_socket) {
   int topo_sockets = dual_socket ? topo->sockets : 1;
   char* string;
