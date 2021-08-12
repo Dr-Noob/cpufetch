@@ -257,6 +257,8 @@ void choose_ascii_art(struct ascii* art, struct color** cs, struct terminal* ter
     art->art = &logo_kirin;
   else if(art->vendor == SOC_VENDOR_BROADCOM)
     art->art = &logo_broadcom;
+  else if(art->vendor == SOC_VENDOR_APPLE)
+    art->art = &logo_apple;
   else {
     if(term != NULL && ascii_fits_screen(term->w, logo_arm_l, lf))
       art->art = &logo_arm_l;
@@ -559,6 +561,7 @@ void print_ascii_arm(struct ascii* art, uint32_t la) {
   bool add_space = false;
   int32_t iters = max(logo->height, art->n_attributes_set);
 
+  printf("\n");
   for(int32_t n=0; n < iters; n++) {
     // 1. Print logo
     if(n >= (int) art->additional_spaces && n < (int) logo->height + (int) art->additional_spaces) {
@@ -610,7 +613,7 @@ void print_ascii_arm(struct ascii* art, uint32_t la) {
     }
     else printf("\n");
   }
-
+  printf("\n");
 }
 
 bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct color** cs, struct terminal* term) {

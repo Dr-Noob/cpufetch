@@ -17,6 +17,7 @@ static char* soc_trademark_string[] = {
   [SOC_VENDOR_EXYNOS]     = "Exynos ",
   [SOC_VENDOR_KIRIN]      = "Kirin ",
   [SOC_VENDOR_BROADCOM]   = "Broadcom BCM",
+  [SOC_VENDOR_APPLE]      = "Apple "
 };
 
 static char* soc_rpi_string[] = {
@@ -586,6 +587,7 @@ struct system_on_chip* get_soc() {
   soc->soc_vendor = SOC_VENDOR_UNKNOWN;
   soc->process = UNKNOWN;
 
+#ifdef __linux__
   bool isRPi = is_raspberry_pi();
   if(isRPi) {
     soc = guess_soc_raspbery_pi(soc);
@@ -609,8 +611,11 @@ struct system_on_chip* get_soc() {
       printWarn("SoC detection failed using Android: No string found");
     else if(soc->soc_vendor == SOC_VENDOR_UNKNOWN)
       printWarn("SoC detection failed using Android: Found '%s' string", soc->raw_name);
-#endif
+#endif // ifdef __ANDROID__
   }
+#elif defined __APPLE__ || __MACH__
+    fill_soc(soc, "M1", SOC_APPLE_M1, 5);
+#endif // ifdef __linux__
 
   if(soc->raw_name == NULL) {
     soc->raw_name = emalloc(sizeof(char) * (strlen(STRING_UNKNOWN)+1));

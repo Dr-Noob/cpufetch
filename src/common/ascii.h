@@ -184,6 +184,26 @@ $C1######### ################## ########   ####   ########  \
 $C1                                                         \
 $C1######### ################   ########    ##    ########  "
 
+// inspired by the neofetch mac logo
+#define ASCII_APPLE \
+"$C1                    'c.         \
+$C1                 ,xNMM.         \
+$C1               .OMMMMo          \
+$C1               OMMM0,           \
+$C1     .;loddo:' loolloddol;.     \
+$C1   cKMMMMMMMMMMNWMMMMMMMMMM0:   \
+$C1 .KMMMMMMMMMMMMMMMMMMMMMMMWd.   \
+$C1 XMMMMMMMMMMMMMMMMMMMMMMMX.     \
+$C1;MMMMMMMMMMMMMMMMMMMMMMMM:      \
+$C1:MMMMMMMMMMMMMMMMMMMMMMMM:      \
+$C1.MMMMMMMMMMMMMMMMMMMMMMMMX.     \
+$C1 kMMMMMMMMMMMMMMMMMMMMMMMMWd.   \
+$C1 .XMMMMMMMMMMMMMMMMMMMMMMMMMMk  \
+$C1  .XMMMMMMMMMMMMMMMMMMMMMMMMK.  \
+$C1    kMMMMMMMMMMMMMMMMMMMMMMd    \
+$C1     ;KMMMMMMMWXXWMMMMMMMk.     \
+$C1       .cooc,.    .,coo:.       "
+
 // --------------------- LONG LOGOS ------------------------- //
 #define ASCII_AMD_L \
 "$C1                                                              \
@@ -266,6 +286,7 @@ asciiL logo_kirin    = { ASCII_KIRIN,    53, 12, false, {COLOR_FG_RED},         
 asciiL logo_broadcom = { ASCII_BROADCOM, 44, 19, false, {COLOR_FG_WHITE, COLOR_FG_RED},   {COLOR_FG_WHITE, COLOR_FG_RED}    };
 asciiL logo_arm      = { ASCII_ARM,      42,  5, false, {COLOR_FG_CYAN},                  {COLOR_FG_WHITE, COLOR_FG_CYAN}   };
 asciiL logo_ibm      = { ASCII_IBM,      57, 13, true,  {COLOR_BG_CYAN, COLOR_FG_WHITE},  {COLOR_FG_CYAN,  COLOR_FG_WHITE}  };
+asciiL logo_apple    = { ASCII_APPLE,    32, 17, false, {COLOR_FG_WHITE},                 {COLOR_FG_CYAN,  COLOR_FG_WHITE}  };
 // Long variants       | ----------------------------------------------------------------------------------------------------|
 asciiL logo_amd_l    = { ASCII_AMD_L,    62, 19, true,  {COLOR_BG_WHITE, COLOR_BG_GREEN}, {COLOR_FG_WHITE, COLOR_FG_GREEN}  };
 asciiL logo_intel_l  = { ASCII_INTEL_L,  62, 19, true,  {COLOR_BG_CYAN, COLOR_BG_WHITE},  {COLOR_FG_CYAN,  COLOR_FG_WHITE}  };

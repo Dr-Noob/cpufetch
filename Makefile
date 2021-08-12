@@ -27,6 +27,12 @@ ifneq ($(OS),Windows_NT)
 		SOURCE += $(COMMON_SRC) $(SRC_DIR)midr.c $(SRC_DIR)uarch.c $(SRC_DIR)soc.c $(SRC_DIR)udev.c
 		HEADERS += $(COMMON_HDR) $(SRC_DIR)midr.h $(SRC_DIR)uarch.h  $(SRC_DIR)soc.h $(SRC_DIR)udev.c $(SRC_DIR)socs.h
 		CFLAGS += -DARCH_ARM -Wno-unused-parameter -std=c99
+
+		os := $(shell uname -s)
+		ifeq ($(os), Darwin)
+			SOURCE += $(SRC_DIR)sysctl.c
+			HEADERS += $(SRC_DIR)sysctl.h
+		endif
 	else
 		# Error lines should not be tabulated because Makefile complains about it
 $(warning Unsupported arch detected: $(arch). See https://github.com/Dr-Noob/cpufetch#1-support)
