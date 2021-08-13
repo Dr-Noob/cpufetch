@@ -16,6 +16,8 @@
   #include "../arm/uarch.h"
 #endif
 
+#define UNUSED(x) (void)(x)
+
 #define STRING_YES        "Yes"
 #define STRING_NO         "No"
 #define STRING_NONE       "None"
@@ -38,6 +40,8 @@ char* get_str_cpu_name(struct cpuInfo* cpu, bool fcpuname) {
   if(!fcpuname) {
     return get_str_cpu_name_abbreviated(cpu);
   }
+  #elif ARCH_PPC
+  UNUSED(fcpuname);
   #endif
   return cpu->cpu_name;
 }

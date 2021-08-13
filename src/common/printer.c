@@ -462,7 +462,7 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
 #endif
 
 #ifdef ARCH_PPC
-bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct color** cs, struct terminal* term) {
+bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct color** cs, struct terminal* term, bool fcpuname) {
   struct ascii* art = set_ascii(get_cpu_vendor(cpu), s);
   if(art == NULL)
     return false;
@@ -471,7 +471,7 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
   char* manufacturing_process = get_str_process(cpu);
   char* sockets = get_str_sockets(cpu->topo);
   char* max_frequency = get_str_freq(cpu->freq);
-  char* cpu_name = get_str_cpu_name(cpu);
+  char* cpu_name = get_str_cpu_name(cpu, fcpuname);
   char* n_cores = get_str_topology(cpu->topo, false);
   char* n_cores_dual = get_str_topology(cpu->topo, true);
   char* altivec = get_str_altivec(cpu);
@@ -737,7 +737,7 @@ bool print_cpufetch(struct cpuInfo* cpu, STYLE s, struct color** cs, bool show_f
 #ifdef ARCH_X86
   return print_cpufetch_x86(cpu, s, cs, term, show_full_cpu_name);
 #elif ARCH_PPC
-  return print_cpufetch_ppc(cpu, s, cs, term);
+  return print_cpufetch_ppc(cpu, s, cs, term, show_full_cpu_name);
 #elif ARCH_ARM
   return print_cpufetch_arm(cpu, s, cs, term);
 #endif
