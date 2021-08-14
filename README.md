@@ -44,11 +44,11 @@ cpufetch supports the following architectures:
 - PowerPC
 
 | OS        | x86_64 / x86              | ARM                | PowerPC            | Notes             |
-|:---------:|:------------------------:|:-------------------:|:------------------:|:----------:|
+|:---------:|:-------------------------:|:-------------------:|:-----------------:|:-----------------:|
 | GNU/Linux | :heavy_check_mark:        | :heavy_check_mark: | :heavy_check_mark: | Best support      |
 | Windows   | :heavy_check_mark:        | :x:                | :x:                | Some information may be missing. <br> Colors will be used if supported |
 | Android   | :heavy_exclamation_mark:  | :heavy_check_mark: | :x:                | Some information may be missing. <br> Not tested under x86_64 |
-| macOS     | :heavy_check_mark:        | :x:                | :x:                | Some information may be missing. <br> Apple M1 support may be added <br> in the future (see [#47](https://github.com/Dr-Noob/cpufetch/issues/47))|
+| macOS     | :heavy_check_mark:        | :heavy_check_mark: | :x:                | Only the Apple M1 is supported in ARM |
 | FreeBSD   | :heavy_check_mark:        | :x:                | :x:                | Some information may be missing.  |
 
 # 2. Installation
@@ -114,6 +114,8 @@ See [cpufetch programming documentation](https://github.com/Dr-Noob/cpufetch/doc
 See [cpufetch contributing guidelines](https://github.com/Dr-Noob/cpufetch/CONTRIBUTING.md)
 
 # 7. Acknowledgements
-Special thanks to [Gonzalocl](https://github.com/Gonzalocl) and [OdnetninI](https://github.com/OdnetninI). They tested `cpufetch` in its beginnings in many different CPUs they have access to, which made it easier to debug and check the correctness of `cpufetch`.
-
-Special thanks too to the fellow contributors and interested people in the project!
+Thanks to the fellow contributors and interested people in the project. Special thanks to:
+- [Gonzalocl](https://github.com/Gonzalocl), [OdnetninI](https://github.com/OdnetninI): Tested cpufetch in the earlier versions of the project in many different CPUs.
+- [Kingo](https://github.com/Kyngo): Tested cpufetch in the Apple M1 CPU.
+- [avollmerhaus](https://github.com/avollmerhaus): Gave me ssh acess to a PowerPC machine, allowing me to develop the PowerPC port.
+- [bbonev](https://github.com/bbonev), [stephan-cr](https://github.com/stephan-cr): Reviewed the source code.
