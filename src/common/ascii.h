@@ -177,15 +177,15 @@ $C1 ###    ####   ###      ###    ##    ###  \
 $C1  ######  ##   ###      ###    ##    ###  "
 
 #define ASCII_IBM \
-"$C1######## ##########    ######       ###### \
-$C1######## ############  #######     ####### \
-$C1  ####     ####   ###    ######   ######   \
-$C1  ####     ####   ###    ####### #######   \
-$C1  ####     ########      ###############   \
-$C1  ####     ####   ###    #### ##### ####   \
-$C1  ####     ####   ###    ####  ###  ####   \
-$C1######## ############  ######   #   ###### \
-$C1######## ##########    ######       ###### "
+"$C1######## ##########   ######       ###### \
+$C1######## ###########  #######     ####### \
+$C1  ####     ###   ####   ######   ######   \
+$C1  ####     ###   ###    ####### #######   \
+$C1  ####     ########     ###############   \
+$C1  ####     ###   ###    #### ##### ####   \
+$C1  ####     ###   ####   ####  ###  ####   \
+$C1######## ###########  ######   #   ###### \
+$C1######## ##########   ######       ###### "
 
 // inspired by the neofetch mac logo
 #define ASCII_APPLE \
@@ -288,7 +288,7 @@ asciiL logo_exynos   = { ASCII_EXYNOS,   22, 13, true,  {COLOR_BG_BLUE, COLOR_FG
 asciiL logo_kirin    = { ASCII_KIRIN,    53, 12, false, {COLOR_FG_RED},                   {COLOR_FG_WHITE,   COLOR_FG_RED}      };
 asciiL logo_broadcom = { ASCII_BROADCOM, 44, 19, false, {COLOR_FG_WHITE, COLOR_FG_RED},   {COLOR_FG_WHITE,   COLOR_FG_RED}      };
 asciiL logo_arm      = { ASCII_ARM,      42,  5, false, {COLOR_FG_CYAN},                  {COLOR_FG_WHITE,   COLOR_FG_CYAN}     };
-asciiL logo_ibm      = { ASCII_IBM,      43,  9, false, {COLOR_FG_CYAN, COLOR_FG_WHITE},  {COLOR_FG_CYAN,    COLOR_FG_WHITE}    };
+asciiL logo_ibm      = { ASCII_IBM,      42,  9, false, {COLOR_FG_CYAN, COLOR_FG_WHITE},  {COLOR_FG_CYAN,    COLOR_FG_WHITE}    };
 asciiL logo_apple    = { ASCII_APPLE,    32, 17, false, {COLOR_FG_WHITE},                 {COLOR_FG_B_BLACK, COLOR_FG_B_WHITE}  };
 // Long variants       | ----------------------------------------------------------------------------------------------------|
 asciiL logo_amd_l    = { ASCII_AMD_L,    62, 19, true,  {COLOR_BG_WHITE, COLOR_BG_GREEN}, {COLOR_FG_WHITE, COLOR_FG_GREEN}  };
