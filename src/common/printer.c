@@ -67,8 +67,10 @@ enum {
 };
 
 static const char* ATTRIBUTE_FIELDS [] = {
-#if defined(ARCH_X86) || defined(ARCH_PPC)
+#ifdef ARCH_X86
   "Name:",
+#elif ARCH_PPC
+  "Part Number:",
 #elif ARCH_ARM
   "SoC:",
   "",
@@ -96,8 +98,10 @@ static const char* ATTRIBUTE_FIELDS [] = {
 };
 
 static const char* ATTRIBUTE_FIELDS_SHORT [] = {
-#if defined(ARCH_X86) || defined(ARCH_PPC)
+#if defined(ARCH_X86)
   "Name:",
+#elif ARCH_PPC
+  "P/N:",
 #elif ARCH_ARM
   "SoC:",
   "",
