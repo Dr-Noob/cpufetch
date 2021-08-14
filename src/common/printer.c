@@ -358,16 +358,18 @@ uint32_t longest_field_length(struct ascii* art, int la) {
 }
 
 #if defined(ARCH_X86) || defined(ARCH_PPC)
-void print_ascii_generic(struct ascii* art, uint32_t la, const char** attribute_fields) {
+void print_ascii_generic(struct ascii* art, uint32_t la, int32_t text_space, const char** attribute_fields) {
   struct ascii_logo* logo = art->art;
   int attr_to_print = 0;
   int attr_type;
   char* attr_value;
+  int32_t current_space;
   uint32_t space_right;
   int32_t space_up = ((int)logo->height - (int)art->n_attributes_set)/2;
   int32_t space_down = (int)logo->height - (int)art->n_attributes_set - (int)space_up;
   uint32_t logo_pos = 0;
   int32_t iters = max(logo->height, art->n_attributes_set);
+  char* text_output = emalloc(sizeof(char) * 1024);
 
   printf("\n");
   for(int32_t n=0; n < iters; n++) {
@@ -402,11 +404,25 @@ void print_ascii_generic(struct ascii* art, uint32_t la, const char** attribute_
       attr_to_print++;
 
       space_right = 1 + (la - strlen(attribute_fields[attr_type]));
-      printf("%s%s%s%*s%s%s%s\n", logo->color_text[0], attribute_fields[attr_type], art->reset, space_right, "", logo->color_text[1], attr_value, art->reset);
+      current_space = max(0, text_space);
+
+      snprintf(text_output, 1024, "%s", attribute_fields[attr_type]);
+      printf("%s%.*s%s", logo->color_text[0], current_space, text_output, art->reset);
+      current_space -= strlen(attribute_fields[attr_type]);
+      current_space = max(0, current_space);
+      snprintf(text_output, 1024, "%*s", space_right, "");
+      printf("%.*s", current_space, text_output);
+      current_space -= space_right;
+      current_space = max(0, current_space);
+      snprintf(text_output, 1024, "%s", attr_value);
+      printf("%s%.*s%s", logo->color_text[1], current_space, text_output, art->reset);
+      printf("\n");
     }
     else printf("\n");
   }
   printf("\n");
+
+  free(text_output);
 }
 #endif
 
@@ -470,7 +486,7 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
     longest_attribute = longest_attribute_length(art, attribute_fields);
   }
 
-  print_ascii_generic(art, longest_attribute, attribute_fields);
+  print_ascii_generic(art, longest_attribute, term->w - art->art->width, attribute_fields);
 
   free(manufacturing_process);
   free(max_frequency);
@@ -555,7 +571,7 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
     longest_attribute = longest_attribute_length(art, attribute_fields);
   }
 
-  print_ascii_generic(art, longest_attribute, attribute_fields);
+  print_ascii_generic(art, longest_attribute, term->w - art->art->width, attribute_fields);
 
   return true;
 }
