@@ -364,12 +364,11 @@ void print_ascii_generic(struct ascii* art, uint32_t la, int32_t text_space, con
   int attr_type;
   char* attr_value;
   int32_t current_space;
-  uint32_t space_right;
+  int32_t space_right;
   int32_t space_up = ((int)logo->height - (int)art->n_attributes_set)/2;
   int32_t space_down = (int)logo->height - (int)art->n_attributes_set - (int)space_up;
   uint32_t logo_pos = 0;
   int32_t iters = max(logo->height, art->n_attributes_set);
-  char* text_output = emalloc(sizeof(char) * 1024);
 
   printf("\n");
   for(int32_t n=0; n < iters; n++) {
@@ -406,23 +405,16 @@ void print_ascii_generic(struct ascii* art, uint32_t la, int32_t text_space, con
       space_right = 1 + (la - strlen(attribute_fields[attr_type]));
       current_space = max(0, text_space);
 
-      snprintf(text_output, 1024, "%s", attribute_fields[attr_type]);
-      printf("%s%.*s%s", logo->color_text[0], current_space, text_output, art->reset);
-      current_space -= strlen(attribute_fields[attr_type]);
-      current_space = max(0, current_space);
-      snprintf(text_output, 1024, "%*s", space_right, "");
-      printf("%.*s", current_space, text_output);
-      current_space -= space_right;
-      current_space = max(0, current_space);
-      snprintf(text_output, 1024, "%s", attr_value);
-      printf("%s%.*s%s", logo->color_text[1], current_space, text_output, art->reset);
+      printf("%s%.*s%s", logo->color_text[0], current_space, attribute_fields[attr_type], art->reset);
+      current_space = max(0, current_space - (int) strlen(attribute_fields[attr_type]));
+      printf("%*s", min(current_space, space_right), "");
+      current_space = max(0, current_space - min(current_space, space_right));
+      printf("%s%.*s%s", logo->color_text[1], current_space, attr_value, art->reset);
       printf("\n");
     }
     else printf("\n");
   }
   printf("\n");
-
-  free(text_output);
 }
 #endif
 
@@ -599,7 +591,7 @@ uint32_t longest_field_length_arm(struct ascii* art, int la) {
   return max;
 }
 
-void print_ascii_arm(struct ascii* art, uint32_t la, const char** attribute_fields) {
+void print_ascii_arm(struct ascii* art, uint32_t la, int32_t text_space, const char** attribute_fields) {
   struct ascii_logo* logo = art->art;
   int attr_to_print = 0;
   int attr_type;
@@ -608,6 +600,8 @@ void print_ascii_arm(struct ascii* art, uint32_t la, const char** attribute_fiel
   int32_t limit_down;
   uint32_t logo_pos = 0;
   uint32_t space_right;
+  int32_t beg_space;
+  int32_t current_space;
   int32_t space_up = ((int)logo->height - (int)art->n_attributes_set)/2;
   int32_t space_down = (int)logo->height - (int)art->n_attributes_set - (int)space_up;
 
@@ -662,14 +656,21 @@ void print_ascii_arm(struct ascii* art, uint32_t la, const char** attribute_fiel
         add_space = true;
       }
       else {
+        beg_space = 0;
+        space_right = 2 + 1 + (la - strlen(attribute_fields[attr_type]));
         if(add_space) {
-          space_right = 1 + (la - strlen(attribute_fields[attr_type]));
-          printf("  %s%s%s%*s%s%s%s\n", logo->color_text[0], attribute_fields[attr_type], art->reset, space_right, "", logo->color_text[1], attr_value, art->reset);
+          space_right -= 2;
+          if(text_space >= 0) beg_space = 2;
         }
-        else {
-          space_right = 2 + 1 + (la - strlen(attribute_fields[attr_type]));
-          printf("%s%s%s%*s%s%s%s\n", logo->color_text[0], attribute_fields[attr_type], art->reset, space_right, "", logo->color_text[1], attr_value, art->reset);
-        }
+        //TODO: Cut text buggy
+        current_space = max(0, text_space);
+
+        printf("%*s%s%.*s%s", beg_space, "", logo->color_text[0], current_space, attribute_fields[attr_type], art->reset);
+        current_space = max(0, current_space - ((int) strlen(attribute_fields[attr_type]) + beg_space));
+        printf("%*s", min(current_space, space_right), "");
+        current_space = max(0, current_space - min(current_space, space_right));
+        printf("%s%.*s%s", logo->color_text[1], current_space, attr_value, art->reset);
+        printf("\n");
       }
     }
     else printf("\n");
@@ -759,7 +760,7 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
     longest_attribute = longest_attribute_length(art, attribute_fields);
   }
 
-  print_ascii_arm(art, longest_attribute, attribute_fields);
+  print_ascii_arm(art, longest_attribute, term->w - art->art->width, attribute_fields);
 
   free(manufacturing_process);
   free(pp);
