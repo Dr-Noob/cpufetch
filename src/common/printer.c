@@ -95,6 +95,35 @@ static const char* ATTRIBUTE_FIELDS [] = {
   "Peak Performance:",
 };
 
+static const char* ATTRIBUTE_FIELDS_SHORT [] = {
+#if defined(ARCH_X86) || defined(ARCH_PPC)
+  "Name:",
+#elif ARCH_ARM
+  "SoC:",
+  "",
+#endif
+  "Hypervisor:",
+  "uArch:",
+  "Technology:",
+  "Max Freq:",
+  "Sockets:",
+  "Cores:",
+  "Cores (Total):",
+#ifdef ARCH_X86
+  "AVX:",
+  "FMA:",
+#elif ARCH_PPC
+  "Altivec: ",
+#elif defined(ARCH_ARM)
+  "Features: ",
+#endif
+  "L1i Size:",
+  "L1d Size:",
+  "L2 Size:",
+  "L3 Size:",
+  "Peak Perf.:",
+};
+
 struct terminal {
   int w;
   int h;
@@ -298,13 +327,13 @@ void choose_ascii_art(struct ascii* art, struct color** cs, struct terminal* ter
   }
 }
 
-uint32_t longest_attribute_length(struct ascii* art) {
+uint32_t longest_attribute_length(struct ascii* art, const char** attribute_fields) {
   uint32_t max = 0;
   uint64_t len = 0;
 
   for(uint32_t i=0; i < art->n_attributes_set; i++) {
     if(art->attributes[i]->value != NULL) {
-      len = strlen(ATTRIBUTE_FIELDS[art->attributes[i]->type]);
+      len = strlen(attribute_fields[art->attributes[i]->type]);
       if(len > max) max = len;
     }
   }
@@ -329,7 +358,7 @@ uint32_t longest_field_length(struct ascii* art, int la) {
 }
 
 #if defined(ARCH_X86) || defined(ARCH_PPC)
-void print_ascii_generic(struct ascii* art, uint32_t la) {
+void print_ascii_generic(struct ascii* art, uint32_t la, const char** attribute_fields) {
   struct ascii_logo* logo = art->art;
   int attr_to_print = 0;
   int attr_type;
@@ -372,8 +401,8 @@ void print_ascii_generic(struct ascii* art, uint32_t la) {
       attr_value = art->attributes[attr_to_print]->value;
       attr_to_print++;
 
-      space_right = 1 + (la - strlen(ATTRIBUTE_FIELDS[attr_type]));
-      printf("%s%s%s%*s%s%s%s\n", logo->color_text[0], ATTRIBUTE_FIELDS[attr_type], art->reset, space_right, "", logo->color_text[1], attr_value, art->reset);
+      space_right = 1 + (la - strlen(attribute_fields[attr_type]));
+      printf("%s%s%s%*s%s%s%s\n", logo->color_text[0], attribute_fields[attr_type], art->reset, space_right, "", logo->color_text[1], attr_value, art->reset);
     }
     else printf("\n");
   }
@@ -429,11 +458,19 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
   }
   setAttribute(art,ATTRIBUTE_PEAK,pp);
 
-  uint32_t longest_attribute = longest_attribute_length(art);
+  const char** attribute_fields = ATTRIBUTE_FIELDS;
+  uint32_t longest_attribute = longest_attribute_length(art, attribute_fields);
   uint32_t longest_field = longest_field_length(art, longest_attribute);
   choose_ascii_art(art, cs, term, longest_field);
 
-  print_ascii_generic(art, longest_attribute);
+  if(!ascii_fits_screen(term->w, *art->art, longest_field)) {
+    // Despite of choosing the smallest logo, the output does not fit
+    // Choose the shorter field names and recalculate the longest attr
+    attribute_fields = ATTRIBUTE_FIELDS_SHORT;
+    longest_attribute = longest_attribute_length(art, attribute_fields);
+  }
+
+  print_ascii_generic(art, longest_attribute, attribute_fields);
 
   free(manufacturing_process);
   free(max_frequency);
@@ -506,11 +543,19 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
   }
   setAttribute(art,ATTRIBUTE_PEAK,pp);
 
-  uint32_t longest_attribute = longest_attribute_length(art);
+  const char** attribute_fields = ATTRIBUTE_FIELDS;
+  uint32_t longest_attribute = longest_attribute_length(art, attribute_fields);
   uint32_t longest_field = longest_field_length(art, longest_attribute);
   choose_ascii_art(art, cs, term, longest_field);
 
-  print_ascii_generic(art, longest_attribute);
+  if(!ascii_fits_screen(term->w, *art->art, longest_field)) {
+    // Despite of choosing the smallest logo, the output does not fit
+    // Choose the shorter field names and recalculate the longest attr
+    attribute_fields = ATTRIBUTE_FIELDS_SHORT;
+    longest_attribute = longest_attribute_length(art, attribute_fields);
+  }
+
+  print_ascii_generic(art, longest_attribute, attribute_fields);
 
   return true;
 }
@@ -538,7 +583,7 @@ uint32_t longest_field_length_arm(struct ascii* art, int la) {
   return max;
 }
 
-void print_ascii_arm(struct ascii* art, uint32_t la) {
+void print_ascii_arm(struct ascii* art, uint32_t la, const char** attribute_fields) {
   struct ascii_logo* logo = art->art;
   int attr_to_print = 0;
   int attr_type;
@@ -602,12 +647,12 @@ void print_ascii_arm(struct ascii* art, uint32_t la) {
       }
       else {
         if(add_space) {
-          space_right = 1 + (la - strlen(ATTRIBUTE_FIELDS[attr_type]));
-          printf("  %s%s%s%*s%s%s%s\n", logo->color_text[0], ATTRIBUTE_FIELDS[attr_type], art->reset, space_right, "", logo->color_text[1], attr_value, art->reset);
+          space_right = 1 + (la - strlen(attribute_fields[attr_type]));
+          printf("  %s%s%s%*s%s%s%s\n", logo->color_text[0], attribute_fields[attr_type], art->reset, space_right, "", logo->color_text[1], attr_value, art->reset);
         }
         else {
-          space_right = 2 + 1 + (la - strlen(ATTRIBUTE_FIELDS[attr_type]));
-          printf("%s%s%s%*s%s%s%s\n", logo->color_text[0], ATTRIBUTE_FIELDS[attr_type], art->reset, space_right, "", logo->color_text[1], attr_value, art->reset);
+          space_right = 2 + 1 + (la - strlen(attribute_fields[attr_type]));
+          printf("%s%s%s%*s%s%s%s\n", logo->color_text[0], attribute_fields[attr_type], art->reset, space_right, "", logo->color_text[1], attr_value, art->reset);
         }
       }
     }
@@ -681,7 +726,8 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
     setAttribute(art, ATTRIBUTE_HYPERVISOR, cpu->hv->hv_name);
   }
 
-  uint32_t longest_attribute = longest_attribute_length(art);
+  const char** attribute_fields = ATTRIBUTE_FIELDS;
+  uint32_t longest_attribute = longest_attribute_length(art, attribute_fields);
   uint32_t longest_field = longest_field_length_arm(art, longest_attribute);
   choose_ascii_art(art, cs, term, longest_field);
 
@@ -690,7 +736,14 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
     art->additional_spaces = (art->n_attributes_set - logo->height) / 2;
   }
 
-  print_ascii_arm(art, longest_attribute);
+  if(!ascii_fits_screen(term->w, *art->art, longest_field)) {
+    // Despite of choosing the smallest logo, the output does not fit
+    // Choose the shorter field names and recalculate the longest attr
+    attribute_fields = ATTRIBUTE_FIELDS_SHORT;
+    longest_attribute = longest_attribute_length(art, attribute_fields);
+  }
+
+  print_ascii_arm(art, longest_attribute, attribute_fields);
 
   free(manufacturing_process);
   free(pp);
