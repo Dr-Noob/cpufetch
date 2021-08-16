@@ -11,7 +11,7 @@ Microarchitecture information is acquired from the Main ID Register (MIDR) [[2](
 - `CPU part`
 - `CPU revision`
 
-The MIDR register can be built with this information. Another posible approach is to read MIDR directly from `/sys/devices/system/cpu/cpu*/regs/identification/midr_el1`
+The MIDR register can be built with this information. Another possible approach is to read MIDR directly from `/sys/devices/system/cpu/cpu*/regs/identification/midr_el1`
 
 With the MIDR available, the approach is the same as the one used in x86_64 architectures. cpufetch has a file that acts like a database that tries to match the MIDR register with the specific CPU microarchitecture.
 

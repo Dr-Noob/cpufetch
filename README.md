@@ -116,6 +116,6 @@ See [cpufetch contributing guidelines](https://github.com/Dr-Noob/cpufetch/CONTR
 # 7. Acknowledgements
 Thanks to the fellow contributors and interested people in the project. Special thanks to:
 - [Gonzalocl](https://github.com/Gonzalocl), [OdnetninI](https://github.com/OdnetninI): Tested cpufetch in the earlier versions of the project in many different CPUs.
-- [Kingo](https://github.com/Kyngo): Tested cpufetch in the Apple M1 CPU.
+- [Kyngo](https://github.com/Kyngo): Tested cpufetch in the Apple M1 CPU.
 - [avollmerhaus](https://github.com/avollmerhaus): Gave me ssh acess to a PowerPC machine, allowing me to develop the PowerPC port.
 - [bbonev](https://github.com/bbonev), [stephan-cr](https://github.com/stephan-cr): Reviewed the source code.

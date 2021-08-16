@@ -370,7 +370,7 @@ bool match_qualcomm(char* soc_name, struct system_on_chip* soc) {
   SOC_EQ(tmp, "MSM8625Q",       "200",       SOC_SNAPD_MSM8625Q,       soc, 45)
   SOC_EQ(tmp, "MSM8208",        "208",       SOC_SNAPD_MSM8208,        soc, 28)
   SOC_EQ(tmp, "MSM8905",        "205",       SOC_SNAPD_MSM8905,        soc, 28)
-  SOC_EQ(tmp, "MSM8909",        "210 / 212", SOC_SNAPD_MSM8909,        soc, 28) // In the future, we can differenciate them using frequency
+  SOC_EQ(tmp, "MSM8909",        "210 / 212", SOC_SNAPD_MSM8909,        soc, 28) // In the future, we can differentiate them using frequency
   SOC_EQ(tmp, "QM215",          "215",       SOC_SNAPD_QM215,          soc, 28)
   // Snapdragon 4XX //
   SOC_EQ(tmp, "APQ8028",        "400",       SOC_SNAPD_APQ8028,        soc, 28)
