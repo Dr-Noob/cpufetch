@@ -34,8 +34,8 @@
   #include <unistd.h>
 #endif
 
-#define max(a,b) (((a)>(b))?(a):(b))
 #define MAX_ATTRIBUTES      100
+#define MAX_TERM_SIZE       1024
 
 enum {
 #if defined(ARCH_X86) || defined(ARCH_PPC)
@@ -787,16 +787,20 @@ struct terminal* get_terminal_size() {
 #ifdef _WIN32
   CONSOLE_SCREEN_BUFFER_INFO csbi;
   if(GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi) == 0) {
-    printWarn("GetConsoleScreenBufferInfo failed");
-    return NULL;
+    printWarn("get_terminal_size: GetConsoleScreenBufferInfo failed");
+    term->w = MAX_TERM_SIZE;
+    term->h = MAX_TERM_SIZE;
+    return term;
   }
   term->w = csbi.srWindow.Right - csbi.srWindow.Left + 1;
   term->h = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
 #else
   struct winsize w;
   if(ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == -1) {
-    printErr("ioctl: %s", strerror(errno));
-    return NULL;
+    printWarn("get_terminal_size: ioctl: %s", strerror(errno));
+    term->w = MAX_TERM_SIZE;
+    term->h = MAX_TERM_SIZE;
+    return term;
   }
   term->h = w.ws_row;
   term->w = w.ws_col;
