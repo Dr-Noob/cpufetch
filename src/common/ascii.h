@@ -95,19 +95,15 @@ $C1   ######oo...         ..oo#######              \
 $C1          o###############o                     "
 
 #define ASCII_INTEL_NEW \
-"$C1                                                    \
-$C1                                                    \
-$C1   dxxc                ;dd#                  o##N   \
-$C1   c##;                d##K                  o##N   \
-$C1   ....  ...  .,,'.    d##X..      .,,'.     o##N   \
-$C1   ###x ;###dW#####X;  d#####,  #X######No   o##N   \
-$C1   ###x ;####,  .x###' d##X.. .N#Wc.  .#W#N. o##N   \
-$C1   ###x ;###      W### d##K   k##XOOOOOON##x o##N   \
-$C1   ###x ;###      N##o d##K   d##Xccccccccc, o##N   \
-$C1   ###x ;###      N##o ;###x#. O###c;;ckNx.  o##N   \
-$C1   OWWd ;WWW      XWW#  ;ON##,  'xX####NOc   #WWX   \
-$C1                                                    \
-$C1                                                    "
+"$C1  MMM                 oddl                   MMN   \
+$C1  MMM                 dMMN                   MMN   \
+$C1  ...  ....   ...     dMMM..      .cc.       NMN   \
+$C1  MMM  :MMMdWMMMMMX.  dMMMMM,  .XMMMMMMNo    MMN   \
+$C1  MMM  :MMMp    dMMM  dMMX   .NMW      WMN.  MMN   \
+$C1  MMM  :MMM      WMM  dMMK   kMMXooooooNMMx  MMN   \
+$C1  MMM  :MMM      NMM  dMMK   dMMX            MMN   \
+$C1  MMM  :MMM      NMM  dMMMoo  OMM0....:Nx.   MMN   \
+$C1  MMM  :WWW      XWW   lONMM   'xXMMMMNOc    MMN   "
 
 #define ASCII_SNAPD \
 "              $C1@@$C2########               \
@@ -265,22 +261,6 @@ $C1    ####@                               #########@            \
 $C1      #########@               ###############@               \
 $C1          ##############################@                     "
 
-#define ASCII_INTEL_L_NEW_PRE \
-"$C1                                                       \
-$C1                                                       \
-$C1    ###                 ###                     ###    \
-$C1    ###                 ###                     ###    \
-$C1                        ###                     ###    \
-$C1    ###  ### #######    ######    #########     ###    \
-$C1    ###  ############   ######  ####     ####   ###    \
-$C1    ###  ####     ####  ###    ####       ####  ###    \
-$C1    ###  ###       ###  ###    ###############  ###    \
-$C1    ###  ###       ###  ###    ####             ###    \
-$C1    ###  ###       ###  ######  ####     ####   ###    \
-$C1    ###  ###       ###   #####    #########     ###    \
-$C1                                                       \
-$C1                                                       "
-
 #define ASCII_INTEL_L_NEW \
 " ####################################################### \
  ####################################################### \
@@ -329,7 +309,7 @@ typedef struct ascii_logo asciiL;
 //                        -------------------------------------------------------------------------------------------------------------
 asciiL logo_amd         = { ASCII_AMD,         39, 15, false, {COLOR_FG_WHITE, COLOR_FG_GREEN}, {COLOR_FG_WHITE,   COLOR_FG_GREEN}   };
 asciiL logo_intel       = { ASCII_INTEL,       48, 14, false, {COLOR_FG_CYAN},                  {COLOR_FG_CYAN,    COLOR_FG_WHITE}   };
-asciiL logo_intel_new   = { ASCII_INTEL_NEW,   52, 13, false, {COLOR_FG_CYAN},                  {COLOR_FG_CYAN,    COLOR_FG_WHITE}   };
+asciiL logo_intel_new   = { ASCII_INTEL_NEW,   51,  9, false, {COLOR_FG_CYAN},                  {COLOR_FG_CYAN,    COLOR_FG_WHITE}   };
 asciiL logo_snapd       = { ASCII_SNAPD,       39, 16, false, {COLOR_FG_RED, COLOR_FG_WHITE},   {COLOR_FG_RED,     COLOR_FG_WHITE}   };
 asciiL logo_mtk         = { ASCII_MTK,         59,  5, false, {COLOR_FG_BLUE, COLOR_FG_YELLOW}, {COLOR_FG_BLUE,    COLOR_FG_YELLOW}  };
 asciiL logo_exynos      = { ASCII_EXYNOS,      22, 13, true,  {COLOR_BG_BLUE, COLOR_FG_WHITE},  {COLOR_FG_BLUE,    COLOR_FG_WHITE}   };
