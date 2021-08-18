@@ -94,6 +94,21 @@ $C1  ###.                         ..o####.         \
 $C1   ######oo...         ..oo#######              \
 $C1          o###############o                     "
 
+#define ASCII_INTEL_NEW \
+"$C1                                                    \
+$C1                                                    \
+$C1   dxxc                ;dd#                  o##N   \
+$C1   c##;                d##K                  o##N   \
+$C1   ....  ...  .,,'.    d##X..      .,,'.     o##N   \
+$C1   ###x ;###dW#####X;  d#####,  #X######No   o##N   \
+$C1   ###x ;####,  .x###' d##X.. .N#Wc.  .#W#N. o##N   \
+$C1   ###x ;###      W### d##K   k##XOOOOOON##x o##N   \
+$C1   ###x ;###      N##o d##K   d##Xccccccccc, o##N   \
+$C1   ###x ;###      N##o ;###x#. O###c;;ckNx.  o##N   \
+$C1   OWWd ;WWW      XWW#  ;ON##,  'xX####NOc   #WWX   \
+$C1                                                    \
+$C1                                                    "
+
 #define ASCII_SNAPD \
 "              $C1@@$C2########               \
            $C1@@@@@$C2###########            \
@@ -250,6 +265,22 @@ $C1    ####@                               #########@            \
 $C1      #########@               ###############@               \
 $C1          ##############################@                     "
 
+#define ASCII_INTEL_L_NEW \
+"$C1                                                       \
+$C1                                                       \
+$C1   ###                   ###                     ###   \
+$C1   ###                   ###                     ###   \
+$C1                         ###                     ###   \
+$C1   ###  #### ########    ######    #########     ###   \
+$C1   ###  ##############   ######  ####     ####   ###   \
+$C1   ###  #####     #####  ###    ####       ####  ###   \
+$C1   ###  ####       ####  ###    ###############  ###   \
+$C1   ###  ####       ####  ###    ####             ###   \
+$C1   ###  ####       ####  ######  ####     ####   ###   \
+$C1   ###  ####       ####   #####    #########     ###   \
+$C1                                                       \
+$C1                                                       "
+
 #define ASCII_ARM_L \
 "$C1     ############     ##########   ####  ######  ########   \
 $C1  ###############     #########    #######################  \
@@ -277,24 +308,26 @@ $C1 ############ ################   #########    ##    ######### "
 
 typedef struct ascii_logo asciiL;
 
-//                     ------------------------------------------------------------------------------------------------------
-//                     | LOGO          | W | H | REPLACE | COLORS LOGO (>0 && <10)        | COLORS TEXT (=2)                |
-//                     ------------------------------------------------------------------------------------------------------
-asciiL logo_amd      = { ASCII_AMD,      39, 15, false, {COLOR_FG_WHITE, COLOR_FG_GREEN}, {COLOR_FG_WHITE,   COLOR_FG_GREEN}    };
-asciiL logo_intel    = { ASCII_INTEL,    48, 14, false, {COLOR_FG_CYAN},                  {COLOR_FG_CYAN,    COLOR_FG_WHITE}    };
-asciiL logo_snapd    = { ASCII_SNAPD,    39, 16, false, {COLOR_FG_RED, COLOR_FG_WHITE},   {COLOR_FG_RED,     COLOR_FG_WHITE}    };
-asciiL logo_mtk      = { ASCII_MTK,      59,  5, false, {COLOR_FG_BLUE, COLOR_FG_YELLOW}, {COLOR_FG_BLUE,    COLOR_FG_YELLOW}   };
-asciiL logo_exynos   = { ASCII_EXYNOS,   22, 13, true,  {COLOR_BG_BLUE, COLOR_FG_WHITE},  {COLOR_FG_BLUE,    COLOR_FG_WHITE}    };
-asciiL logo_kirin    = { ASCII_KIRIN,    53, 12, false, {COLOR_FG_RED},                   {COLOR_FG_WHITE,   COLOR_FG_RED}      };
-asciiL logo_broadcom = { ASCII_BROADCOM, 44, 19, false, {COLOR_FG_WHITE, COLOR_FG_RED},   {COLOR_FG_WHITE,   COLOR_FG_RED}      };
-asciiL logo_arm      = { ASCII_ARM,      42,  5, false, {COLOR_FG_CYAN},                  {COLOR_FG_WHITE,   COLOR_FG_CYAN}     };
-asciiL logo_ibm      = { ASCII_IBM,      42,  9, false, {COLOR_FG_CYAN, COLOR_FG_WHITE},  {COLOR_FG_CYAN,    COLOR_FG_WHITE}    };
-asciiL logo_apple    = { ASCII_APPLE,    32, 17, false, {COLOR_FG_WHITE},                 {COLOR_FG_B_BLACK, COLOR_FG_B_WHITE}  };
-// Long variants       | ----------------------------------------------------------------------------------------------------|
-asciiL logo_amd_l    = { ASCII_AMD_L,    62, 19, true,  {COLOR_BG_WHITE, COLOR_BG_GREEN}, {COLOR_FG_WHITE, COLOR_FG_GREEN}  };
-asciiL logo_intel_l  = { ASCII_INTEL_L,  62, 19, true,  {COLOR_BG_CYAN, COLOR_BG_WHITE},  {COLOR_FG_CYAN,  COLOR_FG_WHITE}  };
-asciiL logo_arm_l    = { ASCII_ARM_L,    60,  8, true,  {COLOR_BG_CYAN},                  {COLOR_FG_WHITE, COLOR_FG_CYAN}   };
-asciiL logo_ibm_l    = { ASCII_IBM_L,    62, 13, true,  {COLOR_BG_CYAN, COLOR_FG_WHITE},  {COLOR_FG_CYAN,  COLOR_FG_WHITE}  };
-asciiL logo_unknown  = { NULL,            0,  0, false, {COLOR_NONE},                     {COLOR_NONE,     COLOR_NONE}      };
+//                        -------------------------------------------------------------------------------------------------------------
+//                        | LOGO             | W | H | REPLACE | COLORS LOGO (>0 && <10)        | COLORS TEXT (=2)                    |
+//                        -------------------------------------------------------------------------------------------------------------
+asciiL logo_amd         = { ASCII_AMD,         39, 15, false, {COLOR_FG_WHITE, COLOR_FG_GREEN}, {COLOR_FG_WHITE,   COLOR_FG_GREEN}   };
+asciiL logo_intel       = { ASCII_INTEL,       48, 14, false, {COLOR_FG_CYAN},                  {COLOR_FG_CYAN,    COLOR_FG_WHITE}   };
+asciiL logo_intel_new   = { ASCII_INTEL_NEW,   52, 13, false, {COLOR_FG_CYAN},                  {COLOR_FG_CYAN,    COLOR_FG_WHITE}   };
+asciiL logo_snapd       = { ASCII_SNAPD,       39, 16, false, {COLOR_FG_RED, COLOR_FG_WHITE},   {COLOR_FG_RED,     COLOR_FG_WHITE}   };
+asciiL logo_mtk         = { ASCII_MTK,         59,  5, false, {COLOR_FG_BLUE, COLOR_FG_YELLOW}, {COLOR_FG_BLUE,    COLOR_FG_YELLOW}  };
+asciiL logo_exynos      = { ASCII_EXYNOS,      22, 13, true,  {COLOR_BG_BLUE, COLOR_FG_WHITE},  {COLOR_FG_BLUE,    COLOR_FG_WHITE}   };
+asciiL logo_kirin       = { ASCII_KIRIN,       53, 12, false, {COLOR_FG_RED},                   {COLOR_FG_WHITE,   COLOR_FG_RED}     };
+asciiL logo_broadcom    = { ASCII_BROADCOM,    44, 19, false, {COLOR_FG_WHITE, COLOR_FG_RED},   {COLOR_FG_WHITE,   COLOR_FG_RED}     };
+asciiL logo_arm         = { ASCII_ARM,         42,  5, false, {COLOR_FG_CYAN},                  {COLOR_FG_WHITE,   COLOR_FG_CYAN}    };
+asciiL logo_ibm         = { ASCII_IBM,         42,  9, false, {COLOR_FG_CYAN, COLOR_FG_WHITE},  {COLOR_FG_CYAN,    COLOR_FG_WHITE}   };
+asciiL logo_apple       = { ASCII_APPLE,       32, 17, false, {COLOR_FG_WHITE},                 {COLOR_FG_B_BLACK, COLOR_FG_B_WHITE} };
+// Long variants          | ----------------------------------------------------------------------------------------------------------|
+asciiL logo_amd_l       = { ASCII_AMD_L,       62, 19, true,  {COLOR_BG_WHITE, COLOR_BG_GREEN}, {COLOR_FG_WHITE, COLOR_FG_GREEN}     };
+asciiL logo_intel_l     = { ASCII_INTEL_L,     62, 19, true,  {COLOR_BG_CYAN, COLOR_BG_WHITE},  {COLOR_FG_CYAN,  COLOR_FG_WHITE}     };
+asciiL logo_intel_l_new = { ASCII_INTEL_L_NEW, 55, 14, true,  {COLOR_BG_CYAN, COLOR_BG_WHITE},  {COLOR_FG_CYAN,  COLOR_FG_WHITE}     };
+asciiL logo_arm_l       = { ASCII_ARM_L,       60,  8, true,  {COLOR_BG_CYAN},                  {COLOR_FG_WHITE, COLOR_FG_CYAN}      };
+asciiL logo_ibm_l       = { ASCII_IBM_L,       62, 13, true,  {COLOR_BG_CYAN, COLOR_FG_WHITE},  {COLOR_FG_CYAN,  COLOR_FG_WHITE}     };
+asciiL logo_unknown     = { NULL,               0,  0, false, {COLOR_NONE},                     {COLOR_NONE,     COLOR_NONE}         };
 
 #endif
