@@ -144,6 +144,7 @@ struct ascii {
   struct attribute** attributes;
   uint32_t n_attributes_set;
   uint32_t additional_spaces;
+  bool new_intel_logo;
   VENDOR vendor;
   STYLE style;
 };
@@ -260,10 +261,18 @@ void choose_ascii_art(struct ascii* art, struct color** cs, struct terminal* ter
   // 1. Choose logo
 #ifdef ARCH_X86
   if(art->vendor == CPU_VENDOR_INTEL) {
-    if(term != NULL && ascii_fits_screen(term->w, logo_intel_l, lf))
-      art->art = &logo_intel_l;
-    else
-      art->art = &logo_intel;
+    if(art->new_intel_logo) {
+      if(term != NULL && ascii_fits_screen(term->w, logo_intel_l_new, lf))
+        art->art = &logo_intel_l_new;
+      else
+        art->art = &logo_intel_new;
+    }
+    else {
+      if(term != NULL && ascii_fits_screen(term->w, logo_intel_l, lf))
+        art->art = &logo_intel_l;
+      else
+        art->art = &logo_intel;
+    }
   }
   else if(art->vendor == CPU_VENDOR_AMD) {
     if(term != NULL && ascii_fits_screen(term->w, logo_amd_l, lf))
@@ -428,6 +437,7 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
   if(art == NULL)
     return false;
 
+  art->new_intel_logo = choose_new_intel_logo(cpu);
   char* uarch = get_str_uarch(cpu);
   char* manufacturing_process = get_str_process(cpu);
   char* sockets = get_str_sockets(cpu->topo);

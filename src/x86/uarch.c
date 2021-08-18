@@ -399,6 +399,16 @@ int get_number_of_vpus(struct cpuInfo* cpu) {
   }
 }
 
+bool choose_new_intel_logo(struct cpuInfo* cpu) {
+  switch(cpu->arch->uarch) {
+    case UARCH_ROCKET_LAKE:
+    // TODO: case UARCH_TIGER_LAKE: missing?
+      return true;
+    default:
+      return false;
+  }
+}
+
 char* get_str_uarch(struct cpuInfo* cpu) {
   return cpu->arch->uarch_str;
 }
