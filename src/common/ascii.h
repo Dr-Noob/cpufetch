@@ -1,7 +1,7 @@
 #ifndef __ASCII__
 #define __ASCII__
 
-#define C_NONE         ""
+#define COLOR_NONE     ""
 #define C_FG_BLACK     "\x1b[30;1m"
 #define C_FG_RED       "\x1b[31;1m"
 #define C_FG_GREEN     "\x1b[32;1m"
@@ -26,7 +26,7 @@
 #define C_FG_B_MAGENTA "\x1b[95;1m"
 #define C_FG_B_CYAN    "\x1b[96;1m"
 #define C_FG_B_WHITE   "\x1b[97;1m"
-#define C_RESET        "\x1b[m"
+#define COLOR_RESET    "\x1b[m"
 
 struct ascii_logo {
   char* art;
@@ -324,6 +324,6 @@ asciiL logo_intel_l     = { ASCII_INTEL_L,     62, 19, true,  {C_BG_CYAN, C_BG_W
 asciiL logo_intel_l_new = { ASCII_INTEL_L_NEW, 57, 14, true,  {C_BG_CYAN, C_BG_WHITE, C_BG_BLUE}, {C_FG_CYAN,  C_FG_WHITE}     };
 asciiL logo_arm_l       = { ASCII_ARM_L,       60,  8, true,  {C_BG_CYAN},                        {C_FG_WHITE, C_FG_CYAN}      };
 asciiL logo_ibm_l       = { ASCII_IBM_L,       62, 13, true,  {C_BG_CYAN, C_FG_WHITE},            {C_FG_CYAN,  C_FG_WHITE}     };
-asciiL logo_unknown     = { NULL,               0,  0, false, {C_NONE},                           {C_NONE,     C_NONE}         };
+asciiL logo_unknown     = { NULL,               0,  0, false, {COLOR_NONE},                       {COLOR_NONE, COLOR_NONE}     };
 
 #endif

@@ -246,14 +246,14 @@ void replace_bgbyfg_color(struct ascii_logo* logo) {
   for(int i=0; i < 3; i++) {
     if(logo->color_ascii[i] == NULL) break;
 
-    if(strcmp(logo->color_ascii[i], COLOR_BG_BLACK) == 0) strcpy(logo->color_ascii[i], COLOR_FG_BLACK);
-    else if(strcmp(logo->color_ascii[i], COLOR_BG_RED) == 0) strcpy(logo->color_ascii[i], COLOR_FG_RED);
-    else if(strcmp(logo->color_ascii[i], COLOR_BG_GREEN) == 0) strcpy(logo->color_ascii[i], COLOR_FG_GREEN);
-    else if(strcmp(logo->color_ascii[i], COLOR_BG_YELLOW) == 0) strcpy(logo->color_ascii[i], COLOR_FG_YELLOW);
-    else if(strcmp(logo->color_ascii[i], COLOR_BG_BLUE) == 0) strcpy(logo->color_ascii[i], COLOR_FG_BLUE);
-    else if(strcmp(logo->color_ascii[i], COLOR_BG_MAGENTA) == 0) strcpy(logo->color_ascii[i], COLOR_FG_MAGENTA);
-    else if(strcmp(logo->color_ascii[i], COLOR_BG_CYAN) == 0) strcpy(logo->color_ascii[i], COLOR_FG_CYAN);
-    else if(strcmp(logo->color_ascii[i], COLOR_BG_WHITE) == 0) strcpy(logo->color_ascii[i], COLOR_FG_WHITE);
+    if(strcmp(logo->color_ascii[i], C_BG_BLACK) == 0) strcpy(logo->color_ascii[i], C_FG_BLACK);
+    else if(strcmp(logo->color_ascii[i], C_BG_RED) == 0) strcpy(logo->color_ascii[i], C_FG_RED);
+    else if(strcmp(logo->color_ascii[i], C_BG_GREEN) == 0) strcpy(logo->color_ascii[i], C_FG_GREEN);
+    else if(strcmp(logo->color_ascii[i], C_BG_YELLOW) == 0) strcpy(logo->color_ascii[i], C_FG_YELLOW);
+    else if(strcmp(logo->color_ascii[i], C_BG_BLUE) == 0) strcpy(logo->color_ascii[i], C_FG_BLUE);
+    else if(strcmp(logo->color_ascii[i], C_BG_MAGENTA) == 0) strcpy(logo->color_ascii[i], C_FG_MAGENTA);
+    else if(strcmp(logo->color_ascii[i], C_BG_CYAN) == 0) strcpy(logo->color_ascii[i], C_FG_CYAN);
+    else if(strcmp(logo->color_ascii[i], C_BG_WHITE) == 0) strcpy(logo->color_ascii[i], C_FG_WHITE);
   }
 }
 
