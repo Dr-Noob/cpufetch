@@ -243,7 +243,7 @@ bool ascii_fits_screen(int termw, struct ascii_logo logo, int lf) {
 // on logo->replace_blocks
 void replace_bgbyfg_color(struct ascii_logo* logo) {
   // Replace background by foreground color
-  for(int i=0; i < 2; i++) {
+  for(int i=0; i < 3; i++) {
     if(logo->color_ascii[i] == NULL) break;
 
     if(strcmp(logo->color_ascii[i], COLOR_BG_BLACK) == 0) strcpy(logo->color_ascii[i], COLOR_FG_BLACK);
@@ -323,6 +323,7 @@ void choose_ascii_art(struct ascii* art, struct color** cs, struct terminal* ter
       strcpy(logo->color_text[1], COLOR_NONE);
       strcpy(logo->color_ascii[0], COLOR_NONE);
       strcpy(logo->color_ascii[1], COLOR_NONE);
+      strcpy(logo->color_ascii[2], COLOR_NONE);
       art->reset[0] = '\0';
       break;
     case STYLE_RETRO:
@@ -331,10 +332,11 @@ void choose_ascii_art(struct ascii* art, struct color** cs, struct terminal* ter
       // fall through
     case STYLE_FANCY:
       if(cs != NULL) {
-        strcpy(logo->color_text[0], rgb_to_ansi(cs[2], false, true));
-        strcpy(logo->color_text[1], rgb_to_ansi(cs[3], false, true));
+        strcpy(logo->color_text[0], rgb_to_ansi(cs[3], false, true));
+        strcpy(logo->color_text[1], rgb_to_ansi(cs[4], false, true));
         strcpy(logo->color_ascii[0], rgb_to_ansi(cs[0], logo->replace_blocks, true));
         strcpy(logo->color_ascii[1], rgb_to_ansi(cs[1], logo->replace_blocks, true));
+        strcpy(logo->color_ascii[2], rgb_to_ansi(cs[2], logo->replace_blocks, true));
       }
       strcpy(art->reset, COLOR_RESET);
       break;
@@ -399,6 +401,7 @@ void print_ascii_generic(struct ascii* art, uint32_t la, int32_t text_space, con
         if(logo->replace_blocks && logo->art[logo_pos] != ' ') {
           if(logo->art[logo_pos] == '#') printf("%s%c%s", logo->color_ascii[0], ' ', art->reset);
           else if(logo->art[logo_pos] == '@') printf("%s%c%s", logo->color_ascii[1], ' ', art->reset);
+          else if(logo->art[logo_pos] == '%') printf("%s%c%s", logo->color_ascii[2], ' ', art->reset);
           else printf("%c", logo->art[logo_pos]);
         }
         else
@@ -652,6 +655,7 @@ void print_ascii_arm(struct ascii* art, uint32_t la, int32_t text_space, const c
         if(logo->replace_blocks && logo->art[logo_pos] != ' ') {
           if(logo->art[logo_pos] == '#') printf("%s%c%s", logo->color_ascii[0], ' ', art->reset);
           else if(logo->art[logo_pos] == '@') printf("%s%c%s", logo->color_ascii[1], ' ', art->reset);
+          else if(logo->art[logo_pos] == '%') printf("%s%c%s", logo->color_ascii[2], ' ', art->reset);
           else printf("%c", logo->art[logo_pos]);
         }
         else

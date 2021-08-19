@@ -5,12 +5,13 @@
 #include "args.h"
 #include "global.h"
 
-#define NUM_COLORS      4
+#define NUM_COLORS      5
 
-#define COLOR_STR_INTEL "intel"
-#define COLOR_STR_AMD   "amd"
-#define COLOR_STR_IBM   "ibm"
-#define COLOR_STR_ARM   "arm"
+#define COLOR_STR_INTEL     "intel"
+#define COLOR_STR_INTEL_NEW "intel-new"
+#define COLOR_STR_AMD       "amd"
+#define COLOR_STR_IBM       "ibm"
+#define COLOR_STR_ARM       "arm"
 
 static const char *SYTLES_STR_LIST[] = {
   [STYLE_EMPTY]   = NULL,
@@ -156,6 +157,7 @@ bool parse_color(char* optarg_str, struct color*** cs) {
   bool free_ptr = true;
 
   if(strcmp(optarg_str, COLOR_STR_INTEL) == 0) color_to_copy = COLOR_DEFAULT_INTEL;
+  else if(strcmp(optarg_str, COLOR_STR_INTEL_NEW) == 0) color_to_copy = COLOR_DEFAULT_INTEL_NEW;
   else if(strcmp(optarg_str, COLOR_STR_AMD) == 0) color_to_copy = COLOR_DEFAULT_AMD;
   else if(strcmp(optarg_str, COLOR_STR_IBM) == 0) color_to_copy = COLOR_DEFAULT_IBM;
   else if(strcmp(optarg_str, COLOR_STR_ARM) == 0) color_to_copy = COLOR_DEFAULT_ARM;
@@ -169,14 +171,16 @@ bool parse_color(char* optarg_str, struct color*** cs) {
     strcpy(str_to_parse, color_to_copy);
   }
 
-  ret = sscanf(str_to_parse, "%d,%d,%d:%d,%d,%d:%d,%d,%d:%d,%d,%d",
+  ret = sscanf(str_to_parse, "%d,%d,%d:%d,%d,%d:%d,%d,%d:%d,%d,%d:%d,%d,%d",
                &c[0]->R, &c[0]->G, &c[0]->B,
                &c[1]->R, &c[1]->G, &c[1]->B,
                &c[2]->R, &c[2]->G, &c[2]->B,
-               &c[3]->R, &c[3]->G, &c[3]->B);
+               &c[3]->R, &c[3]->G, &c[3]->B,
+               &c[4]->R, &c[4]->G, &c[4]->B);
 
-  if(ret != 12) {
-    printErr("Expected to read 12 values for color but read %d", ret);
+  int expected_colors = 3 * NUM_COLORS;
+  if(ret != expected_colors) {
+    printErr("Expected to read %d values for color but read %d", expected_colors, ret);
     return false;
   }
 

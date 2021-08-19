@@ -33,7 +33,7 @@ struct ascii_logo {
   uint32_t width;
   uint32_t height;
   bool replace_blocks;
-  char color_ascii[8][100];
+  char color_ascii[3][100];
   char color_text[2][100];
 };
 
@@ -321,7 +321,7 @@ asciiL logo_apple       = { ASCII_APPLE,       32, 17, false, {COLOR_FG_WHITE}, 
 // Long variants          | ----------------------------------------------------------------------------------------------------------|
 asciiL logo_amd_l       = { ASCII_AMD_L,       62, 19, true,  {COLOR_BG_WHITE, COLOR_BG_GREEN}, {COLOR_FG_WHITE, COLOR_FG_GREEN}     };
 asciiL logo_intel_l     = { ASCII_INTEL_L,     62, 19, true,  {COLOR_BG_CYAN, COLOR_BG_WHITE},  {COLOR_FG_CYAN,  COLOR_FG_WHITE}     };
-asciiL logo_intel_l_new = { ASCII_INTEL_L_NEW, 57, 14, true,  {COLOR_BG_CYAN, COLOR_BG_WHITE},  {COLOR_FG_CYAN,  COLOR_FG_WHITE}     };
+asciiL logo_intel_l_new = { ASCII_INTEL_L_NEW, 57, 14, true,  {COLOR_BG_CYAN, COLOR_BG_WHITE, COLOR_BG_BLUE},  {COLOR_FG_CYAN,  COLOR_FG_WHITE}     };
 asciiL logo_arm_l       = { ASCII_ARM_L,       60,  8, true,  {COLOR_BG_CYAN},                  {COLOR_FG_WHITE, COLOR_FG_CYAN}      };
 asciiL logo_ibm_l       = { ASCII_IBM_L,       62, 13, true,  {COLOR_BG_CYAN, COLOR_FG_WHITE},  {COLOR_FG_CYAN,  COLOR_FG_WHITE}     };
 asciiL logo_unknown     = { NULL,               0,  0, false, {COLOR_NONE},                     {COLOR_NONE,     COLOR_NONE}         };

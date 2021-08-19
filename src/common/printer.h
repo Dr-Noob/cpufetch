@@ -13,10 +13,14 @@ typedef int STYLE;
   #include "../arm/midr.h"
 #endif
 
-#define COLOR_DEFAULT_INTEL "15,125,194:230,230,230:40,150,220:230,230,230"
-#define COLOR_DEFAULT_AMD   "250,250,250:0,154,102:250,250,250:0,154,102"
-#define COLOR_DEFAULT_IBM   "92,119,172:92,119,172:240,240,240:92,119,172"
-#define COLOR_DEFAULT_ARM   "0,145,189:0,145,189:240,240,240:0,145,189"
+//                              +-----------------------------------+-----------------------+
+//                              | Color logo                        | Color text            |
+//                              | Color 1   | Color 2   | Color 3   | Color 1   | Color 2   |
+#define COLOR_DEFAULT_INTEL     "015,125,194:230,230,230:000,000,000:040,150,220:230,230,230"
+#define COLOR_DEFAULT_INTEL_NEW "030,204,251:250,250,250:000,104,181:230,230,230:030,204,251"
+#define COLOR_DEFAULT_AMD       "250,250,250:000,154,102:000,000,000:250,250,250:000,154,102"
+#define COLOR_DEFAULT_IBM       "092,119,172:092,119,172:000,000,000:240,240,240:092,119,172"
+#define COLOR_DEFAULT_ARM       "000,145,189:000,145,189:000,000,000:240,240,240:000,145,189"
 
 #ifdef ARCH_X86
 void print_levels(struct cpuInfo* cpu);
