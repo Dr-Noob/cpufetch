@@ -257,12 +257,14 @@ void replace_bgbyfg_color(struct ascii_logo* logo) {
   }
 }
 
-struct ascii_logo* choose_ascii_art_fits(struct ascii_logo* logo_iffits, struct ascii_logo* logo_ifdoesnt, struct terminal* term, int lf) {
-  if(term != NULL && ascii_fits_screen(term->w, *logo_iffits, lf)) {
-    return logo_iffits;
+struct ascii_logo* choose_ascii_art_aux(struct ascii_logo* logo_long, struct ascii_logo* logo_short, struct terminal* term, int lf) {
+  if(show_logo_long()) return logo_long;
+  if(show_logo_short()) return logo_short;
+  if(ascii_fits_screen(term->w, *logo_long, lf)) {
+    return logo_long;
   }
   else {
-    return logo_ifdoesnt;
+    return logo_short;
   }
 }
 
@@ -271,28 +273,20 @@ void choose_ascii_art(struct ascii* art, struct color** cs, struct terminal* ter
 #ifdef ARCH_X86
   if(art->vendor == CPU_VENDOR_INTEL) {
     if(art->new_intel_logo) {
-      if(show_logo_long()) art->art = &logo_intel_l_new;
-      else if(show_logo_short()) art->art = &logo_intel_new;
-      else art->art = choose_ascii_art_fits(&logo_intel_l_new, &logo_intel_new, term, lf);
+      art->art = choose_ascii_art_aux(&logo_intel_l_new, &logo_intel_new, term, lf);
     }
     else {
-      if(show_logo_long()) art->art = &logo_intel_l;
-      else if(show_logo_short()) art->art = &logo_intel;
-      else art->art = choose_ascii_art_fits(&logo_intel_l, &logo_intel, term, lf);
+      art->art = choose_ascii_art_aux(&logo_intel_l, &logo_intel, term, lf);
     }
   }
   else if(art->vendor == CPU_VENDOR_AMD) {
-    if(show_logo_long()) art->art = &logo_amd_l;
-    else if(show_logo_short()) art->art = &logo_amd;
-    else art->art = choose_ascii_art_fits(&logo_amd_l, &logo_amd, term, lf);
+    art->art = choose_ascii_art_aux(&logo_amd_l, &logo_amd, term, lf);
   }
   else {
     art->art = &logo_unknown;
   }
 #elif ARCH_PPC
-  if(show_logo_long()) art->art = &logo_ibm_l;
-  else if(show_logo_short()) art->art = &logo_ibm;
-  else art->art = choose_ascii_art_fits(&logo_ibm_l, &logo_ibm, term, lf);
+  art->art = choose_ascii_art_aux(&logo_ibm_l, &logo_ibm, term, lf);
 #elif ARCH_ARM
   if(art->vendor == SOC_VENDOR_SNAPDRAGON)
     art->art = &logo_snapd;
@@ -307,9 +301,7 @@ void choose_ascii_art(struct ascii* art, struct color** cs, struct terminal* ter
   else if(art->vendor == SOC_VENDOR_APPLE)
     art->art = &logo_apple;
   else {
-    if(show_logo_long()) art->art = &logo_arm_l;
-    else if(show_logo_short()) art->art = &logo_arm;
-    else art->art = choose_ascii_art_fits(&logo_arm_l, &logo_arm, term, lf);
+    art->art = choose_ascii_art_aux(&logo_arm_l, &logo_arm, term, lf);
   }
 #endif
 
