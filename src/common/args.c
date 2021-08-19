@@ -25,6 +25,10 @@ struct args_struct {
   bool help_flag;
   bool raw_flag;
   bool full_cpu_name_flag;
+  bool logo_long;
+  bool logo_short;
+  bool logo_intel_new;
+  bool logo_intel_old;
   bool verbose_flag;
   bool version_flag;
   STYLE style;
@@ -32,25 +36,33 @@ struct args_struct {
 };
 
 const char args_chr[] = {
-  /* [ARG_CHAR_STYLE]       = */ 's',
-  /* [ARG_CHAR_COLOR]       = */ 'c',
-  /* [ARG_CHAR_HELP]        = */ 'h',
-  /* [ARG_CHAR_RAW]         = */ 'r',
-  /* [ARG_CHAR_FULLCPUNAME] = */ 'F',
-  /* [ARG_CHAR_DEBUG]       = */ 'd',
-  /* [ARG_CHAR_VERBOSE]     = */ 'v',
-  /* [ARG_CHAR_VERSION]     = */ 'V',
+  /* [ARG_CHAR_STYLE]          = */ 's',
+  /* [ARG_CHAR_COLOR]          = */ 'c',
+  /* [ARG_CHAR_HELP]           = */ 'h',
+  /* [ARG_CHAR_RAW]            = */ 'r',
+  /* [ARG_CHAR_FULLCPUNAME]    = */ 'F',
+  /* [ARG_CHAR_LOGO_LONG]      = */ 1,
+  /* [ARG_CHAR_LOGO_SHORT]     = */ 2,
+  /* [ARG_CHAR_LOGO_INTEL_NEW] = */ 3,
+  /* [ARG_CHAR_LOGO_INTEL_OLD] = */ 4,
+  /* [ARG_CHAR_DEBUG]          = */ 'd',
+  /* [ARG_CHAR_VERBOSE]        = */ 'v',
+  /* [ARG_CHAR_VERSION]        = */ 'V',
 };
 
 const char *args_str[] = {
-  /* [ARG_CHAR_STYLE]       = */ "style",
-  /* [ARG_CHAR_COLOR]       = */ "color",
-  /* [ARG_CHAR_HELP]        = */ "help",
-  /* [ARG_CHAR_RAW]         = */ "raw",
-  /* [ARG_CHAR_FULLCPUNAME] = */ "full-cpu-name",
-  /* [ARG_CHAR_DEBUG]       = */ "debug",
-  /* [ARG_CHAR_VERBOSE]     = */ "verbose",
-  /* [ARG_CHAR_VERSION]     = */ "version",
+  /* [ARG_CHAR_STYLE]          = */ "style",
+  /* [ARG_CHAR_COLOR]          = */ "color",
+  /* [ARG_CHAR_HELP]           = */ "help",
+  /* [ARG_CHAR_RAW]            = */ "raw",
+  /* [ARG_CHAR_FULLCPUNAME]    = */ "full-cpu-name",
+  /* [ARG_CHAR_LOGO_LONG]      = */ "logo-long",
+  /* [ARG_CHAR_LOGO_SHORT]     = */ "logo-short",
+  /* [ARG_CHAR_LOGO_INTEL_NEW] = */ "logo-intel-new",
+  /* [ARG_CHAR_LOGO_INTEL_OLD] = */ "logo-intel-old",
+  /* [ARG_CHAR_DEBUG]          = */ "debug",
+  /* [ARG_CHAR_VERBOSE]        = */ "verbose",
+  /* [ARG_CHAR_VERSION]        = */ "version",
 };
 
 static struct args_struct args;
@@ -81,6 +93,22 @@ bool show_raw() {
 
 bool show_full_cpu_name() {
   return args.full_cpu_name_flag;
+}
+
+bool show_logo_long() {
+  return args.logo_long;
+}
+
+bool show_logo_short() {
+  return args.logo_short;
+}
+
+bool show_logo_intel_new() {
+  return args.logo_intel_new;
+}
+
+bool show_logo_intel_old() {
+  return args.logo_intel_old;
 }
 
 bool verbose_enabled() {
@@ -179,14 +207,18 @@ char* build_short_options() {
   memset(str, 0, sizeof(char) * (len*2 + 1));
 
 #ifdef ARCH_X86
-  sprintf(str, "%c:%c:%c%c%c%c%c%c",
-  c[ARG_STYLE], c[ARG_COLOR], c[ARG_HELP], c[ARG_RAW],
-  c[ARG_FULLCPUNAME], c[ARG_DEBUG], c[ARG_VERBOSE],
-  c[ARG_VERSION]);
-#else
-  sprintf(str, "%c:%c:%c%c%c%c",
+  sprintf(str, "%c:%c:%c%c%c%c%c%c%c%c%c%c",
   c[ARG_STYLE], c[ARG_COLOR], c[ARG_HELP],
+  c[ARG_RAW], c[ARG_FULLCPUNAME],
+  c[ARG_LOGO_SHORT], c[ARG_LOGO_LONG],
+  c[ARG_LOGO_INTEL_NEW], c[ARG_LOGO_INTEL_OLD],
   c[ARG_DEBUG], c[ARG_VERBOSE], c[ARG_VERSION]);
+#else
+  sprintf(str, "%c:%c:%c%c%c%c%c%c",
+  c[ARG_STYLE], c[ARG_COLOR], c[ARG_HELP],
+  c[ARG_LOGO_SHORT], c[ARG_LOGO_LONG],
+  c[ARG_DEBUG], c[ARG_VERBOSE],
+  c[ARG_VERSION]);
 #endif
 
   return str;
@@ -202,21 +234,29 @@ bool parse_args(int argc, char* argv[]) {
   args.full_cpu_name_flag = false;
   args.raw_flag = false;
   args.verbose_flag = false;
+  args.logo_long = false;
+  args.logo_short = false;
+  args.logo_intel_new = false;
+  args.logo_intel_old = false;
   args.help_flag = false;
   args.style = STYLE_EMPTY;
   args.colors = NULL;
 
   const struct option long_options[] = {
-    {args_str[ARG_STYLE],       required_argument, 0, args_chr[ARG_STYLE]       },
-    {args_str[ARG_COLOR],       required_argument, 0, args_chr[ARG_COLOR]       },
-    {args_str[ARG_HELP],        no_argument,       0, args_chr[ARG_HELP]        },
+    {args_str[ARG_STYLE],          required_argument, 0, args_chr[ARG_STYLE]          },
+    {args_str[ARG_COLOR],          required_argument, 0, args_chr[ARG_COLOR]          },
+    {args_str[ARG_HELP],           no_argument,       0, args_chr[ARG_HELP]           },
 #ifdef ARCH_X86
-    {args_str[ARG_FULLCPUNAME], no_argument,       0, args_chr[ARG_FULLCPUNAME] },
-    {args_str[ARG_RAW],         no_argument,       0, args_chr[ARG_RAW]         },
+    {args_str[ARG_LOGO_INTEL_NEW], no_argument,       0, args_chr[ARG_LOGO_INTEL_NEW] },
+    {args_str[ARG_LOGO_INTEL_OLD], no_argument,       0, args_chr[ARG_LOGO_INTEL_OLD] },
+    {args_str[ARG_FULLCPUNAME],    no_argument,       0, args_chr[ARG_FULLCPUNAME]    },
+    {args_str[ARG_RAW],            no_argument,       0, args_chr[ARG_RAW]            },
 #endif
-    {args_str[ARG_DEBUG],       no_argument,       0, args_chr[ARG_DEBUG]       },
-    {args_str[ARG_VERBOSE],     no_argument,       0, args_chr[ARG_VERBOSE]     },
-    {args_str[ARG_VERSION],     no_argument,       0, args_chr[ARG_VERSION]     },
+    {args_str[ARG_LOGO_SHORT],     no_argument,       0, args_chr[ARG_LOGO_SHORT]     },
+    {args_str[ARG_LOGO_LONG],      no_argument,       0, args_chr[ARG_LOGO_LONG]      },
+    {args_str[ARG_DEBUG],          no_argument,       0, args_chr[ARG_DEBUG]          },
+    {args_str[ARG_VERBOSE],        no_argument,       0, args_chr[ARG_VERBOSE]        },
+    {args_str[ARG_VERSION],        no_argument,       0, args_chr[ARG_VERSION]        },
     {0, 0, 0, 0}
   };
 
@@ -253,6 +293,18 @@ bool parse_args(int argc, char* argv[]) {
     else if(opt == args_chr[ARG_FULLCPUNAME]) {
        args.full_cpu_name_flag = true;
     }
+    else if(opt == args_chr[ARG_LOGO_SHORT]) {
+       args.logo_short = true;
+    }
+    else if(opt == args_chr[ARG_LOGO_LONG]) {
+       args.logo_long = true;
+    }
+    else if(opt == args_chr[ARG_LOGO_INTEL_NEW]) {
+       args.logo_intel_new = true;
+    }
+    else if(opt == args_chr[ARG_LOGO_INTEL_OLD]) {
+       args.logo_intel_old = true;
+    }
     else if(opt == args_chr[ARG_RAW]) {
        args.raw_flag  = true;
     }
@@ -282,6 +334,18 @@ bool parse_args(int argc, char* argv[]) {
   if((args.help_flag + args.version_flag + color_flag) > 1) {
     printWarn("You should specify just one option");
     args.help_flag  = true;
+  }
+
+  if(args.logo_intel_new && args.logo_intel_old) {
+    printWarn("%s and %s cannot be specified together", args_str[ARG_LOGO_INTEL_NEW], args_str[ARG_LOGO_INTEL_OLD]);
+    args.logo_intel_new = false;
+    args.logo_intel_old = false;
+  }
+
+  if(args.logo_short && args.logo_long) {
+    printWarn("%s and %s cannot be specified together", args_str[ARG_LOGO_SHORT], args_str[ARG_LOGO_LONG]);
+    args.logo_short = false;
+    args.logo_long = false;
   }
 
   return true;

@@ -399,7 +399,7 @@ int get_number_of_vpus(struct cpuInfo* cpu) {
   }
 }
 
-bool choose_new_intel_logo(struct cpuInfo* cpu) {
+bool choose_new_intel_logo_uarch(struct cpuInfo* cpu) {
   switch(cpu->arch->uarch) {
     case UARCH_ROCKET_LAKE:
     // TODO: case UARCH_TIGER_LAKE: missing?

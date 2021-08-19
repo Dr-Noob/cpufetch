@@ -25,6 +25,10 @@ enum {
   ARG_HELP,
   ARG_RAW,
   ARG_FULLCPUNAME,
+  ARG_LOGO_LONG,
+  ARG_LOGO_SHORT,
+  ARG_LOGO_INTEL_NEW,
+  ARG_LOGO_INTEL_OLD,
   ARG_DEBUG,
   ARG_VERBOSE,
   ARG_VERSION
@@ -39,6 +43,10 @@ int max_arg_str_length();
 bool parse_args(int argc, char* argv[]);
 bool show_help();
 bool show_full_cpu_name();
+bool show_logo_long();
+bool show_logo_short();
+bool show_logo_intel_new();
+bool show_logo_intel_old();
 bool show_raw();
 bool show_debug();
 bool show_version();

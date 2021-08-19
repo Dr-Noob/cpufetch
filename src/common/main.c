@@ -51,8 +51,12 @@ void print_help(char *argv[]) {
 #elif ARCH_ARM
   printf("  -%c, --%s %*s Prints main ID register values for all cores (debug purposes)\n", c[ARG_DEBUG], t[ARG_DEBUG], (int) (max_len-strlen(t[ARG_DEBUG])), "");
 #endif
+  printf("      --%s %*s Shows the short version of the logo\n", t[ARG_LOGO_SHORT], (int) (max_len-strlen(t[ARG_LOGO_SHORT])), "");
+  printf("      --%s %*s Shows the long version of the logo\n", t[ARG_LOGO_LONG], (int) (max_len-strlen(t[ARG_LOGO_LONG])), "");
   printf("  -%c, --%s %*s Prints extra information (if available) about how cpufetch tried fetching information\n", c[ARG_VERBOSE], t[ARG_VERBOSE], (int) (max_len-strlen(t[ARG_VERBOSE])), "");
 #ifdef ARCH_X86
+  printf("      --%s %*s Show the old Intel logo\n", t[ARG_LOGO_INTEL_OLD], (int) (max_len-strlen(t[ARG_LOGO_INTEL_OLD])), "");
+  printf("      --%s %*s Show the new Intel logo\n", t[ARG_LOGO_INTEL_NEW], (int) (max_len-strlen(t[ARG_LOGO_INTEL_NEW])), "");
   printf("  -%c, --%s %*s Show the full CPU name (do not abbreviate it)\n", c[ARG_FULLCPUNAME], t[ARG_FULLCPUNAME], (int) (max_len-strlen(t[ARG_FULLCPUNAME])), "");
   printf("  -%c, --%s %*s Prints raw cpuid data\n", c[ARG_RAW], t[ARG_RAW], (int) (max_len-strlen(t[ARG_RAW])), "");
 #endif
