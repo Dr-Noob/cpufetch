@@ -200,23 +200,23 @@ $C1######## ##########   ######       ###### "
 
 // inspired by the neofetch mac logo
 #define ASCII_APPLE \
-"$C1                    'c.         \
+"$C1                   .\"c.         \
 $C1                 ,xNMM.         \
-$C1               .OMMMMo          \
-$C1               OMMM0,           \
-$C1     .;loddo:' loolloddol;.     \
-$C1   cKMMMMMMMMMMNWMMMMMMMMMM0:   \
-$C1 .KMMMMMMMMMMMMMMMMMMMMMMMWd.   \
+$C1                .lMM\"           \
+$C1                MM*             \
+$C1     .;loddo;:.   olloddol;.    \
+$C1   cKMMMMMMMMMMNWMMMMMMMMMMM0:  \
+$C1 .KMMMMMMMMMMMMMMMMMMMMMMMW*    \
 $C1 XMMMMMMMMMMMMMMMMMMMMMMMX.     \
 $C1;MMMMMMMMMMMMMMMMMMMMMMMM:      \
 $C1:MMMMMMMMMMMMMMMMMMMMMMMM:      \
 $C1.MMMMMMMMMMMMMMMMMMMMMMMMX.     \
 $C1 kMMMMMMMMMMMMMMMMMMMMMMMMWd.   \
-$C1 .XMMMMMMMMMMMMMMMMMMMMMMMMMMk  \
-$C1  .XMMMMMMMMMMMMMMMMMMMMMMMMK.  \
+$C1 'XMMMMMMMMMMMMMMMMMMMMMMMMMMk  \
+$C1  'XMMMMMMMMMMMMMMMMMMMMMMMMK.  \
 $C1    kMMMMMMMMMMMMMMMMMMMMMMd    \
-$C1     ;KMMMMMMMWXXWMMMMMMMk.     \
-$C1       .cooc,.    .,coo:.       "
+$C1     'KMMMMMMMWXXWMMMMMMMk.     \
+$C1       \"cooc\"*    \"*coo'\"       "
 
 // --------------------- LONG LOGOS ------------------------- //
 #define ASCII_AMD_L \
