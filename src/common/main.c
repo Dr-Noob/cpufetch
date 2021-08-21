@@ -43,54 +43,64 @@ void print_help(char *argv[]) {
   printf("Usage: %s [OPTION]...\n", argv[0]);
   printf("Simple yet fancy CPU architecture fetching tool\n\n");
 
-  printf("Options: \n");
+  printf("OPTIONS: \n");
   printf("  -%c, --%s %*s Set the color scheme (by default, cpufetch uses the system color scheme)\n", c[ARG_COLOR], t[ARG_COLOR], (int) (max_len-strlen(t[ARG_COLOR])), "");
-  printf("  -%c, --%s %*s Set the style of CPU art\n", c[ARG_STYLE], t[ARG_STYLE], (int) (max_len-strlen(t[ARG_STYLE])), "");
+  printf("  -%c, --%s %*s Set the style of CPU logo\n", c[ARG_STYLE], t[ARG_STYLE], (int) (max_len-strlen(t[ARG_STYLE])), "");
 #ifdef ARCH_X86
-  printf("  -%c, --%s %*s Prints CPU model and cpuid levels (debug purposes)\n", c[ARG_DEBUG], t[ARG_DEBUG], (int) (max_len-strlen(t[ARG_DEBUG])), "");
+  printf("  -%c, --%s %*s Print CPU model and cpuid levels (debug purposes)\n", c[ARG_DEBUG], t[ARG_DEBUG], (int) (max_len-strlen(t[ARG_DEBUG])), "");
+#elif ARCH_PPC
+  printf("  -%c, --%s %*s Print PVR register (debug purposes)\n", c[ARG_DEBUG], t[ARG_DEBUG], (int) (max_len-strlen(t[ARG_DEBUG])), "");
 #elif ARCH_ARM
-  printf("  -%c, --%s %*s Prints main ID register values for all cores (debug purposes)\n", c[ARG_DEBUG], t[ARG_DEBUG], (int) (max_len-strlen(t[ARG_DEBUG])), "");
+  printf("  -%c, --%s %*s Print main ID register values (debug purposes)\n", c[ARG_DEBUG], t[ARG_DEBUG], (int) (max_len-strlen(t[ARG_DEBUG])), "");
 #endif
-  printf("      --%s %*s Shows the short version of the logo\n", t[ARG_LOGO_SHORT], (int) (max_len-strlen(t[ARG_LOGO_SHORT])), "");
-  printf("      --%s %*s Shows the long version of the logo\n", t[ARG_LOGO_LONG], (int) (max_len-strlen(t[ARG_LOGO_LONG])), "");
-  printf("  -%c, --%s %*s Prints extra information (if available) about how cpufetch tried fetching information\n", c[ARG_VERBOSE], t[ARG_VERBOSE], (int) (max_len-strlen(t[ARG_VERBOSE])), "");
+  printf("      --%s %*s Show the short version of the logo\n", t[ARG_LOGO_SHORT], (int) (max_len-strlen(t[ARG_LOGO_SHORT])), "");
+  printf("      --%s %*s Show the long version of the logo\n", t[ARG_LOGO_LONG], (int) (max_len-strlen(t[ARG_LOGO_LONG])), "");
+  printf("  -%c, --%s %*s Print extra information (if available) about how cpufetch tried fetching information\n", c[ARG_VERBOSE], t[ARG_VERBOSE], (int) (max_len-strlen(t[ARG_VERBOSE])), "");
 #ifdef ARCH_X86
   printf("      --%s %*s Show the old Intel logo\n", t[ARG_LOGO_INTEL_OLD], (int) (max_len-strlen(t[ARG_LOGO_INTEL_OLD])), "");
   printf("      --%s %*s Show the new Intel logo\n", t[ARG_LOGO_INTEL_NEW], (int) (max_len-strlen(t[ARG_LOGO_INTEL_NEW])), "");
   printf("  -%c, --%s %*s Show the full CPU name (do not abbreviate it)\n", c[ARG_FULLCPUNAME], t[ARG_FULLCPUNAME], (int) (max_len-strlen(t[ARG_FULLCPUNAME])), "");
-  printf("  -%c, --%s %*s Prints raw cpuid data\n", c[ARG_RAW], t[ARG_RAW], (int) (max_len-strlen(t[ARG_RAW])), "");
+  printf("  -%c, --%s %*s Print raw cpuid data (debug purposes)\n", c[ARG_RAW], t[ARG_RAW], (int) (max_len-strlen(t[ARG_RAW])), "");
 #endif
-  printf("  -%c, --%s %*s Prints this help and exit\n", c[ARG_HELP], t[ARG_HELP], (int) (max_len-strlen(t[ARG_HELP])), "");
-  printf("  -%c, --%s %*s Prints cpufetch version and exit\n", c[ARG_VERSION], t[ARG_VERSION], (int) (max_len-strlen(t[ARG_VERSION])), "");
-  
+  printf("  -%c, --%s %*s Print this help and exit\n", c[ARG_HELP], t[ARG_HELP], (int) (max_len-strlen(t[ARG_HELP])), "");
+  printf("  -%c, --%s %*s Print cpufetch version and exit\n", c[ARG_VERSION], t[ARG_VERSION], (int) (max_len-strlen(t[ARG_VERSION])), "");
+
   printf("\nCOLORS: \n");
   printf("  * \"intel\":     Use Intel default color scheme \n");
   printf("  * \"amd\":       Use AMD default color scheme \n");
   printf("  * \"ibm\",       Use IBM default color scheme \n");
   printf("  * \"arm\":       Use ARM default color scheme \n");
-  printf("  * custom:      If color argument do not match \"intel\", \"amd\", \"ibm\" or \"arm\", a custom scheme can be specified.\n");
-  printf("                 4 colors must be given in RGB with the format: R,G,B:R,G,B:...\n");
-  printf("                 The first 2 colors are the CPU art color and the next 2 colors are the text colors\n");
-  
+  printf("  * custom:      If the argument of --color does not match any of the previous strings, a custom scheme can be specified.\n");
+  printf("                 5 colors must be given in RGB with the format: R,G,B:R,G,B:...\n");
+  printf("                 The first 3 colors are the CPU art color and the next 2 colors are the text colors\n");
+
   printf("\nSTYLES: \n");
   printf("  * \"fancy\":     Default style\n");
   printf("  * \"retro\":     Old cpufetch style\n");
   printf("  * \"legacy\":    Fallback style for terminals that do not support colors\n");
-  
+
+  printf("\nLOGOS: \n");
+  printf("    cpufetch will try to adapt the logo size and the text to the terminal width. When the output (logo and text) is wider than\n");
+  printf("    the terminal width, cpufetch will print a smaller version of the logo (if it exists). This behavior can be overridden by\n");
+  printf("    --logo-short  and --logo-long, which always sets the logo size as specified by the user, even if it is too big. After the\n");
+  printf("    logo selection (either automatically or set by the user), cpufetch will check again if the output fits in the terminal.\n");
+  printf("    If not, it will use a shorter name for the fields (the left part of the text). If, after all of this, the output still does\n");
+  printf("    not fit, cpufetch will cut the text and will only print the text until there is no space left in each line\n");
+
   printf("\nEXAMPLES: \n");
-  printf("  Run cpufetch with Intel color scheme:\n");
-  printf("    ./cpufetch --color intel\n");
-  printf("  Run cpufetch with a custom color scheme:\n");
-  printf("    ./cpufetch --color 239,90,45:210,200,200:100,200,45:0,200,200\n");
-  
+  printf("    Run cpufetch with Intel color scheme:\n");
+  printf("      ./cpufetch --color intel\n");
+  printf("    Run cpufetch with a custom color scheme:\n");
+  printf("      ./cpufetch --color 239,90,45:210,200,200:0,0,0:100,200,45:0,200,200\n");
+
   printf("\nBUGS: \n");
   printf("    Report bugs to https://github.com/Dr-Noob/cpufetch/issues\n");
-  
+
   printf("\nNOTE: \n");
   printf("    Peak performance information is NOT accurate. cpufetch computes peak performance using the max\n");
-  printf("    frequency. However, to properly compute peak performance, you need to know the frequency of the\n");
-  printf("    CPU running AVX code, which is not be fetched by cpufetch since it depends on each specific CPU.\n");
-  printf("    For peak performance measurement see: https://github.com/Dr-Noob/peakperf\n");
+  printf("    frequency of the CPU. However, to compute the peak performance, you need to know the frequency of the\n");
+  printf("    CPU running AVX code. This value is not be fetched by cpufetch since it depends on each specific CPU.\n");
+  printf("    To correctly measure peak performance, see: https://github.com/Dr-Noob/peakperf\n");
 }
 
 void print_version() {
