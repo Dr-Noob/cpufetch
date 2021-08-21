@@ -289,7 +289,6 @@ bool parse_args(int argc, char* argv[]) {
         printErr("Invalid style '%s'",optarg);
         return false;
       }
-      break;
     }
     else if(opt == args_chr[ARG_HELP]) {
       args.help_flag  = true;
