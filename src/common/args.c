@@ -246,6 +246,9 @@ bool parse_args(int argc, char* argv[]) {
   args.style = STYLE_EMPTY;
   args.colors = NULL;
 
+  // Temporary enable verbose level to allow printing warnings inside parse_args
+  set_log_level(true);
+
   const struct option long_options[] = {
     {args_str[ARG_STYLE],          required_argument, 0, args_chr[ARG_STYLE]          },
     {args_str[ARG_COLOR],          required_argument, 0, args_chr[ARG_COLOR]          },
@@ -334,11 +337,6 @@ bool parse_args(int argc, char* argv[]) {
     args.help_flag  = true;
   }
 
-  if((args.help_flag + args.version_flag + color_flag) > 1) {
-    printWarn("You should specify just one option");
-    args.help_flag  = true;
-  }
-
   if(args.logo_intel_new && args.logo_intel_old) {
     printWarn("%s and %s cannot be specified together", args_str[ARG_LOGO_INTEL_NEW], args_str[ARG_LOGO_INTEL_OLD]);
     args.logo_intel_new = false;
@@ -350,6 +348,9 @@ bool parse_args(int argc, char* argv[]) {
     args.logo_short = false;
     args.logo_long = false;
   }
+
+  // Leave log level untouched after returning
+  set_log_level(false);
 
   return true;
 }
