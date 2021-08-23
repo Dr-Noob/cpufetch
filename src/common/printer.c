@@ -637,7 +637,7 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
     longest_attribute = longest_attribute_length(art, attribute_fields);
   }
 
-  print_ascii_generic(art, longest_attribute, term->w - art->art->width, attribute_fields);
+  print_ascii_generic(art, longest_attribute, term->w, attribute_fields);
 
   return true;
 }
