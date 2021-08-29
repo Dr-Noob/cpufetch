@@ -64,6 +64,7 @@ enum {
   UARCH_CORTEX_A76,
   UARCH_CORTEX_A77,
   UARCH_CORTEX_A78,
+  UARCH_CORTEX_X1,
   UARCH_NEOVERSE_N1,
   UARCH_NEOVERSE_E1,
   UARCH_SCORPION,
@@ -130,6 +131,7 @@ static const ISA isas_uarch[] = {
   [UARCH_CORTEX_A76]   = ISA_ARMv8_2_A,
   [UARCH_CORTEX_A77]   = ISA_ARMv8_2_A,
   [UARCH_CORTEX_A78]   = ISA_ARMv8_2_A,
+  [UARCH_CORTEX_X1]    = ISA_ARMv8_2_A,
   [UARCH_NEOVERSE_N1]  = ISA_ARMv8_2_A,
   [UARCH_NEOVERSE_E1]  = ISA_ARMv8_2_A,
   [UARCH_BRAHMA_B15]   = ISA_ARMv7_A,   // Same as Cortex-A15
@@ -236,6 +238,7 @@ struct uarch* get_uarch_from_midr(uint32_t midr, struct cpuInfo* cpu) {
   CHECK_UARCH(arch, cpu, 'A', 0xD0D, NA, NA, "Cortex-A77",            UARCH_CORTEX_A77,   CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD0E, NA, NA, "Cortex-A76",            UARCH_CORTEX_A76,   CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD41, NA, NA, "Cortex-A78",            UARCH_CORTEX_A78,   CPU_VENDOR_ARM)
+  CHECK_UARCH(arch, cpu, 'A', 0xD44, NA, NA, "Cortex-X1",             UARCH_CORTEX_X1,    CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD4A, NA, NA, "Neoverse E1",           UARCH_NEOVERSE_E1,  CPU_VENDOR_ARM)
 
   CHECK_UARCH(arch, cpu, 'B', 0x00F, NA, NA, "Brahma B15",            UARCH_BRAHMA_B15,   CPU_VENDOR_BROADCOM)
