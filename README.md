@@ -144,10 +144,10 @@ By default, `cpufetch` will print the CPU logo with the system colorscheme. Howe
 ```
 
 ## 5. Implementation
-See [cpufetch programming documentation](https://github.com/Dr-Noob/cpufetch/doc/README.md).
+See [cpufetch programming documentation](https://github.com/Dr-Noob/cpufetch/tree/master/doc).
 
 ## 6. Bugs or improvements
-See [cpufetch contributing guidelines](https://github.com/Dr-Noob/cpufetch/CONTRIBUTING.md)
+See [cpufetch contributing guidelines](https://github.com/Dr-Noob/cpufetch/blob/master/CONTRIBUTING.md).
 
 ## 7. Acknowledgements
 Thanks to the fellow contributors and interested people in the project. Special thanks to:
