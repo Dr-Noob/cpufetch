@@ -78,6 +78,7 @@ enum {
   UARCH_SUNNY_COVE,
   UARCH_GOLDMONT_PLUS,
   UARCH_TREMONT,
+  UARCH_LAKEMONT,
   UARCH_WILLOW_COVE,
   UARCH_COFFE_LAKE,
   UARCH_ITANIUM,
@@ -147,7 +148,9 @@ struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, u
   CHECK_UARCH(arch, 0,  5,  0,  4, NA, "P5 MMX",          UARCH_P5,              UNK)
   CHECK_UARCH(arch, 0,  5,  0,  7, NA, "P5 MMX",          UARCH_P5,              UNK)
   CHECK_UARCH(arch, 0,  5,  0,  8, NA, "P5 MMX",          UARCH_P5,              250)
+  CHECK_UARCH(arch, 0,  5,  0,  9,  0, "Lakemont",        UARCH_LAKEMONT,         32)
   CHECK_UARCH(arch, 0,  5,  0,  9, NA, "P5 MMX",          UARCH_P5,              UNK)
+  CHECK_UARCH(arch, 0,  5,  0, 10,  0, "Lakemont",        UARCH_LAKEMONT,         32)
   CHECK_UARCH(arch, 0,  6,  0,  0, NA, "P6 Pentium II",   UARCH_P6,              UNK)
   CHECK_UARCH(arch, 0,  6,  0,  1, NA, "P6 Pentium II",   UARCH_P6,              UNK) // process depends on core
   CHECK_UARCH(arch, 0,  6,  0,  2, NA, "P6 Pentium II",   UARCH_P6,              UNK)
@@ -225,6 +228,7 @@ struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, u
   CHECK_UARCH(arch, 0,  6,  8, 14, 11, "Whiskey Lake",    UARCH_WHISKEY_LAKE,     14) // wikichip
   CHECK_UARCH(arch, 0,  6,  8, 14, 12, "Comet Lake",      UARCH_COMET_LAKE,       14) // wikichip
   CHECK_UARCH(arch, 0,  6,  9,  6, NA, "Tremont",         UARCH_TREMONT,          10) // LX*
+  CHECK_UARCH(arch, 0,  6,  9, 10, NA, "Tremont",         UARCH_TREMONT,          10) // instlatx64
   CHECK_UARCH(arch, 0,  6,  9, 12, NA, "Tremont",         UARCH_TREMONT,          10) // LX*
   CHECK_UARCH(arch, 0,  6,  9, 13, NA, "Sunny Cove",      UARCH_SUNNY_COVE,       10) // LX*
   CHECK_UARCH(arch, 0,  6,  9, 14,  9, "Kaby Lake",       UARCH_KABY_LAKE,        14)
@@ -270,7 +274,8 @@ struct uarch* get_uarch_from_cpuid_amd(uint32_t ef, uint32_t f, uint32_t em, uin
   CHECK_UARCH(arch,  0,  4, NA, NA, NA, "Am5x86",      UARCH_AM5X86,     UNK)
   CHECK_UARCH(arch,  0,  5,  0,  6, NA, "K6",          UARCH_K6,         300)
   CHECK_UARCH(arch,  0,  5,  0,  7, NA, "K6",          UARCH_K6,         250) // *p from sandpile.org
-  CHECK_UARCH(arch,  0,  5,  0, 13, NA, "K6",          UARCH_K6,         80)  // *p from sandpile.org
+  CHECK_UARCH(arch,  0,  5,  0, 10, NA, "K7",          UARCH_K7,         130) // Geode NX
+  CHECK_UARCH(arch,  0,  5,  0, 13, NA, "K6",          UARCH_K6,          80) // *p from sandpile.org
   CHECK_UARCH(arch,  0,  5, NA, NA, NA, "K6",          UARCH_K6,         UNK)
   CHECK_UARCH(arch,  0,  6,  0,  1, NA, "K7",          UARCH_K7,         250)
   CHECK_UARCH(arch,  0,  6,  0,  2, NA, "K7",          UARCH_K7,         180)
@@ -325,7 +330,7 @@ struct uarch* get_uarch_from_cpuid_amd(uint32_t ef, uint32_t f, uint32_t em, uin
   CHECK_UARCH(arch,  2, 15, NA, NA, NA, "Puma 2008",   UARCH_PUMA_2008,   65)
   CHECK_UARCH(arch,  3, 15, NA, NA, NA, "K10",         UARCH_K10,         32)
   CHECK_UARCH(arch,  5, 15, NA, NA, NA, "Bobcat",      UARCH_BOBCAT,      40)
-  CHECK_UARCH(arch,  6, 15,  0,  0, NA, "Bulldozer",   UARCH_BULLDOZER,   32) // iNAtlatx64 engr sample
+  CHECK_UARCH(arch,  6, 15,  0,  0, NA, "Bulldozer",   UARCH_BULLDOZER,   32) // instlatx64 engr sample
   CHECK_UARCH(arch,  6, 15,  0,  1, NA, "Bulldozer",   UARCH_BULLDOZER,   32)
   CHECK_UARCH(arch,  6, 15,  0,  2, NA, "Piledriver",  UARCH_PILEDRIVER,  32)
   CHECK_UARCH(arch,  6, 15,  1,  0, NA, "Piledriver",  UARCH_PILEDRIVER,  32)
@@ -333,20 +338,25 @@ struct uarch* get_uarch_from_cpuid_amd(uint32_t ef, uint32_t f, uint32_t em, uin
   CHECK_UARCH(arch,  6, 15,  3,  0, NA, "Steamroller", UARCH_STEAMROLLER, 28)
   CHECK_UARCH(arch,  6, 15,  3,  8, NA, "Steamroller", UARCH_STEAMROLLER, 28)
   CHECK_UARCH(arch,  6, 15,  4,  0, NA, "Steamroller", UARCH_STEAMROLLER, 28) // Software Optimization Guide (15h) says it has the same iNAt latencies as (6,15),(3,x).
-  CHECK_UARCH(arch,  6, 15,  6,  0, NA, "Excavator",   UARCH_EXCAVATOR,   28) // undocumented, but iNAtlatx64 samples
+  CHECK_UARCH(arch,  6, 15,  6,  0, NA, "Excavator",   UARCH_EXCAVATOR,   28) // undocumented, but instlatx64 samples
   CHECK_UARCH(arch,  6, 15,  6,  5, NA, "Excavator",   UARCH_EXCAVATOR,   28) // undocumented, but sample from Alexandros Couloumbis
   CHECK_UARCH(arch,  6, 15,  7,  0, NA, "Excavator",   UARCH_EXCAVATOR,   28)
   CHECK_UARCH(arch,  7, 15,  0,  0, NA, "Jaguar",      UARCH_JAGUAR,      28)
+  CHECK_UARCH(arch,  7, 15,  2,  6, NA, "Jaguar",      UARCH_JAGUAR,      28) // AMD Cato (Xbox One?)
   CHECK_UARCH(arch,  7, 15,  3,  0, NA, "Puma 2014",   UARCH_PUMA_2014,   28)
-  CHECK_UARCH(arch,  8, 15,  0,  0, NA, "Zen",         UARCH_ZEN,         14) // iNAtlatx64 engr sample
+  CHECK_UARCH(arch,  8, 15,  0,  0, NA, "Zen",         UARCH_ZEN,         14) // instlatx64 engr sample
   CHECK_UARCH(arch,  8, 15,  0,  1, NA, "Zen",         UARCH_ZEN,         14)
   CHECK_UARCH(arch,  8, 15,  0,  8, NA, "Zen+",        UARCH_ZEN_PLUS,    12)
-  CHECK_UARCH(arch,  8, 15,  1,  1, NA, "Zen",         UARCH_ZEN,         14) // found only on en.wikichip.org & iNAtlatx64 examples
+  CHECK_UARCH(arch,  8, 15,  1,  1, NA, "Zen",         UARCH_ZEN,         14) // found only on en.wikichip.org & instlatx64 examples
   CHECK_UARCH(arch,  8, 15,  1,  8, NA, "Zen+",        UARCH_ZEN_PLUS,    12) // found only on en.wikichip.org
+  CHECK_UARCH(arch,  8, 15,  2,  0, NA, "Zen",         UARCH_ZEN,         14) // Dali, found on instlatx64 and en.wikichip.org
   CHECK_UARCH(arch,  8, 15,  3,  1, NA, "Zen 2",       UARCH_ZEN2,         7) // found only on en.wikichip.org
+  CHECK_UARCH(arch,  8, 15,  4,  7, NA, "Zen 2",       UARCH_ZEN2,         7) // instlatx64 example (AMD 4700S)
+  CHECK_UARCH(arch,  8, 15,  5,  0, NA, "Zen",         UARCH_ZEN,         14) // instlatx64 example (Subor Z+)
   CHECK_UARCH(arch,  8, 15,  6,  0, NA, "Zen 2",       UARCH_ZEN2,         7) // undocumented, geekbench.com example
   CHECK_UARCH(arch,  8, 15,  6,  8, NA, "Zen 2",       UARCH_ZEN2,         7) // found on instlatx64
   CHECK_UARCH(arch,  8, 15,  7,  1, NA, "Zen 2",       UARCH_ZEN2,         7) // samples from Steven Noonan and instlatx64
+  CHECK_UARCH(arch, 10, 15,  0,  1, NA, "Zen 3",       UARCH_ZEN3,         7) // instlatx64
   CHECK_UARCH(arch, 10, 15,  2,  1, NA, "Zen 3",       UARCH_ZEN3,         7) // instlatx64
   CHECK_UARCH(arch, 10, 15,  5,  0, NA, "Zen 3",       UARCH_ZEN3,         7) // instlatx64
   UARCH_END
