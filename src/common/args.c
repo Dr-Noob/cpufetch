@@ -25,6 +25,7 @@ struct args_struct {
   bool debug_flag;
   bool help_flag;
   bool raw_flag;
+  bool accurate_pp;
   bool full_cpu_name_flag;
   bool logo_long;
   bool logo_short;
@@ -46,6 +47,7 @@ const char args_chr[] = {
   /* [ARG_LOGO_SHORT]     = */ 2,
   /* [ARG_LOGO_INTEL_NEW] = */ 3,
   /* [ARG_LOGO_INTEL_OLD] = */ 4,
+  /* [ARG_ACCURATE_PP]    = */ 5,
   /* [ARG_DEBUG]          = */ 'd',
   /* [ARG_VERBOSE]        = */ 'v',
   /* [ARG_VERSION]        = */ 'V',
@@ -61,6 +63,7 @@ const char *args_str[] = {
   /* [ARG_LOGO_SHORT]     = */ "logo-short",
   /* [ARG_LOGO_INTEL_NEW] = */ "logo-intel-new",
   /* [ARG_LOGO_INTEL_OLD] = */ "logo-intel-old",
+  /* [ARG_ACCURATE_PP]    = */ "accurate-pp",
   /* [ARG_DEBUG]          = */ "debug",
   /* [ARG_VERBOSE]        = */ "verbose",
   /* [ARG_VERSION]        = */ "version",
@@ -90,6 +93,10 @@ bool show_debug() {
 
 bool show_raw() {
   return args.raw_flag;
+}
+
+bool accurate_pp() {
+  return args.accurate_pp;
 }
 
 bool show_full_cpu_name() {
@@ -211,12 +218,13 @@ char* build_short_options() {
   memset(str, 0, sizeof(char) * (len*2 + 1));
 
 #ifdef ARCH_X86
-  sprintf(str, "%c:%c:%c%c%c%c%c%c%c%c%c%c",
+  sprintf(str, "%c:%c:%c%c%c%c%c%c%c%c%c%c%c",
   c[ARG_STYLE], c[ARG_COLOR], c[ARG_HELP],
   c[ARG_RAW], c[ARG_FULLCPUNAME],
   c[ARG_LOGO_SHORT], c[ARG_LOGO_LONG],
   c[ARG_LOGO_INTEL_NEW], c[ARG_LOGO_INTEL_OLD],
-  c[ARG_DEBUG], c[ARG_VERBOSE], c[ARG_VERSION]);
+  c[ARG_ACCURATE_PP], c[ARG_DEBUG], c[ARG_VERBOSE],
+  c[ARG_VERSION]);
 #else
   sprintf(str, "%c:%c:%c%c%c%c%c%c",
   c[ARG_STYLE], c[ARG_COLOR], c[ARG_HELP],
@@ -235,6 +243,7 @@ bool parse_args(int argc, char* argv[]) {
 
   bool color_flag = false;
   args.debug_flag = false;
+  args.accurate_pp = false;
   args.full_cpu_name_flag = false;
   args.raw_flag = false;
   args.verbose_flag = false;
@@ -256,6 +265,7 @@ bool parse_args(int argc, char* argv[]) {
 #ifdef ARCH_X86
     {args_str[ARG_LOGO_INTEL_NEW], no_argument,       0, args_chr[ARG_LOGO_INTEL_NEW] },
     {args_str[ARG_LOGO_INTEL_OLD], no_argument,       0, args_chr[ARG_LOGO_INTEL_OLD] },
+    {args_str[ARG_ACCURATE_PP],    no_argument,       0, args_chr[ARG_ACCURATE_PP]    },
     {args_str[ARG_FULLCPUNAME],    no_argument,       0, args_chr[ARG_FULLCPUNAME]    },
     {args_str[ARG_RAW],            no_argument,       0, args_chr[ARG_RAW]            },
 #endif
@@ -295,6 +305,9 @@ bool parse_args(int argc, char* argv[]) {
     }
     else if(opt == args_chr[ARG_HELP]) {
       args.help_flag  = true;
+    }
+    else if(opt == args_chr[ARG_ACCURATE_PP]) {
+       args.accurate_pp = true;
     }
     else if(opt == args_chr[ARG_FULLCPUNAME]) {
        args.full_cpu_name_flag = true;
@@ -348,6 +361,13 @@ bool parse_args(int argc, char* argv[]) {
     args.logo_short = false;
     args.logo_long = false;
   }
+
+#if defined(ARCH_X86) && ! defined(__linux__)
+  if(args.accurate_pp) {
+    printWarn("%s option is valid only in Linux x86_64", args_str[ARG_ACCURATE_PP]);
+    args.help_flag  = true;
+  }
+#endif
 
   // Leave log level untouched after returning
   set_log_level(false);

@@ -15,8 +15,10 @@
 #include "cpuid.h"
 #include "cpuid_asm.h"
 #include "../common/global.h"
+#include "../common/args.h"
 #include "apic.h"
 #include "uarch.h"
+#include "freq.h"
 
 #define CPU_VENDOR_INTEL_STRING "GenuineIntel"
 #define CPU_VENDOR_AMD_STRING   "AuthenticAMD"
@@ -177,7 +179,7 @@ struct uarch* get_cpu_uarch(struct cpuInfo* cpu) {
   return get_uarch_from_cpuid(cpu, efamily, family, emodel, model, (int)stepping);
 }
 
-int64_t get_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64_t freq) {
+int64_t get_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64_t max_freq, bool accurate_pp) {
   /*
    * PP = PeakPerformance
    * SP = SinglePrecision
@@ -189,6 +191,16 @@ int64_t get_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64_t
    * 2(If cpu has fma)                   *
    * 16(If AVX512), 8(If AVX), 4(If SSE) *
    */
+
+  int64_t freq;
+#ifdef __linux__
+  if(accurate_pp) freq = measure_avx_frequency(cpu);
+  else freq = max_freq;
+#else
+  // Silence compiler warning
+  (void)(accurate_pp);
+  freq = max_freq;
+#endif
 
   //First, check we have consistent data
   if(freq == UNKNOWN_FREQ) {
@@ -376,7 +388,7 @@ struct cpuInfo* get_cpu_info() {
   cpu->freq = get_frequency_info(cpu);
   cpu->cach = get_cache_info(cpu);
   cpu->topo = get_topology_info(cpu, cpu->cach);
-  cpu->peak_performance = get_peak_performance(cpu, cpu->topo, get_freq(cpu->freq));
+  cpu->peak_performance = get_peak_performance(cpu, cpu->topo, get_freq(cpu->freq), accurate_pp());
 
   if(cpu->cach == NULL || cpu->topo == NULL) {
     return NULL;

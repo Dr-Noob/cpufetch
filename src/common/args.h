@@ -28,6 +28,7 @@ enum {
   ARG_LOGO_SHORT,
   ARG_LOGO_INTEL_NEW,
   ARG_LOGO_INTEL_OLD,
+  ARG_ACCURATE_PP,
   ARG_DEBUG,
   ARG_VERBOSE,
   ARG_VERSION
@@ -41,6 +42,7 @@ extern const char *args_str[];
 int max_arg_str_length();
 bool parse_args(int argc, char* argv[]);
 bool show_help();
+bool accurate_pp();
 bool show_full_cpu_name();
 bool show_logo_long();
 bool show_logo_short();

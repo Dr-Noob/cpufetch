@@ -57,6 +57,9 @@ void print_help(char *argv[]) {
   printf("      --%s %*s Show the long version of the logo\n", t[ARG_LOGO_LONG], (int) (max_len-strlen(t[ARG_LOGO_LONG])), "");
   printf("  -%c, --%s %*s Print extra information (if available) about how cpufetch tried fetching information\n", c[ARG_VERBOSE], t[ARG_VERBOSE], (int) (max_len-strlen(t[ARG_VERBOSE])), "");
 #ifdef ARCH_X86
+#ifdef __linux__
+  printf("      --%s %*s Compute the peak performance accurately (measure the CPU frequency instead of using the maximum)\n", t[ARG_ACCURATE_PP], (int) (max_len-strlen(t[ARG_ACCURATE_PP])), "");
+#endif
   printf("      --%s %*s Show the old Intel logo\n", t[ARG_LOGO_INTEL_OLD], (int) (max_len-strlen(t[ARG_LOGO_INTEL_OLD])), "");
   printf("      --%s %*s Show the new Intel logo\n", t[ARG_LOGO_INTEL_NEW], (int) (max_len-strlen(t[ARG_LOGO_INTEL_NEW])), "");
   printf("  -%c, --%s %*s Show the full CPU name (do not abbreviate it)\n", c[ARG_FULLCPUNAME], t[ARG_FULLCPUNAME], (int) (max_len-strlen(t[ARG_FULLCPUNAME])), "");
@@ -133,6 +136,7 @@ int main(int argc, char* argv[]) {
     return EXIT_SUCCESS;
   }
 
+  // TODO: This should be moved to the end of args.c
   if(show_raw()) {
   #ifdef ARCH_X86
     print_version();

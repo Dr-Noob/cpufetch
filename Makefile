@@ -16,6 +16,12 @@ ifneq ($(OS),Windows_NT)
 		SRC_DIR=src/x86/
 		SOURCE += $(COMMON_SRC) $(SRC_DIR)cpuid.c $(SRC_DIR)apic.c $(SRC_DIR)cpuid_asm.c $(SRC_DIR)uarch.c
 		HEADERS += $(COMMON_HDR) $(SRC_DIR)cpuid.h $(SRC_DIR)apic.h $(SRC_DIR)cpuid_asm.h $(SRC_DIR)uarch.h
+
+                os := $(shell uname -s)
+                ifeq ($(os), Linux)
+			SOURCE += freq.o
+			CFLAGS += -pthread
+                endif
 		CFLAGS += -DARCH_X86 -std=c99 -fstack-protector-all
 	else ifeq ($(arch), $(filter $(arch), ppc64le ppc64 ppcle ppc))
 		SRC_DIR=src/ppc/
@@ -51,17 +57,20 @@ else
 	OUTPUT=cpufetch.exe
 endif
 
-all: CFLAGS += -O3
+all: CFLAGS += -O2
 all: $(OUTPUT)
 
 debug: CFLAGS += -g -O0
 debug: $(OUTPUT)
 
-static: CFLAGS += -static -O3
+static: CFLAGS += -static -O2
 static: $(OUTPUT)
 
-strict: CFLAGS += -O3 -Werror -fsanitize=undefined -D_FORTIFY_SOURCE=2
+strict: CFLAGS += -O2 -Werror -fsanitize=undefined -D_FORTIFY_SOURCE=2
 strict: $(OUTPUT)
+
+freq.o: Makefile $(SRC_DIR)freq.c $(SRC_DIR)freq.h
+	$(CC) $(CFLAGS) $(SANITY_FLAGS) -c -mavx -mfma -pthread $(SRC_DIR)freq.c -o freq.o
 
 $(OUTPUT): Makefile $(SOURCE) $(HEADERS)
 	$(CC) $(CFLAGS) $(SANITY_FLAGS) $(SOURCE) -o $(OUTPUT)
@@ -70,7 +79,7 @@ run: $(OUTPUT)
 	./$(OUTPUT)
 
 clean:
-	@rm -f $(OUTPUT)
+	@rm -f $(OUTPUT) freq.o
 
 install: $(OUTPUT)
 	install -Dm755 "cpufetch"   "$(DESTDIR)$(PREFIX)/bin/cpufetch"
