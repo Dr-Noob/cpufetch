@@ -313,6 +313,15 @@ bool fill_apic_ids(uint32_t* apic_ids, int n, bool x2apic_id) {
     usleep(1000);
   }
 #else
+  #ifdef __linux__
+  // In Linux we reset the affinity; first we get the original mask
+  cpu_set_t original_mask;
+  if(sched_getaffinity(0, sizeof(original_mask), &original_mask) == -1) {
+    printWarn("sched_getaffinity: %s", strerror(errno));
+    return false;
+  }
+  #endif
+
   for(int i=0; i < n; i++) {
     if(!bind_to_cpu(i)) {
       printErr("Failed binding to CPU %d", i);
@@ -320,7 +329,16 @@ bool fill_apic_ids(uint32_t* apic_ids, int n, bool x2apic_id) {
     }
     apic_ids[i] = get_apic_id(x2apic_id);
   }
+
+  #ifdef __linux__
+  // With the original mask previosly retrieved, we reset the affinity
+  if (sched_setaffinity (0, sizeof(original_mask), &original_mask) == -1) {
+    printWarn("sched_setaffinity: %s", strerror(errno));
+    return false;
+  }
+  #endif
 #endif
+
   return true;
 }
 
