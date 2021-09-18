@@ -491,7 +491,6 @@ struct system_on_chip* parse_soc_from_string(struct system_on_chip* soc) {
     return soc;
 
   match_broadcom(raw_name, soc);
-
   return soc;
 }
 
@@ -502,26 +501,37 @@ static inline int android_property_get(const char* key, char* value) {
   return __system_property_get(key, value);
 }
 
+void system_on_chip* try_parse_soc_from_string(struct system_on_chip* soc, int soc_len, char* soc_str) {
+  soc->raw_name = emalloc(sizeof(char) * (soc_len + 1));
+  strncpy(soc->raw_name, soc_str, soc_len + 1);
+  soc->raw_name[soc_len] = '\0';
+  soc->soc_vendor = SOC_VENDOR_UNKNOWN;
+  parse_soc_from_string(soc);
+}
+
 struct system_on_chip* guess_soc_from_android(struct system_on_chip* soc) {
   char tmp[100];
   int property_len = 0;
 
   property_len = android_property_get("ro.mediatek.platform", (char *) &tmp);
   if(property_len > 0) {
-    soc->raw_name = emalloc(sizeof(char) * (property_len + 1));
-    strncpy(soc->raw_name, tmp, property_len + 1);
-    soc->raw_name[property_len] = '\0';
-    soc->soc_vendor = SOC_VENDOR_UNKNOWN;
-    return parse_soc_from_string(soc);
+    try_parse_soc_from_string(soc, property_len, tmp);
+    if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) printWarn("SoC detection failed using Android property ro.mediatek.platform: %s", tmp);
+    else return soc;
   }
 
   property_len = android_property_get("ro.product.board", (char *) &tmp);
   if(property_len > 0) {
-    soc->raw_name = emalloc(sizeof(char) * (property_len + 1));
-    strncpy(soc->raw_name, tmp, property_len + 1);
-    soc->raw_name[property_len] = '\0';
-    soc->soc_vendor = SOC_VENDOR_UNKNOWN;
-    return parse_soc_from_string(soc);
+    try_parse_soc_from_string(soc, property_len, tmp);
+    if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) printWarn("SoC detection failed using Android property ro.product.board: %s", tmp);
+    else return soc;
+  }
+
+  property_len = android_property_get("ro.board.platform", (char *) &tmp);
+  if(property_len > 0) {
+    try_parse_soc_from_string(soc, property_len, tmp);
+    if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) printWarn("SoC detection failed using Android property ro.board.platform: %s", tmp);
+    else return soc;
   }
 
   return soc;
