@@ -24,6 +24,10 @@
 #include "uarch.h"
 #include "soc.h"
 
+bool cores_are_equal(int c1pos, int c2pos, uint32_t* midr_array, int32_t* freq_array) {
+  return midr_array[c1pos] == midr_array[c2pos] && freq_array[c1pos] == freq_array[c2pos];
+}
+
 struct cache* get_cache_info(struct cpuInfo* cpu) {
   struct cache* cach = emalloc(sizeof(struct cache));
   init_cache_struct(cach);
@@ -47,7 +51,7 @@ struct frequency* get_frequency_info(uint32_t core) {
   return freq;
 }
 
-struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach, uint32_t* midr_array, int socket_idx, int ncores) {
+struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach, uint32_t* midr_array, int32_t* freq_array, int socket_idx, int ncores) {
   struct topology* topo = emalloc(sizeof(struct topology));
   init_topology_struct(topo, cach);
 
@@ -57,7 +61,7 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach, uint
   int cores_in_socket = 0;
 
   while(socket_idx + 1 > sockets_seen) {
-    if(currrent_core_idx < ncores && midr_array[first_core_idx] == midr_array[currrent_core_idx]) {
+    if(currrent_core_idx < ncores && cores_are_equal(first_core_idx, currrent_core_idx, midr_array, freq_array)) {
       currrent_core_idx++;
       cores_in_socket++;
     }
@@ -91,10 +95,6 @@ int64_t get_peak_performance(struct cpuInfo* cpu) {
   if(cpu->feat->NEON) flops = flops * 4;
 
   return flops;
-}
-
-bool cores_are_equal(int c1pos, int c2pos, uint32_t* midr_array, int32_t* freq_array) {
-  return midr_array[c1pos] == midr_array[c2pos] && freq_array[c1pos] == freq_array[c2pos];
 }
 
 uint32_t fill_ids_from_midr(uint32_t* midr_array, int32_t* freq_array, uint32_t* ids_array, int len) {
@@ -231,7 +231,7 @@ struct cpuInfo* get_cpu_info_linux(struct cpuInfo* cpu) {
     ptr->feat = get_features_info();
     ptr->freq = get_frequency_info(midr_idx);
     ptr->cach = get_cache_info(ptr);
-    ptr->topo = get_topology_info(ptr, ptr->cach, midr_array, i, ncores);
+    ptr->topo = get_topology_info(ptr, ptr->cach, midr_array, freq_array, i, ncores);
   }
 
   cpu->num_cpus = sockets;
