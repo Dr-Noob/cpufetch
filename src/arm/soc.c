@@ -197,12 +197,15 @@ bool match_exynos(char* soc_name, struct system_on_chip* soc) {
 
 bool match_mediatek(char* soc_name, struct system_on_chip* soc) {
   char* tmp;
+  char* soc_name_upper = toupperstr(soc_name);
 
-  if((tmp = strstr(soc_name, "MT")) == NULL)
+  if((tmp = strstr(soc_name_upper, "MT")) == NULL)
     return false;
 
   SOC_START
   // Dimensity //
+  SOC_EQ(tmp, "MT6893",   "Dimensity 1200",  SOC_MTK_MT6893,   soc, 6)
+  SOC_EQ(tmp, "MT6891",   "Dimensity 1100",  SOC_MTK_MT6891,   soc, 6)
   SOC_EQ(tmp, "MT6889",   "Dimensity 1000",  SOC_MTK_MT6889,   soc, 7)
   SOC_EQ(tmp, "MT6885Z",  "Dimensity 1000L", SOC_MTK_MT6885Z,  soc, 7)
   //SOC_EQ(tmp, "?",      "Dimensity 700",   SOC_MTK_,         soc, 7)

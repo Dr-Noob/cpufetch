@@ -63,6 +63,8 @@ enum {
   SOC_EXYNOS_980,
   SOC_EXYNOS_880,
   // Mediatek //
+  SOC_MTK_MT6893,
+  SOC_MTK_MT6891,
   SOC_MTK_MT6889,
   SOC_MTK_MT6885Z,
   SOC_MTK_MT6853,
@@ -258,7 +260,7 @@ inline static VENDOR get_soc_vendor_from_soc(SOC soc) {
   if(soc >= SOC_BCM_2835 && soc <= SOC_BCM_21654) return SOC_VENDOR_BROADCOM;
   else if(soc >= SOC_HISILICON_3620 && soc <= SOC_HISILICON_3690) return SOC_VENDOR_KIRIN;
   else if(soc >= SOC_EXYNOS_3475 && soc <= SOC_EXYNOS_880) return SOC_VENDOR_EXYNOS;
-  else if(soc >= SOC_MTK_MT6889 && soc <= SOC_MTK_MT8783) return SOC_VENDOR_MEDIATEK;
+  else if(soc >= SOC_MTK_MT6893 && soc <= SOC_MTK_MT8783) return SOC_VENDOR_MEDIATEK;
   else if(soc >= SOC_SNAPD_QSD8650 && soc <= SOC_SNAPD_SM8350) return SOC_VENDOR_SNAPDRAGON;
   else if(soc >= SOC_APPLE_M1 && soc <= SOC_APPLE_M1) return SOC_VENDOR_APPLE;
   return SOC_VENDOR_UNKNOWN;  
