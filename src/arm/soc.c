@@ -501,7 +501,7 @@ static inline int android_property_get(const char* key, char* value) {
   return __system_property_get(key, value);
 }
 
-void system_on_chip* try_parse_soc_from_string(struct system_on_chip* soc, int soc_len, char* soc_str) {
+void try_parse_soc_from_string(struct system_on_chip* soc, int soc_len, char* soc_str) {
   soc->raw_name = emalloc(sizeof(char) * (soc_len + 1));
   strncpy(soc->raw_name, soc_str, soc_len + 1);
   soc->raw_name[soc_len] = '\0';
