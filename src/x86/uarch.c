@@ -89,7 +89,6 @@ enum {
   UARCH_PRESCOTT,
   UARCH_CEDAR_MILL,
   UARCH_ITANIUM2,
-  UARCH_ICE_LAKE,
   // AMD //
   UARCH_AM486,
   UARCH_AM5X86,
@@ -217,7 +216,7 @@ struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, u
   CHECK_UARCH(arch, 0,  6,  7,  5, NA, "Airmont",         UARCH_AIRMONT,          14) // no spec update; whispers & rumors
   CHECK_UARCH(arch, 0,  6,  7, 10, NA, "Goldmont Plus",   UARCH_GOLDMONT_PLUS,    14)
   CHECK_UARCH(arch, 0,  6,  7, 13, NA, "Sunny Cove",      UARCH_SUNNY_COVE,       10) // no spec update; only MSR_CPUID_table* so far
-  CHECK_UARCH(arch, 0,  6,  7, 14, NA, "Ice Lake",        UARCH_ICE_LAKE,         10)
+  CHECK_UARCH(arch, 0,  6,  7, 14, NA, "Sunny Cove",      UARCH_SUNNY_COVE,       10)
   CHECK_UARCH(arch, 0,  6,  8,  5, NA, "Knights Mill",    UARCH_KNIGHTS_MILL,     14) // no spec update; only MSR_CPUID_table* so far
   CHECK_UARCH(arch, 0,  6,  8,  6, NA, "Tremont",         UARCH_TREMONT,          10) // LX*
   CHECK_UARCH(arch, 0,  6,  8, 10, NA, "Tremont",         UARCH_TREMONT,          10) // no spec update; only geekbench.com example
@@ -372,7 +371,9 @@ struct uarch* get_uarch_from_cpuid(struct cpuInfo* cpu, uint32_t ef, uint32_t f,
 }
 
 bool vpus_are_AVX512(struct cpuInfo* cpu) {
-  return cpu->arch->uarch != UARCH_ICE_LAKE;
+  // TODO: This is actually wrong since ice_lake server probably have two
+  // AVX512 VPUs (we need to fetch the codename, not only the uarch!
+  return cpu->arch->uarch != UARCH_SUNNY_COVE;
 }
 
 bool is_knights_landing(struct cpuInfo* cpu) {
@@ -398,7 +399,7 @@ int get_number_of_vpus(struct cpuInfo* cpu) {
       case UARCH_KNIGHTS_LANDING:
       case UARCH_KNIGHTS_MILL:
 
-      case UARCH_ICE_LAKE:
+      case UARCH_SUNNY_COVE:
 
       // AMD
       case UARCH_ZEN2:
