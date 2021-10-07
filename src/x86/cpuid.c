@@ -176,7 +176,7 @@ struct uarch* get_cpu_uarch(struct cpuInfo* cpu) {
   uint32_t family = (eax >> 8) & 0xF;
   uint32_t efamily = (eax >> 20) & 0xFF;
 
-  return get_uarch_from_cpuid(cpu, efamily, family, emodel, model, (int)stepping);
+  return get_uarch_from_cpuid(cpu, eax, efamily, family, emodel, model, (int)stepping);
 }
 
 int64_t get_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64_t max_freq, bool accurate_pp) {

@@ -223,7 +223,7 @@ struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, u
   CHECK_UARCH(arch, 0,  6,  8, 10, NA, "Tremont",         UARCH_TREMONT,          10) // no spec update; only geekbench.com example
   CHECK_UARCH(arch, 0,  6,  8, 12, NA, "Tiger Lake",      UARCH_TIGER_LAKE,       10) // instlatx64
   CHECK_UARCH(arch, 0,  6,  8, 13, NA, "Tiger Lake",      UARCH_TIGER_LAKE,       10) // instlatx64
-  CHECK_UARCH(arch, 0,  6,  8, 14,  9, "Amber Lake",      UARCH_AMBER_LAKE,       14) // wikichip
+  // CHECK_UARCH(arch, 0,  6,  8, 14,  9, ...) It is not possible to determine uarch only from CPUID dump (can be Kaby Lake or Amber Lake)
   CHECK_UARCH(arch, 0,  6,  8, 14, 10, "Kaby Lake",       UARCH_KABY_LAKE,        14) // wikichip
   CHECK_UARCH(arch, 0,  6,  8, 14, 11, "Whiskey Lake",    UARCH_WHISKEY_LAKE,     14) // wikichip
   CHECK_UARCH(arch, 0,  6,  8, 14, 12, "Comet Lake",      UARCH_COMET_LAKE,       14) // wikichip
@@ -364,9 +364,23 @@ struct uarch* get_uarch_from_cpuid_amd(uint32_t ef, uint32_t f, uint32_t em, uin
   return arch;
 }
 
-struct uarch* get_uarch_from_cpuid(struct cpuInfo* cpu, uint32_t ef, uint32_t f, uint32_t em, uint32_t m, int s) {
-  if(cpu->cpu_vendor == CPU_VENDOR_INTEL)
+struct uarch* get_uarch_from_cpuid(struct cpuInfo* cpu, uint32_t dump, uint32_t ef, uint32_t f, uint32_t em, uint32_t m, int s) {
+  if(cpu->cpu_vendor == CPU_VENDOR_INTEL) {
+    if(dump == 0x000806E9) {
+      // It is not possible to determine uarch only from CPUID dump (can be Kaby Lake or Amber Lake)
+      struct uarch* arch = emalloc(sizeof(struct uarch));
+
+      if(strstr(cpu->cpu_name, "Y") != NULL) {
+        fill_uarch(arch, "Amber Lake", UARCH_AMBER_LAKE, 14);
+      }
+      else {
+        fill_uarch(arch, "Kaby Lake", UARCH_KABY_LAKE, 14);
+      }
+
+      return arch;
+    }
     return get_uarch_from_cpuid_intel(ef, f, em, m, s);
+  }
   else
     return get_uarch_from_cpuid_amd(ef, f, em, m, s);
 }
