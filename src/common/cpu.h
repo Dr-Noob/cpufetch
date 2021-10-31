@@ -10,6 +10,7 @@ enum {
   CPU_VENDOR_AMD,
 // ARCH_ARM
   CPU_VENDOR_ARM,
+  CPU_VENDOR_APPLE,
   CPU_VENDOR_BROADCOM,
   CPU_VENDOR_CAVIUM,
   CPU_VENDOR_NVIDIA,
@@ -69,13 +70,15 @@ struct cache {
 struct topology {
   int32_t total_cores;  
   struct cache* cach;
-#ifdef ARCH_X86
-  uint32_t physical_cores;  
+#if defined(ARCH_X86) || defined(ARCH_PPC)
+  uint32_t physical_cores;
   uint32_t logical_cores;
-  uint32_t smt_available; // Number of SMT that is currently enabled
-  uint32_t smt_supported; // Number of SMT that CPU supports (equal to smt_available if SMT is enabled)
   uint32_t sockets;
+  uint32_t smt_supported; // Number of SMT that CPU supports (equal to smt_available if SMT is enabled)
+#ifdef ARCH_X86
+  uint32_t smt_available; // Number of SMT that is currently enabled
   struct apic* apic;
+#endif
 #endif
 };
 
@@ -94,7 +97,9 @@ struct features {
   bool SSE4_2;
   bool FMA3;
   bool FMA4;
-  bool SHA;  
+  bool SHA;
+#elif ARCH_PPC
+  bool altivec;
 #elif ARCH_ARM
   bool NEON;  
   bool SHA1;
@@ -111,16 +116,22 @@ struct cpuInfo {
   struct cache* cach;
   struct topology* topo;
   struct features* feat;
-  
-#ifdef ARCH_X86
+  int64_t peak_performance;
+
+#if defined(ARCH_X86) || defined(ARCH_PPC)
   // CPU name from model
   char* cpu_name;
+#endif
+
+#ifdef ARCH_X86
   //  Max cpuids levels
   uint32_t maxLevels;
   // Max cpuids extended levels
   uint32_t maxExtendedLevels;
   // Topology Extensions (AMD only)
   bool topology_extensions;
+#elif ARCH_PPC
+  uint32_t pvr;
 #elif ARCH_ARM
   // Main ID register
   uint32_t midr;
@@ -136,8 +147,8 @@ struct cpuInfo {
 #endif
 };
 
-#ifdef ARCH_X86
-char* get_str_cpu_name(struct cpuInfo* cpu);
+#if defined(ARCH_X86) || defined(ARCH_PPC)
+char* get_str_cpu_name(struct cpuInfo* cpu, bool fcpuname);
 char* get_str_sockets(struct topology* topo);
 uint32_t get_nsockets(struct topology* topo);
 #endif
@@ -152,6 +163,10 @@ char* get_str_l1d(struct cache* cach);
 char* get_str_l2(struct cache* cach);
 char* get_str_l3(struct cache* cach);
 char* get_str_freq(struct frequency* freq);
+char* get_str_peak_performance(int64_t flops);
+
+void init_topology_struct(struct topology* topo, struct cache* cach);
+void init_cache_struct(struct cache* cach);
 
 void free_cache_struct(struct cache* cach);
 void free_freq_struct(struct frequency* freq);

@@ -1,0 +1,36 @@
+name: 'Disable PR in cpufetch'
+
+on:
+  issues:
+    types: opened
+  pull_request_target:
+    types: opened
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  action:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dessant/repo-lockdown@v2
+        with:
+          github-token: ${{ github.token }}
+          exclude-issue-created-before: ''
+          exclude-issue-labels: ''
+          issue-labels: ''
+          issue-comment: ''
+          skip-closed-issue-comment: false
+          close-issue: false
+          lock-issue: true
+          issue-lock-reason: ''
+          exclude-pr-created-before: ''
+          exclude-pr-labels: ''
+          pr-labels: ''
+          pr-comment: 'cpufetch does not accept pull requests, see [the contributing guidelines](https://github.com/Dr-Noob/cpufetch/blob/master/CONTRIBUTING.md) for details'
+          skip-closed-pr-comment: false
+          close-pr: true
+          lock-pr: false
+          pr-lock-reason: ''
+          process-only: 'prs'

@@ -1,19 +1,34 @@
 <p align="center"><img width=50% src="./pictures/cpufetch.png"></p>
 
-<div align="center">
-
-![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/Dr-Noob/cpufetch?label=cpufetch)
-[![GitHub Repo stars](https://img.shields.io/github/stars/Dr-Noob/cpufetch?color=4CC61F)](https://github.com/Dr-Noob/cpufetch/stargazers)
-[![GitHub issues](https://img.shields.io/github/issues/Dr-Noob/cpufetch)](https://github.com/Dr-Noob/cpufetch/issues)
-[![Packaging status](https://repology.org/badge/tiny-repos/cpufetch.svg)](https://repology.org/project/cpufetch/versions)
-[![License](https://img.shields.io/github/license/Dr-Noob/cpufetch?color=orange)](https://github.com/Dr-Noob/cpufetch/blob/master/LICENSE)
-
 <h4 align="center">Simple yet fancy CPU architecture fetching tool</h4>
-&nbsp;
 
-![cpu1](pictures/i9.png)
+<p align="center"> </p>
 
+<div align="center">
+  <img height="22px" src="https://img.shields.io/github/v/tag/Dr-Noob/cpufetch?label=cpufetch&style=flat-square">
+  <a href="https://github.com/Dr-Noob/cpufetch/stargazers">
+    <img height="22px" src="https://img.shields.io/github/stars/Dr-Noob/cpufetch?color=4CC61F&style=flat-square">
+  </a>
+  <a href="https://github.com/Dr-Noob/cpufetch/issues">
+    <img height="22px" src="https://img.shields.io/github/issues/Dr-Noob/cpufetch?style=flat-square">
+  </a>
+  <a href="https://github.com/Dr-Noob/cpufetch/blob/master/README.md#1-support">
+    <img height="22px" src="pictures/os-shield.jpg">
+  </a>
+  <a href="https://github.com/Dr-Noob/cpufetch/blob/master/LICENSE">
+    <img height="22px" src="https://img.shields.io/github/license/Dr-Noob/cpufetch?color=orange&style=flat-square">
+  </a>
 </div>
+
+<p align="center"> </p>
+
+<p align="center">
+cpufetch is a command-line tool written in C that displays the CPU information in a clean and beautiful way
+</p>
+
+<p align="center">
+<img width=80% src="./pictures/examples.gif">
+</p>
 
 # Table of contents
 <!-- UPDATE with: doctoc --notitle README.md -->
@@ -23,38 +38,47 @@
 
 - [1. Support](#1-support)
 - [2. Installation](#2-installation)
-  - [2.1 Available packages](#21-available-packages)
-  - [2.2 Building from source (Linux/Windows/macOS)](#22-building-from-source-linuxwindowsmacos)
+  - [2.1 Installing from a package](#21-installing-from-a-package)
+  - [2.2 Building from source](#22-building-from-source)
   - [2.3 Android](#23-android)
 - [3. Examples](#3-examples)
-  - [3.1 x86_64 CPUs](#31-x86_64-cpus)
-  - [3.2 ARM CPUs](#32-arm-cpus)
-- [4. Colors and style](#4-colors-and-style)
+  - [3.1 x86_64](#31-x86_64)
+  - [3.2 ARM](#32-arm)
+  - [3.3 PowerPC](#33-powerpc)
+- [4. Colors](#4-colors)
+  - [4.1 Specifying a name](#41-specifying-a-name)
+  - [4.2 Specifying the colors in RGB format](#42-specifying-the-colors-in-rgb-format)
 - [5. Implementation](#5-implementation)
 - [6. Bugs or improvements](#6-bugs-or-improvements)
+- [7. Acknowledgements](#7-acknowledgements)
+- [8. cpufetch for GPUs (gpufetch)](#8-cpufetch-for-gpus-gpufetch)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# 1. Support
-cpufetch supports x86, x86_64 (Intel and AMD) and ARM.
+## 1. Support
 
-| Platform  | x86_64                    | ARM                | Notes             |
-|:---------:|:------------------------:|:-------------------:|:-----------------:|
-| GNU/Linux | :heavy_check_mark:        | :heavy_check_mark: | Best support      |
-| Windows   | :heavy_check_mark:        | :x:                | Some information may be missing. <br> Colors will be used if supported |
-| Android   | :heavy_exclamation_mark:  | :heavy_check_mark: | Some information may be missing. <br> Not tested under x86_64 |
-| macOS     | :heavy_check_mark:        | :x:                | Some information may be missing. <br> Apple M1 support may be added <br> in the future (see [#47](https://github.com/Dr-Noob/cpufetch/issues/47))|
+| OS          | x86_64 / x86       | ARM                | PowerPC            |
+|:-----------:|:------------------:|:------------------:|:------------------:|
+| GNU / Linux | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| Windows     | :heavy_check_mark: | :x:                | :x:                |
+| Android     | :heavy_check_mark: | :heavy_check_mark: | :x:                |
+| macOS       | :heavy_check_mark: | :heavy_check_mark: | :x:                |
+| FreeBSD     | :heavy_check_mark: | :x:                | :x:                |
 
-# 2. Installation
-## 2.1 Installing from a package
+**NOTES:**
+- Colors will be used in Windows only if the terminal supports it.
+- Support in macOS ARM is limited to Apple M1 only
+
+## 2. Installation
+### 2.1 Installing from a package
 Choose the right package for your operating system:
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/cpufetch.svg)](https://repology.org/project/cpufetch/versions)
 
 If there is no available package for your OS, you can download the cpufetch binary from [the releases page](https://github.com/Dr-Noob/cpufetch/releases), or [build cpufetch from source](#22-building-from-source-linuxwindowsmacos) (see below).
 
-## 2.2 Building from source (Linux/Windows/macOS)
-Just clone the repo and use `make` to compile it
+### 2.2 Building from source
+You will need a C compiler (e.g, `gcc`) and `make` to compile `cpufetch`. Just clone the repo and run `make`:
 
 ```
 git clone https://github.com/Dr-Noob/cpufetch
@@ -63,9 +87,7 @@ make
 ./cpufetch
 ```
 
-The Makefile is designed to work on Linux, Windows and macOS.
-
-## 2.3 Android
+### 2.3 Android
 1. Install `termux` app (terminal emulator)
 2. Run `pkg install -y git make clang` inside termux.
 3. Build from source normally:
@@ -74,38 +96,65 @@ The Makefile is designed to work on Linux, Windows and macOS.
   - make
   - ./cpufetch
 
-# 3. Examples
-Here are more examples of how `cpufetch` looks on different CPUs.
+## 3. Examples
+### 3.1 x86_64
 
-## 3.1 x86_64 CPUs
+<p align="center"><img width=90% src="pictures/epyc.png"></p>
+<p align="center">AMD EPYC HPC server</p>
+<p align="center"><img width=90% src="pictures/cascade_lake.jpg"></p>
+<p align="center">Intel Xeon HPC server</p>
 
-![cpu2](pictures/epyc.png)
+### 3.2 ARM
 
-![cpu3](pictures/cascade_lake.png)
+<p align="center">
+<img width=45% src="pictures/exynos.jpg">
+&nbsp;
+<img width=45% src="pictures/snapd.png">
+</p>
+<p align="center">Samsung Galaxy S8 (left) Xiaomi Redmi Note 7 (right)</p>
 
-## 3.2 ARM CPUs
+### 3.3 PowerPC
 
-![cpu4](pictures/exynos.png)
+<p align="center"><img width=90% src="pictures/ibm.png"></p>
+<p align="center">Talos II</p>
 
-![cpu5](pictures/snapdragon.png)
+## 4. Colors
+By default, `cpufetch` will print the CPU logo with the system colorscheme. However, you can set a custom color scheme in two different ways:
 
-# 4. Colors and style
-By default, `cpufetch` will print the CPU art with the system colorscheme. However, you can always set a custom color scheme, either
-specifying Intel or AMD, or specifying the colors in RGB format:
+### 4.1 Specifying a name
+
+ By specifying a name, cpufetch will use the specific colors of each manufacture. Valid values are:
+
+- intel
+- intel-new
+- amd
+- ibm
+- arm
 
 ```
 ./cpufetch --color intel (default color for Intel)
-./cpufetch --color amd (default color for AMD)
-./cpufetch --color 239,90,45:210,200,200:100,200,45:0,200,200 (example)
 ```
 
-In the case of setting the colors using RGB, 4 colors must be given in with the format: ``[R,G,B:R,G,B:R,G,B:R,G,B]``. These colors correspond to CPU art color (2 colors) and for the text colors (following 2). Thus, you can customize all the colors.
+### 4.2 Specifying the colors in RGB format
 
-# 5. Implementation
+5 colors must be given in RGB with the format: ``[R,G,B:R,G,B:R,G,B:R,G,B:R,G,B]``. These colors correspond to the CPU logo color (first 3 colors) and for the text colors (following 2).
 
-See [cpufetch programming documentation](https://github.com/Dr-Noob/cpufetch/blob/master/doc/README.md).
+```
+./cpufetch --color 239,90,45:210,200,200:0,0,0:100,200,45:0,200,200
+```
 
-# 6. Bugs or improvements
-There are many open issues in github (see [issues](https://github.com/Dr-Noob/cpufetch/issues)). Feel free to open a new one report an issue or propose any improvement in `cpufetch`
+## 5. Implementation
+See [cpufetch programming documentation](https://github.com/Dr-Noob/cpufetch/tree/master/doc).
 
-I would like to thank [Gonzalocl](https://github.com/Gonzalocl) and [OdnetninI](https://github.com/OdnetninI) for their help, running `cpufetch` in many different CPUs they have access to, which makes it easier to debug and check the correctness of `cpufetch`.
+## 6. Bugs or improvements
+See [cpufetch contributing guidelines](https://github.com/Dr-Noob/cpufetch/blob/master/CONTRIBUTING.md).
+
+## 7. Acknowledgements
+Thanks to the fellow contributors and interested people in the project. Special thanks to:
+- [Gonzalocl](https://github.com/Gonzalocl), [OdnetninI](https://github.com/OdnetninI): Tested cpufetch in the earlier versions of the project in many different CPUs.
+- [Kyngo](https://github.com/Kyngo): Tested cpufetch in the Apple M1 CPU.
+- [avollmerhaus](https://github.com/avollmerhaus): Gave me ssh acess to a PowerPC machine, allowing me to develop the PowerPC port.
+- [bbonev](https://github.com/bbonev), [stephan-cr](https://github.com/stephan-cr): Reviewed the source code.
+
+## 8. cpufetch for GPUs (gpufetch)
+See [gpufetch](https://github.com/Dr-Noob/gpufetch) project!

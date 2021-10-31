@@ -1,5 +1,9 @@
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+
 #include "global.h"
 
 #ifdef _WIN32
@@ -53,10 +57,10 @@ void printBug(const char *fmt, ...) {
   vsnprintf(buffer,buffer_size, fmt, args);
   va_end(args);
   fprintf(stderr,RED "[ERROR]: "RESET "%s\n",buffer);
-#ifdef ARCH_X86
-  fprintf(stderr,"Please, create a new issue with this error message and the output of 'cpufetch --debug' in https://github.com/Dr-Noob/cpufetch/issues\n");
+#if defined(ARCH_X86) || defined(ARCH_PPC)
+  fprintf(stderr, "Please, create a new issue with this error message, the output of 'cpufetch' and 'cpufetch --debug' on https://github.com/Dr-Noob/cpufetch/issues\n");
 #elif ARCH_ARM
-  fprintf(stderr,"Please, create a new issue with this error message, your smartphone/computer model and the output of 'cpufetch --debug' in https://github.com/Dr-Noob/cpufetch/issues\n");
+  fprintf(stderr, "Please, create a new issue with this error message, your smartphone/computer model, the output of 'cpufetch' and 'cpufetch --debug' on https://github.com/Dr-Noob/cpufetch/issues\n");
 #endif
 }
 
@@ -67,4 +71,43 @@ void set_log_level(bool verbose) {
 
 int max(int a, int b) {
   return a > b ? a : b;
+}
+
+int min(int a, int b) {
+  return a < b ? a : b;
+}
+
+char *strremove(char *str, const char *sub) {
+  char *p, *q, *r;
+  if (*sub && (q = r = strstr(str, sub)) != NULL) {
+    size_t len = strlen(sub);
+    while ((r = strstr(p = r + len, sub)) != NULL) {
+      memmove(q, p, r - p);
+      q += r - p;
+    }
+    memmove(q, p, strlen(p) + 1);
+  }
+  return str;
+}
+
+void* emalloc(size_t size) {
+  void* ptr = malloc(size);
+
+  if(ptr == NULL) {
+    printErr("malloc failed: %s", strerror(errno));
+    exit(1);
+  }
+
+  return ptr;
+}
+
+void* ecalloc(size_t nmemb, size_t size) {
+  void* ptr = calloc(nmemb, size);
+
+  if(ptr == NULL) {
+    printErr("calloc failed: %s", strerror(errno));
+    exit(1);
+  }
+
+  return ptr;
 }

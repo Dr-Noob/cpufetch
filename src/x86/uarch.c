@@ -38,8 +38,6 @@
 
 typedef uint32_t MICROARCH;
 
-#define STRING_UNKNOWN    "Unknown"
-
 // Data not available
 #define NA                   -1
 
@@ -80,7 +78,7 @@ enum {
   UARCH_SUNNY_COVE,
   UARCH_GOLDMONT_PLUS,
   UARCH_TREMONT,
-  UARCH_WILLOW_COVE,
+  UARCH_LAKEMONT,
   UARCH_COFFE_LAKE,
   UARCH_ITANIUM,
   UARCH_KNIGHTS_FERRY,
@@ -91,6 +89,7 @@ enum {
   UARCH_CEDAR_MILL,
   UARCH_ITANIUM2,
   UARCH_ICE_LAKE,
+  UARCH_TIGER_LAKE,
   // AMD //
   UARCH_AM486,
   UARCH_AM5X86,
@@ -121,10 +120,10 @@ struct uarch {
 #define UARCH_START if (false) {}
 #define CHECK_UARCH(arch, ef_, f_, em_, m_, s_, str, uarch, process) \
    else if (ef_ == ef && f_ == f && (em_ == NA || em_ == em) && (m_ == NA || m_ == m) && (s_ == NA || s_ == s)) fill_uarch(arch, str, uarch, process);
-#define UARCH_END else { printBug("Unknown microarchitecture detected: M=0x%.8X EM=0x%.8X F=0x%.8X EF=0x%.8X S=0x%.8X", m, em, f, ef, s); fill_uarch(arch, "Unknown", UARCH_UNKNOWN, 0); }
+#define UARCH_END else { printBug("Unknown microarchitecture detected: M=0x%.8X EM=0x%.8X F=0x%.8X EF=0x%.8X S=0x%.8X", m, em, f, ef, s); fill_uarch(arch, STRING_UNKNOWN, UARCH_UNKNOWN, 0); }
 
 void fill_uarch(struct uarch* arch, char* str, MICROARCH u, uint32_t process) {
-  arch->uarch_str = malloc(sizeof(char) * (strlen(str)+1));
+  arch->uarch_str = emalloc(sizeof(char) * (strlen(str)+1));
   strcpy(arch->uarch_str, str);
   arch->uarch = u;
   arch->process= process;
@@ -132,8 +131,8 @@ void fill_uarch(struct uarch* arch, char* str, MICROARCH u, uint32_t process) {
 
 // Inspired in Todd Allen's decode_uarch_intel
 struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, uint32_t m, int s) {
-  struct uarch* arch = malloc(sizeof(struct uarch));
-  
+  struct uarch* arch = emalloc(sizeof(struct uarch));
+
   // EF: Extended Family                                                           //
   // F:  Family                                                                    //
   // EM: Extended Model                                                            //
@@ -149,7 +148,9 @@ struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, u
   CHECK_UARCH(arch, 0,  5,  0,  4, NA, "P5 MMX",          UARCH_P5,              UNK)
   CHECK_UARCH(arch, 0,  5,  0,  7, NA, "P5 MMX",          UARCH_P5,              UNK)
   CHECK_UARCH(arch, 0,  5,  0,  8, NA, "P5 MMX",          UARCH_P5,              250)
+  CHECK_UARCH(arch, 0,  5,  0,  9,  0, "Lakemont",        UARCH_LAKEMONT,         32)
   CHECK_UARCH(arch, 0,  5,  0,  9, NA, "P5 MMX",          UARCH_P5,              UNK)
+  CHECK_UARCH(arch, 0,  5,  0, 10,  0, "Lakemont",        UARCH_LAKEMONT,         32)
   CHECK_UARCH(arch, 0,  6,  0,  0, NA, "P6 Pentium II",   UARCH_P6,              UNK)
   CHECK_UARCH(arch, 0,  6,  0,  1, NA, "P6 Pentium II",   UARCH_P6,              UNK) // process depends on core
   CHECK_UARCH(arch, 0,  6,  0,  2, NA, "P6 Pentium II",   UARCH_P6,              UNK)
@@ -220,13 +221,14 @@ struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, u
   CHECK_UARCH(arch, 0,  6,  8,  5, NA, "Knights Mill",    UARCH_KNIGHTS_MILL,     14) // no spec update; only MSR_CPUID_table* so far
   CHECK_UARCH(arch, 0,  6,  8,  6, NA, "Tremont",         UARCH_TREMONT,          10) // LX*
   CHECK_UARCH(arch, 0,  6,  8, 10, NA, "Tremont",         UARCH_TREMONT,          10) // no spec update; only geekbench.com example
-  CHECK_UARCH(arch, 0,  6,  8, 12, NA, "Willow Cove",     UARCH_WILLOW_COVE,      10) // found only on en.wikichip.org
-  CHECK_UARCH(arch, 0,  6,  8, 13, NA, "Willow Cove",     UARCH_WILLOW_COVE,      10) // LX*
-  CHECK_UARCH(arch, 0,  6,  8, 14,  9, "Amber Lake",      UARCH_AMBER_LAKE,       14) // wikichip
+  CHECK_UARCH(arch, 0,  6,  8, 12, NA, "Tiger Lake",      UARCH_TIGER_LAKE,       10) // instlatx64
+  CHECK_UARCH(arch, 0,  6,  8, 13, NA, "Tiger Lake",      UARCH_TIGER_LAKE,       10) // instlatx64
+  // CHECK_UARCH(arch, 0,  6,  8, 14,  9, ...) It is not possible to determine uarch only from CPUID dump (can be Kaby Lake or Amber Lake)
   CHECK_UARCH(arch, 0,  6,  8, 14, 10, "Kaby Lake",       UARCH_KABY_LAKE,        14) // wikichip
   CHECK_UARCH(arch, 0,  6,  8, 14, 11, "Whiskey Lake",    UARCH_WHISKEY_LAKE,     14) // wikichip
   CHECK_UARCH(arch, 0,  6,  8, 14, 12, "Comet Lake",      UARCH_COMET_LAKE,       14) // wikichip
   CHECK_UARCH(arch, 0,  6,  9,  6, NA, "Tremont",         UARCH_TREMONT,          10) // LX*
+  CHECK_UARCH(arch, 0,  6,  9, 10, NA, "Tremont",         UARCH_TREMONT,          10) // instlatx64
   CHECK_UARCH(arch, 0,  6,  9, 12, NA, "Tremont",         UARCH_TREMONT,          10) // LX*
   CHECK_UARCH(arch, 0,  6,  9, 13, NA, "Sunny Cove",      UARCH_SUNNY_COVE,       10) // LX*
   CHECK_UARCH(arch, 0,  6,  9, 14,  9, "Kaby Lake",       UARCH_KABY_LAKE,        14)
@@ -249,14 +251,14 @@ struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, u
   CHECK_UARCH(arch, 1, 15,  0,  1, NA, "Itanium2",        UARCH_ITANIUM2,        130)
   CHECK_UARCH(arch, 1, 15,  0,  2, NA, "Itanium2",        UARCH_ITANIUM2,        130)
   UARCH_END
- 
+
   return arch;
 }
 
 // iNApired in Todd Allen's decode_uarch_amd
 struct uarch* get_uarch_from_cpuid_amd(uint32_t ef, uint32_t f, uint32_t em, uint32_t m, int s) {
-  struct uarch* arch = malloc(sizeof(struct uarch));
-  
+  struct uarch* arch = emalloc(sizeof(struct uarch));
+
   // EF: Extended Family                                                           //
   // F:  Family                                                                    //
   // EM: Extended Model                                                            //
@@ -264,7 +266,7 @@ struct uarch* get_uarch_from_cpuid_amd(uint32_t ef, uint32_t f, uint32_t em, uin
   // S: Stepping                                                                   //
   // ----------------------------------------------------------------------------- //
   //                 EF  F  EM   M   S                                             //
-  UARCH_START  
+  UARCH_START
   CHECK_UARCH(arch,  0,  4,  0,  3, NA, "Am486",       UARCH_AM486,      UNK)
   CHECK_UARCH(arch,  0,  4,  0,  7, NA, "Am486",       UARCH_AM486,      UNK)
   CHECK_UARCH(arch,  0,  4,  0,  8, NA, "Am486",       UARCH_AM486,      UNK)
@@ -272,7 +274,8 @@ struct uarch* get_uarch_from_cpuid_amd(uint32_t ef, uint32_t f, uint32_t em, uin
   CHECK_UARCH(arch,  0,  4, NA, NA, NA, "Am5x86",      UARCH_AM5X86,     UNK)
   CHECK_UARCH(arch,  0,  5,  0,  6, NA, "K6",          UARCH_K6,         300)
   CHECK_UARCH(arch,  0,  5,  0,  7, NA, "K6",          UARCH_K6,         250) // *p from sandpile.org
-  CHECK_UARCH(arch,  0,  5,  0, 13, NA, "K6",          UARCH_K6,         80)  // *p from sandpile.org
+  CHECK_UARCH(arch,  0,  5,  0, 10, NA, "K7",          UARCH_K7,         130) // Geode NX
+  CHECK_UARCH(arch,  0,  5,  0, 13, NA, "K6",          UARCH_K6,          80) // *p from sandpile.org
   CHECK_UARCH(arch,  0,  5, NA, NA, NA, "K6",          UARCH_K6,         UNK)
   CHECK_UARCH(arch,  0,  6,  0,  1, NA, "K7",          UARCH_K7,         250)
   CHECK_UARCH(arch,  0,  6,  0,  2, NA, "K7",          UARCH_K7,         180)
@@ -327,7 +330,7 @@ struct uarch* get_uarch_from_cpuid_amd(uint32_t ef, uint32_t f, uint32_t em, uin
   CHECK_UARCH(arch,  2, 15, NA, NA, NA, "Puma 2008",   UARCH_PUMA_2008,   65)
   CHECK_UARCH(arch,  3, 15, NA, NA, NA, "K10",         UARCH_K10,         32)
   CHECK_UARCH(arch,  5, 15, NA, NA, NA, "Bobcat",      UARCH_BOBCAT,      40)
-  CHECK_UARCH(arch,  6, 15,  0,  0, NA, "Bulldozer",   UARCH_BULLDOZER,   32) // iNAtlatx64 engr sample
+  CHECK_UARCH(arch,  6, 15,  0,  0, NA, "Bulldozer",   UARCH_BULLDOZER,   32) // instlatx64 engr sample
   CHECK_UARCH(arch,  6, 15,  0,  1, NA, "Bulldozer",   UARCH_BULLDOZER,   32)
   CHECK_UARCH(arch,  6, 15,  0,  2, NA, "Piledriver",  UARCH_PILEDRIVER,  32)
   CHECK_UARCH(arch,  6, 15,  1,  0, NA, "Piledriver",  UARCH_PILEDRIVER,  32)
@@ -335,76 +338,108 @@ struct uarch* get_uarch_from_cpuid_amd(uint32_t ef, uint32_t f, uint32_t em, uin
   CHECK_UARCH(arch,  6, 15,  3,  0, NA, "Steamroller", UARCH_STEAMROLLER, 28)
   CHECK_UARCH(arch,  6, 15,  3,  8, NA, "Steamroller", UARCH_STEAMROLLER, 28)
   CHECK_UARCH(arch,  6, 15,  4,  0, NA, "Steamroller", UARCH_STEAMROLLER, 28) // Software Optimization Guide (15h) says it has the same iNAt latencies as (6,15),(3,x).
-  CHECK_UARCH(arch,  6, 15,  6,  0, NA, "Excavator",   UARCH_EXCAVATOR,   28) // undocumented, but iNAtlatx64 samples
+  CHECK_UARCH(arch,  6, 15,  6,  0, NA, "Excavator",   UARCH_EXCAVATOR,   28) // undocumented, but instlatx64 samples
   CHECK_UARCH(arch,  6, 15,  6,  5, NA, "Excavator",   UARCH_EXCAVATOR,   28) // undocumented, but sample from Alexandros Couloumbis
   CHECK_UARCH(arch,  6, 15,  7,  0, NA, "Excavator",   UARCH_EXCAVATOR,   28)
   CHECK_UARCH(arch,  7, 15,  0,  0, NA, "Jaguar",      UARCH_JAGUAR,      28)
+  CHECK_UARCH(arch,  7, 15,  2,  6, NA, "Jaguar",      UARCH_JAGUAR,      28) // AMD Cato (Xbox One?)
   CHECK_UARCH(arch,  7, 15,  3,  0, NA, "Puma 2014",   UARCH_PUMA_2014,   28)
-  CHECK_UARCH(arch,  8, 15,  0,  0, NA, "Zen",         UARCH_ZEN,         14) // iNAtlatx64 engr sample
+  CHECK_UARCH(arch,  8, 15,  0,  0, NA, "Zen",         UARCH_ZEN,         14) // instlatx64 engr sample
   CHECK_UARCH(arch,  8, 15,  0,  1, NA, "Zen",         UARCH_ZEN,         14)
   CHECK_UARCH(arch,  8, 15,  0,  8, NA, "Zen+",        UARCH_ZEN_PLUS,    12)
-  CHECK_UARCH(arch,  8, 15,  1,  1, NA, "Zen",         UARCH_ZEN,         14) // found only on en.wikichip.org & iNAtlatx64 examples
+  CHECK_UARCH(arch,  8, 15,  1,  1, NA, "Zen",         UARCH_ZEN,         14) // found only on en.wikichip.org & instlatx64 examples
   CHECK_UARCH(arch,  8, 15,  1,  8, NA, "Zen+",        UARCH_ZEN_PLUS,    12) // found only on en.wikichip.org
+  CHECK_UARCH(arch,  8, 15,  2,  0, NA, "Zen",         UARCH_ZEN,         14) // Dali, found on instlatx64 and en.wikichip.org
   CHECK_UARCH(arch,  8, 15,  3,  1, NA, "Zen 2",       UARCH_ZEN2,         7) // found only on en.wikichip.org
+  CHECK_UARCH(arch,  8, 15,  4,  7, NA, "Zen 2",       UARCH_ZEN2,         7) // instlatx64 example (AMD 4700S)
+  CHECK_UARCH(arch,  8, 15,  5,  0, NA, "Zen",         UARCH_ZEN,         14) // instlatx64 example (Subor Z+)
   CHECK_UARCH(arch,  8, 15,  6,  0, NA, "Zen 2",       UARCH_ZEN2,         7) // undocumented, geekbench.com example
-  CHECK_UARCH(arch,  8, 15,  7,  1, NA, "Zen 2",       UARCH_ZEN2,         7) // undocumented, but samples from Steven Noonan
-  CHECK_UARCH(arch, 10, 15, NA, NA, NA, "Zen 3",       UARCH_ZEN3,         7) // undocumented, LX*
+  CHECK_UARCH(arch,  8, 15,  6,  8, NA, "Zen 2",       UARCH_ZEN2,         7) // found on instlatx64
+  CHECK_UARCH(arch,  8, 15,  7,  1, NA, "Zen 2",       UARCH_ZEN2,         7) // samples from Steven Noonan and instlatx64
+  CHECK_UARCH(arch, 10, 15,  0,  1, NA, "Zen 3",       UARCH_ZEN3,         7) // instlatx64
+  CHECK_UARCH(arch, 10, 15,  2,  1, NA, "Zen 3",       UARCH_ZEN3,         7) // instlatx64
+  CHECK_UARCH(arch, 10, 15,  5,  0, NA, "Zen 3",       UARCH_ZEN3,         7) // instlatx64
   UARCH_END
-    
+
   return arch;
 }
 
-struct uarch* get_uarch_from_cpuid(struct cpuInfo* cpu, uint32_t ef, uint32_t f, uint32_t em, uint32_t m, int s) {
-  if(cpu->cpu_vendor == CPU_VENDOR_INTEL)
+struct uarch* get_uarch_from_cpuid(struct cpuInfo* cpu, uint32_t dump, uint32_t ef, uint32_t f, uint32_t em, uint32_t m, int s) {
+  if(cpu->cpu_vendor == CPU_VENDOR_INTEL) {
+    if(dump == 0x000806E9) {
+      // It is not possible to determine uarch only from CPUID dump (can be Kaby Lake or Amber Lake)
+      struct uarch* arch = emalloc(sizeof(struct uarch));
+
+      if(strstr(cpu->cpu_name, "Y") != NULL) {
+        fill_uarch(arch, "Amber Lake", UARCH_AMBER_LAKE, 14);
+      }
+      else {
+        fill_uarch(arch, "Kaby Lake", UARCH_KABY_LAKE, 14);
+      }
+
+      return arch;
+    }
     return get_uarch_from_cpuid_intel(ef, f, em, m, s);
-  else 
+  }
+  else
     return get_uarch_from_cpuid_amd(ef, f, em, m, s);
 }
 
 bool vpus_are_AVX512(struct cpuInfo* cpu) {
-  return cpu->arch->uarch != UARCH_ICE_LAKE;
+  return cpu->arch->uarch != UARCH_ICE_LAKE && cpu->arch->uarch != UARCH_TIGER_LAKE;
 }
 
 bool is_knights_landing(struct cpuInfo* cpu) {
-  return cpu->arch->uarch == UARCH_KNIGHTS_LANDING;  
+  return cpu->arch->uarch == UARCH_KNIGHTS_LANDING;
 }
 
-int get_number_of_vpus(struct cpuInfo* cpu) {  
+int get_number_of_vpus(struct cpuInfo* cpu) {
   switch(cpu->arch->uarch) {
       // Intel
       case UARCH_HASWELL:
       case UARCH_BROADWELL:
-          
+
       case UARCH_SKYLAKE:
-      case UARCH_CASCADE_LAKE:                    
+      case UARCH_CASCADE_LAKE:
       case UARCH_KABY_LAKE:
       case UARCH_COMET_LAKE:
       case UARCH_ROCKET_LAKE:
       case UARCH_AMBER_LAKE:
       case UARCH_WHISKEY_LAKE:
       case UARCH_COFFE_LAKE:
-      case UARCH_PALM_COVE:    
-      
+      case UARCH_PALM_COVE:
+
       case UARCH_KNIGHTS_LANDING:
       case UARCH_KNIGHTS_MILL:
-          
-      case UARCH_ICE_LAKE:   
-          
+
+      case UARCH_ICE_LAKE:
+      case UARCH_TIGER_LAKE:
+
       // AMD
       case UARCH_ZEN2:
-      case UARCH_ZEN3:    
+      case UARCH_ZEN3:
         return 2;
       default:
         return 1;
   }
 }
 
+bool choose_new_intel_logo_uarch(struct cpuInfo* cpu) {
+  switch(cpu->arch->uarch) {
+    case UARCH_ROCKET_LAKE:
+    case UARCH_TIGER_LAKE:
+      return true;
+    default:
+      return false;
+  }
+}
+
 char* get_str_uarch(struct cpuInfo* cpu) {
-  return cpu->arch->uarch_str;    
+  return cpu->arch->uarch_str;
 }
 
 char* get_str_process(struct cpuInfo* cpu) {
-  char* str = malloc(sizeof(char) * (strlen(STRING_UNKNOWN)+1));
+  char* str = emalloc(sizeof(char) * (strlen(STRING_UNKNOWN)+1));
   int32_t process = cpu->arch->process;
 
   if(process == UNK) {
@@ -424,7 +459,7 @@ char* get_str_process(struct cpuInfo* cpu) {
   return str;
 }
 
-void free_uarch_struct(struct uarch* arch) {    
+void free_uarch_struct(struct uarch* arch) {
   free(arch->uarch_str);
   free(arch);
 }

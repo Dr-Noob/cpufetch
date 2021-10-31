@@ -1,6 +1,8 @@
+#include "../common/global.h"
 #include "udev.h"
 #include "midr.h"
 
+#define _PATH_DEVICETREE_MODEL       "/sys/firmware/devicetree/base/model"
 #define _PATH_CPUS_PRESENT           _PATH_SYS_SYSTEM _PATH_SYS_CPU "/present"
 #define _PATH_CPUINFO                "/proc/cpuinfo"
 //#define _PATH_CPUINFO                "cpuinfo_debug"
@@ -11,6 +13,7 @@
 #define CPUINFO_CPU_PART_STR         "CPU part\t: "
 #define CPUINFO_CPU_REVISION_STR     "CPU revision\t: "
 #define CPUINFO_HARDWARE_STR         "Hardware\t: "
+#define CPUINFO_REVISION_STR         "Revision\t: "
 
 #define CPUINFO_CPU_STRING "processor"
 
@@ -24,7 +27,7 @@ int get_ncores_from_cpuinfo() {
   int filelen;
   char* buf;
   if((buf = read_file(_PATH_CPUS_PRESENT, &filelen)) == NULL) {
-    perror("open");
+    printWarn("read_file: %s: %s\n", _PATH_CPUS_PRESENT, strerror(errno));
     return UNKNOWN;
   }
 
@@ -47,7 +50,7 @@ int get_ncores_from_cpuinfo() {
   errno = 0;
   ncores = strtol(ncores_str, &end, 10) + 1;
   if(errno != 0) {
-    perror("strtol");
+    printWarn("strtol: %s:\n", strerror(errno));
     return UNKNOWN;
   }
 
@@ -65,7 +68,7 @@ long parse_cpuinfo_field(char* buf, char* field_str, int field_base) {
   errno = 0;
   long ret = strtol(tmp, &end, field_base);
   if(errno != 0) {
-    perror("strtol");
+    printWarn("strtol: %s:\n", strerror(errno));
     return -1;
   }
 
@@ -78,9 +81,9 @@ uint32_t get_midr_from_cpuinfo(uint32_t core, bool* success) {
   char* buf;
   *success = true;
   if((buf = read_file(_PATH_CPUINFO, &filelen)) == NULL) {
-    perror("open");
-    *success = false;     
-    return 0;    
+    printWarn("read_file: %s: %s\n", _PATH_CPUINFO, strerror(errno));
+    *success = false;
+    return 0;
   }
 
   char* tmp = strstr(buf, CPUINFO_CPU_STRING);
@@ -90,9 +93,9 @@ uint32_t get_midr_from_cpuinfo(uint32_t core, bool* success) {
     current_core++;
     tmp = strstr(tmp, CPUINFO_CPU_STRING);
   }
-  
+
   if(tmp == NULL) {
-    *success = false;    
+    *success = false;
     return 0;
   }
 
@@ -105,36 +108,36 @@ uint32_t get_midr_from_cpuinfo(uint32_t core, bool* success) {
   long ret;
 
   if ((ret = parse_cpuinfo_field(tmp, CPUINFO_CPU_IMPLEMENTER_STR, 16)) < 0) {
-    printf("Failed parsing cpu_implementer\n");
-    *success = false;    
+    printBug("get_midr_from_cpuinfo: Failed parsing cpu_implementer\n");
+    *success = false;
     return 0;
   }
   cpu_implementer = (uint32_t) ret;
 
   if ((ret = parse_cpuinfo_field(tmp, CPUINFO_CPU_ARCHITECTURE_STR, 10)) < 0) {
-    printf("Failed parsing cpu_architecture\n");
-    *success = false;    
+    printBug("get_midr_from_cpuinfo: Failed parsing cpu_architecture\n");
+    *success = false;
     return 0;
   }
   cpu_architecture = (uint32_t) 0xF; // Why?
 
   if ((ret = parse_cpuinfo_field(tmp, CPUINFO_CPU_VARIANT_STR, 16)) < 0) {
-    printf("Failed parsing cpu_variant\n");
-    *success = false;    
+    printBug("get_midr_from_cpuinfo: Failed parsing cpu_variant\n");
+    *success = false;
     return 0;
   }
   cpu_variant = (uint32_t) ret;
 
   if ((ret = parse_cpuinfo_field(tmp, CPUINFO_CPU_PART_STR, 16)) < 0) {
-    printf("Failed parsing cpu_part\n");
-    *success = false;    
+    printBug("get_midr_from_cpuinfo: Failed parsing cpu_part\n");
+    *success = false;
     return 0;
   }
   cpu_part = (uint32_t) ret;
 
   if ((ret = parse_cpuinfo_field(tmp, CPUINFO_CPU_REVISION_STR, 10)) < 0) {
-    printf("Failed parsing cpu_revision\n");
-    *success = false;    
+    printBug("get_midr_from_cpuinfo: Failed parsing cpu_revision\n");
+    *success = false;
     return 0;
   }
   cpu_revision = (uint32_t) ret;
@@ -148,24 +151,45 @@ uint32_t get_midr_from_cpuinfo(uint32_t core, bool* success) {
   return midr;
 }
 
-char* get_hardware_from_cpuinfo() {
+char* get_field_from_cpuinfo(char* CPUINFO_FIELD) {
   int filelen;
   char* buf;
   if((buf = read_file(_PATH_CPUINFO, &filelen)) == NULL) {
-    perror("open");
-    return NULL;    
+    printWarn("read_file: %s: %s:\n", _PATH_CPUINFO, strerror(errno));
+    return NULL;
   }
-  
-  char* tmp1 = strstr(buf, CPUINFO_HARDWARE_STR);
+
+  char* tmp1 = strstr(buf, CPUINFO_FIELD);
   if(tmp1 == NULL) return NULL;
-  tmp1 = tmp1 + strlen(CPUINFO_HARDWARE_STR);
+  tmp1 = tmp1 + strlen(CPUINFO_FIELD);
   char* tmp2 = strstr(tmp1, "\n");
-  
+
   int strlen = (1 + (tmp2-tmp1));
-  char* hardware = malloc(sizeof(char) * strlen);
+  char* hardware = emalloc(sizeof(char) * strlen);
   memset(hardware, 0, sizeof(char) * strlen);
   strncpy(hardware, tmp1, tmp2-tmp1);
-  
+
   return hardware;
 }
 
+char* get_hardware_from_cpuinfo() {
+  return get_field_from_cpuinfo(CPUINFO_HARDWARE_STR);
+}
+
+char* get_revision_from_cpuinfo() {
+  return get_field_from_cpuinfo(CPUINFO_REVISION_STR);
+}
+
+bool is_raspberry_pi() {
+  int filelen;
+  char* buf;
+  if((buf = read_file(_PATH_DEVICETREE_MODEL, &filelen)) == NULL) {
+    return false;
+  }
+
+  char* tmp;
+  if((tmp = strstr(buf, "Raspberry Pi")) == NULL) {
+    return false;
+  }
+  return true;
+}

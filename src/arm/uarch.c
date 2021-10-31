@@ -7,8 +7,6 @@
 #include "uarch.h"
 #include "../common/global.h"
 
-#define STRING_UNKNOWN    "Unknown"
-
 // Data not available
 #define NA                   -1
 
@@ -34,6 +32,7 @@ enum {
   ISA_ARMv8_1_A,
   ISA_ARMv8_2_A,
   ISA_ARMv8_3_A,
+  ISA_ARMv8_4_A,
 };
 
 enum {
@@ -45,26 +44,27 @@ enum {
   UARCH_ARM1156,
   UARCH_ARM1176,
   UARCH_ARM11MPCORE,
-  UARCH_CORTEX_A5,  
-  UARCH_CORTEX_A7,  
-  UARCH_CORTEX_A8,    
-  UARCH_CORTEX_A9,    
-  UARCH_CORTEX_A12,    
-  UARCH_CORTEX_A15,    
-  UARCH_CORTEX_A17,    
-  UARCH_CORTEX_A32,    
-  UARCH_CORTEX_A35,    
-  UARCH_CORTEX_A53,    
+  UARCH_CORTEX_A5,
+  UARCH_CORTEX_A7,
+  UARCH_CORTEX_A8,
+  UARCH_CORTEX_A9,
+  UARCH_CORTEX_A12,
+  UARCH_CORTEX_A15,
+  UARCH_CORTEX_A17,
+  UARCH_CORTEX_A32,
+  UARCH_CORTEX_A35,
+  UARCH_CORTEX_A53,
   UARCH_CORTEX_A55r0, // ARM Cortex-A55 revision 0 (restricted dual-issue capabilities compared to revision 1+).
-  UARCH_CORTEX_A55, 
-  UARCH_CORTEX_A57, 
-  UARCH_CORTEX_A65, 
-  UARCH_CORTEX_A72, 
-  UARCH_CORTEX_A73, 
-  UARCH_CORTEX_A75, 
+  UARCH_CORTEX_A55,
+  UARCH_CORTEX_A57,
+  UARCH_CORTEX_A65,
+  UARCH_CORTEX_A72,
+  UARCH_CORTEX_A73,
+  UARCH_CORTEX_A75,
   UARCH_CORTEX_A76,
   UARCH_CORTEX_A77,
-  UARCH_CORTEX_A78, 
+  UARCH_CORTEX_A78,
+  UARCH_CORTEX_X1,
   UARCH_NEOVERSE_N1,
   UARCH_NEOVERSE_E1,
   UARCH_SCORPION,
@@ -93,6 +93,8 @@ enum {
   UARCH_TEMPEST,    // Apple A12 processor (big cores).
   UARCH_LIGHTNING,  // Apple A13 processor (big cores).
   UARCH_THUNDER,    // Apple A13 processor (little cores).
+  UARCH_ICESTORM,   // Apple M1 processor (little cores).
+  UARCH_FIRESTORM,  // Apple M1 processor (big cores).
   // CAVIUM
   UARCH_THUNDERX,   // Cavium ThunderX
   UARCH_THUNDERX2,  //  Cavium ThunderX2 (originally Broadcom Vulkan).
@@ -118,17 +120,18 @@ static const ISA isas_uarch[] = {
   [UARCH_CORTEX_A17]   = ISA_ARMv7_A,
   [UARCH_CORTEX_A32]   = ISA_ARMv8_A_AArch32,
   [UARCH_CORTEX_A35]   = ISA_ARMv8_A,
-  [UARCH_CORTEX_A53]   = ISA_ARMv8_A,  
+  [UARCH_CORTEX_A53]   = ISA_ARMv8_A,
   [UARCH_CORTEX_A55r0] = ISA_ARMv8_2_A,
   [UARCH_CORTEX_A55]   = ISA_ARMv8_2_A,
   [UARCH_CORTEX_A57]   = ISA_ARMv8_A,
-  [UARCH_CORTEX_A65]   = ISA_ARMv8_2_A,  
+  [UARCH_CORTEX_A65]   = ISA_ARMv8_2_A,
   [UARCH_CORTEX_A72]   = ISA_ARMv8_A,
   [UARCH_CORTEX_A73]   = ISA_ARMv8_A,
   [UARCH_CORTEX_A75]   = ISA_ARMv8_2_A,
-  [UARCH_CORTEX_A76]   = ISA_ARMv8_2_A,  
+  [UARCH_CORTEX_A76]   = ISA_ARMv8_2_A,
   [UARCH_CORTEX_A77]   = ISA_ARMv8_2_A,
   [UARCH_CORTEX_A78]   = ISA_ARMv8_2_A,
+  [UARCH_CORTEX_X1]    = ISA_ARMv8_2_A,
   [UARCH_NEOVERSE_N1]  = ISA_ARMv8_2_A,
   [UARCH_NEOVERSE_E1]  = ISA_ARMv8_2_A,
   [UARCH_BRAHMA_B15]   = ISA_ARMv7_A,   // Same as Cortex-A15
@@ -150,6 +153,8 @@ static const ISA isas_uarch[] = {
   [UARCH_EXYNOS_M3]    = ISA_ARMv8_A,
   [UARCH_EXYNOS_M4]    = ISA_ARMv8_2_A,
   [UARCH_EXYNOS_M5]    = ISA_ARMv8_2_A,
+  [UARCH_ICESTORM]     = ISA_ARMv8_4_A,
+  [UARCH_FIRESTORM]    = ISA_ARMv8_4_A,
   [UARCH_PJ4]          = ISA_ARMv7_A,
 };
 
@@ -164,24 +169,25 @@ static char* isas_string[] = {
   [ISA_ARMv8_1_A] = "ARMv8.1",
   [ISA_ARMv8_2_A] = "ARMv8.2",
   [ISA_ARMv8_3_A] = "ARMv8.3",
+  [ISA_ARMv8_4_A] = "ARMv8.4"
 };
 
 #define UARCH_START if (false) {}
 #define CHECK_UARCH(arch, cpu, im_, p_, v_, r_, str, uarch, vendor) \
    else if (im_ == im && p_ == p && (v_ == NA || v_ == v) && (r_ == NA || r_ == r)) fill_uarch(arch, cpu, str, uarch, vendor);
 #define UARCH_END else { printBug("Unknown microarchitecture detected: IM=0x%.8X P=0x%.8X V=0x%.8X R=0x%.8X", im, p, v, r); fill_uarch(arch, cpu, "Unknown", UARCH_UNKNOWN, CPU_VENDOR_UNKNOWN); }
-   
+
 void fill_uarch(struct uarch* arch, struct cpuInfo* cpu, char* str, MICROARCH u, VENDOR vendor) {
-  arch->uarch = u;  
+  arch->uarch = u;
   arch->isa = isas_uarch[arch->uarch];
   cpu->cpu_vendor = vendor;
-  
-  arch->uarch_str = malloc(sizeof(char) * (strlen(str)+1));
+
+  arch->uarch_str = emalloc(sizeof(char) * (strlen(str)+1));
   strcpy(arch->uarch_str, str);
-  
-  arch->isa_str = malloc(sizeof(char) * (strlen(isas_string[arch->isa])+1));
-  strcpy(arch->isa_str, isas_string[arch->isa]);  
-}   
+
+  arch->isa_str = emalloc(sizeof(char) * (strlen(isas_string[arch->isa])+1));
+  strcpy(arch->isa_str, isas_string[arch->isa]);
+}
 
 /*
  * Codes are based on pytorch/cpuinfo, more precisely:
@@ -191,7 +197,7 @@ void fill_uarch(struct uarch* arch, struct cpuInfo* cpu, char* str, MICROARCH u,
  * - https://elixir.bootlin.com/linux/latest/source/arch/arm/include/asm/cputype.h
  */
 struct uarch* get_uarch_from_midr(uint32_t midr, struct cpuInfo* cpu) {
-  struct uarch* arch = malloc(sizeof(struct uarch));
+  struct uarch* arch = emalloc(sizeof(struct uarch));
   uint32_t im = midr_get_implementer(midr);
   uint32_t p = midr_get_part(midr);
   uint32_t v = midr_get_variant(midr);
@@ -221,7 +227,7 @@ struct uarch* get_uarch_from_midr(uint32_t midr, struct cpuInfo* cpu) {
   CHECK_UARCH(arch, cpu, 'A', 0xD03, NA, NA, "Cortex-A53",            UARCH_CORTEX_A53,   CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD04, NA, NA, "Cortex-A35",            UARCH_CORTEX_A35,   CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD05, NA,  0, "Cortex-A55",            UARCH_CORTEX_A55r0, CPU_VENDOR_ARM)
-  CHECK_UARCH(arch, cpu, 'A', 0xD05, NA, NA, "Cortex-A55",            UARCH_CORTEX_A55,   CPU_VENDOR_ARM)  
+  CHECK_UARCH(arch, cpu, 'A', 0xD05, NA, NA, "Cortex-A55",            UARCH_CORTEX_A55,   CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD06, NA, NA, "Cortex-A65",            UARCH_CORTEX_A65,   CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD07, NA, NA, "Cortex-A57",            UARCH_CORTEX_A57,   CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD08, NA, NA, "Cortex-A72",            UARCH_CORTEX_A72,   CPU_VENDOR_ARM)
@@ -232,27 +238,28 @@ struct uarch* get_uarch_from_midr(uint32_t midr, struct cpuInfo* cpu) {
   CHECK_UARCH(arch, cpu, 'A', 0xD0D, NA, NA, "Cortex-A77",            UARCH_CORTEX_A77,   CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD0E, NA, NA, "Cortex-A76",            UARCH_CORTEX_A76,   CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD41, NA, NA, "Cortex-A78",            UARCH_CORTEX_A78,   CPU_VENDOR_ARM)
+  CHECK_UARCH(arch, cpu, 'A', 0xD44, NA, NA, "Cortex-X1",             UARCH_CORTEX_X1,    CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD4A, NA, NA, "Neoverse E1",           UARCH_NEOVERSE_E1,  CPU_VENDOR_ARM)
-     
+
   CHECK_UARCH(arch, cpu, 'B', 0x00F, NA, NA, "Brahma B15",            UARCH_BRAHMA_B15,   CPU_VENDOR_BROADCOM)
   CHECK_UARCH(arch, cpu, 'B', 0x100, NA, NA, "Brahma B53",            UARCH_BRAHMA_B53,   CPU_VENDOR_BROADCOM)
   CHECK_UARCH(arch, cpu, 'B', 0x516, NA, NA, "ThunderX2",             UARCH_THUNDERX2,    CPU_VENDOR_CAVIUM)
-  
+
   CHECK_UARCH(arch, cpu, 'C', 0x0A0, NA, NA, "ThunderX",              UARCH_THUNDERX,     CPU_VENDOR_CAVIUM)
   CHECK_UARCH(arch, cpu, 'C', 0x0A1, NA, NA, "ThunderX 88XX",         UARCH_THUNDERX,     CPU_VENDOR_CAVIUM)
   CHECK_UARCH(arch, cpu, 'C', 0x0A2, NA, NA, "ThunderX 81XX",         UARCH_THUNDERX,     CPU_VENDOR_CAVIUM)
   CHECK_UARCH(arch, cpu, 'C', 0x0A3, NA, NA, "ThunderX 81XX",         UARCH_THUNDERX,     CPU_VENDOR_CAVIUM)
   CHECK_UARCH(arch, cpu, 'C', 0x0AF, NA, NA, "ThunderX2 99XX",        UARCH_THUNDERX2,    CPU_VENDOR_CAVIUM)
-  
+
   CHECK_UARCH(arch, cpu, 'H', 0xD01, NA, NA, "TaiShan v110",          UARCH_TAISHAN_V110, CPU_VENDOR_HUAWUEI) // Kunpeng 920 series
   CHECK_UARCH(arch, cpu, 'H', 0xD40, NA, NA, "Cortex-A76",            UARCH_CORTEX_A76,   CPU_VENDOR_ARM)     // Kirin 980 Big/Medium cores -> Cortex-A76
-  
+
   CHECK_UARCH(arch, cpu, 'N', 0x000, NA, NA, "Denver",                UARCH_DENVER,       CPU_VENDOR_NVIDIA)
   CHECK_UARCH(arch, cpu, 'N', 0x003, NA, NA, "Denver2",               UARCH_DENVER2,      CPU_VENDOR_NVIDIA)
   CHECK_UARCH(arch, cpu, 'N', 0x004, NA, NA, "Carmel",                UARCH_CARMEL,       CPU_VENDOR_NVIDIA)
-  
+
   CHECK_UARCH(arch, cpu, 'P', 0x000, NA, NA, "Xgene",                 UARCH_XGENE,        CPU_VENDOR_APM)
-  
+
   CHECK_UARCH(arch, cpu, 'Q', 0x00F, NA, NA, "Scorpion",              UARCH_SCORPION,     CPU_VENDOR_QUALCOMM)
   CHECK_UARCH(arch, cpu, 'Q', 0x02D, NA, NA, "Scorpion",              UARCH_KRAIT,        CPU_VENDOR_QUALCOMM)
   CHECK_UARCH(arch, cpu, 'Q', 0x04D,  1,  0, "Krait 200",             UARCH_KRAIT,        CPU_VENDOR_QUALCOMM)
@@ -273,29 +280,31 @@ struct uarch* get_uarch_from_midr(uint32_t midr, struct cpuInfo* cpu) {
   CHECK_UARCH(arch, cpu, 'Q', 0x803, NA, NA, "Kryo 385 Silver",       UARCH_CORTEX_A55r0, CPU_VENDOR_ARM)      // Low-power Kryo 385 "Silver" -> Cortex-A55r0
   CHECK_UARCH(arch, cpu, 'Q', 0x804, NA, NA, "Kryo 485 Gold",         UARCH_CORTEX_A76,   CPU_VENDOR_ARM)      // High-performance Kryo 485 "Gold" / "Gold Prime" -> Cortex-A76
   CHECK_UARCH(arch, cpu, 'Q', 0x805, NA, NA, "Kryo 485 Silver",       UARCH_CORTEX_A55,   CPU_VENDOR_ARM)      // Low-performance Kryo 485 "Silver" -> Cortex-A55
-  CHECK_UARCH(arch, cpu, 'Q', 0xC00, NA, NA, "Falkor",                UARCH_FALKOR,       CPU_VENDOR_QUALCOMM)      
-  CHECK_UARCH(arch, cpu, 'Q', 0xC01, NA, NA, "Saphira",               UARCH_SAPHIRA,      CPU_VENDOR_QUALCOMM)     
-  
+  CHECK_UARCH(arch, cpu, 'Q', 0xC00, NA, NA, "Falkor",                UARCH_FALKOR,       CPU_VENDOR_QUALCOMM)
+  CHECK_UARCH(arch, cpu, 'Q', 0xC01, NA, NA, "Saphira",               UARCH_SAPHIRA,      CPU_VENDOR_QUALCOMM)
+
   CHECK_UARCH(arch, cpu, 'S', 0x001, 1,  NA, "Exynos M1",             UARCH_EXYNOS_M1,    CPU_VENDOR_SAMSUNG)   // Exynos 8890
   CHECK_UARCH(arch, cpu, 'S', 0x001, 4,  NA, "Exynos M2",             UARCH_EXYNOS_M2,    CPU_VENDOR_SAMSUNG)   // Exynos 8895
   CHECK_UARCH(arch, cpu, 'S', 0x002, 1,  NA, "Exynos M3",             UARCH_EXYNOS_M3,    CPU_VENDOR_SAMSUNG)   // Exynos 9810
   CHECK_UARCH(arch, cpu, 'S', 0x003, 1,  NA, "Exynos M4",             UARCH_EXYNOS_M4,    CPU_VENDOR_SAMSUNG)   // Exynos 9820
   CHECK_UARCH(arch, cpu, 'S', 0x004, 1,  NA, "Exynos M5",             UARCH_EXYNOS_M5,    CPU_VENDOR_SAMSUNG)   // Exynos 9820 (this one looks wrong at uarch.c ...)
-            
+
+  CHECK_UARCH(arch, cpu, 'a', 0x022, NA, NA, "Icestorm",              UARCH_ICESTORM,     CPU_VENDOR_APPLE)
+  CHECK_UARCH(arch, cpu, 'a', 0x023, NA, NA, "Firestorm",             UARCH_FIRESTORM,    CPU_VENDOR_APPLE)
+
   CHECK_UARCH(arch, cpu, 'V', 0x581, NA, NA, "PJ4",                   UARCH_PJ4,          CPU_VENDOR_MARVELL)
   CHECK_UARCH(arch, cpu, 'V', 0x584, NA, NA, "PJ4B-MP",               UARCH_PJ4,          CPU_VENDOR_MARVELL)
-  
+
   UARCH_END
-  
+
   return arch;
 }
 
 char* get_str_uarch(struct cpuInfo* cpu) {
-  return cpu->arch->uarch_str;    
+  return cpu->arch->uarch_str;
 }
 
-void free_uarch_struct(struct uarch* arch) {    
+void free_uarch_struct(struct uarch* arch) {
   free(arch->uarch_str);
   free(arch);
 }
-

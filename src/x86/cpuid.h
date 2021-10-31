@@ -12,7 +12,7 @@ char* get_str_avx(struct cpuInfo* cpu);
 char* get_str_sse(struct cpuInfo* cpu);
 char* get_str_fma(struct cpuInfo* cpu);
 char* get_str_topology(struct cpuInfo* cpu, struct topology* topo, bool dual_socket);
-char* get_str_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64_t freq);
+char* get_str_cpu_name_abbreviated(struct cpuInfo* cpu);
 
 void print_debug(struct cpuInfo* cpu);
 void print_raw(struct cpuInfo* cpu);
