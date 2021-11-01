@@ -33,7 +33,7 @@ long get_freq_from_file(char* path) {
   char* buf;
   if((buf = read_file(path, &filelen)) == NULL) {
     printWarn("Could not open '%s'", path);
-    return UNKNOWN_FREQ;
+    return UNKNOWN_DATA;
   }
 
   char* end;
@@ -42,7 +42,7 @@ long get_freq_from_file(char* path) {
   if(errno != 0) {
     printBug("strtol: %s", strerror(errno));
     free(buf);
-    return UNKNOWN_FREQ;
+    return UNKNOWN_DATA;
   }
 
   // We will be getting the frequency in KHz
@@ -50,7 +50,7 @@ long get_freq_from_file(char* path) {
   // greater than 10 GHz or less than 100 MHz
   if(ret > 10000 * 1000 || ret <  100 * 1000) {
     printBug("Invalid data was read from file '%s': %ld\n", path, ret);
-    return UNKNOWN_FREQ;
+    return UNKNOWN_DATA;
   }
 
   free(buf);

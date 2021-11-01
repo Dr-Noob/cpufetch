@@ -203,7 +203,7 @@ int64_t get_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64_t
 #endif
 
   //First, check we have consistent data
-  if(freq == UNKNOWN_FREQ) {
+  if(freq == UNKNOWN_DATA || topo->logical_cores == UNKNOWN_DATA) {
     return -1;
   }
 
@@ -710,16 +710,16 @@ struct frequency* get_frequency_info(struct cpuInfo* cpu) {
   if(cpu->maxLevels < 0x00000016) {
     #if defined (_WIN32) || defined (__APPLE__)
       printWarn("Can't read frequency information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000016, cpu->maxLevels);
-      freq->base = UNKNOWN_FREQ;
-      freq->max = UNKNOWN_FREQ;
+      freq->base = UNKNOWN_DATA;
+      freq->max = UNKNOWN_DATA;
     #else
       printWarn("Can't read frequency information from cpuid (needed level is 0x%.8X, max is 0x%.8X). Using udev", 0x00000016, cpu->maxLevels);
-      freq->base = UNKNOWN_FREQ;
+      freq->base = UNKNOWN_DATA;
       freq->max = get_max_freq_from_file(0);
 
       if(freq->max == 0) {
         printWarn("Read max CPU frequency from udev and got 0 MHz");
-        freq->max = UNKNOWN_FREQ;
+        freq->max = UNKNOWN_DATA;
       }
     #endif
   }
@@ -736,7 +736,7 @@ struct frequency* get_frequency_info(struct cpuInfo* cpu) {
 
     if(freq->base == 0) {
       printWarn("Read base CPU frequency from CPUID and got 0 MHz");
-      freq->base = UNKNOWN_FREQ;
+      freq->base = UNKNOWN_DATA;
     }
     if(freq->max == 0) {
       printWarn("Read max CPU frequency from CPUID and got 0 MHz");
@@ -746,10 +746,10 @@ struct frequency* get_frequency_info(struct cpuInfo* cpu) {
 
         if(freq->max == 0) {
           printWarn("Read max CPU frequency from udev and got 0 MHz");
-          freq->max = UNKNOWN_FREQ;
+          freq->max = UNKNOWN_DATA;
         }
       #else
-        freq->max = UNKNOWN_FREQ;
+        freq->max = UNKNOWN_DATA;
       #endif
     }
   }
@@ -771,7 +771,11 @@ char* get_str_topology(struct cpuInfo* cpu, struct topology* topo, bool dual_soc
   int topo_sockets = dual_socket ? topo->sockets : 1;
   char* string;
 
-  if(topo->smt_supported > 1) {
+  if(topo->logical_cores == UNKNOWN_DATA) {
+    string = emalloc(sizeof(char) * (strlen(STRING_UNKNOWN) + 1));
+    strcpy(string, STRING_UNKNOWN);
+  }
+  else if(topo->smt_supported > 1) {
     // 4 for digits, 21 for ' cores (SMT disabled)' which is the longest possible output
     uint32_t max_size = 4+21+1;
     string = emalloc(sizeof(char) * max_size);

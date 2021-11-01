@@ -150,7 +150,7 @@ char* get_str_freq(struct frequency* freq) {
   char* string = emalloc(sizeof(char)*size);
   memset(string, 0, sizeof(char)*size);
 
-  if(freq->max == UNKNOWN_FREQ || freq->max < 0)
+  if(freq->max == UNKNOWN_DATA || freq->max < 0)
     snprintf(string,strlen(STRING_UNKNOWN)+1,STRING_UNKNOWN);
   else if(freq->max >= 1000)
     snprintf(string,size,"%.3f "STRING_GIGAHERZ,(float)(freq->max)/1000);

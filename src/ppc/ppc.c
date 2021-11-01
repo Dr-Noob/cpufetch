@@ -139,7 +139,7 @@ int64_t get_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64_t
    */
 
   //First check we have consistent data
-  if(freq == UNKNOWN_FREQ) {
+  if(freq == UNKNOWN_DATA) {
     return -1;
   }
 

@@ -45,7 +45,7 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
 struct frequency* get_frequency_info(uint32_t core) {
   struct frequency* freq = emalloc(sizeof(struct frequency));
 
-  freq->base = UNKNOWN_FREQ;
+  freq->base = UNKNOWN_DATA;
   freq->max = get_max_freq_from_file(core);
 
   return freq;
@@ -81,7 +81,7 @@ int64_t get_peak_performance(struct cpuInfo* cpu) {
 
   //First check we have consistent data
   for(int i=0; i < cpu->num_cpus; ptr = ptr->next_cpu, i++) {
-    if(get_freq(ptr->freq) == UNKNOWN_FREQ) {
+    if(get_freq(ptr->freq) == UNKNOWN_DATA) {
       return -1;
     }
   }
@@ -204,7 +204,7 @@ struct cpuInfo* get_cpu_info_linux(struct cpuInfo* cpu) {
     }
 
     freq_array[i] = get_max_freq_from_file(i);
-    if(freq_array[i] == UNKNOWN_FREQ) {
+    if(freq_array[i] == UNKNOWN_DATA) {
       printWarn("Unable to fetch max frequency for core %d. This is probably because the core is offline", i);
       freq_array[i] = freq_array[0];
     }
@@ -256,7 +256,7 @@ void fill_cpu_info_firestorm_icestorm(struct cpuInfo* cpu) {
   ice->topo->cach = ice->cach;
   ice->topo->total_cores = 4;
   ice->freq = malloc(sizeof(struct frequency));
-  ice->freq->base = UNKNOWN_FREQ;
+  ice->freq->base = UNKNOWN_DATA;
   ice->freq->max = 2064;
   ice->hv = malloc(sizeof(struct hypervisor));
   ice->hv->present = false;
@@ -272,7 +272,7 @@ void fill_cpu_info_firestorm_icestorm(struct cpuInfo* cpu) {
   fire->topo->cach = fire->cach;
   fire->topo->total_cores = 4;
   fire->freq = malloc(sizeof(struct frequency));
-  fire->freq->base = UNKNOWN_FREQ;
+  fire->freq->base = UNKNOWN_DATA;
   fire->freq->max = 3200;
   fire->hv = malloc(sizeof(struct hypervisor));
   fire->hv->present = false;
@@ -368,7 +368,7 @@ void print_debug(struct cpuInfo* cpu) {
     else {
       printf("0x%.8X ", midr);
     }
-    if(freq == UNKNOWN_FREQ) {
+    if(freq == UNKNOWN_DATA) {
       printWarn("Unable to fetch max frequency for core %d. This is probably because the core is offline", i);
       printf("%ld MHz\n", get_max_freq_from_file(0));
     }

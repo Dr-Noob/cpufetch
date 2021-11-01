@@ -324,7 +324,7 @@ bool fill_apic_ids(uint32_t* apic_ids, int n, bool x2apic_id) {
 
   for(int i=0; i < n; i++) {
     if(!bind_to_cpu(i)) {
-      printErr("Failed binding to CPU %d", i);
+      printErr("Failed binding the process to CPU %d", i);
       return false;
     }
     apic_ids[i] = get_apic_id(x2apic_id);
@@ -385,8 +385,13 @@ bool get_topology_from_apic(struct cpuInfo* cpu, struct topology* topo) {
 
   get_cache_topology_from_apic(topo);
 
-  if(!fill_apic_ids(apic_ids, topo->total_cores, x2apic_id))
+  if(!fill_apic_ids(apic_ids, topo->total_cores, x2apic_id)) {
+    topo->logical_cores = UNKNOWN_DATA;
+    topo->physical_cores = UNKNOWN_DATA;
+    topo->smt_available = 1;
+    topo->smt_supported = 1;
     return false;
+  }
 
   for(int i=0; i < topo->total_cores; i++) {
     apic_id = apic_ids[i];

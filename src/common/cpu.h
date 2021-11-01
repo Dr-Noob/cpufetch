@@ -34,7 +34,7 @@ enum {
   HV_VENDOR_INVALID
 };
 
-#define UNKNOWN_FREQ -1
+#define UNKNOWN_DATA -1
 #define CPU_NAME_MAX_LENGTH 64
 
 typedef int32_t VENDOR;
@@ -71,8 +71,8 @@ struct topology {
   int32_t total_cores;  
   struct cache* cach;
 #if defined(ARCH_X86) || defined(ARCH_PPC)
-  uint32_t physical_cores;
-  uint32_t logical_cores;
+  int32_t physical_cores;
+  int32_t logical_cores;
   uint32_t sockets;
   uint32_t smt_supported; // Number of SMT that CPU supports (equal to smt_available if SMT is enabled)
 #ifdef ARCH_X86
