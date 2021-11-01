@@ -470,6 +470,16 @@ bool get_cache_topology_amd(struct cpuInfo* cpu, struct topology* topo) {
   return true;
 }
 
+void get_topology_from_udev(struct cpuInfo* cpu, struct topology* topo) {
+  // TODO: To be improved in the future
+  topo->total_cores = get_ncores_from_cpuinfo();
+  topo->logical_cores = topo->total_cores;
+  topo->physical_cores = topo->total_cores;
+  topo->smt_available = 1;
+  topo->smt_supported = 1;
+  topo->sockets = 1;
+}
+
 // Main reference: https://software.intel.com/content/www/us/en/develop/articles/intel-64-architecture-processor-topology-enumeration.html
 // Very interesting resource: https://wiki.osdev.org/Detecting_CPU_Topology_(80x86)
 struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
@@ -499,7 +509,19 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
   switch(cpu->cpu_vendor) {
     case CPU_VENDOR_INTEL:
       if (cpu->maxLevels >= 0x00000004) {
-        get_topology_from_apic(cpu, topo);
+        bool toporet = get_topology_from_apic(cpu, topo);
+        if(!toporet) {
+          #ifdef __linux__
+            printWarn("Failed to retrieve topology from APIC, using udev...\n");
+            get_topology_from_udev(cpu, topo);
+          #else
+            printErr("Failed to retrieve topology from APIC, assumming default values...\n");
+            topo->logical_cores = UNKNOWN_DATA;
+            topo->physical_cores = UNKNOWN_DATA;
+            topo->smt_available = 1;
+            topo->smt_supported = 1;
+          #endif
+        }
       }
       else {
         printWarn("Can't read topology information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000001, cpu->maxLevels);

@@ -3,7 +3,6 @@
 #include "midr.h"
 
 #define _PATH_DEVICETREE_MODEL       "/sys/firmware/devicetree/base/model"
-#define _PATH_CPUS_PRESENT           _PATH_SYS_SYSTEM _PATH_SYS_CPU "/present"
 #define _PATH_CPUINFO                "/proc/cpuinfo"
 //#define _PATH_CPUINFO                "cpuinfo_debug"
 
@@ -16,48 +15,6 @@
 #define CPUINFO_REVISION_STR         "Revision\t: "
 
 #define CPUINFO_CPU_STRING "processor"
-
-// https://www.kernel.org/doc/html/latest/core-api/cpu_hotplug.html
-int get_ncores_from_cpuinfo() {
-  // Examples:
-  // 0-271
-  // 0-7
-  // 0
-
-  int filelen;
-  char* buf;
-  if((buf = read_file(_PATH_CPUS_PRESENT, &filelen)) == NULL) {
-    printWarn("read_file: %s: %s\n", _PATH_CPUS_PRESENT, strerror(errno));
-    return UNKNOWN;
-  }
-
-  int ncores;
-  char* tmp1;
-  if((tmp1 = strstr(buf, "-")) == NULL) {
-    // file contains no - character, we assume that it contains 0,
-    // which means that the CPU contains only one core
-    return 1;
-  }
-  else {
-    tmp1++;
-  }
-  char* tmp2 = strstr(buf, "\n");
-  char ncores_str[filelen];
-  memset(ncores_str, 0, sizeof(char) * filelen);
-  memcpy(ncores_str, tmp1, tmp2-tmp1);
-
-  char* end;
-  errno = 0;
-  ncores = strtol(ncores_str, &end, 10) + 1;
-  if(errno != 0) {
-    printWarn("strtol: %s:\n", strerror(errno));
-    return UNKNOWN;
-  }
-
-  free(buf);
-
-  return ncores;
-}
 
 long parse_cpuinfo_field(char* buf, char* field_str, int field_base) {
   char* tmp = strstr(buf, field_str);

@@ -385,13 +385,8 @@ bool get_topology_from_apic(struct cpuInfo* cpu, struct topology* topo) {
 
   get_cache_topology_from_apic(topo);
 
-  if(!fill_apic_ids(apic_ids, topo->total_cores, x2apic_id)) {
-    topo->logical_cores = UNKNOWN_DATA;
-    topo->physical_cores = UNKNOWN_DATA;
-    topo->smt_available = 1;
-    topo->smt_supported = 1;
+  if(!fill_apic_ids(apic_ids, topo->total_cores, x2apic_id))
     return false;
-  }
 
   for(int i=0; i < topo->total_cores; i++) {
     apic_id = apic_ids[i];
