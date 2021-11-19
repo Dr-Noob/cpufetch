@@ -15,11 +15,12 @@ ifneq ($(OS),Windows_NT)
 	ifeq ($(arch), $(filter $(arch), x86_64 amd64 i686))
 		SRC_DIR=src/x86/
 		SOURCE += $(COMMON_SRC) $(SRC_DIR)cpuid.c $(SRC_DIR)apic.c $(SRC_DIR)cpuid_asm.c $(SRC_DIR)uarch.c
-		HEADERS += $(COMMON_HDR) $(SRC_DIR)cpuid.h $(SRC_DIR)apic.h $(SRC_DIR)cpuid_asm.h $(SRC_DIR)uarch.h
+		HEADERS += $(COMMON_HDR) $(SRC_DIR)cpuid.h $(SRC_DIR)apic.h $(SRC_DIR)cpuid_asm.h $(SRC_DIR)uarch.h $(SRC_DIR)freq/freq.h
 
                 os := $(shell uname -s)
                 ifeq ($(os), Linux)
-			SOURCE += freq.o
+			SOURCE += $(SRC_DIR)freq/freq.c freq_nov.o freq_sse.o freq_avx.o freq_avx512.o
+			HEADERS += $(SRC_DIR)freq/freq.h
 			CFLAGS += -pthread
                 endif
 		CFLAGS += -DARCH_X86 -std=c99 -fstack-protector-all
@@ -69,8 +70,17 @@ static: $(OUTPUT)
 strict: CFLAGS += -O2 -Werror -fsanitize=undefined -D_FORTIFY_SOURCE=2
 strict: $(OUTPUT)
 
-freq.o: Makefile $(SRC_DIR)freq.c $(SRC_DIR)freq.h
-	$(CC) $(CFLAGS) $(SANITY_FLAGS) -c -mavx -mfma -pthread $(SRC_DIR)freq.c -o freq.o
+freq_nov.o: Makefile $(SRC_DIR)freq/freq_nov.c $(SRC_DIR)freq/freq_nov.h
+	$(CC) $(CFLAGS) $(SANITY_FLAGS) -c -pthread $(SRC_DIR)freq/freq_nov.c -o $@
+
+freq_sse.o: Makefile $(SRC_DIR)freq/freq_sse.c $(SRC_DIR)freq/freq_sse.h
+	$(CC) $(CFLAGS) $(SANITY_FLAGS) -c -msse -pthread $(SRC_DIR)freq/freq_sse.c -o $@
+
+freq_avx.o: Makefile $(SRC_DIR)freq/freq_avx.c $(SRC_DIR)freq/freq_avx.h
+	$(CC) $(CFLAGS) $(SANITY_FLAGS) -c -mavx -mfma -pthread $(SRC_DIR)freq/freq_avx.c -o $@
+
+freq_avx512.o: Makefile $(SRC_DIR)freq/freq_avx512.c $(SRC_DIR)freq/freq_avx512.h
+	$(CC) $(CFLAGS) $(SANITY_FLAGS) -c -mavx512f -mfma -pthread $(SRC_DIR)freq/freq_avx512.c -o $@
 
 $(OUTPUT): Makefile $(SOURCE) $(HEADERS)
 	$(CC) $(CFLAGS) $(SANITY_FLAGS) $(SOURCE) -o $(OUTPUT)
@@ -79,7 +89,7 @@ run: $(OUTPUT)
 	./$(OUTPUT)
 
 clean:
-	@rm -f $(OUTPUT) freq.o
+	@rm -f $(OUTPUT) *.o
 
 install: $(OUTPUT)
 	install -Dm755 "cpufetch"   "$(DESTDIR)$(PREFIX)/bin/cpufetch"

@@ -18,7 +18,7 @@
 #include "../common/args.h"
 #include "apic.h"
 #include "uarch.h"
-#include "freq.h"
+#include "freq/freq.h"
 
 #define CPU_VENDOR_INTEL_STRING "GenuineIntel"
 #define CPU_VENDOR_AMD_STRING   "AuthenticAMD"
@@ -194,8 +194,10 @@ int64_t get_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64_t
 
   int64_t freq;
 #ifdef __linux__
-  if(accurate_pp) freq = measure_avx_frequency(cpu);
-  else freq = max_freq;
+  if(accurate_pp)
+    freq = measure_frequency(cpu);
+  else
+    freq = max_freq;
 #else
   // Silence compiler warning
   (void)(accurate_pp);
