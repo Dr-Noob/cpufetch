@@ -8,9 +8,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <stdint.h>
-
-#define MEASURE_TIME_SECONDS         5
-#define LOOP_ITERS           100000000
+#include "freq.h"
 
 void* compute_avx() {
   bool end = false;
