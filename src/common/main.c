@@ -33,7 +33,7 @@
   static const char* OS_STR = "Unknown OS";
 #endif
 
-static const char* VERSION = "1.00";
+static const char* VERSION = "1.01";
 
 void print_help(char *argv[]) {
   const char **t = args_str;

@@ -5,7 +5,6 @@
 #include "../uarch.h"
 #include "freq.h"
 #include "freq_nov.h"
-#include "freq_sse.h"
 #include "freq_avx.h"
 #include "freq_avx512.h"
 
@@ -100,11 +99,6 @@ int64_t measure_frequency(struct cpuInfo* cpu) {
   else if(cpu->feat->AVX || cpu->feat->AVX2) {
     printf("cpufetch is measuring the AVX frequency...");
     compute_function = compute_avx;
-    num_spaces = 42;
-  }
-  else if(cpu->feat->SSE) {
-    printf("cpufetch is measuring the SSE frequency...");
-    compute_function = compute_sse;
     num_spaces = 42;
   }
   else {

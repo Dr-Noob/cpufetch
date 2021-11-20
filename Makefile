@@ -19,7 +19,7 @@ ifneq ($(OS),Windows_NT)
 
                 os := $(shell uname -s)
                 ifeq ($(os), Linux)
-			SOURCE += $(SRC_DIR)freq/freq.c freq_nov.o freq_sse.o freq_avx.o freq_avx512.o
+			SOURCE += $(SRC_DIR)freq/freq.c freq_nov.o freq_avx.o freq_avx512.o
 			HEADERS += $(SRC_DIR)freq/freq.h
 			CFLAGS += -pthread
                 endif
@@ -72,9 +72,6 @@ strict: $(OUTPUT)
 
 freq_nov.o: Makefile $(SRC_DIR)freq/freq_nov.c $(SRC_DIR)freq/freq_nov.h
 	$(CC) $(CFLAGS) $(SANITY_FLAGS) -c -pthread $(SRC_DIR)freq/freq_nov.c -o $@
-
-freq_sse.o: Makefile $(SRC_DIR)freq/freq_sse.c $(SRC_DIR)freq/freq_sse.h
-	$(CC) $(CFLAGS) $(SANITY_FLAGS) -c -msse -pthread $(SRC_DIR)freq/freq_sse.c -o $@
 
 freq_avx.o: Makefile $(SRC_DIR)freq/freq_avx.c $(SRC_DIR)freq/freq_avx.h
 	$(CC) $(CFLAGS) $(SANITY_FLAGS) -c -mavx -mfma -pthread $(SRC_DIR)freq/freq_avx.c -o $@
