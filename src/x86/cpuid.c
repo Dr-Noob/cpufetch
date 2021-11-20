@@ -472,7 +472,7 @@ bool get_cache_topology_amd(struct cpuInfo* cpu, struct topology* topo) {
   return true;
 }
 
-void get_topology_from_udev(struct cpuInfo* cpu, struct topology* topo) {
+void get_topology_from_udev(struct topology* topo) {
   // TODO: To be improved in the future
   topo->total_cores = get_ncores_from_cpuinfo();
   topo->logical_cores = topo->total_cores;
@@ -515,7 +515,7 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
         if(!toporet) {
           #ifdef __linux__
             printWarn("Failed to retrieve topology from APIC, using udev...\n");
-            get_topology_from_udev(cpu, topo);
+            get_topology_from_udev(topo);
           #else
             printErr("Failed to retrieve topology from APIC, assumming default values...\n");
             topo->logical_cores = UNKNOWN_DATA;
