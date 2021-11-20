@@ -74,10 +74,10 @@ freq_nov.o: Makefile $(SRC_DIR)freq/freq_nov.c $(SRC_DIR)freq/freq_nov.h
 	$(CC) $(CFLAGS) $(SANITY_FLAGS) -c -pthread $(SRC_DIR)freq/freq_nov.c -o $@
 
 freq_avx.o: Makefile $(SRC_DIR)freq/freq_avx.c $(SRC_DIR)freq/freq_avx.h
-	$(CC) $(CFLAGS) $(SANITY_FLAGS) -c -mavx -mfma -pthread $(SRC_DIR)freq/freq_avx.c -o $@
+	$(CC) $(CFLAGS) $(SANITY_FLAGS) -c -mavx -pthread $(SRC_DIR)freq/freq_avx.c -o $@
 
 freq_avx512.o: Makefile $(SRC_DIR)freq/freq_avx512.c $(SRC_DIR)freq/freq_avx512.h
-	$(CC) $(CFLAGS) $(SANITY_FLAGS) -c -mavx512f -mfma -pthread $(SRC_DIR)freq/freq_avx512.c -o $@
+	$(CC) $(CFLAGS) $(SANITY_FLAGS) -c -mavx512f -pthread $(SRC_DIR)freq/freq_avx512.c -o $@
 
 $(OUTPUT): Makefile $(SOURCE) $(HEADERS)
 	$(CC) $(CFLAGS) $(SANITY_FLAGS) $(SOURCE) -o $(OUTPUT)

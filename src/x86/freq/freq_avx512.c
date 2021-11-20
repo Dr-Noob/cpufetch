@@ -23,7 +23,6 @@ void* compute_avx512() {
 
   __m512 a[8];
   __m512 b[8];
-  __m512 mult;
 
   for(int i=0; i < 8; i++) {
     a[i] = _mm512_set1_ps(1.5);
@@ -33,14 +32,14 @@ void* compute_avx512() {
   gettimeofday(&begin, NULL);
   while(!end) {
     for(uint64_t i=0; i < LOOP_ITERS; i++) {
-      a[0] = _mm512_fmadd_ps(mult, a[0], b[0]);
-      a[1] = _mm512_fmadd_ps(mult, a[1], b[1]);
-      a[2] = _mm512_fmadd_ps(mult, a[2], b[2]);
-      a[3] = _mm512_fmadd_ps(mult, a[3], b[3]);
-      a[4] = _mm512_fmadd_ps(mult, a[4], b[4]);
-      a[5] = _mm512_fmadd_ps(mult, a[5], b[5]);
-      a[6] = _mm512_fmadd_ps(mult, a[6], b[6]);
-      a[7] = _mm512_fmadd_ps(mult, a[7], b[7]);
+      a[0] = _mm512_add_ps(a[0], b[0]);
+      a[1] = _mm512_add_ps(a[1], b[1]);
+      a[2] = _mm512_add_ps(a[2], b[2]);
+      a[3] = _mm512_add_ps(a[3], b[3]);
+      a[4] = _mm512_add_ps(a[4], b[4]);
+      a[5] = _mm512_add_ps(a[5], b[5]);
+      a[6] = _mm512_add_ps(a[6], b[6]);
+      a[7] = _mm512_add_ps(a[7], b[7]);
     }
 
     gettimeofday(&now, NULL);

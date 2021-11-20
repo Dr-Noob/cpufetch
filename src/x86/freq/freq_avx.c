@@ -17,12 +17,11 @@ void* compute_avx() {
 
   __m256 a = _mm256_set1_ps(1.5);
   __m256 b = _mm256_set1_ps(1.2);
-  __m256 c = _mm256_set1_ps(0.0);
 
   gettimeofday(&begin, NULL);
   while(!end) {
     for(uint64_t i=0; i < LOOP_ITERS; i++) {
-      c = _mm256_fmadd_ps(a, b, c);
+      a = _mm256_add_ps(a, b);
     }
 
     gettimeofday(&now, NULL);
@@ -35,7 +34,7 @@ void* compute_avx() {
     printf("fopen: %s", strerror(errno));
   }
   else {
-    fprintf(fp, "%f", c[0]);
+    fprintf(fp, "%f", a[0]);
     fclose(fp);
   }
 
