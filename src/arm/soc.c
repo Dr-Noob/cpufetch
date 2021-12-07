@@ -17,7 +17,8 @@ static char* soc_trademark_string[] = {
   [SOC_VENDOR_EXYNOS]     = "Exynos ",
   [SOC_VENDOR_KIRIN]      = "Kirin ",
   [SOC_VENDOR_BROADCOM]   = "Broadcom BCM",
-  [SOC_VENDOR_APPLE]      = "Apple "
+  [SOC_VENDOR_APPLE]      = "Apple ",
+  [SOC_VENDOR_ALLWINNER]  = "Allwinner "
 };
 
 static char* soc_rpi_string[] = {
@@ -38,10 +39,10 @@ void fill_soc(struct system_on_chip* soc, char* soc_name, SOC soc_model, int32_t
 }
 
 bool match_soc(struct system_on_chip* soc, char* raw_name, char* expected_name, char* soc_name, SOC soc_model, int32_t process) {
-  if(strlen(raw_name) > strlen(expected_name))
-    return false;
+  int len1 = strlen(raw_name);
+  int len2 = strlen(expected_name);
+  int len = min(len1, len2);
 
-  int len = strlen(raw_name);
   if(strncmp(raw_name, expected_name, len) != 0) {
     return false;
   }
@@ -454,6 +455,49 @@ bool match_qualcomm(char* soc_name, struct system_on_chip* soc) {
   SOC_END
 }
 
+// https://linux-sunxi.org/Allwinner_SoC_Family
+bool match_allwinner(char* soc_name, struct system_on_chip* soc) {
+  char* tmp;
+
+  if((tmp = strstr(soc_name, "sun")) == NULL)
+    return false;
+
+  SOC_START
+  // A series 32 bits
+  SOC_EQ(tmp, "sun4i", "A10",   SOC_ALLWINNER_A10,  soc, 55)
+  SOC_EQ(tmp, "sun5i", "A13",   SOC_ALLWINNER_A13,  soc, 55)
+  SOC_EQ(tmp, "sun5i", "A10s",  SOC_ALLWINNER_A10S, soc, 55)
+  SOC_EQ(tmp, "sun7i", "A20",   SOC_ALLWINNER_A20,  soc, 40)
+  SOC_EQ(tmp, "sun8i", "A23",   SOC_ALLWINNER_A23,  soc, 40)
+  SOC_EQ(tmp, "sun6i", "A31",   SOC_ALLWINNER_A31,  soc, 40)
+  SOC_EQ(tmp, "sun6i", "A31s",  SOC_ALLWINNER_A31S, soc, 40)
+  SOC_EQ(tmp, "sun8i", "A33",   SOC_ALLWINNER_A33,  soc, 40)
+  SOC_EQ(tmp, "sun8i", "A40",   SOC_ALLWINNER_A40,  soc, 40)
+  SOC_EQ(tmp, "sun8i", "A50",   SOC_ALLWINNER_A50,  soc, 28)
+  SOC_EQ(tmp, "sun9i", "A80",   SOC_ALLWINNER_A80,  soc, 28)
+  SOC_EQ(tmp, "sun8i", "A83T",  SOC_ALLWINNER_A83T, soc, 28)
+
+  // H series 32 bits
+  SOC_EQ(tmp, "sun8i", "H2+",   SOC_ALLWINNER_HZP,  soc, 40)
+  SOC_EQ(tmp, "sun8i", "H3",    SOC_ALLWINNER_H3,   soc, 40)
+  SOC_EQ(tmp, "sun8i", "H8",    SOC_ALLWINNER_H8,   soc, 28)
+
+  // H series 64 bits
+  SOC_EQ(tmp, "sun50i", "H5",   SOC_ALLWINNER_H5,   soc, 40)
+  SOC_EQ(tmp, "sun50i", "H6",   SOC_ALLWINNER_H6,   soc, 28)
+  SOC_EQ(tmp, "sun50i", "H616", SOC_ALLWINNER_H616, soc, 28)
+
+  // R series 32 bits
+  SOC_EQ(tmp, "sun5i", "R8",    SOC_ALLWINNER_R8,   soc, 55)
+  SOC_EQ(tmp, "sun8i", "R16",   SOC_ALLWINNER_R16,  soc, 40)
+  SOC_EQ(tmp, "sun8i", "R40",   SOC_ALLWINNER_R40,  soc, 40)
+  SOC_EQ(tmp, "sun8i", "R58",   SOC_ALLWINNER_R58,  soc, 28)
+
+  // R series  64 bits
+  SOC_EQ(tmp, "sun50i", "R329", SOC_ALLWINNER_R328, soc, 28)
+  SOC_END
+}
+
 bool match_special(char* soc_name, struct system_on_chip* soc) {
   char* tmp;
 
@@ -488,6 +532,9 @@ struct system_on_chip* parse_soc_from_string(struct system_on_chip* soc) {
     return soc;
 
   if(match_hisilicon(raw_name, soc))
+    return soc;
+
+  if(match_allwinner(raw_name, soc))
     return soc;
 
   match_broadcom(raw_name, soc);
