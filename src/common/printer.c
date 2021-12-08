@@ -501,14 +501,11 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
 
   art->new_intel_logo = choose_new_intel_logo(cpu);
 
+  // Step 1. Retrieve attributes (if some structures are NULL, like topo
+  //         or cache, do not try to retrieve them)
   uint32_t socket_num = 1;
-  char* l1i = NULL;
-  char *l1d = NULL;
-  char *l2 = NULL;
-  char *l3 = NULL;
-  char* n_cores = NULL;
-  char* n_cores_dual = NULL;
-  char* sockets = NULL;
+  char* l1i, *l1d, *l2, *l3, *n_cores, *n_cores_dual, *sockets;
+  l1i = l1d = l2 = l3 = n_cores = n_cores_dual = sockets = NULL;
 
   char* uarch = get_str_uarch(cpu);
   char* manufacturing_process = get_str_process(cpu);
@@ -531,13 +528,14 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
     l3 = get_str_l3(cpu->cach);
   }
 
-  setAttribute(art,ATTRIBUTE_NAME,cpu_name);
+  // Step 2. Set attributes
+  setAttribute(art, ATTRIBUTE_NAME, cpu_name);
   if(cpu->hv->present) {
     setAttribute(art, ATTRIBUTE_HYPERVISOR, cpu->hv->hv_name);
   }
-  setAttribute(art,ATTRIBUTE_UARCH,uarch);
-  setAttribute(art,ATTRIBUTE_TECHNOLOGY,manufacturing_process);
-  setAttribute(art,ATTRIBUTE_FREQUENCY,max_frequency);
+  setAttribute(art, ATTRIBUTE_UARCH, uarch);
+  setAttribute(art, ATTRIBUTE_TECHNOLOGY, manufacturing_process);
+  setAttribute(art, ATTRIBUTE_FREQUENCY, max_frequency);
   if(cpu->topo != NULL) {
     socket_num = get_nsockets(cpu->topo);
     if (socket_num > 1) {
@@ -546,17 +544,18 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
       setAttribute(art, ATTRIBUTE_NCORES_DUAL, n_cores_dual);
     }
     else {
-      setAttribute(art,ATTRIBUTE_NCORES,n_cores);
+      setAttribute(art, ATTRIBUTE_NCORES, n_cores);
     }
   }
-  setAttribute(art,ATTRIBUTE_AVX,avx);
-  setAttribute(art,ATTRIBUTE_FMA,fma);
-  if(l1i != NULL) setAttribute(art,ATTRIBUTE_L1i,l1i);
-  if(l1d != NULL) setAttribute(art,ATTRIBUTE_L1d,l1d);
-  if(l2 != NULL) setAttribute(art,ATTRIBUTE_L2,l2);
-  if(l3 != NULL) setAttribute(art,ATTRIBUTE_L3,l3);
-  setAttribute(art,ATTRIBUTE_PEAK,pp);
+  setAttribute(art, ATTRIBUTE_AVX, avx);
+  setAttribute(art, ATTRIBUTE_FMA, fma);
+  if(l1i != NULL) setAttribute(art, ATTRIBUTE_L1i, l1i);
+  if(l1d != NULL) setAttribute(art, ATTRIBUTE_L1d, l1d);
+  if(l2 != NULL) setAttribute(art, ATTRIBUTE_L2, l2);
+  if(l3 != NULL) setAttribute(art, ATTRIBUTE_L3, l3);
+  setAttribute(art, ATTRIBUTE_PEAK, pp);
 
+  // Step 3. Print output
   const char** attribute_fields = ATTRIBUTE_FIELDS;
   uint32_t longest_attribute = longest_attribute_length(art, attribute_fields);
   uint32_t longest_field = longest_field_length(art, longest_attribute);
@@ -603,6 +602,7 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
   if(art == NULL)
     return false;
 
+  // Step 1. Retrieve attributes
   char* uarch = get_str_uarch(cpu);
   char* manufacturing_process = get_str_process(cpu);
   char* sockets = get_str_sockets(cpu->topo);
@@ -618,6 +618,7 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
   char* l3 = get_str_l3(cpu->cach);
   char* pp = get_str_peak_performance(cpu->peak_performance);
 
+  // Step 2. Set attributes
   if(cpu_name != NULL) {
     setAttribute(art,ATTRIBUTE_NAME,cpu_name);
   }
@@ -642,6 +643,7 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
   }
   setAttribute(art,ATTRIBUTE_PEAK,pp);
 
+  // Step 3. Print output
   const char** attribute_fields = ATTRIBUTE_FIELDS;
   uint32_t longest_attribute = longest_attribute_length(art, attribute_fields);
   uint32_t longest_field = longest_field_length(art, longest_attribute);

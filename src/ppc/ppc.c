@@ -181,9 +181,6 @@ struct cpuInfo* get_cpu_info() {
   feat->altivec = has_altivec(cpu->arch);
   cpu->peak_performance = get_peak_performance(cpu, cpu->topo, get_freq(cpu->freq));
 
-  if(cpu->cach == NULL || cpu->topo == NULL) {
-    return NULL;
-  }
   return cpu;
 }
 
