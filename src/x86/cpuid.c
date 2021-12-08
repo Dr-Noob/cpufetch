@@ -278,6 +278,9 @@ struct cpuInfo* get_cpu_info() {
   struct cpuInfo* cpu = emalloc(sizeof(struct cpuInfo));
   struct features* feat = emalloc(sizeof(struct features));
   cpu->feat = feat;
+  cpu->peak_performance = -1;
+  cpu->topo = NULL;
+  cpu->cach = NULL;
 
   bool *ptr = &(feat->AES);
   for(uint32_t i = 0; i < sizeof(struct features)/sizeof(bool); i++, ptr++) {
@@ -386,15 +389,20 @@ struct cpuInfo* get_cpu_info() {
     cpu->topology_extensions = (ecx >> 22) & 1;
   }
 
+  // If any field of the struct is NULL,
+  // return inmideately, as further functions
+  // require valid fields (cach, topo, etc)
   cpu->arch = get_cpu_uarch(cpu);
   cpu->freq = get_frequency_info(cpu);
+
   cpu->cach = get_cache_info(cpu);
+  if(cpu->cach == NULL) return cpu;
+
   cpu->topo = get_topology_info(cpu, cpu->cach);
+  if(cpu->topo == NULL) return cpu;
+
   cpu->peak_performance = get_peak_performance(cpu, cpu->topo, get_freq(cpu->freq), accurate_pp());
 
-  if(cpu->cach == NULL || cpu->topo == NULL) {
-    return NULL;
-  }
   return cpu;
 }
 

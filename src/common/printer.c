@@ -500,21 +500,36 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
     return false;
 
   art->new_intel_logo = choose_new_intel_logo(cpu);
+
+  uint32_t socket_num = 1;
+  char* l1i = NULL;
+  char *l1d = NULL;
+  char *l2 = NULL;
+  char *l3 = NULL;
+  char* n_cores = NULL;
+  char* n_cores_dual = NULL;
+  char* sockets = NULL;
+
   char* uarch = get_str_uarch(cpu);
   char* manufacturing_process = get_str_process(cpu);
-  char* sockets = get_str_sockets(cpu->topo);
   char* max_frequency = get_str_freq(cpu->freq);
-  char* n_cores = get_str_topology(cpu, cpu->topo, false);
-  char* n_cores_dual = get_str_topology(cpu, cpu->topo, true);
   char* cpu_name = get_str_cpu_name(cpu, fcpuname);
   char* avx = get_str_avx(cpu);
   char* fma = get_str_fma(cpu);
-
-  char* l1i = get_str_l1i(cpu->cach);
-  char* l1d = get_str_l1d(cpu->cach);
-  char* l2 = get_str_l2(cpu->cach);
-  char* l3 = get_str_l3(cpu->cach);
   char* pp = get_str_peak_performance(cpu->peak_performance);
+
+  if(cpu->topo != NULL) {
+    sockets = get_str_sockets(cpu->topo);
+    n_cores = get_str_topology(cpu, cpu->topo, false);
+    n_cores_dual = get_str_topology(cpu, cpu->topo, true);
+  }
+
+  if(cpu->cach != NULL) {
+    l1i = get_str_l1i(cpu->cach);
+    l1d = get_str_l1d(cpu->cach);
+    l2 = get_str_l2(cpu->cach);
+    l3 = get_str_l3(cpu->cach);
+  }
 
   setAttribute(art,ATTRIBUTE_NAME,cpu_name);
   if(cpu->hv->present) {
@@ -523,23 +538,23 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
   setAttribute(art,ATTRIBUTE_UARCH,uarch);
   setAttribute(art,ATTRIBUTE_TECHNOLOGY,manufacturing_process);
   setAttribute(art,ATTRIBUTE_FREQUENCY,max_frequency);
-  uint32_t socket_num = get_nsockets(cpu->topo);
-  if (socket_num > 1) {
-    setAttribute(art, ATTRIBUTE_SOCKETS, sockets);
-    setAttribute(art, ATTRIBUTE_NCORES,n_cores);
-    setAttribute(art, ATTRIBUTE_NCORES_DUAL, n_cores_dual);
-  }
-  else {
-    setAttribute(art,ATTRIBUTE_NCORES,n_cores);
+  if(cpu->topo != NULL) {
+    socket_num = get_nsockets(cpu->topo);
+    if (socket_num > 1) {
+      setAttribute(art, ATTRIBUTE_SOCKETS, sockets);
+      setAttribute(art, ATTRIBUTE_NCORES, n_cores);
+      setAttribute(art, ATTRIBUTE_NCORES_DUAL, n_cores_dual);
+    }
+    else {
+      setAttribute(art,ATTRIBUTE_NCORES,n_cores);
+    }
   }
   setAttribute(art,ATTRIBUTE_AVX,avx);
   setAttribute(art,ATTRIBUTE_FMA,fma);
-  setAttribute(art,ATTRIBUTE_L1i,l1i);
-  setAttribute(art,ATTRIBUTE_L1d,l1d);
-  setAttribute(art,ATTRIBUTE_L2,l2);
-  if(l3 != NULL) {
-    setAttribute(art,ATTRIBUTE_L3,l3);
-  }
+  if(l1i != NULL) setAttribute(art,ATTRIBUTE_L1i,l1i);
+  if(l1d != NULL) setAttribute(art,ATTRIBUTE_L1d,l1d);
+  if(l2 != NULL) setAttribute(art,ATTRIBUTE_L2,l2);
+  if(l3 != NULL) setAttribute(art,ATTRIBUTE_L3,l3);
   setAttribute(art,ATTRIBUTE_PEAK,pp);
 
   const char** attribute_fields = ATTRIBUTE_FIELDS;
@@ -573,8 +588,8 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
   free(art);
 
   if(cs != NULL) free_colors_struct(cs);
-  free_cache_struct(cpu->cach);
-  free_topo_struct(cpu->topo);
+  if(cpu->cach != NULL) free_cache_struct(cpu->cach);
+  if(cpu->topo != NULL) free_topo_struct(cpu->topo);
   free_freq_struct(cpu->freq);
   free_cpuinfo_struct(cpu);
 
