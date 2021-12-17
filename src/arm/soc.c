@@ -18,7 +18,8 @@ static char* soc_trademark_string[] = {
   [SOC_VENDOR_KIRIN]      = "Kirin ",
   [SOC_VENDOR_BROADCOM]   = "Broadcom BCM",
   [SOC_VENDOR_APPLE]      = "Apple ",
-  [SOC_VENDOR_ALLWINNER]  = "Allwinner "
+  [SOC_VENDOR_ALLWINNER]  = "Allwinner ",
+  [SOC_VENDOR_GOOGLE]     = "Google "
 };
 
 static char* soc_rpi_string[] = {
@@ -510,6 +511,12 @@ bool match_special(char* soc_name, struct system_on_chip* soc) {
   // Snapdragon 730 reported as "Qualcomm Technologies, Inc. SDMMAGPIE"
   if((tmp = strstr(soc_name, "SDMMAGPIE")) != NULL) {
     fill_soc(soc, "730", SOC_SNAPD_SM7150_AA, 8);
+    return true;
+  }
+
+  // Google Pixel 6 uses this name
+  if((tmp = strstr(soc_name, "oriole")) != NULL) {
+    fill_soc(soc, "Tensor", SOC_GOOGLE_TENSOR, 5);
     return true;
   }
 

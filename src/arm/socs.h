@@ -277,7 +277,9 @@ enum {
   SOC_ALLWINNER_R16,
   SOC_ALLWINNER_R40,
   SOC_ALLWINNER_R58,
-  SOC_ALLWINNER_R328
+  SOC_ALLWINNER_R328,
+  // GOOGLE
+  SOC_GOOGLE_TENSOR
 };
 
 inline static VENDOR get_soc_vendor_from_soc(SOC soc) {
@@ -288,6 +290,7 @@ inline static VENDOR get_soc_vendor_from_soc(SOC soc) {
   else if(soc >= SOC_SNAPD_QSD8650 && soc <= SOC_SNAPD_SM8350) return SOC_VENDOR_SNAPDRAGON;
   else if(soc >= SOC_APPLE_M1 && soc <= SOC_APPLE_M1) return SOC_VENDOR_APPLE;
   else if(soc >= SOC_ALLWINNER_A10 && soc <= SOC_ALLWINNER_R328) return SOC_VENDOR_ALLWINNER;
+  else if(soc == SOC_GOOGLE_TENSOR) return SOC_VENDOR_GOOGLE;
   return SOC_VENDOR_UNKNOWN;  
 }
 
