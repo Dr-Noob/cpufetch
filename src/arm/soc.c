@@ -514,8 +514,8 @@ bool match_special(char* soc_name, struct system_on_chip* soc) {
     return true;
   }
 
-  // Google Pixel 6 uses this name
-  if((tmp = strstr(soc_name, "oriole")) != NULL) {
+  // Google Pixel 6 (Proably stands for Google Silicon 101)'
+  if((tmp = strstr(soc_name, "gs101")) != NULL) {
     fill_soc(soc, "Tensor", SOC_GOOGLE_TENSOR, 5);
     return true;
   }
