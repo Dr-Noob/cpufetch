@@ -10,12 +10,6 @@
 #include <stdint.h>
 #include "freq.h"
 
-/*
- * For AVX512, it seems that multiple independent
- * instructions are needed to force the CPU to
- * use AVX512 frequency, since with only one instruction
- * (as the AVX implementaion) it still uses AVX frequency
- */
 void* compute_avx512() {
   bool end = false;
 
