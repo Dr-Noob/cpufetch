@@ -70,7 +70,7 @@ static: $(OUTPUT)
 strict: CFLAGS += -O2 -Werror -fsanitize=undefined -D_FORTIFY_SOURCE=2
 strict: $(OUTPUT)
 
-freq_nov.o: Makefile $(SRC_DIR)freq/freq_nov.c $(SRC_DIR)freq/freq_nov.h $(SRC_FREQ)/freq.h $(SRC_DIR)freq/freq.h
+freq_nov.o: Makefile $(SRC_DIR)freq/freq_nov.c $(SRC_DIR)freq/freq_nov.h $(SRC_DIR)freq/freq.h
 	$(CC) $(CFLAGS) $(SANITY_FLAGS) -c -pthread $(SRC_DIR)freq/freq_nov.c -o $@
 
 freq_avx.o: Makefile $(SRC_DIR)freq/freq_avx.c $(SRC_DIR)freq/freq_avx.h $(SRC_DIR)freq/freq.h
