@@ -27,7 +27,6 @@
 
 #define _PATH_FREQUENCY_MAX_LEN 100
 #define _PATH_CACHE_MAX_LEN     200
-#define DEFAULT_FILE_SIZE       4096
 
 char* read_file(char* path, int* len);
 long get_max_freq_from_file(uint32_t core);

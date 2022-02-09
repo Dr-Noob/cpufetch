@@ -55,11 +55,17 @@ char* read_file(char* path, int* len) {
   int bytes_read = 0;
   int offset = 0;
   int block = 128;
-  char* buf = emalloc(sizeof(char)*DEFAULT_FILE_SIZE);
-  memset(buf, 0, sizeof(char)*DEFAULT_FILE_SIZE);
+  int buf_size = block * 4;
+  char* buf = emalloc(sizeof(char) * buf_size);
+  memset(buf, 0, sizeof(char) * buf_size);
 
-  while (  (bytes_read = read(fd, buf+offset, block)) > 0 ) {
+  while ((bytes_read = read(fd, buf+offset, block)) > 0) {
     offset += bytes_read;
+    if(offset + block > buf_size) {
+      buf = erealloc(buf, sizeof(char) * buf_size * 2);
+      memset(buf + buf_size, 0, sizeof(char) * buf_size);
+      buf_size = buf_size * 2;
+    }
   }
 
   if (close(fd) == -1) {

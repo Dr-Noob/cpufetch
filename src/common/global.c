@@ -111,3 +111,15 @@ void* ecalloc(size_t nmemb, size_t size) {
 
   return ptr;
 }
+
+void* erealloc(void *ptr, size_t size) {
+  void* newptr = realloc(ptr, size);
+
+  if(newptr == NULL) {
+    printErr("realloc failed: %s", strerror(errno));
+    exit(1);
+  }
+
+  return newptr;
+}
+

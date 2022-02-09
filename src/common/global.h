@@ -15,5 +15,6 @@ int max(int a, int b);
 char *strremove(char *str, const char *sub);
 void* emalloc(size_t size);
 void* ecalloc(size_t nmemb, size_t size);
+void* erealloc(void *ptr, size_t size);
 
 #endif
