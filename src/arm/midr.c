@@ -10,12 +10,6 @@
   #include <asm/hwcap.h>
 #elif defined __APPLE__ || __MACH__
   #include "sysctl.h"
-  // From Linux kernel: arch/arm64/include/asm/cputype.h
-  #define MIDR_APPLE_M1_ICESTORM  0x610F0220
-  #define MIDR_APPLE_M1_FIRESTORM 0x610F0230
-  #ifndef CPUFAMILY_ARM_FIRESTORM_ICESTORM
-    #define CPUFAMILY_ARM_FIRESTORM_ICESTORM 0x1B588BB3
-  #endif
 #endif
 
 #include "../common/global.h"
@@ -244,7 +238,7 @@ struct cpuInfo* get_cpu_info_linux(struct cpuInfo* cpu) {
 }
 
 #elif defined __APPLE__ || __MACH__
-void fill_cpu_info_firestorm_icestorm(struct cpuInfo* cpu) {
+void fill_cpu_info_firestorm_icestorm(struct cpuInfo* cpu, uint32_t pcores, uint32_t ecores) {
   // 1. Fill ICESTORM
   struct cpuInfo* ice = cpu;
 
@@ -254,7 +248,7 @@ void fill_cpu_info_firestorm_icestorm(struct cpuInfo* cpu) {
   ice->feat = get_features_info();
   ice->topo = malloc(sizeof(struct topology));
   ice->topo->cach = ice->cach;
-  ice->topo->total_cores = 4;
+  ice->topo->total_cores = ecores;
   ice->freq = malloc(sizeof(struct frequency));
   ice->freq->base = UNKNOWN_DATA;
   ice->freq->max = 2064;
@@ -270,7 +264,7 @@ void fill_cpu_info_firestorm_icestorm(struct cpuInfo* cpu) {
   fire->feat = get_features_info();
   fire->topo = malloc(sizeof(struct topology));
   fire->topo->cach = fire->cach;
-  fire->topo->total_cores = 4;
+  fire->topo->total_cores = pcores;
   fire->freq = malloc(sizeof(struct frequency));
   fire->freq->base = UNKNOWN_DATA;
   fire->freq->max = 3200;
@@ -286,8 +280,26 @@ struct cpuInfo* get_cpu_info_mach(struct cpuInfo* cpu) {
   // is a ARM_FIRESTORM_ICESTORM (Apple M1)
   if(cpu_family == CPUFAMILY_ARM_FIRESTORM_ICESTORM) {
     cpu->num_cpus = 2;
+    // Now detect the M1 version
+    uint32_t cpu_subfamily = get_sys_info_by_name("hw.cpusubfamily");
+    if(cpu_subfamily == CPUSUBFAMILY_ARM_HG) {
+      // Apple M1
+      fill_cpu_info_firestorm_icestorm(cpu, 4, 4);
+    }
+    else if(cpu_subfamily == CPUSUBFAMILY_ARM_HS || cpu_subfamily == CPUSUBFAMILY_ARM_HC_HD) {
+      // Apple M1 Pro/Max. Detect number of cores
+      uint32_t physicalcpu = get_sys_info_by_name("hw.physicalcpu");
+      if(physicalcpu < 8 || physicalcpu > 10) {
+        printBug("Found invalid physicalcpu: 0x%.8X", physicalcpu);
+        return NULL;
+      }
+      fill_cpu_info_firestorm_icestorm(cpu, physicalcpu-2, 2);
+    }
+    else {
+      printBug("Found invalid cpu_subfamily: 0x%.8X", cpu_subfamily);
+      return NULL;
+    }
     cpu->soc = get_soc();
-    fill_cpu_info_firestorm_icestorm(cpu);
     cpu->peak_performance = get_peak_performance(cpu);
   }
   else {

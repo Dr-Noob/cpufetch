@@ -8,6 +8,10 @@
 #include "udev.h"
 #include "../common/global.h"
 
+#if defined(__APPLE__) || defined(__MACH__)
+  #include "sysctl.h"
+#endif
+
 #define min(a,b) (((a)<(b))?(a):(b))
 #define ARRAY_SIZE(arr)     (sizeof(arr) / sizeof((arr)[0]))
 
@@ -642,6 +646,22 @@ struct system_on_chip* guess_soc_raspbery_pi(struct system_on_chip* soc) {
   return soc;
 }
 
+#if defined(__APPLE__) || defined(__MACH__)
+struct system_on_chip* guess_soc_apple(struct system_on_chip* soc) {
+  uint32_t cpu_subfamily = get_sys_info_by_name("hw.cpusubfamily");
+  if(cpu_subfamily == CPUSUBFAMILY_ARM_HG) {
+    fill_soc(soc, "M1", SOC_APPLE_M1, 5);
+  }
+  else if(cpu_subfamily == CPUSUBFAMILY_ARM_HS) {
+    fill_soc(soc, "M1 Pro", SOC_APPLE_M1_PRO, 5);
+  }
+  else if(cpu_subfamily == CPUSUBFAMILY_ARM_HC_HD) {
+    fill_soc(soc, "M1 Max", SOC_APPLE_M1_MAX, 5);
+  }
+  return soc;
+}
+#endif
+
 struct system_on_chip* get_soc() {
   struct system_on_chip* soc = emalloc(sizeof(struct system_on_chip));
   soc->raw_name = NULL;
@@ -675,7 +695,13 @@ struct system_on_chip* get_soc() {
 #endif // ifdef __ANDROID__
   }
 #elif defined __APPLE__ || __MACH__
-    fill_soc(soc, "M1", SOC_APPLE_M1, 5);
+  soc = guess_soc_apple(soc);
+  if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) {
+    printWarn("SoC detection failed using cpu_subfamily");
+  }
+  else {
+    return soc;
+  }
 #endif // ifdef __linux__
 
   if(soc->raw_name == NULL) {
