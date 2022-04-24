@@ -60,7 +60,7 @@ void printBug(const char *fmt, ...) {
 #if defined(ARCH_X86) || defined(ARCH_PPC)
   fprintf(stderr, "Please, create a new issue with this error message, the output of 'cpufetch' and 'cpufetch --debug' on https://github.com/Dr-Noob/cpufetch/issues\n");
 #elif ARCH_ARM
-  fprintf(stderr, "Please, create a new issue with this error message, your smartphone/computer model, the output of 'cpufetch' and 'cpufetch --debug' on https://github.com/Dr-Noob/cpufetch/issues\n");
+  fprintf(stderr, "Please, create a new issue with this error message, your smartphone/computer model, the output of 'cpufetch --verbose' and 'cpufetch --debug' on https://github.com/Dr-Noob/cpufetch/issues\n");
 #endif
 }
 
