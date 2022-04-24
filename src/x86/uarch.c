@@ -90,6 +90,7 @@ enum {
   UARCH_ITANIUM2,
   UARCH_ICE_LAKE,
   UARCH_TIGER_LAKE,
+  UARCH_ALDER_LAKE,
   // AMD //
   UARCH_AM486,
   UARCH_AM5X86,
@@ -228,6 +229,7 @@ struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, u
   CHECK_UARCH(arch, 0,  6,  8, 14, 11, "Whiskey Lake",    UARCH_WHISKEY_LAKE,     14) // wikichip
   CHECK_UARCH(arch, 0,  6,  8, 14, 12, "Comet Lake",      UARCH_COMET_LAKE,       14) // wikichip
   CHECK_UARCH(arch, 0,  6,  9,  6, NA, "Tremont",         UARCH_TREMONT,          10) // LX*
+  CHECK_UARCH(arch, 0,  6,  9,  7, NA, "Alder Lake",      UARCH_ALDER_LAKE,       10) // wikichip
   CHECK_UARCH(arch, 0,  6,  9, 10, NA, "Tremont",         UARCH_TREMONT,          10) // instlatx64
   CHECK_UARCH(arch, 0,  6,  9, 12, NA, "Tremont",         UARCH_TREMONT,          10) // LX*
   CHECK_UARCH(arch, 0,  6,  9, 13, NA, "Sunny Cove",      UARCH_SUNNY_COVE,       10) // LX*
@@ -426,6 +428,7 @@ int get_number_of_vpus(struct cpuInfo* cpu) {
 
 bool choose_new_intel_logo_uarch(struct cpuInfo* cpu) {
   switch(cpu->arch->uarch) {
+    case UARCH_ALDER_LAKE:
     case UARCH_ROCKET_LAKE:
     case UARCH_TIGER_LAKE:
       return true;
