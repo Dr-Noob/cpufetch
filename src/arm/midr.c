@@ -287,13 +287,20 @@ struct cpuInfo* get_cpu_info_mach(struct cpuInfo* cpu) {
       fill_cpu_info_firestorm_icestorm(cpu, 4, 4);
     }
     else if(cpu_subfamily == CPUSUBFAMILY_ARM_HS || cpu_subfamily == CPUSUBFAMILY_ARM_HC_HD) {
-      // Apple M1 Pro/Max. Detect number of cores
+      // Apple M1 Pro/Max/Ultra. Detect number of cores
       uint32_t physicalcpu = get_sys_info_by_name("hw.physicalcpu");
-      if(physicalcpu < 8 || physicalcpu > 10) {
-        printBug("Found invalid physicalcpu: 0x%.8X", physicalcpu);
+      if(physicalcpu == 20) {
+        // M1 Ultra
+        fill_cpu_info_firestorm_icestorm(cpu, 16, 4);
+      }
+      else if(physicalcpu == 8 || physicalcpu == 10) {
+        // M1 Pro/Max
+        fill_cpu_info_firestorm_icestorm(cpu, physicalcpu-2, 2);
+      }
+      else {
+        printBug("Found invalid physical cpu number: %d", physicalcpu);
         return NULL;
       }
-      fill_cpu_info_firestorm_icestorm(cpu, physicalcpu-2, 2);
     }
     else {
       printBug("Found invalid cpu_subfamily: 0x%.8X", cpu_subfamily);
