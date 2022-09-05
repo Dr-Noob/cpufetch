@@ -166,7 +166,6 @@ long get_l3_cache_size(uint32_t core) {
 }
 
 int get_num_caches_from_files(char** paths, int num_paths) {
-  int SHARED_MAP_MAX_LEN = 8 + 1;
   int filelen;
   char* buf;
   uint32_t* shared_maps = emalloc(sizeof(uint32_t *) * num_paths);
@@ -175,11 +174,6 @@ int get_num_caches_from_files(char** paths, int num_paths) {
   for(int i=0; i < num_paths; i++) {
     if((buf = read_file(paths[i], &filelen)) == NULL) {
       printWarn("Could not open '%s'", paths[i]);
-      return -1;
-    }
-
-    if(filelen > SHARED_MAP_MAX_LEN) {
-      printBug("Shared map length is %d while the max is be %d", filelen, SHARED_MAP_MAX_LEN);
       return -1;
     }
 
