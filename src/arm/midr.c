@@ -346,6 +346,7 @@ struct cpuInfo* get_cpu_info_mach(struct cpuInfo* cpu) {
   }
   else if(cpu_family == CPUFAMILY_ARM_AVALANCHE_BLIZZARD) {
     // Just the "normal" M2 exists for now
+    cpu->num_cpus = 2;
     fill_cpu_info_avalanche_blizzard(cpu, 4, 4);
     cpu->soc = get_soc();
     cpu->peak_performance = get_peak_performance(cpu);
