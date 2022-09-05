@@ -79,7 +79,7 @@ enum {
   UARCH_GOLDMONT_PLUS,
   UARCH_TREMONT,
   UARCH_LAKEMONT,
-  UARCH_COFFE_LAKE,
+  UARCH_COFFEE_LAKE,
   UARCH_ITANIUM,
   UARCH_KNIGHTS_FERRY,
   UARCH_KNIGHTS_CORNER,
@@ -225,7 +225,7 @@ struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, u
   CHECK_UARCH(arch, 0,  6,  8, 12, NA, "Tiger Lake",      UARCH_TIGER_LAKE,       10) // instlatx64
   CHECK_UARCH(arch, 0,  6,  8, 13, NA, "Tiger Lake",      UARCH_TIGER_LAKE,       10) // instlatx64
   // CHECK_UARCH(arch, 0,  6,  8, 14,  9, ...) It is not possible to determine uarch only from CPUID dump (can be Kaby Lake or Amber Lake)
-  CHECK_UARCH(arch, 0,  6,  8, 14, 10, "Coffee Lake",     UARCH_COFFE_LAKE,       14) // wikichip
+  CHECK_UARCH(arch, 0,  6,  8, 14, 10, "Coffee Lake",     UARCH_COFFEE_LAKE,      14) // wikichip
   CHECK_UARCH(arch, 0,  6,  8, 14, 11, "Whiskey Lake",    UARCH_WHISKEY_LAKE,     14) // wikichip
   CHECK_UARCH(arch, 0,  6,  8, 14, 12, "Comet Lake",      UARCH_COMET_LAKE,       14) // wikichip
   CHECK_UARCH(arch, 0,  6,  9,  6, NA, "Tremont",         UARCH_TREMONT,          10) // LX*
@@ -234,10 +234,10 @@ struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, u
   CHECK_UARCH(arch, 0,  6,  9, 12, NA, "Tremont",         UARCH_TREMONT,          10) // LX*
   CHECK_UARCH(arch, 0,  6,  9, 13, NA, "Sunny Cove",      UARCH_SUNNY_COVE,       10) // LX*
   CHECK_UARCH(arch, 0,  6,  9, 14,  9, "Kaby Lake",       UARCH_KABY_LAKE,        14)
-  CHECK_UARCH(arch, 0,  6,  9, 14, 10, "Coffee Lake",     UARCH_COFFE_LAKE,       14)
-  CHECK_UARCH(arch, 0,  6,  9, 14, 11, "Coffee Lake",     UARCH_COFFE_LAKE,       14)
-  CHECK_UARCH(arch, 0,  6,  9, 14, 12, "Coffee Lake",     UARCH_COFFE_LAKE,       14)
-  CHECK_UARCH(arch, 0,  6,  9, 14, 13, "Coffee Lake",     UARCH_COFFE_LAKE,       14)
+  CHECK_UARCH(arch, 0,  6,  9, 14, 10, "Coffee Lake",     UARCH_COFFEE_LAKE,      14)
+  CHECK_UARCH(arch, 0,  6,  9, 14, 11, "Coffee Lake",     UARCH_COFFEE_LAKE,      14)
+  CHECK_UARCH(arch, 0,  6,  9, 14, 12, "Coffee Lake",     UARCH_COFFEE_LAKE,      14)
+  CHECK_UARCH(arch, 0,  6,  9, 14, 13, "Coffee Lake",     UARCH_COFFEE_LAKE,      14)
   CHECK_UARCH(arch, 0,  6, 10,  5, NA, "Comet Lake",      UARCH_COMET_LAKE,       14) // wikichip
   CHECK_UARCH(arch, 0,  6, 10,  6, NA, "Comet Lake",      UARCH_COMET_LAKE,       14) // instlatx64.atw.hu (i7-10710U)
   CHECK_UARCH(arch, 0,  6, 10,  7, NA, "Rocket Lake",     UARCH_ROCKET_LAKE,      14) // instlatx64.atw.hu (i7-11700K)
@@ -408,7 +408,7 @@ int get_number_of_vpus(struct cpuInfo* cpu) {
       case UARCH_ROCKET_LAKE:
       case UARCH_AMBER_LAKE:
       case UARCH_WHISKEY_LAKE:
-      case UARCH_COFFE_LAKE:
+      case UARCH_COFFEE_LAKE:
       case UARCH_PALM_COVE:
 
       case UARCH_KNIGHTS_LANDING:
