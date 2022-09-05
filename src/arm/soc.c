@@ -648,30 +648,48 @@ struct system_on_chip* guess_soc_raspbery_pi(struct system_on_chip* soc) {
 
 #if defined(__APPLE__) || defined(__MACH__)
 struct system_on_chip* guess_soc_apple(struct system_on_chip* soc) {
+  uint32_t cpu_family = get_sys_info_by_name("hw.cpufamily");
   uint32_t cpu_subfamily = get_sys_info_by_name("hw.cpusubfamily");
 
-  if(cpu_subfamily == CPUSUBFAMILY_ARM_HG) {
-    fill_soc(soc, "M1", SOC_APPLE_M1, 5);
-  }
-  else if(cpu_subfamily == CPUSUBFAMILY_ARM_HS) {
-    fill_soc(soc, "M1 Pro", SOC_APPLE_M1_PRO, 5);
-  }
-  else if(cpu_subfamily == CPUSUBFAMILY_ARM_HC_HD) {
-    // Could be M1 Max or M1 Ultra (2x M1 Max)
-    uint32_t physicalcpu = get_sys_info_by_name("hw.physicalcpu");
-    if(physicalcpu == 20) {
-      fill_soc(soc, "M1 Ultra", SOC_APPLE_M1_ULTRA, 5);
+  if(cpu_family == CPUFAMILY_ARM_FIRESTORM_ICESTORM) {
+    // Check M1 version
+    if(cpu_subfamily == CPUSUBFAMILY_ARM_HG) {
+      fill_soc(soc, "M1", SOC_APPLE_M1, 5);
     }
-    else if(physicalcpu == 10) {
-      fill_soc(soc, "M1 Max", SOC_APPLE_M1_MAX, 5);
+    else if(cpu_subfamily == CPUSUBFAMILY_ARM_HS) {
+      fill_soc(soc, "M1 Pro", SOC_APPLE_M1_PRO, 5);
+    }
+    else if(cpu_subfamily == CPUSUBFAMILY_ARM_HC_HD) {
+      // Could be M1 Max or M1 Ultra (2x M1 Max)
+      uint32_t physicalcpu = get_sys_info_by_name("hw.physicalcpu");
+      if(physicalcpu == 20) {
+        fill_soc(soc, "M1 Ultra", SOC_APPLE_M1_ULTRA, 5);
+      }
+      else if(physicalcpu == 10) {
+        fill_soc(soc, "M1 Max", SOC_APPLE_M1_MAX, 5);
+      }
+      else {
+        printBug("Found invalid physical cpu number: %d", physicalcpu);
+        soc->soc_vendor = SOC_VENDOR_UNKNOWN;
+      }
     }
     else {
-      printBug("Found invalid physical cpu number: %d", physicalcpu);
+      printBug("Found invalid cpu_subfamily: 0x%.8X", cpu_subfamily);
+      soc->soc_vendor = SOC_VENDOR_UNKNOWN;
+    }
+  }
+  else if(cpu_family == CPUFAMILY_ARM_AVALANCHE_BLIZZARD) {
+    // Check M2 version
+    if(cpu_subfamily == CPUSUBFAMILY_ARM_HG) {
+      fill_soc(soc, "M2", SOC_APPLE_M2, 5);
+    }
+    else {
+      printBug("Found invalid cpu_subfamily: 0x%.8X", cpu_subfamily);
       soc->soc_vendor = SOC_VENDOR_UNKNOWN;
     }
   }
   else {
-    printBug("Found invalid cpu_subfamily: 0x%.8X", cpu_subfamily);
+    printBug("Found invalid cpu_family: 0x%.8X", cpu_family);
     soc->soc_vendor = SOC_VENDOR_UNKNOWN;
   }
   return soc;
