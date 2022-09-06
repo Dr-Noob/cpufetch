@@ -33,6 +33,7 @@ enum {
   ISA_ARMv8_2_A,
   ISA_ARMv8_3_A,
   ISA_ARMv8_4_A,
+  ISA_ARMv8_5_A
 };
 
 enum {
@@ -95,6 +96,8 @@ enum {
   UARCH_THUNDER,    // Apple A13 processor (little cores).
   UARCH_ICESTORM,   // Apple M1 processor (little cores).
   UARCH_FIRESTORM,  // Apple M1 processor (big cores).
+  UARCH_BLIZZARD,   // Apple M2 processor (little cores).
+  UARCH_AVALANCHE,  // Apple M2 processor (big cores).
   // CAVIUM
   UARCH_THUNDERX,   // Cavium ThunderX
   UARCH_THUNDERX2,  //  Cavium ThunderX2 (originally Broadcom Vulkan).
@@ -155,8 +158,10 @@ static const ISA isas_uarch[] = {
   [UARCH_EXYNOS_M3]    = ISA_ARMv8_A,
   [UARCH_EXYNOS_M4]    = ISA_ARMv8_2_A,
   [UARCH_EXYNOS_M5]    = ISA_ARMv8_2_A,
-  [UARCH_ICESTORM]     = ISA_ARMv8_4_A,
-  [UARCH_FIRESTORM]    = ISA_ARMv8_4_A,
+  [UARCH_ICESTORM]     = ISA_ARMv8_5_A, // https://github.com/llvm/llvm-project/blob/main/llvm/include/llvm/Support/AArch64TargetParser.def
+  [UARCH_FIRESTORM]    = ISA_ARMv8_5_A,
+  [UARCH_BLIZZARD]     = ISA_ARMv8_5_A, // Not confirmed
+  [UARCH_AVALANCHE]    = ISA_ARMv8_5_A,
   [UARCH_PJ4]          = ISA_ARMv7_A,
   [UARCH_XIAOMI]       = ISA_ARMv8_A,
 };
@@ -172,7 +177,8 @@ static char* isas_string[] = {
   [ISA_ARMv8_1_A] = "ARMv8.1",
   [ISA_ARMv8_2_A] = "ARMv8.2",
   [ISA_ARMv8_3_A] = "ARMv8.3",
-  [ISA_ARMv8_4_A] = "ARMv8.4"
+  [ISA_ARMv8_4_A] = "ARMv8.4",
+  [ISA_ARMv8_5_A] = "ARMv8.5"
 };
 
 #define UARCH_START if (false) {}
@@ -297,6 +303,8 @@ struct uarch* get_uarch_from_midr(uint32_t midr, struct cpuInfo* cpu) {
 
   CHECK_UARCH(arch, cpu, 'a', 0x022, NA, NA, "Icestorm",              UARCH_ICESTORM,     CPU_VENDOR_APPLE)
   CHECK_UARCH(arch, cpu, 'a', 0x023, NA, NA, "Firestorm",             UARCH_FIRESTORM,    CPU_VENDOR_APPLE)
+  CHECK_UARCH(arch, cpu, 'a', 0x030, NA, NA, "Blizzard",              UARCH_BLIZZARD,     CPU_VENDOR_APPLE)
+  CHECK_UARCH(arch, cpu, 'a', 0x031, NA, NA, "Avalanche",             UARCH_AVALANCHE,    CPU_VENDOR_APPLE)
 
   CHECK_UARCH(arch, cpu, 'V', 0x581, NA, NA, "PJ4",                   UARCH_PJ4,          CPU_VENDOR_MARVELL)
   CHECK_UARCH(arch, cpu, 'V', 0x584, NA, NA, "PJ4B-MP",               UARCH_PJ4,          CPU_VENDOR_MARVELL)

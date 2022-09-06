@@ -273,11 +273,46 @@ void fill_cpu_info_firestorm_icestorm(struct cpuInfo* cpu, uint32_t pcores, uint
   fire->next_cpu = NULL;
 }
 
+void fill_cpu_info_avalanche_blizzard(struct cpuInfo* cpu, uint32_t pcores, uint32_t ecores) {
+  // 1. Fill BLIZZARD
+  struct cpuInfo* bli = cpu;
+
+  bli->midr = MIDR_APPLE_M2_BLIZZARD;
+  bli->arch = get_uarch_from_midr(bli->midr, bli);
+  bli->cach = get_cache_info(bli);
+  bli->feat = get_features_info();
+  bli->topo = malloc(sizeof(struct topology));
+  bli->topo->cach = bli->cach;
+  bli->topo->total_cores = pcores;
+  bli->freq = malloc(sizeof(struct frequency));
+  bli->freq->base = UNKNOWN_DATA;
+  bli->freq->max = 2800;
+  bli->hv = malloc(sizeof(struct hypervisor));
+  bli->hv->present = false;
+  bli->next_cpu = malloc(sizeof(struct cpuInfo));
+
+  // 2. Fill AVALANCHE
+  struct cpuInfo* ava = bli->next_cpu;
+  ava->midr = MIDR_APPLE_M2_AVALANCHE;
+  ava->arch = get_uarch_from_midr(ava->midr, ava);
+  ava->cach = get_cache_info(ava);
+  ava->feat = get_features_info();
+  ava->topo = malloc(sizeof(struct topology));
+  ava->topo->cach = ava->cach;
+  ava->topo->total_cores = ecores;
+  ava->freq = malloc(sizeof(struct frequency));
+  ava->freq->base = UNKNOWN_DATA;
+  ava->freq->max = 3500;
+  ava->hv = malloc(sizeof(struct hypervisor));
+  ava->hv->present = false;
+  ava->next_cpu = NULL;
+}
+
 struct cpuInfo* get_cpu_info_mach(struct cpuInfo* cpu) {
   uint32_t cpu_family = get_sys_info_by_name("hw.cpufamily");
 
-  // Manually fill the cpuInfo assuming that the CPU
-  // is a ARM_FIRESTORM_ICESTORM (Apple M1)
+  // Manually fill the cpuInfo assuming that
+  // the CPU is an Apple M1/M2
   if(cpu_family == CPUFAMILY_ARM_FIRESTORM_ICESTORM) {
     cpu->num_cpus = 2;
     // Now detect the M1 version
@@ -306,6 +341,13 @@ struct cpuInfo* get_cpu_info_mach(struct cpuInfo* cpu) {
       printBug("Found invalid cpu_subfamily: 0x%.8X", cpu_subfamily);
       return NULL;
     }
+    cpu->soc = get_soc();
+    cpu->peak_performance = get_peak_performance(cpu);
+  }
+  else if(cpu_family == CPUFAMILY_ARM_AVALANCHE_BLIZZARD) {
+    // Just the "normal" M2 exists for now
+    cpu->num_cpus = 2;
+    fill_cpu_info_avalanche_blizzard(cpu, 4, 4);
     cpu->soc = get_soc();
     cpu->peak_performance = get_peak_performance(cpu);
   }
