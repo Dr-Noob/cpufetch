@@ -28,7 +28,7 @@ ifneq ($(OS),Windows_NT)
 		SRC_DIR=src/ppc/
 		SOURCE += $(COMMON_SRC) $(SRC_DIR)ppc.c $(SRC_DIR)uarch.c $(SRC_DIR)udev.c
 		HEADERS += $(COMMON_HDR) $(SRC_DIR)ppc.h $(SRC_DIR)uarch.h  $(SRC_DIR)udev.c
-		CFLAGS += -DARCH_PPC -std=gnu99 -fstack-protector-all
+		CFLAGS += -DARCH_PPC -std=gnu99 -fstack-protector-all -Wno-language-extension-token
 	else ifeq ($(arch), $(filter $(arch), arm aarch64_be aarch64 arm64 armv8b armv8l armv7l armv6l))
 		SRC_DIR=src/arm/
 		SOURCE += $(COMMON_SRC) $(SRC_DIR)midr.c $(SRC_DIR)uarch.c $(SRC_DIR)soc.c $(SRC_DIR)udev.c
