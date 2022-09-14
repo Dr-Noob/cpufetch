@@ -81,12 +81,23 @@ int64_t get_peak_performance(struct cpuInfo* cpu) {
   }
 
   int64_t flops = 0;
-
   ptr = cpu;
-  for(int i=0; i < cpu->num_cpus; ptr = ptr->next_cpu, i++) {
-    flops += ptr->topo->total_cores * (get_freq(ptr->freq) * 1000000);
+
+  if(cpu->cpu_vendor == SOC_VENDOR_APPLE) {
+    // Special case for M1/M2
+    // First we find the E cores, then the P
+    // M1 have 2 (E cores) or 4 (P cores) FMA units
+    // Source: https://dougallj.github.io/applecpu/firestorm-simd.html
+    flops += ptr->topo->total_cores * (get_freq(ptr->freq) * 1000000) * 2 * 4 * 2;
+    ptr = ptr->next_cpu;
+    flops += ptr->topo->total_cores * (get_freq(ptr->freq) * 1000000) * 2 * 4 * 4;
   }
-  if(cpu->feat->NEON) flops = flops * 4;
+  else {
+    for(int i=0; i < cpu->num_cpus; ptr = ptr->next_cpu, i++) {
+      flops += ptr->topo->total_cores * (get_freq(ptr->freq) * 1000000);
+    }
+    if(cpu->feat->NEON) flops = flops * 4;
+  }
 
   return flops;
 }
