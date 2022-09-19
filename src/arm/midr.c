@@ -83,7 +83,7 @@ int64_t get_peak_performance(struct cpuInfo* cpu) {
   int64_t flops = 0;
   ptr = cpu;
 
-  if(cpu->cpu_vendor == SOC_VENDOR_APPLE) {
+  if(cpu->soc->soc_vendor == SOC_VENDOR_APPLE) {
     // Special case for M1/M2
     // First we find the E cores, then the P
     // M1 have 2 (E cores) or 4 (P cores) FMA units
