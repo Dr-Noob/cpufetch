@@ -1,5 +1,5 @@
-#ifndef __POWERPC__
-#define __POWERPC__
+#ifndef __CPUFETCH_POWERPC__
+#define __CPUFETCH_POWERPC__
 
 #include "../common/cpu.h"
 
