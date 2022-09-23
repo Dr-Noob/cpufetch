@@ -111,11 +111,11 @@ bool match_broadcom(char* soc_name, struct system_on_chip* soc) {
 bool match_hisilicon(char* soc_name, struct system_on_chip* soc) {
   char* tmp;
 
-  if((tmp = strstr(soc_name, "Hi")) == NULL)
+  if((tmp = strstr(soc_name, "hi")) == NULL)
     return false;
 
   SOC_START
-  SOC_EQ(tmp, "Hi3620GFC",  "K3V2",  SOC_HISILICON_3620, soc, 40)
+  SOC_EQ(tmp, "hi3620GFC",  "K3V2",  SOC_HISILICON_3620, soc, 40)
   //SOC_EQ(tmp, "?",        "K3V2E", SOC_KIRIN, soc,  ?)
   //SOC_EQ(tmp, "?",        "620",   SOC_KIRIN, soc, 28)
   //SOC_EQ(tmp, "?",        "650",   SOC_KIRIN, soc, 16)
@@ -131,18 +131,18 @@ bool match_hisilicon(char* soc_name, struct system_on_chip* soc) {
   //SOC_EQ(tmp, "?",        "9000E", SOC_KIRIN, soc,  5)
   //SOC_EQ(tmp, "?",        "910",   SOC_KIRIN, soc, 28)
   //SOC_EQ(tmp, "?",        "910T",  SOC_KIRIN, soc, 28)
-  SOC_EQ(tmp, "Hi3630",     "920",   SOC_HISILICON_3630, soc, 28)
+  SOC_EQ(tmp, "hi3630",     "920",   SOC_HISILICON_3630, soc, 28)
   //SOC_EQ(tmp, "?",        "925",   SOC_KIRIN, soc, 28)
   //SOC_EQ(tmp, "?",        "930",   SOC_KIRIN, soc, ?)
   //SOC_EQ(tmp, "?",        "935",   SOC_KIRIN, soc, ?)
-  SOC_EQ(tmp, "Hi3650",     "950",   SOC_HISILICON_3650, soc, 16)
+  SOC_EQ(tmp, "hi3650",     "950",   SOC_HISILICON_3650, soc, 16)
   //SOC_EQ(tmp, "?",        "955",   SOC_KIRIN, soc, ?)
-  SOC_EQ(tmp, "Hi3660",     "960",   SOC_HISILICON_3660, soc, 16)
+  SOC_EQ(tmp, "hi3660",     "960",   SOC_HISILICON_3660, soc, 16)
   //SOC_EQ(tmp, "?",        "960S",  SOC_KIRIN, soc, 16)
-  SOC_EQ(tmp, "Hi3670",     "970",   SOC_HISILICON_3670, soc, 10)
-  SOC_EQ(tmp, "Hi3680",     "980",   SOC_HISILICON_3680, soc,  7)
+  SOC_EQ(tmp, "hi3670",     "970",   SOC_HISILICON_3670, soc, 10)
+  SOC_EQ(tmp, "hi3680",     "980",   SOC_HISILICON_3680, soc,  7)
   //SOC_EQ(tmp, "?",        "985",   SOC_KIRIN, soc,  7)
-  SOC_EQ(tmp, "Hi3690",     "990",   SOC_HISILICON_3690, soc,  7)
+  SOC_EQ(tmp, "hi3690",     "990",   SOC_HISILICON_3690, soc,  7)
   SOC_END
 }
 
