@@ -165,42 +165,85 @@ long get_l3_cache_size(uint32_t core) {
   return get_cache_size_from_file(path);
 }
 
+void add_shared_map(uint32_t** src, int src_idx, uint32_t** dst, int dst_idx, int n) {
+  for(int j=0; j < n; j++) {
+    dst[dst_idx][j] = src[src_idx][j];
+  }
+}
+
+bool maps_equal(uint32_t* map1, uint32_t* map2, int n) {
+  for(int i=0; i < n; i++) {
+    if(map1[i] != map2[i]) return false;
+  }
+  return true;
+}
+
 int get_num_caches_from_files(char** paths, int num_paths) {
   int filelen;
   char* buf;
-  uint32_t* shared_maps = emalloc(sizeof(uint32_t *) * num_paths);
+  char* tmpbuf;
 
-  // 1. Read cpu_shared_map from every core
+  // 1. Count the number of bitmasks per file
+  if((buf = read_file(paths[0], &filelen)) == NULL) {
+    printWarn("Could not open '%s'", paths[0]);
+    return -1;
+  }
+  int num_bitmasks = 1;
+  for(int i=0; buf[i]; i++) {
+    num_bitmasks += (buf[i] == ',');
+  }
+
+  // 2. Read cpu_shared_map from every core
+  uint32_t** shared_maps = emalloc(sizeof(uint32_t *) * num_paths);
   for(int i=0; i < num_paths; i++) {
+    shared_maps[i] = emalloc(sizeof(uint32_t) * num_bitmasks);
+
     if((buf = read_file(paths[i], &filelen)) == NULL) {
       printWarn("Could not open '%s'", paths[i]);
       return -1;
     }
 
-    char* end;
-    errno = 0;
-    long ret = strtol(buf, &end, 16);
-    if(errno != 0) {
-      printBug("strtol: %s", strerror(errno));
-      free(buf);
-      return -1;
-    }
+    for(int j=0; j < num_bitmasks; j++) {
+      char* end;
+      tmpbuf = emalloc(sizeof(char) * (strlen(buf) + 1));
+      char* commaend = strstr(buf, ",");
+      if(commaend == NULL) {
+        strcpy(tmpbuf, buf);
+      }
+      else {
+        strncpy(tmpbuf, buf, commaend-buf);
+      }
+      errno = 0;
+      long ret = strtol(tmpbuf, &end, 16);
+      if(errno != 0) {
+        printf("strtol: %s", strerror(errno));
+        free(buf);
+        return -1;
+      }
 
-    shared_maps[i] = (uint32_t) ret;
+      shared_maps[i][j] = (uint32_t) ret;
+      buf = commaend + 1;
+      free(tmpbuf);
+    }
   }
 
   // 2. Count number of different masks; this is the number of caches
   int num_caches = 0;
   bool found = false;
-  uint32_t* unique_shared_maps = emalloc(sizeof(uint32_t *) * num_paths);
-  for(int i=0; i < num_paths; i++) unique_shared_maps[i] = 0;
+  uint32_t** unique_shared_maps = emalloc(sizeof(uint32_t *) * num_paths);
+  for(int i=0; i < num_paths; i++) {
+    unique_shared_maps[i] = emalloc(sizeof(uint32_t) * num_bitmasks);
+    for(int j=0; j < num_bitmasks; j++) {
+      unique_shared_maps[i][j] = 0;
+    }
+  }
 
   for(int i=0; i < num_paths; i++) {
     for(int j=0; j < num_paths && !found; j++) {
-      if(shared_maps[i] == unique_shared_maps[j]) found = true;
+      if(maps_equal(shared_maps[i], unique_shared_maps[j], num_bitmasks)) found = true;
     }
     if(!found) {
-      unique_shared_maps[num_caches] = shared_maps[i];
+      add_shared_map(shared_maps, i, unique_shared_maps, num_caches, num_bitmasks);
       num_caches++;
     }
     found = false;
