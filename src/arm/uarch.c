@@ -33,7 +33,8 @@ enum {
   ISA_ARMv8_2_A,
   ISA_ARMv8_3_A,
   ISA_ARMv8_4_A,
-  ISA_ARMv8_5_A
+  ISA_ARMv8_5_A,
+  ISA_ARMv9_A
 };
 
 enum {
@@ -65,7 +66,10 @@ enum {
   UARCH_CORTEX_A76,
   UARCH_CORTEX_A77,
   UARCH_CORTEX_A78,
+  UARCH_CORTEX_A510,
+  UARCH_CORTEX_A710,
   UARCH_CORTEX_X1,
+  UARCH_CORTEX_X2,
   UARCH_NEOVERSE_N1,
   UARCH_NEOVERSE_E1,
   UARCH_SCORPION,
@@ -136,7 +140,10 @@ static const ISA isas_uarch[] = {
   [UARCH_CORTEX_A76]   = ISA_ARMv8_2_A,
   [UARCH_CORTEX_A77]   = ISA_ARMv8_2_A,
   [UARCH_CORTEX_A78]   = ISA_ARMv8_2_A,
+  [UARCH_CORTEX_A510]   = ISA_ARMv9_A,
+  [UARCH_CORTEX_A710]   = ISA_ARMv9_A,
   [UARCH_CORTEX_X1]    = ISA_ARMv8_2_A,
+  [UARCH_CORTEX_X2]    = ISA_ARMv9_A,
   [UARCH_NEOVERSE_N1]  = ISA_ARMv8_2_A,
   [UARCH_NEOVERSE_E1]  = ISA_ARMv8_2_A,
   [UARCH_BRAHMA_B15]   = ISA_ARMv7_A,   // Same as Cortex-A15
@@ -178,7 +185,8 @@ static char* isas_string[] = {
   [ISA_ARMv8_2_A] = "ARMv8.2",
   [ISA_ARMv8_3_A] = "ARMv8.3",
   [ISA_ARMv8_4_A] = "ARMv8.4",
-  [ISA_ARMv8_5_A] = "ARMv8.5"
+  [ISA_ARMv8_5_A] = "ARMv8.5",
+  [ISA_ARMv9_A] = "ARMv9"
 };
 
 #define UARCH_START if (false) {}
@@ -248,6 +256,9 @@ struct uarch* get_uarch_from_midr(uint32_t midr, struct cpuInfo* cpu) {
   CHECK_UARCH(arch, cpu, 'A', 0xD0E, NA, NA, "Cortex-A76",            UARCH_CORTEX_A76,   CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD41, NA, NA, "Cortex-A78",            UARCH_CORTEX_A78,   CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD44, NA, NA, "Cortex-X1",             UARCH_CORTEX_X1,    CPU_VENDOR_ARM)
+  CHECK_UARCH(arch, cpu, 'A', 0xD46, NA, NA, "Cortex‑A510",           UARCH_CORTEX_A510,  CPU_VENDOR_ARM)
+  CHECK_UARCH(arch, cpu, 'A', 0xD47, NA, NA, "Cortex‑A710",           UARCH_CORTEX_A710,  CPU_VENDOR_ARM)
+  CHECK_UARCH(arch, cpu, 'A', 0xD48, NA, NA, "Cortex-X2",             UARCH_CORTEX_X2,    CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD4A, NA, NA, "Neoverse E1",           UARCH_NEOVERSE_E1,  CPU_VENDOR_ARM)
 
   CHECK_UARCH(arch, cpu, 'B', 0x00F, NA, NA, "Brahma B15",            UARCH_BRAHMA_B15,   CPU_VENDOR_BROADCOM)

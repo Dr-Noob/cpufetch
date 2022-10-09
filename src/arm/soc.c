@@ -517,6 +517,12 @@ bool match_special(char* soc_name, struct system_on_chip* soc) {
     return true;
   }
 
+  // Snapdragon 8 Gen 1 reported as "taro"
+  if(strcmp(soc_name, "taro") == 0) {
+    fill_soc(soc, "8 Gen 1", SOC_SNAPD_SM8450, 4);
+    return true;
+  }
+
   return false;
 }
 
