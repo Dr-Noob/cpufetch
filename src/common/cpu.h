@@ -131,6 +131,8 @@ struct cpuInfo {
   uint32_t maxExtendedLevels;
   // Topology Extensions (AMD only)
   bool topology_extensions;
+  // Hybrid Flag (Intel only)
+  bool hybrid_flag;
 #elif ARCH_PPC
   uint32_t pvr;
 #elif ARCH_ARM

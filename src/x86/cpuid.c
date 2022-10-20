@@ -401,6 +401,14 @@ struct cpuInfo* get_cpu_info() {
     cpu->topology_extensions = (ecx >> 22) & 1;
   }
 
+  cpu->hybrid_flag = false;
+  if(cpu->cpu_vendor == CPU_VENDOR_INTEL && cpu->maxLevels >= 0x00000007) {
+    eax = 0x00000007;
+    ecx = 0x00000000;
+    cpuid(&eax, &ebx, &ecx, &edx);
+    cpu->hybrid_flag = (edx >> 15) & 0x1;
+  }
+
   // If any field of the struct is NULL,
   // return inmideately, as further functions
   // require valid fields (cach, topo, etc)
@@ -930,6 +938,9 @@ void print_debug(struct cpuInfo* cpu) {
   printf("- Max extended level: 0x%.8X\n", cpu->maxExtendedLevels);
   if(cpu->cpu_vendor == CPU_VENDOR_AMD) {
     printf("- AMD topology extensions: %d\n", cpu->topology_extensions);
+  }
+  if(cpu->cpu_vendor == CPU_VENDOR_INTEL) {
+    printf("- Hybrid Flag: %d\n", cpu->hybrid_flag);
   }
   printf("- CPUID dump: 0x%.8X\n", eax);
 
