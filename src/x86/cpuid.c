@@ -274,50 +274,18 @@ struct hypervisor* get_hp_info(bool hv_present) {
   return hv;
 }
 
-struct cpuInfo* get_cpu_info() {
-  struct cpuInfo* cpu = emalloc(sizeof(struct cpuInfo));
-  struct features* feat = emalloc(sizeof(struct features));
-  cpu->feat = feat;
-  cpu->peak_performance = -1;
-  cpu->topo = NULL;
-  cpu->cach = NULL;
-
-  bool *ptr = &(feat->AES);
-  for(uint32_t i = 0; i < sizeof(struct features)/sizeof(bool); i++, ptr++) {
-    *ptr = false;
-  }
-
+struct features* get_features_info(struct cpuInfo* cpu) {
   uint32_t eax = 0;
   uint32_t ebx = 0;
   uint32_t ecx = 0;
   uint32_t edx = 0;
 
-  //Get max cpuid level
-  cpuid(&eax, &ebx, &ecx, &edx);
-  cpu->maxLevels = eax;
+  struct features* feat = emalloc(sizeof(struct features));
 
-  //Fill vendor
-  char name[13];
-  memset(name,0,13);
-  get_name_cpuid(name, ebx, edx, ecx);
-
-  if(strcmp(CPU_VENDOR_INTEL_STRING,name) == 0)
-    cpu->cpu_vendor = CPU_VENDOR_INTEL;
-  else if (strcmp(CPU_VENDOR_AMD_STRING,name) == 0)
-    cpu->cpu_vendor = CPU_VENDOR_AMD;
-  else {
-    cpu->cpu_vendor = CPU_VENDOR_INVALID;
-    printErr("Unknown CPU vendor: %s", name);
-    return NULL;
+  bool *ptr = &(feat->AES);
+  for(uint32_t i = 0; i < sizeof(struct features)/sizeof(bool); i++, ptr++) {
+    *ptr = false;
   }
-
-  //Get max extended level
-  eax = 0x80000000;
-  ebx = 0;
-  ecx = 0;
-  edx = 0;
-  cpuid(&eax, &ebx, &ecx, &edx);
-  cpu->maxExtendedLevels = eax;
 
   //Fill instructions support
   if (cpu->maxLevels >= 0x00000001){
@@ -372,6 +340,50 @@ struct cpuInfo* get_cpu_info() {
   else {
     printWarn("Can't read features information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x80000001, cpu->maxExtendedLevels);
   }
+
+  return feat;
+}
+
+struct cpuInfo* get_cpu_info() {
+  struct cpuInfo* cpu = emalloc(sizeof(struct cpuInfo));
+  cpu->peak_performance = -1;
+  cpu->topo = NULL;
+  cpu->cach = NULL;
+  cpu->feat = NULL;
+
+  uint32_t eax = 0;
+  uint32_t ebx = 0;
+  uint32_t ecx = 0;
+  uint32_t edx = 0;
+
+  //Get max cpuid level
+  cpuid(&eax, &ebx, &ecx, &edx);
+  cpu->maxLevels = eax;
+
+  //Fill vendor
+  char name[13];
+  memset(name,0,13);
+  get_name_cpuid(name, ebx, edx, ecx);
+
+  if(strcmp(CPU_VENDOR_INTEL_STRING,name) == 0)
+    cpu->cpu_vendor = CPU_VENDOR_INTEL;
+  else if (strcmp(CPU_VENDOR_AMD_STRING,name) == 0)
+    cpu->cpu_vendor = CPU_VENDOR_AMD;
+  else {
+    cpu->cpu_vendor = CPU_VENDOR_INVALID;
+    printErr("Unknown CPU vendor: %s", name);
+    return NULL;
+  }
+
+  //Get max extended level
+  eax = 0x80000000;
+  ebx = 0;
+  ecx = 0;
+  edx = 0;
+  cpuid(&eax, &ebx, &ecx, &edx);
+  cpu->maxExtendedLevels = eax;
+
+  cpu->feat = get_features_info(cpu);
 
   if (cpu->maxExtendedLevels >= 0x80000004){
     cpu->cpu_name = get_str_cpu_name_internal();
