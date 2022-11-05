@@ -179,7 +179,7 @@ struct uarch* get_cpu_uarch(struct cpuInfo* cpu) {
   return get_uarch_from_cpuid(cpu, eax, efamily, family, emodel, model, (int)stepping);
 }
 
-int64_t get_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64_t max_freq, bool accurate_pp) {
+int64_t get_peak_performance(struct cpuInfo* cpu, bool accurate_pp) {
   /*
    * PP = PeakPerformance
    * SP = SinglePrecision
@@ -192,46 +192,56 @@ int64_t get_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64_t
    * 16(If AVX512), 8(If AVX), 4(If SSE) *
    */
 
-  int64_t freq;
-#ifdef __linux__
-  if(accurate_pp)
-    freq = measure_frequency(cpu);
-  else
-    freq = max_freq;
-#else
-  // Silence compiler warning
-  (void)(accurate_pp);
-  freq = max_freq;
-#endif
+  struct cpuInfo* ptr = cpu;
+  int64_t total_flops = 0;
 
-  //First, check we have consistent data
-  if(freq == UNKNOWN_DATA || topo->logical_cores == UNKNOWN_DATA) {
-    return -1;
+  for(int i=0; i < cpu->num_cpus; ptr = ptr->next_cpu, i++) {
+    struct topology* topo = ptr->topo;
+    int64_t max_freq = get_freq(ptr->freq);
+
+    int64_t freq;
+  #ifdef __linux__
+    if(accurate_pp)
+      freq = measure_frequency(ptr);
+    else
+      freq = max_freq;
+  #else
+    // Silence compiler warning
+    (void)(accurate_pp);
+    freq = max_freq;
+  #endif
+
+    //First, check we have consistent data
+    if(freq == UNKNOWN_DATA || topo->logical_cores == UNKNOWN_DATA) {
+      return -1;
+    }
+
+    struct features* feat = ptr->feat;
+    int vpus = get_number_of_vpus(ptr);
+    int64_t flops = topo->physical_cores * topo->sockets * (freq*1000000) * vpus;
+
+    if(feat->FMA3 || feat->FMA4)
+      flops = flops*2;
+
+    // Ice Lake has AVX512, but it has 1 VPU for AVX512, while
+    // it has 2 for AVX2. If this is a Ice Lake CPU, we are computing
+    // the peak performance supposing AVX2, not AVX512
+    if(feat->AVX512 && vpus_are_AVX512(ptr))
+      flops = flops*16;
+    else if(feat->AVX || feat->AVX2)
+      flops = flops*8;
+    else if(feat->SSE)
+      flops = flops*4;
+
+    // See https://sites.utexas.edu/jdm4372/2018/01/22/a-peculiar-
+    // throughput-limitation-on-intels-xeon-phi-x200-knights-landing/
+    if(is_knights_landing(ptr))
+      flops = flops * 6 / 7;
+
+    total_flops += flops;
   }
 
-  struct features* feat = cpu->feat;
-  int vpus = get_number_of_vpus(cpu);
-  int64_t flops = topo->physical_cores * topo->sockets * (freq*1000000) * vpus;
-
-  if(feat->FMA3 || feat->FMA4)
-    flops = flops*2;
-
-  // Ice Lake has AVX512, but it has 1 VPU for AVX512, while
-  // it has 2 for AVX2. If this is a Ice Lake CPU, we are computing
-  // the peak performance supposing AVX2, not AVX512
-  if(feat->AVX512 && vpus_are_AVX512(cpu))
-    flops = flops*16;
-  else if(feat->AVX || feat->AVX2)
-    flops = flops*8;
-  else if(feat->SSE)
-    flops = flops*4;
-
-  // See https://sites.utexas.edu/jdm4372/2018/01/22/a-peculiar-
-  // throughput-limitation-on-intels-xeon-phi-x200-knights-landing/
-  if(is_knights_landing(cpu))
-    flops = flops * 6 / 7;
-
-  return flops;
+  return total_flops;
 }
 
 struct hypervisor* get_hp_info(bool hv_present) {
@@ -498,7 +508,7 @@ struct cpuInfo* get_cpu_info() {
   }
 
   cpu->num_cpus = modules;
-  cpu->peak_performance = get_peak_performance(cpu, cpu->topo, get_freq(cpu->freq), accurate_pp());
+  cpu->peak_performance = get_peak_performance(cpu, accurate_pp());
 
   return cpu;
 }

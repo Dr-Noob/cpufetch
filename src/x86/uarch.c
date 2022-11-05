@@ -419,6 +419,7 @@ int get_number_of_vpus(struct cpuInfo* cpu) {
 
       case UARCH_ICE_LAKE:
       case UARCH_TIGER_LAKE:
+      case UARCH_ALDER_LAKE:
 
       // AMD
       case UARCH_ZEN2:
