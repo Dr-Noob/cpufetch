@@ -344,13 +344,61 @@ struct features* get_features_info(struct cpuInfo* cpu) {
   return feat;
 }
 
+bool set_cpu_module(int m, int total_modules) {
+  if(total_modules > 1) {
+    // We have a hybrid architecture.
+    // 1. Find the first core from module m
+    int32_t core_id = -1;
+    int32_t currrent_module_idx = -1;
+    int32_t* core_types = emalloc(sizeof(uint32_t) * total_modules);
+    for(int i=0; i < total_modules; i++) core_types[i] = -1;
+    int i = 0;
+
+    while(core_id == -1) {
+      if(!bind_to_cpu(i)) {
+        return false;
+      }
+      uint32_t eax = 0x0000001A;
+      uint32_t ebx = 0;
+      uint32_t ecx = 0;
+      uint32_t edx = 0;
+      cpuid(&eax, &ebx, &ecx, &edx);
+      int32_t core_type = eax >> 24 & 0xFF;
+      bool found = false;
+
+      for(int j=0; j < total_modules && !found; j++) {
+        if(core_types[j] == core_type) found = true;
+      }
+      if(!found) {
+        currrent_module_idx++;
+        core_types[currrent_module_idx] = core_type;
+        if(currrent_module_idx == m) {
+          core_id = i;
+        }
+      }
+
+      i++;
+    }
+
+    printf("Module %d: Core %d\n", m, core_id);
+    // 2. Now bind to that core
+    if(!bind_to_cpu(core_id)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 struct cpuInfo* get_cpu_info() {
   struct cpuInfo* cpu = emalloc(sizeof(struct cpuInfo));
   cpu->peak_performance = -1;
+  cpu->next_cpu = NULL;
   cpu->topo = NULL;
   cpu->cach = NULL;
   cpu->feat = NULL;
 
+  uint32_t modules = 1;
   uint32_t eax = 0;
   uint32_t ebx = 0;
   uint32_t ecx = 0;
@@ -383,8 +431,6 @@ struct cpuInfo* get_cpu_info() {
   cpuid(&eax, &ebx, &ecx, &edx);
   cpu->maxExtendedLevels = eax;
 
-  cpu->feat = get_features_info(cpu);
-
   if (cpu->maxExtendedLevels >= 0x80000004){
     cpu->cpu_name = get_str_cpu_name_internal();
   }
@@ -409,18 +455,49 @@ struct cpuInfo* get_cpu_info() {
     cpu->hybrid_flag = (edx >> 15) & 0x1;
   }
 
-  // If any field of the struct is NULL,
-  // return inmideately, as further functions
-  // require valid fields (cach, topo, etc)
-  cpu->arch = get_cpu_uarch(cpu);
-  cpu->freq = get_frequency_info(cpu);
+  if(cpu->hybrid_flag) modules = 2;
 
-  cpu->cach = get_cache_info(cpu);
-  if(cpu->cach == NULL) return cpu;
+  struct cpuInfo* ptr = cpu;
+  for(uint32_t i=0; i < modules; i++) {
+    set_cpu_module(i, modules);
 
-  cpu->topo = get_topology_info(cpu, cpu->cach);
-  if(cpu->topo == NULL) return cpu;
+    if(i > 0) {
+      ptr->next_cpu = emalloc(sizeof(struct cpuInfo));
+      ptr = ptr->next_cpu;
+      ptr->next_cpu = NULL;
+      ptr->peak_performance = -1;
+      ptr->topo = NULL;
+      ptr->cach = NULL;
+      ptr->feat = NULL;
+      // We assume that this cores have the
+      // same cpuid capabilities
+      ptr->cpu_vendor = cpu->cpu_vendor;
+      ptr->maxLevels = cpu->maxLevels;
+      ptr->maxExtendedLevels = cpu->maxExtendedLevels;
+      ptr->hybrid_flag = cpu->hybrid_flag;
+    }
 
+    ptr->feat = get_features_info(ptr);
+
+    // If any field of the struct is NULL,
+    // return inmideately, as further functions
+    // require valid fields (cach, topo, etc)
+    ptr->arch = get_cpu_uarch(ptr);
+    ptr->freq = get_frequency_info(ptr);
+
+    ptr->cach = get_cache_info(ptr);
+    if(ptr->cach == NULL) return cpu;
+
+    if(cpu->hybrid_flag) {
+      ptr->topo = get_topology_info(ptr, ptr->cach, i);
+    }
+    else {
+      ptr->topo = get_topology_info(ptr, ptr->cach, -1);
+    }
+    if(cpu->topo == NULL) return cpu;
+  }
+
+  cpu->num_cpus = modules;
   cpu->peak_performance = get_peak_performance(cpu, cpu->topo, get_freq(cpu->freq), accurate_pp());
 
   return cpu;
@@ -512,7 +589,7 @@ void get_topology_from_udev(struct topology* topo) {
 
 // Main reference: https://software.intel.com/content/www/us/en/develop/articles/intel-64-architecture-processor-topology-enumeration.html
 // Very interesting resource: https://wiki.osdev.org/Detecting_CPU_Topology_(80x86)
-struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
+struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach, int module) {
   struct topology* topo = emalloc(sizeof(struct topology));
   init_topology_struct(topo, cach);
 
@@ -536,10 +613,17 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
     }
   #endif
 
+  if(cpu->hybrid_flag) {
+    topo->total_cores_module = get_total_cores_module(topo->total_cores, module);
+  }
+  else {
+    topo->total_cores_module = topo->total_cores;
+  }
+
   switch(cpu->cpu_vendor) {
     case CPU_VENDOR_INTEL:
       if (cpu->maxLevels >= 0x00000004) {
-        bool toporet = get_topology_from_apic(cpu, topo);
+        bool toporet = get_topology_from_apic(cpu, topo, module);
         if(!toporet) {
           #ifdef __linux__
             printWarn("Failed to retrieve topology from APIC, using udev...\n");

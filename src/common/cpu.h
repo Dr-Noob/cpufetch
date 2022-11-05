@@ -78,6 +78,7 @@ struct topology {
   uint32_t smt_supported; // Number of SMT that CPU supports (equal to smt_available if SMT is enabled)
 #ifdef ARCH_X86
   uint32_t smt_available; // Number of SMT that is currently enabled
+  int32_t total_cores_module; // Total cores in the current module (only makes sense in hybrid archs, like ADL)
   struct apic* apic;
 #endif
 #endif
@@ -142,10 +143,13 @@ struct cpuInfo {
 
 #ifdef ARCH_ARM
   struct system_on_chip* soc;
+#endif
+
+#if defined(ARCH_X86) || defined(ARCH_ARM)
   // If SoC contains more than one CPU and they
   // are different, the others will be stored in
   // the next_cpu field
-  struct cpuInfo* next_cpu;  
+  struct cpuInfo* next_cpu;
   uint8_t num_cpus;
 #endif
 };

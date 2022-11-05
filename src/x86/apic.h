@@ -14,11 +14,13 @@ struct apic {
   uint32_t* cache_id_apic;
 };
 
-bool get_topology_from_apic(struct cpuInfo* cpu, struct topology* topo);
+bool get_topology_from_apic(struct cpuInfo* cpu, struct topology* topo, int module);
 uint32_t is_smt_enabled_amd(struct topology* topo);
 
 #ifndef __APPLE__
 bool bind_to_cpu(int cpu_id);
 #endif
+
+int get_total_cores_module(int total_cores, int module);
 
 #endif
