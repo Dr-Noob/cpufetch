@@ -151,7 +151,7 @@ int get_total_cores_module(int total_cores, int module) {
     return false;
   }
 
-  printf("Module %d has %d cores\n", module, cores_in_module);
+  //printf("Module %d has %d cores\n", module, cores_in_module);
   return cores_in_module;
 }
 
@@ -395,7 +395,7 @@ bool fill_apic_ids(uint32_t* apic_ids, int first_core, int n, bool x2apic_id) {
   return true;
 }
 
-bool get_topology_from_apic(struct cpuInfo* cpu, struct topology* topo, int module) {
+bool get_topology_from_apic(struct cpuInfo* cpu, struct topology* topo) {
   uint32_t apic_id;
   uint32_t* apic_ids = emalloc(sizeof(uint32_t) * topo->total_cores_module);
   uint32_t* apic_pkg = emalloc(sizeof(uint32_t) * topo->total_cores_module);
@@ -436,13 +436,9 @@ bool get_topology_from_apic(struct cpuInfo* cpu, struct topology* topo, int modu
       return false;
   }
 
-  // TODO: Fix this
-  int first_core = 0;
-  if(module == 1) first_core = 16;
-
   get_cache_topology_from_apic(topo);
 
-  if(!fill_apic_ids(apic_ids, first_core, topo->total_cores_module, x2apic_id))
+  if(!fill_apic_ids(apic_ids, cpu->first_core_id, topo->total_cores_module, x2apic_id))
     return false;
 
   for(int i=0; i < topo->total_cores_module; i++) {

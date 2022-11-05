@@ -151,6 +151,10 @@ struct cpuInfo {
   // the next_cpu field
   struct cpuInfo* next_cpu;
   uint8_t num_cpus;
+#ifdef ARCH_X86
+  // The index of the first core in the module
+  uint32_t first_core_id;
+#endif
 #endif
 };
 

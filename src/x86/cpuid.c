@@ -354,7 +354,7 @@ struct features* get_features_info(struct cpuInfo* cpu) {
   return feat;
 }
 
-bool set_cpu_module(int m, int total_modules) {
+bool set_cpu_module(int m, int total_modules, int32_t* first_core) {
   if(total_modules > 1) {
     // We have a hybrid architecture.
     // 1. Find the first core from module m
@@ -390,7 +390,9 @@ bool set_cpu_module(int m, int total_modules) {
       i++;
     }
 
-    printf("Module %d: Core %d\n", m, core_id);
+    *first_core = core_id;
+
+    //printf("Module %d: Core %d\n", m, core_id);
     // 2. Now bind to that core
     if(!bind_to_cpu(core_id)) {
       return false;
@@ -469,7 +471,8 @@ struct cpuInfo* get_cpu_info() {
 
   struct cpuInfo* ptr = cpu;
   for(uint32_t i=0; i < modules; i++) {
-    set_cpu_module(i, modules);
+    int32_t first_core;
+    set_cpu_module(i, modules, &first_core);
 
     if(i > 0) {
       ptr->next_cpu = emalloc(sizeof(struct cpuInfo));
@@ -487,6 +490,7 @@ struct cpuInfo* get_cpu_info() {
       ptr->hybrid_flag = cpu->hybrid_flag;
     }
 
+    ptr->first_core_id = first_core;
     ptr->feat = get_features_info(ptr);
 
     // If any field of the struct is NULL,
@@ -633,7 +637,7 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach, int 
   switch(cpu->cpu_vendor) {
     case CPU_VENDOR_INTEL:
       if (cpu->maxLevels >= 0x00000004) {
-        bool toporet = get_topology_from_apic(cpu, topo, module);
+        bool toporet = get_topology_from_apic(cpu, topo);
         if(!toporet) {
           #ifdef __linux__
             printWarn("Failed to retrieve topology from APIC, using udev...\n");
