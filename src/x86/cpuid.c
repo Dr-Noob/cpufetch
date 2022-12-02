@@ -402,6 +402,24 @@ bool set_cpu_module(int m, int total_modules, int32_t* first_core) {
   return true;
 }
 
+int32_t get_core_type() {
+  uint32_t eax = 0x0000001A;
+  uint32_t ebx = 0;
+  uint32_t ecx = 0;
+  uint32_t edx = 0;
+
+  eax = 0x0000001A;
+  cpuid(&eax, &ebx, &ecx, &edx);
+
+  int32_t type = eax >> 24 & 0xFF;
+  if(type == 0x20) return CORE_TYPE_EFFICIENCY;
+  else if(type == 0x40) return CORE_TYPE_PERFORMANCE;
+  else {
+    printErr("Found invalid core type: 0x%.8X\n", type);
+    return CORE_TYPE_UNKNOWN;
+  }
+}
+
 struct cpuInfo* get_cpu_info() {
   struct cpuInfo* cpu = emalloc(sizeof(struct cpuInfo));
   cpu->peak_performance = -1;
@@ -490,6 +508,12 @@ struct cpuInfo* get_cpu_info() {
       ptr->hybrid_flag = cpu->hybrid_flag;
     }
 
+    if(cpu->hybrid_flag) {
+      // Detect core type
+      eax = 0x0000001A;
+      cpuid(&eax, &ebx, &ecx, &edx);
+      ptr->core_type = get_core_type();
+    }
     ptr->first_core_id = first_core;
     ptr->feat = get_features_info(ptr);
 

@@ -35,6 +35,12 @@ enum {
   HV_VENDOR_INVALID
 };
 
+enum {
+  CORE_TYPE_EFFICIENCY,
+  CORE_TYPE_PERFORMANCE,
+  CORE_TYPE_UNKNOWN
+};
+
 #define UNKNOWN_DATA -1
 #define CPU_NAME_MAX_LENGTH 64
 
@@ -134,6 +140,8 @@ struct cpuInfo {
   bool topology_extensions;
   // Hybrid Flag (Intel only)
   bool hybrid_flag;
+  // Core Type (P/E)
+  uint32_t core_type;
 #elif ARCH_PPC
   uint32_t pvr;
 #elif ARCH_ARM
