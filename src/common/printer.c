@@ -481,7 +481,7 @@ void print_ascii_generic(struct ascii* art, uint32_t la, int32_t termw, const ch
       attr_value = art->attributes[attr_to_print]->value;
       attr_to_print++;
 
-      if(attr_type == ATTRIBUTE_PEAK) {
+      if(attr_type == ATTRIBUTE_L3) {
         add_space = false;
       }
       if(attr_type == ATTRIBUTE_CPU_NUM) {
@@ -533,6 +533,10 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
   char* pp = get_str_peak_performance(cpu->peak_performance);
   char* manufacturing_process = get_str_process(cpu);
 
+  if(cpu->cach != NULL) {
+    l3 = get_str_l3(cpu->cach);
+  }
+
   setAttribute(art, ATTRIBUTE_NAME, cpu_name);
   if(cpu->hv->present) {
     setAttribute(art, ATTRIBUTE_HYPERVISOR, cpu->hv->hv_name);
@@ -557,7 +561,6 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
       l1i = get_str_l1i(ptr->cach);
       l1d = get_str_l1d(ptr->cach);
       l2 = get_str_l2(ptr->cach);
-      l3 = get_str_l3(ptr->cach);
     }
 
     sprintf(cpu_num, "CPU %d:", i+1);
@@ -579,8 +582,8 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
     if(l1i != NULL) setAttribute(art, ATTRIBUTE_L1i, l1i);
     if(l1d != NULL) setAttribute(art, ATTRIBUTE_L1d, l1d);
     if(l2 != NULL) setAttribute(art, ATTRIBUTE_L2, l2);
-    if(l3 != NULL) setAttribute(art, ATTRIBUTE_L3, l3);
   }
+  if(l3 != NULL) setAttribute(art, ATTRIBUTE_L3, l3);
   setAttribute(art, ATTRIBUTE_PEAK, pp);
 
   // Step 3. Print output
