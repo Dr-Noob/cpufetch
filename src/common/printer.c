@@ -430,7 +430,7 @@ uint32_t longest_field_length(struct ascii* art, int la) {
 }
 
 #if defined(ARCH_X86) || defined(ARCH_PPC)
-void print_ascii_generic(struct ascii* art, uint32_t la, int32_t termw, const char** attribute_fields) {
+void print_ascii_generic(struct ascii* art, uint32_t la, int32_t termw, const char** attribute_fields, bool hybrid_architecture) {
   struct ascii_logo* logo = art->art;
   int attr_to_print = 0;
   int attr_type;
@@ -491,7 +491,7 @@ void print_ascii_generic(struct ascii* art, uint32_t la, int32_t termw, const ch
       else {
         beg_space = 0;
         space_right = 2 + 1 + (la - strlen(attribute_fields[attr_type]));
-        if(add_space) {
+        if(hybrid_architecture && add_space) {
           beg_space = 2;
           space_right -= 2;
         }
@@ -532,6 +532,7 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
   char* uarch = get_str_uarch(cpu);
   char* pp = get_str_peak_performance(cpu->peak_performance);
   char* manufacturing_process = get_str_process(cpu);
+  bool hybrid_architecture = cpu->next_cpu != NULL;
 
   if(cpu->cach != NULL) {
     l3 = get_str_l3(cpu->cach);
@@ -563,8 +564,10 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
       l2 = get_str_l2(ptr->cach);
     }
 
-    sprintf(cpu_num, "CPU %d:", i+1);
-    setAttribute(art, ATTRIBUTE_CPU_NUM, cpu_num);
+    if(hybrid_architecture) {
+      sprintf(cpu_num, "CPU %d:", i+1);
+      setAttribute(art, ATTRIBUTE_CPU_NUM, cpu_num);
+    }
     setAttribute(art, ATTRIBUTE_FREQUENCY, max_frequency);
     if(ptr->topo != NULL) {
       socket_num = get_nsockets(ptr->topo);
@@ -599,7 +602,7 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
     longest_attribute = longest_attribute_length(art, attribute_fields);
   }
 
-  print_ascii_generic(art, longest_attribute, term->w, attribute_fields);
+  print_ascii_generic(art, longest_attribute, term->w, attribute_fields, hybrid_architecture);
 
   free(manufacturing_process);
   free(sockets);
