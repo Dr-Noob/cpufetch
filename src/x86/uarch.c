@@ -110,7 +110,8 @@ enum {
   UARCH_ZEN_PLUS,
   UARCH_ZEN2,
   UARCH_ZEN3,
-  UARCH_ZEN3_PLUS
+  UARCH_ZEN3_PLUS,
+  UARCH_ZEN4
 };
 
 struct uarch {
@@ -258,7 +259,7 @@ struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, u
   return arch;
 }
 
-// iNApired in Todd Allen's decode_uarch_amd
+// Inspired in Todd Allen's decode_uarch_amd
 struct uarch* get_uarch_from_cpuid_amd(uint32_t ef, uint32_t f, uint32_t em, uint32_t m, int s) {
   struct uarch* arch = emalloc(sizeof(struct uarch));
 
@@ -364,6 +365,7 @@ struct uarch* get_uarch_from_cpuid_amd(uint32_t ef, uint32_t f, uint32_t em, uin
   CHECK_UARCH(arch, 10, 15,  2,  1, NA, "Zen 3",       UARCH_ZEN3,         7) // instlatx64
   CHECK_UARCH(arch, 10, 15,  4,  4, NA, "Zen 3+",      UARCH_ZEN3_PLUS,    6) // instlatx64 (they say it is Zen3...)
   CHECK_UARCH(arch, 10, 15,  5,  0, NA, "Zen 3",       UARCH_ZEN3,         7) // instlatx64
+  CHECK_UARCH(arch, 10, 15,  6,  1,  2, "Zen 4",       UARCH_ZEN4,         5) // instlatx64
   UARCH_END
 
   return arch;
@@ -424,6 +426,7 @@ int get_number_of_vpus(struct cpuInfo* cpu) {
       case UARCH_ZEN2:
       case UARCH_ZEN3:
       case UARCH_ZEN3_PLUS:
+      case UARCH_ZEN4:
         return 2;
       default:
         return 1;
