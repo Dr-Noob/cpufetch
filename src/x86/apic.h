@@ -21,4 +21,6 @@ uint32_t is_smt_enabled_amd(struct topology* topo);
 bool bind_to_cpu(int cpu_id);
 #endif
 
+int get_total_cores_module(int total_cores, int module);
+
 #endif

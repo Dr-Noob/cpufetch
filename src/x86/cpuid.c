@@ -179,7 +179,7 @@ struct uarch* get_cpu_uarch(struct cpuInfo* cpu) {
   return get_uarch_from_cpuid(cpu, eax, efamily, family, emodel, model, (int)stepping);
 }
 
-int64_t get_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64_t max_freq, bool accurate_pp) {
+int64_t get_peak_performance(struct cpuInfo* cpu, bool accurate_pp) {
   /*
    * PP = PeakPerformance
    * SP = SinglePrecision
@@ -192,46 +192,56 @@ int64_t get_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64_t
    * 16(If AVX512), 8(If AVX), 4(If SSE) *
    */
 
-  int64_t freq;
-#ifdef __linux__
-  if(accurate_pp)
-    freq = measure_frequency(cpu);
-  else
-    freq = max_freq;
-#else
-  // Silence compiler warning
-  (void)(accurate_pp);
-  freq = max_freq;
-#endif
+  struct cpuInfo* ptr = cpu;
+  int64_t total_flops = 0;
 
-  //First, check we have consistent data
-  if(freq == UNKNOWN_DATA || topo->logical_cores == UNKNOWN_DATA) {
-    return -1;
+  for(int i=0; i < cpu->num_cpus; ptr = ptr->next_cpu, i++) {
+    struct topology* topo = ptr->topo;
+    int64_t max_freq = get_freq(ptr->freq);
+
+    int64_t freq;
+  #ifdef __linux__
+    if(accurate_pp)
+      freq = measure_frequency(ptr);
+    else
+      freq = max_freq;
+  #else
+    // Silence compiler warning
+    (void)(accurate_pp);
+    freq = max_freq;
+  #endif
+
+    //First, check we have consistent data
+    if(freq == UNKNOWN_DATA || topo->logical_cores == UNKNOWN_DATA) {
+      return -1;
+    }
+
+    struct features* feat = ptr->feat;
+    int vpus = get_number_of_vpus(ptr);
+    int64_t flops = topo->physical_cores * topo->sockets * (freq*1000000) * vpus;
+
+    if(feat->FMA3 || feat->FMA4)
+      flops = flops*2;
+
+    // Ice Lake has AVX512, but it has 1 VPU for AVX512, while
+    // it has 2 for AVX2. If this is a Ice Lake CPU, we are computing
+    // the peak performance supposing AVX2, not AVX512
+    if(feat->AVX512 && vpus_are_AVX512(ptr))
+      flops = flops*16;
+    else if(feat->AVX || feat->AVX2)
+      flops = flops*8;
+    else if(feat->SSE)
+      flops = flops*4;
+
+    // See https://sites.utexas.edu/jdm4372/2018/01/22/a-peculiar-
+    // throughput-limitation-on-intels-xeon-phi-x200-knights-landing/
+    if(is_knights_landing(ptr))
+      flops = flops * 6 / 7;
+
+    total_flops += flops;
   }
 
-  struct features* feat = cpu->feat;
-  int vpus = get_number_of_vpus(cpu);
-  int64_t flops = topo->physical_cores * topo->sockets * (freq*1000000) * vpus;
-
-  if(feat->FMA3 || feat->FMA4)
-    flops = flops*2;
-
-  // Ice Lake has AVX512, but it has 1 VPU for AVX512, while
-  // it has 2 for AVX2. If this is a Ice Lake CPU, we are computing
-  // the peak performance supposing AVX2, not AVX512
-  if(feat->AVX512 && vpus_are_AVX512(cpu))
-    flops = flops*16;
-  else if(feat->AVX || feat->AVX2)
-    flops = flops*8;
-  else if(feat->SSE)
-    flops = flops*4;
-
-  // See https://sites.utexas.edu/jdm4372/2018/01/22/a-peculiar-
-  // throughput-limitation-on-intels-xeon-phi-x200-knights-landing/
-  if(is_knights_landing(cpu))
-    flops = flops * 6 / 7;
-
-  return flops;
+  return total_flops;
 }
 
 struct hypervisor* get_hp_info(bool hv_present) {
@@ -274,50 +284,18 @@ struct hypervisor* get_hp_info(bool hv_present) {
   return hv;
 }
 
-struct cpuInfo* get_cpu_info() {
-  struct cpuInfo* cpu = emalloc(sizeof(struct cpuInfo));
-  struct features* feat = emalloc(sizeof(struct features));
-  cpu->feat = feat;
-  cpu->peak_performance = -1;
-  cpu->topo = NULL;
-  cpu->cach = NULL;
-
-  bool *ptr = &(feat->AES);
-  for(uint32_t i = 0; i < sizeof(struct features)/sizeof(bool); i++, ptr++) {
-    *ptr = false;
-  }
-
+struct features* get_features_info(struct cpuInfo* cpu) {
   uint32_t eax = 0;
   uint32_t ebx = 0;
   uint32_t ecx = 0;
   uint32_t edx = 0;
 
-  //Get max cpuid level
-  cpuid(&eax, &ebx, &ecx, &edx);
-  cpu->maxLevels = eax;
+  struct features* feat = emalloc(sizeof(struct features));
 
-  //Fill vendor
-  char name[13];
-  memset(name,0,13);
-  get_name_cpuid(name, ebx, edx, ecx);
-
-  if(strcmp(CPU_VENDOR_INTEL_STRING,name) == 0)
-    cpu->cpu_vendor = CPU_VENDOR_INTEL;
-  else if (strcmp(CPU_VENDOR_AMD_STRING,name) == 0)
-    cpu->cpu_vendor = CPU_VENDOR_AMD;
-  else {
-    cpu->cpu_vendor = CPU_VENDOR_INVALID;
-    printErr("Unknown CPU vendor: %s", name);
-    return NULL;
+  bool *ptr = &(feat->AES);
+  for(uint32_t i = 0; i < sizeof(struct features)/sizeof(bool); i++, ptr++) {
+    *ptr = false;
   }
-
-  //Get max extended level
-  eax = 0x80000000;
-  ebx = 0;
-  ecx = 0;
-  edx = 0;
-  cpuid(&eax, &ebx, &ecx, &edx);
-  cpu->maxExtendedLevels = eax;
 
   //Fill instructions support
   if (cpu->maxLevels >= 0x00000001){
@@ -373,6 +351,116 @@ struct cpuInfo* get_cpu_info() {
     printWarn("Can't read features information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x80000001, cpu->maxExtendedLevels);
   }
 
+  return feat;
+}
+
+bool set_cpu_module(int m, int total_modules, int32_t* first_core) {
+  if(total_modules > 1) {
+    // We have a hybrid architecture.
+    // 1. Find the first core from module m
+    int32_t core_id = -1;
+    int32_t currrent_module_idx = -1;
+    int32_t* core_types = emalloc(sizeof(uint32_t) * total_modules);
+    for(int i=0; i < total_modules; i++) core_types[i] = -1;
+    int i = 0;
+
+    while(core_id == -1) {
+      if(!bind_to_cpu(i)) {
+        return false;
+      }
+      uint32_t eax = 0x0000001A;
+      uint32_t ebx = 0;
+      uint32_t ecx = 0;
+      uint32_t edx = 0;
+      cpuid(&eax, &ebx, &ecx, &edx);
+      int32_t core_type = eax >> 24 & 0xFF;
+      bool found = false;
+
+      for(int j=0; j < total_modules && !found; j++) {
+        if(core_types[j] == core_type) found = true;
+      }
+      if(!found) {
+        currrent_module_idx++;
+        core_types[currrent_module_idx] = core_type;
+        if(currrent_module_idx == m) {
+          core_id = i;
+        }
+      }
+
+      i++;
+    }
+
+    *first_core = core_id;
+
+    //printf("Module %d: Core %d\n", m, core_id);
+    // 2. Now bind to that core
+    if(!bind_to_cpu(core_id)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+int32_t get_core_type() {
+  uint32_t eax = 0x0000001A;
+  uint32_t ebx = 0;
+  uint32_t ecx = 0;
+  uint32_t edx = 0;
+
+  eax = 0x0000001A;
+  cpuid(&eax, &ebx, &ecx, &edx);
+
+  int32_t type = eax >> 24 & 0xFF;
+  if(type == 0x20) return CORE_TYPE_EFFICIENCY;
+  else if(type == 0x40) return CORE_TYPE_PERFORMANCE;
+  else {
+    printErr("Found invalid core type: 0x%.8X\n", type);
+    return CORE_TYPE_UNKNOWN;
+  }
+}
+
+struct cpuInfo* get_cpu_info() {
+  struct cpuInfo* cpu = emalloc(sizeof(struct cpuInfo));
+  cpu->peak_performance = -1;
+  cpu->next_cpu = NULL;
+  cpu->topo = NULL;
+  cpu->cach = NULL;
+  cpu->feat = NULL;
+
+  uint32_t modules = 1;
+  uint32_t eax = 0;
+  uint32_t ebx = 0;
+  uint32_t ecx = 0;
+  uint32_t edx = 0;
+
+  //Get max cpuid level
+  cpuid(&eax, &ebx, &ecx, &edx);
+  cpu->maxLevels = eax;
+
+  //Fill vendor
+  char name[13];
+  memset(name,0,13);
+  get_name_cpuid(name, ebx, edx, ecx);
+
+  if(strcmp(CPU_VENDOR_INTEL_STRING,name) == 0)
+    cpu->cpu_vendor = CPU_VENDOR_INTEL;
+  else if (strcmp(CPU_VENDOR_AMD_STRING,name) == 0)
+    cpu->cpu_vendor = CPU_VENDOR_AMD;
+  else {
+    cpu->cpu_vendor = CPU_VENDOR_INVALID;
+    printErr("Unknown CPU vendor: %s", name);
+    return NULL;
+  }
+
+  //Get max extended level
+  eax = 0x80000000;
+  ebx = 0;
+  ecx = 0;
+  edx = 0;
+  cpuid(&eax, &ebx, &ecx, &edx);
+  cpu->maxExtendedLevels = eax;
+
   if (cpu->maxExtendedLevels >= 0x80000004){
     cpu->cpu_name = get_str_cpu_name_internal();
   }
@@ -389,19 +477,66 @@ struct cpuInfo* get_cpu_info() {
     cpu->topology_extensions = (ecx >> 22) & 1;
   }
 
-  // If any field of the struct is NULL,
-  // return inmideately, as further functions
-  // require valid fields (cach, topo, etc)
-  cpu->arch = get_cpu_uarch(cpu);
-  cpu->freq = get_frequency_info(cpu);
+  cpu->hybrid_flag = false;
+  if(cpu->cpu_vendor == CPU_VENDOR_INTEL && cpu->maxLevels >= 0x00000007) {
+    eax = 0x00000007;
+    ecx = 0x00000000;
+    cpuid(&eax, &ebx, &ecx, &edx);
+    cpu->hybrid_flag = (edx >> 15) & 0x1;
+  }
 
-  cpu->cach = get_cache_info(cpu);
-  if(cpu->cach == NULL) return cpu;
+  if(cpu->hybrid_flag) modules = 2;
 
-  cpu->topo = get_topology_info(cpu, cpu->cach);
-  if(cpu->topo == NULL) return cpu;
+  struct cpuInfo* ptr = cpu;
+  for(uint32_t i=0; i < modules; i++) {
+    int32_t first_core;
+    set_cpu_module(i, modules, &first_core);
 
-  cpu->peak_performance = get_peak_performance(cpu, cpu->topo, get_freq(cpu->freq), accurate_pp());
+    if(i > 0) {
+      ptr->next_cpu = emalloc(sizeof(struct cpuInfo));
+      ptr = ptr->next_cpu;
+      ptr->next_cpu = NULL;
+      ptr->peak_performance = -1;
+      ptr->topo = NULL;
+      ptr->cach = NULL;
+      ptr->feat = NULL;
+      // We assume that this cores have the
+      // same cpuid capabilities
+      ptr->cpu_vendor = cpu->cpu_vendor;
+      ptr->maxLevels = cpu->maxLevels;
+      ptr->maxExtendedLevels = cpu->maxExtendedLevels;
+      ptr->hybrid_flag = cpu->hybrid_flag;
+    }
+
+    if(cpu->hybrid_flag) {
+      // Detect core type
+      eax = 0x0000001A;
+      cpuid(&eax, &ebx, &ecx, &edx);
+      ptr->core_type = get_core_type();
+    }
+    ptr->first_core_id = first_core;
+    ptr->feat = get_features_info(ptr);
+
+    // If any field of the struct is NULL,
+    // return inmideately, as further functions
+    // require valid fields (cach, topo, etc)
+    ptr->arch = get_cpu_uarch(ptr);
+    ptr->freq = get_frequency_info(ptr);
+
+    ptr->cach = get_cache_info(ptr);
+    if(ptr->cach == NULL) return cpu;
+
+    if(cpu->hybrid_flag) {
+      ptr->topo = get_topology_info(ptr, ptr->cach, i);
+    }
+    else {
+      ptr->topo = get_topology_info(ptr, ptr->cach, -1);
+    }
+    if(cpu->topo == NULL) return cpu;
+  }
+
+  cpu->num_cpus = modules;
+  cpu->peak_performance = get_peak_performance(cpu, accurate_pp());
 
   return cpu;
 }
@@ -492,7 +627,7 @@ void get_topology_from_udev(struct topology* topo) {
 
 // Main reference: https://software.intel.com/content/www/us/en/develop/articles/intel-64-architecture-processor-topology-enumeration.html
 // Very interesting resource: https://wiki.osdev.org/Detecting_CPU_Topology_(80x86)
-struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
+struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach, int module) {
   struct topology* topo = emalloc(sizeof(struct topology));
   init_topology_struct(topo, cach);
 
@@ -515,6 +650,13 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach) {
       topo->total_cores = topo->logical_cores; // fallback
     }
   #endif
+
+  if(cpu->hybrid_flag) {
+    topo->total_cores_module = get_total_cores_module(topo->total_cores, module);
+  }
+  else {
+    topo->total_cores_module = topo->total_cores;
+  }
 
   switch(cpu->cpu_vendor) {
     case CPU_VENDOR_INTEL:
@@ -918,6 +1060,9 @@ void print_debug(struct cpuInfo* cpu) {
   printf("- Max extended level: 0x%.8X\n", cpu->maxExtendedLevels);
   if(cpu->cpu_vendor == CPU_VENDOR_AMD) {
     printf("- AMD topology extensions: %d\n", cpu->topology_extensions);
+  }
+  if(cpu->cpu_vendor == CPU_VENDOR_INTEL) {
+    printf("- Hybrid Flag: %d\n", cpu->hybrid_flag);
   }
   printf("- CPUID dump: 0x%.8X\n", eax);
 

@@ -44,6 +44,8 @@ enum {
   ATTRIBUTE_NAME,
 #elif ARCH_ARM
   ATTRIBUTE_SOC,
+#endif
+#if defined(ARCH_X86) || defined(ARCH_ARM)
   ATTRIBUTE_CPU_NUM,
 #endif
   ATTRIBUTE_HYPERVISOR,
@@ -75,6 +77,8 @@ static const char* ATTRIBUTE_FIELDS [] = {
   "Part Number:",
 #elif ARCH_ARM
   "SoC:",
+#endif
+#if defined(ARCH_X86) || defined(ARCH_ARM)
   "",
 #endif
   "Hypervisor:",
@@ -106,6 +110,8 @@ static const char* ATTRIBUTE_FIELDS_SHORT [] = {
   "P/N:",
 #elif ARCH_ARM
   "SoC:",
+#endif
+#if defined(ARCH_X86) || defined(ARCH_ARM)
   "",
 #endif
   "Hypervisor:",
@@ -424,11 +430,12 @@ uint32_t longest_field_length(struct ascii* art, int la) {
 }
 
 #if defined(ARCH_X86) || defined(ARCH_PPC)
-void print_ascii_generic(struct ascii* art, uint32_t la, int32_t termw, const char** attribute_fields) {
+void print_ascii_generic(struct ascii* art, uint32_t la, int32_t termw, const char** attribute_fields, bool hybrid_architecture) {
   struct ascii_logo* logo = art->art;
   int attr_to_print = 0;
   int attr_type;
   char* attr_value;
+  int32_t beg_space;
   int32_t space_right;
   int32_t space_up = ((int)logo->height - (int)art->n_attributes_set)/2;
   int32_t space_down = (int)logo->height - (int)art->n_attributes_set - (int)space_up;
@@ -439,6 +446,7 @@ void print_ascii_generic(struct ascii* art, uint32_t la, int32_t termw, const ch
   lbuf->buf = emalloc(sizeof(char) * LINE_BUFFER_SIZE);
   lbuf->pos = 0;
   lbuf->chars = 0;
+  bool add_space = false;
 
   printf("\n");
   for(int32_t n=0; n < iters; n++) {
@@ -473,9 +481,24 @@ void print_ascii_generic(struct ascii* art, uint32_t la, int32_t termw, const ch
       attr_value = art->attributes[attr_to_print]->value;
       attr_to_print++;
 
-      space_right = 1 + (la - strlen(attribute_fields[attr_type]));
-      printOut(lbuf, strlen(attribute_fields[attr_type]) + space_right + strlen(attr_value),
-               "%s%s%s%*s%s%s%s", logo->color_text[0], attribute_fields[attr_type], art->reset, space_right, "", logo->color_text[1], attr_value, art->reset);
+      if(attr_type == ATTRIBUTE_L3) {
+        add_space = false;
+      }
+      if(attr_type == ATTRIBUTE_CPU_NUM) {
+        printOut(lbuf, strlen(attr_value), "%s%s%s", logo->color_text[0], attr_value, art->reset);
+        add_space = true;
+      }
+      else {
+        beg_space = 0;
+        space_right = 2 + 1 + (la - strlen(attribute_fields[attr_type]));
+        if(hybrid_architecture && add_space) {
+          beg_space = 2;
+          space_right -= 2;
+        }
+
+        printOut(lbuf, beg_space + strlen(attribute_fields[attr_type]) + space_right + strlen(attr_value),
+                 "%*s%s%s%s%*s%s%s%s", beg_space, "", logo->color_text[0], attribute_fields[attr_type], art->reset, space_right, "", logo->color_text[1], attr_value, art->reset);
+      }
     }
     printOutLine(lbuf, art, termw);
     printf("\n");
@@ -501,57 +524,71 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
 
   art->new_intel_logo = choose_new_intel_logo(cpu);
 
-  // Step 1. Retrieve attributes (if some structures are NULL, like topo
-  //         or cache, do not try to retrieve them)
   uint32_t socket_num = 1;
   char* l1i, *l1d, *l2, *l3, *n_cores, *n_cores_dual, *sockets;
   l1i = l1d = l2 = l3 = n_cores = n_cores_dual = sockets = NULL;
 
-  char* uarch = get_str_uarch(cpu);
-  char* manufacturing_process = get_str_process(cpu);
-  char* max_frequency = get_str_freq(cpu->freq);
   char* cpu_name = get_str_cpu_name(cpu, fcpuname);
-  char* avx = get_str_avx(cpu);
-  char* fma = get_str_fma(cpu);
+  char* uarch = get_str_uarch(cpu);
   char* pp = get_str_peak_performance(cpu->peak_performance);
-
-  if(cpu->topo != NULL) {
-    sockets = get_str_sockets(cpu->topo);
-    n_cores = get_str_topology(cpu, cpu->topo, false);
-    n_cores_dual = get_str_topology(cpu, cpu->topo, true);
-  }
+  char* manufacturing_process = get_str_process(cpu);
+  bool hybrid_architecture = cpu->next_cpu != NULL;
 
   if(cpu->cach != NULL) {
-    l1i = get_str_l1i(cpu->cach);
-    l1d = get_str_l1d(cpu->cach);
-    l2 = get_str_l2(cpu->cach);
     l3 = get_str_l3(cpu->cach);
   }
 
-  // Step 2. Set attributes
   setAttribute(art, ATTRIBUTE_NAME, cpu_name);
   if(cpu->hv->present) {
     setAttribute(art, ATTRIBUTE_HYPERVISOR, cpu->hv->hv_name);
   }
   setAttribute(art, ATTRIBUTE_UARCH, uarch);
   setAttribute(art, ATTRIBUTE_TECHNOLOGY, manufacturing_process);
-  setAttribute(art, ATTRIBUTE_FREQUENCY, max_frequency);
-  if(cpu->topo != NULL) {
-    socket_num = get_nsockets(cpu->topo);
-    if (socket_num > 1) {
-      setAttribute(art, ATTRIBUTE_SOCKETS, sockets);
-      setAttribute(art, ATTRIBUTE_NCORES, n_cores);
-      setAttribute(art, ATTRIBUTE_NCORES_DUAL, n_cores_dual);
+
+  struct cpuInfo* ptr = cpu;
+  for(int i = 0; i < cpu->num_cpus; ptr = ptr->next_cpu, i++) {
+    char* max_frequency = get_str_freq(ptr->freq);
+    char* avx = get_str_avx(ptr);
+    char* fma = get_str_fma(ptr);
+    char* cpu_num = emalloc(sizeof(char) * 9);
+
+    if(ptr->topo != NULL) {
+      sockets = get_str_sockets(ptr->topo);
+      n_cores = get_str_topology(ptr, ptr->topo, false);
+      n_cores_dual = get_str_topology(ptr, ptr->topo, true);
     }
-    else {
-      setAttribute(art, ATTRIBUTE_NCORES, n_cores);
+
+    if(ptr->cach != NULL) {
+      l1i = get_str_l1i(ptr->cach);
+      l1d = get_str_l1d(ptr->cach);
+      l2 = get_str_l2(ptr->cach);
     }
+
+    if(hybrid_architecture) {
+      if(ptr->core_type == CORE_TYPE_EFFICIENCY) sprintf(cpu_num, "E-cores:");
+      else if(ptr->core_type == CORE_TYPE_PERFORMANCE) sprintf(cpu_num, "P-cores:");
+      else printBug("Found invalid core type!\n");
+
+      setAttribute(art, ATTRIBUTE_CPU_NUM, cpu_num);
+    }
+    setAttribute(art, ATTRIBUTE_FREQUENCY, max_frequency);
+    if(ptr->topo != NULL) {
+      socket_num = get_nsockets(ptr->topo);
+      if (socket_num > 1) {
+        setAttribute(art, ATTRIBUTE_SOCKETS, sockets);
+        setAttribute(art, ATTRIBUTE_NCORES, n_cores);
+        setAttribute(art, ATTRIBUTE_NCORES_DUAL, n_cores_dual);
+      }
+      else {
+        setAttribute(art, ATTRIBUTE_NCORES, n_cores);
+      }
+    }
+    setAttribute(art, ATTRIBUTE_AVX, avx);
+    setAttribute(art, ATTRIBUTE_FMA, fma);
+    if(l1i != NULL) setAttribute(art, ATTRIBUTE_L1i, l1i);
+    if(l1d != NULL) setAttribute(art, ATTRIBUTE_L1d, l1d);
+    if(l2 != NULL) setAttribute(art, ATTRIBUTE_L2, l2);
   }
-  setAttribute(art, ATTRIBUTE_AVX, avx);
-  setAttribute(art, ATTRIBUTE_FMA, fma);
-  if(l1i != NULL) setAttribute(art, ATTRIBUTE_L1i, l1i);
-  if(l1d != NULL) setAttribute(art, ATTRIBUTE_L1d, l1d);
-  if(l2 != NULL) setAttribute(art, ATTRIBUTE_L2, l2);
   if(l3 != NULL) setAttribute(art, ATTRIBUTE_L3, l3);
   setAttribute(art, ATTRIBUTE_PEAK, pp);
 
@@ -568,15 +605,12 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
     longest_attribute = longest_attribute_length(art, attribute_fields);
   }
 
-  print_ascii_generic(art, longest_attribute, term->w, attribute_fields);
+  print_ascii_generic(art, longest_attribute, term->w, attribute_fields, hybrid_architecture);
 
   free(manufacturing_process);
-  free(max_frequency);
   free(sockets);
   free(n_cores);
   free(n_cores_dual);
-  free(avx);
-  free(fma);
   free(l1i);
   free(l1d);
   free(l2);

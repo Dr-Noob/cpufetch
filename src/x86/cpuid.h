@@ -6,7 +6,7 @@
 struct cpuInfo* get_cpu_info();
 struct cache* get_cache_info(struct cpuInfo* cpu);
 struct frequency* get_frequency_info(struct cpuInfo* cpu);
-struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach);
+struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach, int module);
 
 char* get_str_avx(struct cpuInfo* cpu);
 char* get_str_sse(struct cpuInfo* cpu);
