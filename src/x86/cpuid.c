@@ -398,6 +398,10 @@ bool set_cpu_module(int m, int total_modules, int32_t* first_core) {
       return false;
     }
   }
+  else {
+    // This is a normal architecture
+    *first_core = 0;
+  }
 
   return true;
 }
@@ -652,7 +656,11 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach, int 
   #endif
 
   if(cpu->hybrid_flag) {
-    topo->total_cores_module = get_total_cores_module(topo->total_cores, module);
+    #ifdef __linux__
+      topo->total_cores_module = get_total_cores_module(topo->total_cores, module);
+    #else
+      topo->total_cores_module = topo->total_cores;
+    #endif
   }
   else {
     topo->total_cores_module = topo->total_cores;

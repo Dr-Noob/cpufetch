@@ -102,6 +102,7 @@ bool bind_to_cpu(int cpu_id) {
 }
 #endif
 
+#ifdef __linux__
 int get_total_cores_module(int total_cores, int module) {
   int total_modules = 2;
   int32_t current_module_idx = -1;
@@ -154,6 +155,7 @@ int get_total_cores_module(int total_cores, int module) {
   //printf("Module %d has %d cores\n", module, cores_in_module);
   return cores_in_module;
 }
+#endif
 
 bool fill_topo_masks_apic(struct topology* topo) {
   uint32_t eax = 0x00000001;
