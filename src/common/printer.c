@@ -303,8 +303,6 @@ bool ascii_fits_screen(int termw, struct ascii_logo logo, int lf) {
 void replace_bgbyfg_color(struct ascii_logo* logo) {
   // Replace background by foreground color
   for(int i=0; i < 3; i++) {
-    if(logo->color_ascii[i] == NULL) break;
-
     if(strcmp(logo->color_ascii[i], C_BG_BLACK) == 0) strcpy(logo->color_ascii[i], C_FG_BLACK);
     else if(strcmp(logo->color_ascii[i], C_BG_RED) == 0) strcpy(logo->color_ascii[i], C_FG_RED);
     else if(strcmp(logo->color_ascii[i], C_BG_GREEN) == 0) strcpy(logo->color_ascii[i], C_FG_GREEN);
