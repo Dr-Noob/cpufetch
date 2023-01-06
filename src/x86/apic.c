@@ -7,8 +7,6 @@
 #elif defined __FreeBSD__
   #include <sys/param.h>
   #include <sys/cpuset.h>
-#elif defined __APPLE__
-  #define UNUSED(x) (void)(x)
 #endif
 
 #include <stdlib.h>
@@ -355,6 +353,7 @@ void add_apic_to_array(uint32_t apic, uint32_t* apic_ids, int n) {
 bool fill_apic_ids(uint32_t* apic_ids, int first_core, int n, bool x2apic_id) {
 #ifdef __APPLE__
   // macOS extremely dirty approach...
+  UNUSED(first_core);
   printf("cpufetch is computing APIC IDs, please wait...\n");
   bool end = false;
   uint32_t apic;

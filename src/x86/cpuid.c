@@ -356,6 +356,11 @@ struct features* get_features_info(struct cpuInfo* cpu) {
 
 bool set_cpu_module(int m, int total_modules, int32_t* first_core) {
   if(total_modules > 1) {
+    #ifdef __APPLE__
+    UNUSED(m);
+    printBug("Hybrid architectures are not supported under macOS");
+    return false;
+    #else
     // We have a hybrid architecture.
     // 1. Find the first core from module m
     int32_t core_id = -1;
@@ -397,6 +402,7 @@ bool set_cpu_module(int m, int total_modules, int32_t* first_core) {
     if(!bind_to_cpu(core_id)) {
       return false;
     }
+    #endif
   }
   else {
     // This is a normal architecture
@@ -659,6 +665,7 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach, int 
     #ifdef __linux__
       topo->total_cores_module = get_total_cores_module(topo->total_cores, module);
     #else
+      UNUSED(module);
       topo->total_cores_module = topo->total_cores;
     #endif
   }

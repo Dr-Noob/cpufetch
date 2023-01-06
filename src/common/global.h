@@ -5,6 +5,7 @@
 #include <stddef.h>
 
 #define STRING_UNKNOWN "Unknown"
+#define UNUSED(x) (void)(x)
 
 void set_log_level(bool verbose);
 void printWarn(const char *fmt, ...);

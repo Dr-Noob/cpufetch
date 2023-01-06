@@ -16,8 +16,6 @@
   #include "../arm/uarch.h"
 #endif
 
-#define UNUSED(x) (void)(x)
-
 #define STRING_YES        "Yes"
 #define STRING_NO         "No"
 #define STRING_NONE       "None"
