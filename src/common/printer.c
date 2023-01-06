@@ -481,6 +481,7 @@ void print_ascii_generic(struct ascii* art, uint32_t la, int32_t termw, const ch
       attr_value = art->attributes[attr_to_print]->value;
       attr_to_print++;
 
+#ifdef ARCH_X86
       if(attr_type == ATTRIBUTE_L3) {
         add_space = false;
       }
@@ -489,6 +490,7 @@ void print_ascii_generic(struct ascii* art, uint32_t la, int32_t termw, const ch
         add_space = true;
       }
       else {
+#endif
         beg_space = 0;
         space_right = 2 + 1 + (la - strlen(attribute_fields[attr_type]));
         if(hybrid_architecture && add_space) {
@@ -498,7 +500,9 @@ void print_ascii_generic(struct ascii* art, uint32_t la, int32_t termw, const ch
 
         printOut(lbuf, beg_space + strlen(attribute_fields[attr_type]) + space_right + strlen(attr_value),
                  "%*s%s%s%s%*s%s%s%s", beg_space, "", logo->color_text[0], attribute_fields[attr_type], art->reset, space_right, "", logo->color_text[1], attr_value, art->reset);
+#ifdef ARCH_X86
       }
+#endif
     }
     printOutLine(lbuf, art, termw);
     printf("\n");
@@ -690,7 +694,7 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
     longest_attribute = longest_attribute_length(art, attribute_fields);
   }
 
-  print_ascii_generic(art, longest_attribute, term->w, attribute_fields);
+  print_ascii_generic(art, longest_attribute, term->w, attribute_fields, false);
 
   return true;
 }
