@@ -91,6 +91,7 @@ enum {
   UARCH_ICE_LAKE,
   UARCH_TIGER_LAKE,
   UARCH_ALDER_LAKE,
+  UARCH_RAPTOR_LAKE,
   // AMD //
   UARCH_AM486,
   UARCH_AM5X86,
@@ -231,8 +232,8 @@ struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, u
   CHECK_UARCH(arch, 0,  6,  8, 14, 11, "Whiskey Lake",    UARCH_WHISKEY_LAKE,     14) // wikichip
   CHECK_UARCH(arch, 0,  6,  8, 14, 12, "Comet Lake",      UARCH_COMET_LAKE,       14) // wikichip
   CHECK_UARCH(arch, 0,  6,  9,  6, NA, "Tremont",         UARCH_TREMONT,          10) // LX*
-  CHECK_UARCH(arch, 0,  6,  9,  7, NA, "Alder Lake",      UARCH_ALDER_LAKE,       10) // wikichip
-  CHECK_UARCH(arch, 0,  6,  9, 10, NA, "Tremont",         UARCH_TREMONT,          10) // instlatx64
+  CHECK_UARCH(arch, 0,  6,  9,  7, NA, "Alder Lake",      UARCH_ALDER_LAKE,       10) // instlatx64 (Alder Lake-S)
+  CHECK_UARCH(arch, 0,  6,  9, 10, NA, "Alder Lake",      UARCH_ALDER_LAKE,       10) // instlatx64 (Alder Lake-P)
   CHECK_UARCH(arch, 0,  6,  9, 12, NA, "Tremont",         UARCH_TREMONT,          10) // LX*
   CHECK_UARCH(arch, 0,  6,  9, 13, NA, "Sunny Cove",      UARCH_SUNNY_COVE,       10) // LX*
   CHECK_UARCH(arch, 0,  6,  9, 14,  9, "Kaby Lake",       UARCH_KABY_LAKE,        14)
@@ -243,6 +244,7 @@ struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, u
   CHECK_UARCH(arch, 0,  6, 10,  5, NA, "Comet Lake",      UARCH_COMET_LAKE,       14) // wikichip
   CHECK_UARCH(arch, 0,  6, 10,  6, NA, "Comet Lake",      UARCH_COMET_LAKE,       14) // instlatx64.atw.hu (i7-10710U)
   CHECK_UARCH(arch, 0,  6, 10,  7, NA, "Rocket Lake",     UARCH_ROCKET_LAKE,      14) // instlatx64.atw.hu (i7-11700K)
+  CHECK_UARCH(arch, 0,  6, 11,  7, NA, "Raptor Lake",     UARCH_RAPTOR_LAKE,      10) // instlatx64.atw.hu (i5-13600K)
   CHECK_UARCH(arch, 0, 11,  0,  0, NA, "Knights Ferry",   UARCH_KNIGHTS_FERRY,    45) // found only on en.wikichip.org
   CHECK_UARCH(arch, 0, 11,  0,  1, NA, "Knights Corner",  UARCH_KNIGHTS_CORNER,   22)
   CHECK_UARCH(arch, 0, 15,  0,  0, NA, "Willamette",      UARCH_WILLAMETTE,      180)
@@ -422,6 +424,7 @@ int get_number_of_vpus(struct cpuInfo* cpu) {
       case UARCH_ICE_LAKE:
       case UARCH_TIGER_LAKE:
       case UARCH_ALDER_LAKE:
+      case UARCH_RAPTOR_LAKE:
 
       // AMD
       case UARCH_ZEN2:
@@ -439,6 +442,7 @@ bool choose_new_intel_logo_uarch(struct cpuInfo* cpu) {
     case UARCH_ALDER_LAKE:
     case UARCH_ROCKET_LAKE:
     case UARCH_TIGER_LAKE:
+    case UARCH_RAPTOR_LAKE:
       return true;
     default:
       return false;
