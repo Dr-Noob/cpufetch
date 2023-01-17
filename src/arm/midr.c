@@ -242,7 +242,7 @@ struct cpuInfo* get_cpu_info_linux(struct cpuInfo* cpu) {
   cpu->num_cpus = sockets;
   cpu->hv = emalloc(sizeof(struct hypervisor));
   cpu->hv->present = false;
-  cpu->soc = get_soc();
+  cpu->soc = get_soc(cpu);
   cpu->peak_performance = get_peak_performance(cpu);
 
   return cpu;

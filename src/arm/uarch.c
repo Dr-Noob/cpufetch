@@ -333,3 +333,7 @@ void free_uarch_struct(struct uarch* arch) {
   free(arch->uarch_str);
   free(arch);
 }
+
+bool is_cortex_x2(struct uarch* arch) {
+  return arch->uarch == UARCH_CORTEX_X2;
+}

@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 
+#include "uarch.h"
 #include "soc.h"
 #include "socs.h"
 #include "udev.h"
@@ -502,7 +503,18 @@ bool match_allwinner(char* soc_name, struct system_on_chip* soc) {
   SOC_END
 }
 
-bool match_special(char* soc_name, struct system_on_chip* soc) {
+bool is_taro_sm8475(struct cpuInfo* cpu) {
+  // Check if X2 core has frequency greater
+  // than 3.0 GHz (plus version should have 3.2 GHz)
+  struct cpuInfo* ptr = cpu;
+  for(int i=0; i < cpu->num_cpus; ptr = ptr->next_cpu, i++) {
+    if(is_cortex_x2(ptr->arch)) return ptr->freq->max > 3100;
+  }
+  printBug("Unable to find Cortex-X2 when differentiating taro SoC");
+  return false;
+}
+
+bool match_special(char* soc_name, struct cpuInfo* cpu, struct system_on_chip* soc) {
   char* tmp;
 
   // Xiaomi hides Redmi Note 8/8T under "Qualcomm Technologies, Inc TRINKET"
@@ -517,19 +529,25 @@ bool match_special(char* soc_name, struct system_on_chip* soc) {
     return true;
   }
 
-  // Snapdragon 8 Gen 1 reported as "taro"
+  // Snapdragon 8 Gen 1/8+ Gen 1 reported as "taro"
   if(strcmp(soc_name, "taro") == 0) {
-    fill_soc(soc, "8 Gen 1", SOC_SNAPD_SM8450, 4);
+    // Is not possible to detect 8/8+ with soc_name only
+    if(is_taro_sm8475(cpu)) {
+      fill_soc(soc, "8+ Gen 1", SOC_SNAPD_SM8475, 4);
+    }
+    else {
+      fill_soc(soc, "8 Gen 1", SOC_SNAPD_SM8450, 4);
+    }
     return true;
   }
 
   return false;
 }
 
-struct system_on_chip* parse_soc_from_string(struct system_on_chip* soc) {
+struct system_on_chip* parse_soc_from_string(struct cpuInfo* cpu, struct system_on_chip* soc) {
   char* raw_name = soc->raw_name;
 
-  if(match_special(raw_name, soc))
+  if(match_special(raw_name, cpu, soc))
     return soc;
 
   if (match_qualcomm(raw_name, soc))
@@ -558,35 +576,35 @@ static inline int android_property_get(const char* key, char* value) {
   return __system_property_get(key, value);
 }
 
-void try_parse_soc_from_string(struct system_on_chip* soc, int soc_len, char* soc_str) {
+void try_parse_soc_from_string(struct cpuInfo* cpu, struct system_on_chip* soc, int soc_len, char* soc_str) {
   soc->raw_name = emalloc(sizeof(char) * (soc_len + 1));
   strncpy(soc->raw_name, soc_str, soc_len + 1);
   soc->raw_name[soc_len] = '\0';
   soc->soc_vendor = SOC_VENDOR_UNKNOWN;
-  parse_soc_from_string(soc);
+  parse_soc_from_string(cpu, soc);
 }
 
-struct system_on_chip* guess_soc_from_android(struct system_on_chip* soc) {
+struct system_on_chip* guess_soc_from_android(struct cpuInfo* cpu, struct system_on_chip* soc) {
   char tmp[100];
   int property_len = 0;
 
   property_len = android_property_get("ro.mediatek.platform", (char *) &tmp);
   if(property_len > 0) {
-    try_parse_soc_from_string(soc, property_len, tmp);
+    try_parse_soc_from_string(cpu, soc, property_len, tmp);
     if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) printWarn("SoC detection failed using Android property ro.mediatek.platform: %s", tmp);
     else return soc;
   }
 
   property_len = android_property_get("ro.product.board", (char *) &tmp);
   if(property_len > 0) {
-    try_parse_soc_from_string(soc, property_len, tmp);
+    try_parse_soc_from_string(cpu, soc, property_len, tmp);
     if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) printWarn("SoC detection failed using Android property ro.product.board: %s", tmp);
     else return soc;
   }
 
   property_len = android_property_get("ro.board.platform", (char *) &tmp);
   if(property_len > 0) {
-    try_parse_soc_from_string(soc, property_len, tmp);
+    try_parse_soc_from_string(cpu, soc, property_len, tmp);
     if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) printWarn("SoC detection failed using Android property ro.board.platform: %s", tmp);
     else return soc;
   }
@@ -595,12 +613,12 @@ struct system_on_chip* guess_soc_from_android(struct system_on_chip* soc) {
 }
 #endif
 
-struct system_on_chip* guess_soc_from_cpuinfo(struct system_on_chip* soc) {
+struct system_on_chip* guess_soc_from_cpuinfo(struct cpuInfo* cpu, struct system_on_chip* soc) {
   char* tmp = get_hardware_from_cpuinfo();
 
   if(tmp != NULL) {
     soc->raw_name = tmp;
-    return parse_soc_from_string(soc);
+    return parse_soc_from_string(cpu, soc);
   }
 
   return soc;
@@ -702,7 +720,7 @@ struct system_on_chip* guess_soc_apple(struct system_on_chip* soc) {
 }
 #endif
 
-struct system_on_chip* get_soc() {
+struct system_on_chip* get_soc(struct cpuInfo* cpu) {
   struct system_on_chip* soc = emalloc(sizeof(struct system_on_chip));
   soc->raw_name = NULL;
   soc->soc_vendor = SOC_VENDOR_UNKNOWN;
@@ -720,14 +738,14 @@ struct system_on_chip* get_soc() {
     }
   }
 
-  soc = guess_soc_from_cpuinfo(soc);
+  soc = guess_soc_from_cpuinfo(cpu, soc);
   if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) {
     if(soc->raw_name != NULL)
       printWarn("SoC detection failed using /proc/cpuinfo: Found '%s' string", soc->raw_name);
     else
       printWarn("SoC detection failed using /proc/cpuinfo: No string found");
 #ifdef __ANDROID__
-    soc = guess_soc_from_android(soc);
+    soc = guess_soc_from_android(cpu, soc);
     if(soc->raw_name == NULL)
       printWarn("SoC detection failed using Android: No string found");
     else if(soc->soc_vendor == SOC_VENDOR_UNKNOWN)
