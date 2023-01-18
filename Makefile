@@ -11,6 +11,7 @@ COMMON_SRC = $(SRC_COMMON)main.c $(SRC_COMMON)cpu.c $(SRC_COMMON)udev.c $(SRC_CO
 COMMON_HDR = $(SRC_COMMON)ascii.h $(SRC_COMMON)cpu.h $(SRC_COMMON)udev.h $(SRC_COMMON)printer.h $(SRC_COMMON)args.h $(SRC_COMMON)global.h
 
 ifneq ($(OS),Windows_NT)
+	GIT_VERSION := "$(shell git describe --abbrev=4 --dirty --always --tags)"
 	arch := $(shell uname -m)
 	ifeq ($(arch), $(filter $(arch), x86_64 amd64 i386 i486 i586 i686))
 		SRC_DIR=src/x86/
@@ -50,6 +51,7 @@ $(error Aborting compilation)
 	OUTPUT=cpufetch
 else
 	# Assume x86_64
+	GIT_VERSION := ""
 	SRC_DIR=src/x86/
 	SOURCE += $(COMMON_SRC) $(SRC_DIR)cpuid.c $(SRC_DIR)apic.c $(SRC_DIR)cpuid_asm.c $(SRC_DIR)uarch.c
 	HEADERS += $(COMMON_HDR) $(SRC_DIR)cpuid.h $(SRC_DIR)apic.h $(SRC_DIR)cpuid_asm.h $(SRC_DIR)uarch.h
@@ -80,7 +82,11 @@ freq_avx512.o: Makefile $(SRC_DIR)freq/freq_avx512.c $(SRC_DIR)freq/freq_avx512.
 	$(CC) $(CFLAGS) $(SANITY_FLAGS) -c -mavx512f -pthread $(SRC_DIR)freq/freq_avx512.c -o $@
 
 $(OUTPUT): Makefile $(SOURCE) $(HEADERS)
+ifeq ($(GIT_VERSION),"")
 	$(CC) $(CFLAGS) $(SANITY_FLAGS) $(SOURCE) -o $(OUTPUT)
+else
+	$(CC) $(CFLAGS) $(SANITY_FLAGS) -DGIT_FULL_VERSION=\"$(GIT_VERSION)\" $(SOURCE) -o $(OUTPUT)
+endif
 
 run: $(OUTPUT)
 	./$(OUTPUT)

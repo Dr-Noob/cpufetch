@@ -33,7 +33,9 @@
   static const char* OS_STR = "Unknown OS";
 #endif
 
-static const char* VERSION = "1.03";
+#ifndef GIT_FULL_VERSION
+  static const char* VERSION = "1.03";
+#endif
 
 void print_help(char *argv[]) {
   const char **t = args_str;
@@ -107,7 +109,11 @@ void print_help(char *argv[]) {
 }
 
 void print_version() {
-  printf("cpufetch v%s (%s %s)\n",VERSION, OS_STR, ARCH_STR);
+#ifdef GIT_FULL_VERSION
+  printf("cpufetch %s (%s %s)\n", GIT_FULL_VERSION, OS_STR, ARCH_STR);
+#else
+  printf("cpufetch v%s (%s %s)\n", VERSION, OS_STR, ARCH_STR);
+#endif
 }
 
 int main(int argc, char* argv[]) {
