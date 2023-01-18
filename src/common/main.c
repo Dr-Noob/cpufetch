@@ -6,37 +6,6 @@
 #include "printer.h"
 #include "global.h"
 
-#ifdef ARCH_X86
-  static const char* ARCH_STR = "x86_64 build";
-  #include "../x86/cpuid.h"
-#elif ARCH_PPC
-  static const char* ARCH_STR = "PowerPC build";
-  #include "../ppc/ppc.h"
-#elif ARCH_ARM
-  static const char* ARCH_STR = "ARM build";
-  #include "../arm/midr.h"
-#endif
-
-#ifdef __linux__
-  #ifdef __ANDROID__
-    static const char* OS_STR = "Android";
-  #else
-    static const char* OS_STR = "Linux";
-  #endif
-#elif __FreeBSD__
-  static const char* OS_STR = "FreeBSD";
-#elif _WIN32
-  static const char* OS_STR = "Windows";
-#elif defined __APPLE__ || __MACH__
-  static const char* OS_STR = "macOS";
-#else
-  static const char* OS_STR = "Unknown OS";
-#endif
-
-#ifndef GIT_FULL_VERSION
-  static const char* VERSION = "1.03";
-#endif
-
 void print_help(char *argv[]) {
   const char **t = args_str;
   const char *c = args_chr;
@@ -108,14 +77,6 @@ void print_help(char *argv[]) {
   printf("    To correctly measure peak performance, see: https://github.com/Dr-Noob/peakperf\n");
 }
 
-void print_version() {
-#ifdef GIT_FULL_VERSION
-  printf("cpufetch %s (%s %s)\n", GIT_FULL_VERSION, OS_STR, ARCH_STR);
-#else
-  printf("cpufetch v%s (%s %s)\n", VERSION, OS_STR, ARCH_STR);
-#endif
-}
-
 int main(int argc, char* argv[]) {
   if(!parse_args(argc,argv))
     return EXIT_FAILURE;
@@ -126,7 +87,7 @@ int main(int argc, char* argv[]) {
   }
 
   if(show_version()) {
-    print_version();
+    print_version(stdout);
     return EXIT_SUCCESS;
   }
 
@@ -137,7 +98,7 @@ int main(int argc, char* argv[]) {
     return EXIT_FAILURE;
 
   if(show_debug()) {
-    print_version();
+    print_version(stdout);
     print_debug(cpu);
     return EXIT_SUCCESS;
   }
@@ -145,7 +106,7 @@ int main(int argc, char* argv[]) {
   // TODO: This should be moved to the end of args.c
   if(show_raw()) {
   #ifdef ARCH_X86
-    print_version();
+    print_version(stdout);
     print_raw(cpu);
     return EXIT_SUCCESS;
   #else

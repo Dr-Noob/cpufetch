@@ -20,6 +20,37 @@
 
 #endif
 
+#ifdef ARCH_X86
+  static const char* ARCH_STR = "x86_64 build";
+  #include "../x86/cpuid.h"
+#elif ARCH_PPC
+  static const char* ARCH_STR = "PowerPC build";
+  #include "../ppc/ppc.h"
+#elif ARCH_ARM
+  static const char* ARCH_STR = "ARM build";
+  #include "../arm/midr.h"
+#endif
+
+#ifdef __linux__
+  #ifdef __ANDROID__
+    static const char* OS_STR = "Android";
+  #else
+    static const char* OS_STR = "Linux";
+  #endif
+#elif __FreeBSD__
+  static const char* OS_STR = "FreeBSD";
+#elif _WIN32
+  static const char* OS_STR = "Windows";
+#elif defined __APPLE__ || __MACH__
+  static const char* OS_STR = "macOS";
+#else
+  static const char* OS_STR = "Unknown OS";
+#endif
+
+#ifndef GIT_FULL_VERSION
+  static const char* VERSION = "1.03";
+#endif
+
 enum {
   LOG_LEVEL_NORMAL,
   LOG_LEVEL_VERBOSE
@@ -47,6 +78,8 @@ void printErr(const char *fmt, ...) {
   vsnprintf(buffer,buffer_size, fmt, args);
   va_end(args);
   fprintf(stderr,RED "[ERROR]: "RESET "%s\n",buffer);
+  fprintf(stderr,"[VERSION]: ");
+  print_version(stderr);
 }
 
 void printBug(const char *fmt, ...) {
@@ -57,6 +90,8 @@ void printBug(const char *fmt, ...) {
   vsnprintf(buffer,buffer_size, fmt, args);
   va_end(args);
   fprintf(stderr,RED "[ERROR]: "RESET "%s\n",buffer);
+  fprintf(stderr,"[VERSION]: ");
+  print_version(stderr);
 #if defined(ARCH_X86) || defined(ARCH_PPC)
   fprintf(stderr, "Please, create a new issue with this error message, the output of 'cpufetch' and 'cpufetch --debug' on https://github.com/Dr-Noob/cpufetch/issues\n");
 #elif ARCH_ARM
@@ -123,3 +158,10 @@ void* erealloc(void *ptr, size_t size) {
   return newptr;
 }
 
+void print_version(FILE *restrict stream) {
+#ifdef GIT_FULL_VERSION
+  fprintf(stream, "cpufetch %s (%s %s)\n", GIT_FULL_VERSION, OS_STR, ARCH_STR);
+#else
+  fprintf(stream, "cpufetch v%s (%s %s)\n", VERSION, OS_STR, ARCH_STR);
+#endif
+}

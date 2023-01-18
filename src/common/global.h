@@ -17,5 +17,6 @@ char *strremove(char *str, const char *sub);
 void* emalloc(size_t size);
 void* ecalloc(size_t nmemb, size_t size);
 void* erealloc(void *ptr, size_t size);
+void print_version(FILE *restrict stream);
 
 #endif
