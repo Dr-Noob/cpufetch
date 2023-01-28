@@ -228,7 +228,7 @@ struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, u
   CHECK_UARCH(arch, 0,  6,  8, 12, NA, "Tiger Lake",      UARCH_TIGER_LAKE,       10) // instlatx64
   CHECK_UARCH(arch, 0,  6,  8, 13, NA, "Tiger Lake",      UARCH_TIGER_LAKE,       10) // instlatx64
   // CHECK_UARCH(arch, 0,  6,  8, 14,  9, ...) It is not possible to determine uarch only from CPUID dump (can be Kaby Lake or Amber Lake)
-  CHECK_UARCH(arch, 0,  6,  8, 14, 10, "Coffee Lake",     UARCH_COFFEE_LAKE,      14) // wikichip
+  // CHECK_UARCH(arch, 0,  6,  8, 14, 10, ...) It is not possible to determine uarch only from CPUID dump (can be Kaby Lake R or Coffee Lake U)
   CHECK_UARCH(arch, 0,  6,  8, 14, 11, "Whiskey Lake",    UARCH_WHISKEY_LAKE,     14) // wikichip
   CHECK_UARCH(arch, 0,  6,  8, 14, 12, "Comet Lake",      UARCH_COMET_LAKE,       14) // wikichip
   CHECK_UARCH(arch, 0,  6,  9,  6, NA, "Tremont",         UARCH_TREMONT,          10) // LX*
@@ -377,6 +377,7 @@ struct uarch* get_uarch_from_cpuid(struct cpuInfo* cpu, uint32_t dump, uint32_t 
   if(cpu->cpu_vendor == CPU_VENDOR_INTEL) {
     if(dump == 0x000806E9) {
       // It is not possible to determine uarch only from CPUID dump (can be Kaby Lake or Amber Lake)
+      // See issue https://github.com/Dr-Noob/cpufetch/issues/122
       struct uarch* arch = emalloc(sizeof(struct uarch));
 
       if(strstr(cpu->cpu_name, "Y") != NULL) {
@@ -384,6 +385,23 @@ struct uarch* get_uarch_from_cpuid(struct cpuInfo* cpu, uint32_t dump, uint32_t 
       }
       else {
         fill_uarch(arch, "Kaby Lake", UARCH_KABY_LAKE, 14);
+      }
+
+      return arch;
+    }
+    else if (dump == 0x000806EA) {
+      // It is not possible to determine uarch only from CPUID dump (can be Kaby Lake R or Coffee Lake U)
+      // See issue https://github.com/Dr-Noob/cpufetch/issues/149
+      struct uarch* arch = emalloc(sizeof(struct uarch));
+
+      if(strstr(cpu->cpu_name, "i5-8250U") != NULL ||
+         strstr(cpu->cpu_name, "i5-8350U") != NULL ||
+         strstr(cpu->cpu_name, "i7-8550U") != NULL ||
+         strstr(cpu->cpu_name, "i7-8650U") != NULL) {
+        fill_uarch(arch, "Kaby Lake", UARCH_KABY_LAKE, 14);
+      }
+      else {
+        fill_uarch(arch, "Coffee Lake", UARCH_COFFEE_LAKE, 14);
       }
 
       return arch;
