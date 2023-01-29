@@ -1,6 +1,7 @@
 #ifndef __GLOBAL__
 #define __GLOBAL__
 
+#include <stdio.h>
 #include <stdbool.h>
 #include <stddef.h>
 
