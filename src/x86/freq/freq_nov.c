@@ -10,7 +10,8 @@
 #include <stdint.h>
 #include "freq.h"
 
-void* compute_nov(void) {
+void* compute_nov(void * pthread_arg) {
+  UNUSED(pthread_arg);
   bool end = false;
 
   struct timeval begin, now;
