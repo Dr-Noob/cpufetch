@@ -39,21 +39,21 @@ extern const char *args_str[];
 
 #include "printer.h"
 
-int max_arg_str_length();
+int max_arg_str_length(void);
 bool parse_args(int argc, char* argv[]);
-bool show_help();
-bool accurate_pp();
-bool show_full_cpu_name();
-bool show_logo_long();
-bool show_logo_short();
-bool show_logo_intel_new();
-bool show_logo_intel_old();
-bool show_raw();
-bool show_debug();
-bool show_version();
-bool verbose_enabled();
+bool show_help(void);
+bool accurate_pp(void);
+bool show_full_cpu_name(void);
+bool show_logo_long(void);
+bool show_logo_short(void);
+bool show_logo_intel_new(void);
+bool show_logo_intel_old(void);
+bool show_raw(void);
+bool show_debug(void);
+bool show_version(void);
+bool verbose_enabled(void);
 void free_colors_struct(struct color** cs);
-struct color** get_colors();
-STYLE get_style();
+struct color** get_colors(void);
+STYLE get_style(void);
 
 #endif

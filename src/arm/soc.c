@@ -702,7 +702,7 @@ struct system_on_chip* guess_soc_apple(struct system_on_chip* soc) {
 }
 #endif
 
-struct system_on_chip* get_soc() {
+struct system_on_chip* get_soc(void) {
   struct system_on_chip* soc = emalloc(sizeof(struct system_on_chip));
   soc->raw_name = NULL;
   soc->soc_vendor = SOC_VENDOR_UNKNOWN;

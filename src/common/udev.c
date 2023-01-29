@@ -3,7 +3,7 @@
 #include "cpu.h"
 
 // https://www.kernel.org/doc/html/latest/core-api/cpu_hotplug.html
-int get_ncores_from_cpuinfo() {
+int get_ncores_from_cpuinfo(void) {
   // Examples:
   // 0-271
   // 0-7

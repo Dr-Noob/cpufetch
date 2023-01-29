@@ -10,7 +10,7 @@
 #include <stdint.h>
 #include "freq.h"
 
-void* compute_avx() {
+void* compute_avx(void) {
   bool end = false;
 
   struct timeval begin, now;

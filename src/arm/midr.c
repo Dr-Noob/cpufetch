@@ -141,7 +141,7 @@ void init_cpu_info(struct cpuInfo* cpu) {
 // true...
 // ARM32 https://elixir.bootlin.com/linux/latest/source/arch/arm/include/uapi/asm/hwcap.h
 // ARM64 https://elixir.bootlin.com/linux/latest/source/arch/arm64/include/uapi/asm/hwcap.h
-struct features* get_features_info() {
+struct features* get_features_info(void) {
   struct features* feat = emalloc(sizeof(struct features));
   bool *ptr = &(feat->AES);
   for(uint32_t i = 0; i < sizeof(struct features)/sizeof(bool); i++, ptr++) {
@@ -371,7 +371,7 @@ struct cpuInfo* get_cpu_info_mach(struct cpuInfo* cpu) {
 }
 #endif
 
-struct cpuInfo* get_cpu_info() {
+struct cpuInfo* get_cpu_info(void) {
   struct cpuInfo* cpu = malloc(sizeof(struct cpuInfo));
   init_cpu_info(cpu);
 

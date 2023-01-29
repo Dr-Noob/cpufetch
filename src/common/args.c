@@ -71,59 +71,59 @@ const char *args_str[] = {
 
 static struct args_struct args;
 
-STYLE get_style() {
+STYLE get_style(void) {
   return args.style;
 }
 
-struct color** get_colors() {
+struct color** get_colors(void) {
   return args.colors;
 }
 
-bool show_help() {
+bool show_help(void) {
   return args.help_flag;
 }
 
-bool show_version() {
+bool show_version(void) {
   return args.version_flag;
 }
 
-bool show_debug() {
+bool show_debug(void) {
   return args.debug_flag;
 }
 
-bool show_raw() {
+bool show_raw(void) {
   return args.raw_flag;
 }
 
-bool accurate_pp() {
+bool accurate_pp(void) {
   return args.accurate_pp;
 }
 
-bool show_full_cpu_name() {
+bool show_full_cpu_name(void) {
   return args.full_cpu_name_flag;
 }
 
-bool show_logo_long() {
+bool show_logo_long(void) {
   return args.logo_long;
 }
 
-bool show_logo_short() {
+bool show_logo_short(void) {
   return args.logo_short;
 }
 
-bool show_logo_intel_new() {
+bool show_logo_intel_new(void) {
   return args.logo_intel_new;
 }
 
-bool show_logo_intel_old() {
+bool show_logo_intel_old(void) {
   return args.logo_intel_old;
 }
 
-bool verbose_enabled() {
+bool verbose_enabled(void) {
   return args.verbose_flag;
 }
 
-int max_arg_str_length() {
+int max_arg_str_length(void) {
   int max_len = -1;
   int len = sizeof(args_str) / sizeof(args_str[0]);
   for(int i=0; i < len; i++) {
@@ -211,7 +211,7 @@ bool parse_color(char* optarg_str, struct color*** cs) {
   return true;
 }
 
-char* build_short_options() {
+char* build_short_options(void) {
   const char *c = args_chr;
   int len = sizeof(args_chr) / sizeof(args_chr[0]);
   char* str = (char *) emalloc(sizeof(char) * (len*2 + 1));

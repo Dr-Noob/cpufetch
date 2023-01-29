@@ -909,7 +909,7 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
 }
 #endif
 
-struct terminal* get_terminal_size() {
+struct terminal* get_terminal_size(void) {
   struct terminal* term = emalloc(sizeof(struct terminal));
 
 #ifdef _WIN32

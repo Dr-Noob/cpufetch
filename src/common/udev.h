@@ -36,6 +36,6 @@ long get_l1d_cache_size(uint32_t core);
 long get_l2_cache_size(uint32_t core);
 long get_l3_cache_size(uint32_t core);
 int get_num_caches_by_level(struct cpuInfo* cpu, uint32_t level);
-int get_ncores_from_cpuinfo();
+int get_ncores_from_cpuinfo(void);
 
 #endif

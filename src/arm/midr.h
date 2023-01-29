@@ -3,7 +3,7 @@
 
 #include "../common/cpu.h"
 
-struct cpuInfo* get_cpu_info();
+struct cpuInfo* get_cpu_info(void);
 
 uint32_t get_nsockets(struct topology* topo);
 char* get_str_topology(struct cpuInfo* cpu, struct topology* topo, bool dual_socket);

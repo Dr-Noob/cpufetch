@@ -129,15 +129,15 @@ char* get_field_from_cpuinfo(char* CPUINFO_FIELD) {
   return hardware;
 }
 
-char* get_hardware_from_cpuinfo() {
+char* get_hardware_from_cpuinfo(void) {
   return get_field_from_cpuinfo(CPUINFO_HARDWARE_STR);
 }
 
-char* get_revision_from_cpuinfo() {
+char* get_revision_from_cpuinfo(void) {
   return get_field_from_cpuinfo(CPUINFO_REVISION_STR);
 }
 
-bool is_raspberry_pi() {
+bool is_raspberry_pi(void) {
   int filelen;
   char* buf;
   if((buf = read_file(_PATH_DEVICETREE_MODEL, &filelen)) == NULL) {

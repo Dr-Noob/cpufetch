@@ -70,7 +70,7 @@ void get_name_cpuid(char* name, uint32_t reg1, uint32_t reg2, uint32_t reg3) {
   name[c++] = (reg3>>24) & MASK;
 }
 
-char* get_str_cpu_name_internal() {
+char* get_str_cpu_name_internal(void) {
   uint32_t eax = 0;
   uint32_t ebx = 0;
   uint32_t ecx = 0;
@@ -412,7 +412,7 @@ bool set_cpu_module(int m, int total_modules, int32_t* first_core) {
   return true;
 }
 
-int32_t get_core_type() {
+int32_t get_core_type(void) {
   uint32_t eax = 0x0000001A;
   uint32_t ebx = 0;
   uint32_t ecx = 0;
@@ -430,7 +430,7 @@ int32_t get_core_type() {
   }
 }
 
-struct cpuInfo* get_cpu_info() {
+struct cpuInfo* get_cpu_info(void) {
   struct cpuInfo* cpu = emalloc(sizeof(struct cpuInfo));
   cpu->peak_performance = -1;
   cpu->next_cpu = NULL;

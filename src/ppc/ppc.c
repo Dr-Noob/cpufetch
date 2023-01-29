@@ -111,7 +111,7 @@ struct topology* get_topology_info(struct cache* cach) {
   return topo;
 }
 
-static inline uint32_t mfpvr() {
+static inline uint32_t mfpvr(void) {
     uint32_t pvr;
 
     asm ("mfpvr %0"
@@ -123,7 +123,7 @@ struct uarch* get_cpu_uarch(struct cpuInfo* cpu) {
   return get_uarch_from_pvr(cpu->pvr);
 }
 
-struct frequency* get_frequency_info() {
+struct frequency* get_frequency_info(void) {
   struct frequency* freq = emalloc(sizeof(struct frequency));
 
   freq->max = get_max_freq_from_file(0);
@@ -158,7 +158,7 @@ int64_t get_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64_t
   return flops;
 }
 
-struct cpuInfo* get_cpu_info() {
+struct cpuInfo* get_cpu_info(void) {
   struct cpuInfo* cpu = emalloc(sizeof(struct cpuInfo));
   struct features* feat = emalloc(sizeof(struct features));
   cpu->feat = feat;

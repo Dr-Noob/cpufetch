@@ -25,7 +25,7 @@ struct system_on_chip {
   char* raw_name;    
 };
 
-struct system_on_chip* get_soc();
+struct system_on_chip* get_soc(void);
 char* get_soc_name(struct system_on_chip* soc);
 VENDOR get_soc_vendor(struct system_on_chip* soc);
 char* get_str_process(struct system_on_chip* soc);
