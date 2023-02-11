@@ -430,6 +430,7 @@ bool match_qualcomm(char* soc_name, struct system_on_chip* soc) {
   SOC_EQ(tmp, "SM7125",         "720G",      SOC_SNAPD_SM7125,         soc,  8)
   SOC_EQ(tmp, "SM7150-AA",      "730",       SOC_SNAPD_SM7150_AA,      soc,  8)
   SOC_EQ(tmp, "SM7150-AB",      "730G",      SOC_SNAPD_SM7150_AB,      soc,  8)
+  SOC_EQ(tmp, "SDM730G",        "730G",      SOC_SNAPD_SM7150_AB,      soc,  8) // Issue #174
   SOC_EQ(tmp, "SM7150-AC",      "732G",      SOC_SNAPD_SM7150_AC,      soc,  8)
   SOC_EQ(tmp, "SM7225",         "750G",      SOC_SNAPD_SM7225,         soc,  8)
   SOC_EQ(tmp, "SM7250-AA",      "765",       SOC_SNAPD_SM7250_AA,      soc,  7)
