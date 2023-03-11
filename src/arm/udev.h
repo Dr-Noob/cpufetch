@@ -3,6 +3,8 @@
 
 #include "../common/udev.h"
 
+#define _PATH_SUNXI_NVMEM  "/sys/bus/nvmem/devices/sunxi-sid0/nvmem"
+
 #define UNKNOWN -1
 int get_ncores_from_cpuinfo(void);
 uint32_t get_midr_from_cpuinfo(uint32_t core, bool* success);
