@@ -91,8 +91,8 @@ bool get_sunxisoc_from_sid(struct system_on_chip* soc, char* raw_name, uint32_t 
   sidToSoC socFromSid[] = {
     // H2+
     {0x02c00042, {SOC_ALLWINNER_H2PLUS, SOC_VENDOR_ALLWINNER, 40, "H2+", raw_name} },
+    {0x02c00142, {SOC_ALLWINNER_H2PLUS, SOC_VENDOR_ALLWINNER, 40, "H2+", raw_name} },
     // H3
-    {0x02c00142, {SOC_ALLWINNER_H3,     SOC_VENDOR_ALLWINNER, 40, "H3",  raw_name} },
     {0x02c00181, {SOC_ALLWINNER_H3,     SOC_VENDOR_ALLWINNER, 40, "H3",  raw_name} },
     {0x02c00081, {SOC_ALLWINNER_H3,     SOC_VENDOR_ALLWINNER, 40, "H3",  raw_name} },
     // Unknown
