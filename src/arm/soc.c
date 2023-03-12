@@ -89,12 +89,22 @@ bool get_sunxisoc_from_sid(struct system_on_chip* soc, char* raw_name, uint32_t 
   } sidToSoC;
 
   sidToSoC socFromSid[] = {
+    // --- sun8i Family ---
     // H2+
-    {0x02c00042, {SOC_ALLWINNER_H2PLUS, SOC_VENDOR_ALLWINNER, 40, "H2+", raw_name} },
-    {0x02c00142, {SOC_ALLWINNER_H2PLUS, SOC_VENDOR_ALLWINNER, 40, "H2+", raw_name} },
+    {0x02c00042, {SOC_ALLWINNER_H2PLUS, SOC_VENDOR_ALLWINNER, 40, "H2+",  raw_name} },
+    {0x02c00142, {SOC_ALLWINNER_H2PLUS, SOC_VENDOR_ALLWINNER, 40, "H2+",  raw_name} },
     // H3
-    {0x02c00181, {SOC_ALLWINNER_H3,     SOC_VENDOR_ALLWINNER, 40, "H3",  raw_name} },
-    {0x02c00081, {SOC_ALLWINNER_H3,     SOC_VENDOR_ALLWINNER, 40, "H3",  raw_name} },
+    {0x02c00181, {SOC_ALLWINNER_H3,     SOC_VENDOR_ALLWINNER, 40, "H3",   raw_name} },
+    {0x02c00081, {SOC_ALLWINNER_H3,     SOC_VENDOR_ALLWINNER, 40, "H3",   raw_name} },
+    // Others
+    {0x12c00017, {SOC_ALLWINNER_R40,    SOC_VENDOR_ALLWINNER, 40, "R40",  raw_name} },
+    {0x12c00000, {SOC_ALLWINNER_V3S,    SOC_VENDOR_ALLWINNER, 40, "V3s",  raw_name} }, // 40nm is only my guess, no source
+    // --- sun50i Family ---
+    {0x82800001, {SOC_ALLWINNER_H5,     SOC_VENDOR_ALLWINNER, 40, "H5",   raw_name} },
+    {0x82c00007, {SOC_ALLWINNER_H6,     SOC_VENDOR_ALLWINNER, 28, "H6",   raw_name} },
+    {0x92c000bb, {SOC_ALLWINNER_H64,    SOC_VENDOR_ALLWINNER, 40, "H64",  raw_name} }, // Same as A64
+    {0x32c05000, {SOC_ALLWINNER_H616,   SOC_VENDOR_ALLWINNER, 28, "H616", raw_name} },
+    {0x92c000ba, {SOC_ALLWINNER_A64,    SOC_VENDOR_ALLWINNER, 40, "A64",  raw_name} },
     // Unknown
     {0x00000000, {UNKNOWN,              SOC_VENDOR_UNKNOWN,   -1, "",    raw_name} }
   };
