@@ -286,7 +286,9 @@ enum {
   SOC_ALLWINNER_R16,
   SOC_ALLWINNER_R40,
   SOC_ALLWINNER_R58,
-  SOC_ALLWINNER_R328
+  SOC_ALLWINNER_R328,
+  // UNKNOWN
+  SOC_MODEL_UNKNOWN
 };
 
 inline static VENDOR get_soc_vendor_from_soc(SOC soc) {

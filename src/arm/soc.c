@@ -142,6 +142,8 @@ bool match_broadcom(char* soc_name, struct system_on_chip* soc) {
   if((tmp = strstr(soc_name, "BCM")) == NULL)
     return false;
 
+  soc->soc_vendor = SOC_VENDOR_BROADCOM;
+
   SOC_START
   SOC_EQ(tmp, "BCM2835",              "2835",              SOC_BCM_2835,   soc, 65)
   SOC_EQ(tmp, "BCM2836",              "2836",              SOC_BCM_2836,   soc, 40)
@@ -167,6 +169,8 @@ bool match_hisilicon(char* soc_name, struct system_on_chip* soc) {
 
   if((tmp = strstr(soc_name, "hi")) == NULL)
     return false;
+
+  soc->soc_vendor = SOC_VENDOR_KIRIN;
 
   SOC_START
   SOC_EQ(tmp, "hi3620GFC",  "K3V2",  SOC_HISILICON_3620, soc, 40)
@@ -206,6 +210,8 @@ bool match_exynos(char* soc_name, struct system_on_chip* soc) {
   if((tmp = strstr(soc_name, "universal")) != NULL);
   else if((tmp = strstr(soc_name, "exynos")) != NULL);
   else return false;
+
+  soc->soc_vendor = SOC_VENDOR_EXYNOS;
 
   // Because exynos are recently using "exynosXXXX" instead
   // of "universalXXXX" as codenames, SOC_EXY_EQ will check for
@@ -260,6 +266,8 @@ bool match_mediatek(char* soc_name, struct system_on_chip* soc) {
 
   if((tmp = strstr(soc_name_upper, "MT")) == NULL)
     return false;
+
+  soc->soc_vendor = SOC_VENDOR_MEDIATEK;
 
   SOC_START
   // Dimensity //
@@ -388,6 +396,8 @@ bool match_qualcomm(char* soc_name, struct system_on_chip* soc) {
   else if((tmp = strstr(soc_name_upper, "QM")) != NULL);
   else if((tmp = strstr(soc_name_upper, "QSD")) != NULL);
   else return false;
+
+  soc->soc_vendor = SOC_VENDOR_SNAPDRAGON;
 
   SOC_START
   // Snapdragon S1 //
@@ -521,6 +531,8 @@ bool match_allwinner(char* soc_name, struct system_on_chip* soc) {
   if((tmp = strstr(soc_name, "sun")) == NULL)
     return false;
 
+  soc->soc_vendor = SOC_VENDOR_ALLWINNER;
+
   SOC_START
   // SoCs we can detect just with with the name
   SOC_EQ(tmp, "sun4i", "A10",   SOC_ALLWINNER_A10,  soc, 55)
@@ -532,7 +544,7 @@ bool match_allwinner(char* soc_name, struct system_on_chip* soc) {
     int filelen;
     char* sid_nvmem = read_file(_PATH_SUNXI_NVMEM, &filelen);
     if(sid_nvmem == NULL) {
-      printWarn("read_file: %s: %s\n", _PATH_SUNXI_NVMEM, strerror(errno));
+      printWarn("read_file: %s: %s", _PATH_SUNXI_NVMEM, strerror(errno));
       return false;
     }
     uint32_t sid = get_sid_from_nvmem(sid_nvmem);
@@ -744,6 +756,7 @@ struct system_on_chip* get_soc(void) {
   struct system_on_chip* soc = emalloc(sizeof(struct system_on_chip));
   soc->raw_name = NULL;
   soc->soc_vendor = SOC_VENDOR_UNKNOWN;
+  soc->soc_model = SOC_MODEL_UNKNOWN;
   soc->process = UNKNOWN;
 
 #ifdef __linux__
@@ -782,7 +795,7 @@ struct system_on_chip* get_soc(void) {
   }
 #endif // ifdef __linux__
 
-  if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) {
+  if(soc->soc_model == SOC_MODEL_UNKNOWN) {
     // raw_name might not be NULL, but if we were unable to find
     // the exact SoC, just print "Unkwnown"
     soc->raw_name = emalloc(sizeof(char) * (strlen(STRING_UNKNOWN)+1));
@@ -793,7 +806,7 @@ struct system_on_chip* get_soc(void) {
 }
 
 char* get_soc_name(struct system_on_chip* soc) {
-  if(soc->soc_vendor == SOC_VENDOR_UNKNOWN)
+  if(soc->soc_model == SOC_MODEL_UNKNOWN)
     return soc->raw_name;
   return soc->soc_name;
 }
