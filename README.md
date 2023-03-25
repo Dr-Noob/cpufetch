@@ -151,10 +151,11 @@ See [cpufetch contributing guidelines](https://github.com/Dr-Noob/cpufetch/blob/
 
 ## 7. Acknowledgements
 Thanks to the fellow contributors and interested people in the project. Special thanks to:
-- [Gonzalocl](https://github.com/Gonzalocl), [OdnetninI](https://github.com/OdnetninI): Tested cpufetch in the earlier versions of the project in many different CPUs.
+- [Gonzalocl](https://github.com/Gonzalocl) and [OdnetninI](https://github.com/OdnetninI): Tested cpufetch in the earlier versions of the project in many different CPUs.
 - [Kyngo](https://github.com/Kyngo): Tested cpufetch in the Apple M1 CPU.
 - [avollmerhaus](https://github.com/avollmerhaus): Gave me ssh acess to a PowerPC machine, allowing me to develop the PowerPC port.
-- [bbonev](https://github.com/bbonev), [stephan-cr](https://github.com/stephan-cr): Reviewed the source code.
+- [bbonev](https://github.com/bbonev) and [stephan-cr](https://github.com/stephan-cr): Reviewed the source code.
+- [mdoksa76](https://github.com/mdoksa76) and [exkc](https://github.com/exkc): Excellent ideas and impeccable feedback for supporting Allwinner SoCs.
 
 ## 8. cpufetch for GPUs (gpufetch)
 See [gpufetch](https://github.com/Dr-Noob/gpufetch) project!
