@@ -4,6 +4,7 @@
 #include "../common/udev.h"
 
 #define _PATH_SUNXI_NVMEM  "/sys/bus/nvmem/devices/sunxi-sid0/nvmem"
+#define _PATH_RK_EFUSE0    "/sys/bus/nvmem/devices/rockchip-efuse0/nvmem"
 
 #define UNKNOWN -1
 int get_ncores_from_cpuinfo(void);

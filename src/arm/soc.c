@@ -118,7 +118,7 @@ bool get_sunxisoc_from_sid(struct system_on_chip* soc, char* raw_name, uint32_t 
     index++;
   }
 
-  printErr("SID was found but it does not match any known SIDs: %08x\n", sid);
+  printErr("SID was found but it does not match any known SIDs: %08x", sid);
   return false;
 }
 
@@ -656,6 +656,57 @@ struct system_on_chip* guess_soc_from_cpuinfo(struct system_on_chip* soc) {
   return soc;
 }
 
+char* get_rk_efuse() {
+  int filelen;
+  char* rk_soc = read_file(_PATH_RK_EFUSE0, &filelen);
+  if(rk_soc == NULL) {
+    printWarn("read_file: %s: %s", _PATH_RK_EFUSE0, strerror(errno));
+  }
+  return rk_soc;
+}
+
+bool get_rk_soc_from_efuse(struct system_on_chip* soc, char* efuse) {
+  typedef struct {
+    uint16_t rk_soc;
+    struct system_on_chip soc;
+  } rkToSoC;
+
+  uint16_t rk_soc = efuse[2]*256 + efuse[3];
+
+  rkToSoC socFromRK[] = {
+    {0x3399, {SOC_ROCKCHIP_3399, SOC_VENDOR_ROCKCHIP, 28, "RK3399",  NULL} },
+    // Unknown
+    {0x0000, {UNKNOWN,           SOC_VENDOR_UNKNOWN,   -1,       "", NULL} }
+  };
+
+  int index = 0;
+  while(socFromRK[index].rk_soc != 0x0) {
+    if(socFromRK[index].rk_soc == rk_soc) {
+      fill_soc(soc, socFromRK[index].soc.soc_name, socFromRK[index].soc.soc_model, socFromRK[index].soc.process);
+      return true;
+    }
+    index++;
+  }
+
+  printErr("RK SoC was found but it does not match any known SoCs: 0x%04x", rk_soc);
+  return false;
+}
+
+struct system_on_chip* guess_soc_from_nvmem(struct system_on_chip* soc) {
+  // This method is only valid for Rockchip SoCs
+  char* rk_soc = get_rk_efuse();
+  if(rk_soc != NULL) {
+    if(rk_soc[0] == 0x52 && rk_soc[1] == 0x4b) {
+      get_rk_soc_from_efuse(soc, rk_soc);
+      return soc;
+    }
+    else {
+      printWarn("guess_soc_from_nvmem: efuse found, but contains unexpected header: 0x%x 0x%x", rk_soc[0], rk_soc[1]);
+    }
+  }
+  return soc;
+}
+
 int hex2int(char c) {
   if (c >= '0' && c <= '9')
     return c - '0';
@@ -777,6 +828,8 @@ struct system_on_chip* get_soc(void) {
       printWarn("SoC detection failed using /proc/cpuinfo: Found '%s' string", soc->raw_name);
     else
       printWarn("SoC detection failed using /proc/cpuinfo: No string found");
+    // If cpufinfo detection fails, try with nvmem
+    soc = guess_soc_from_nvmem(soc);
 #ifdef __ANDROID__
     soc = guess_soc_from_android(soc);
     if(soc->raw_name == NULL)
