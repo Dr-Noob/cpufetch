@@ -782,7 +782,9 @@ struct system_on_chip* get_soc(void) {
   }
 #endif // ifdef __linux__
 
-  if(soc->raw_name == NULL) {
+  if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) {
+    // raw_name might not be NULL, but if we were unable to find
+    // the exact SoC, just print "Unkwnown"
     soc->raw_name = emalloc(sizeof(char) * (strlen(STRING_UNKNOWN)+1));
     snprintf(soc->raw_name, strlen(STRING_UNKNOWN)+1, STRING_UNKNOWN);
   }
