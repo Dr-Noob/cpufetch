@@ -22,7 +22,8 @@ static char* soc_trademark_string[] = {
   [SOC_VENDOR_KIRIN]      = "Kirin ",
   [SOC_VENDOR_BROADCOM]   = "Broadcom BCM",
   [SOC_VENDOR_APPLE]      = "Apple ",
-  [SOC_VENDOR_ALLWINNER]  = "Allwinner "
+  [SOC_VENDOR_ALLWINNER]  = "Allwinner ",
+  [SOC_VENDOR_ROCKCHIP]   = "Rockchip ",
 };
 
 static char* soc_rpi_string[] = {

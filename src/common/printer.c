@@ -359,6 +359,8 @@ void choose_ascii_art(struct ascii* art, struct color** cs, struct terminal* ter
     art->art = &logo_apple;
   else if(art->vendor == SOC_VENDOR_ALLWINNER)
     art->art = &logo_allwinner;
+  else if(art->vendor == SOC_VENDOR_ROCKCHIP)
+    art->art = &logo_rockchip;
   else {
     art->art = choose_ascii_art_aux(&logo_arm_l, &logo_arm, term, lf);
   }
