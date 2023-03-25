@@ -674,8 +674,21 @@ bool get_rk_soc_from_efuse(struct system_on_chip* soc, char* efuse) {
 
   uint16_t rk_soc = efuse[2]*256 + efuse[3];
 
+  // https://wikimovel.com/index.php/Rockchip
   rkToSoC socFromRK[] = {
+    // TODO: Add RK2XXX
+    // RK3XXX
+    {0x2388, {SOC_ROCKCHIP_3288, SOC_VENDOR_ROCKCHIP, 28, "RK3288",  NULL} },
+    {0x2392, {SOC_ROCKCHIP_3229, SOC_VENDOR_ROCKCHIP, 28, "RK3229",  NULL} }, // https://gadgetversus.com/processor/rockchip-rk3229-vs-rockchip-rk3128/
+    {0x3380, {SOC_ROCKCHIP_3308, SOC_VENDOR_ROCKCHIP, 28, "RK3308",  NULL} }, // https://en.t-firefly.com/product/rocrk3308cc?theme=pc
+    {0x3381, {SOC_ROCKCHIP_3318, SOC_VENDOR_ROCKCHIP, 28, "RK3318",  NULL} },
+    {0x3362, {SOC_ROCKCHIP_3326, SOC_VENDOR_ROCKCHIP, 28, "RK3326",  NULL} },
+    {0x3382, {SOC_ROCKCHIP_3328, SOC_VENDOR_ROCKCHIP, 28, "RK3328",  NULL} },
+    {0x3386, {SOC_ROCKCHIP_3368, SOC_VENDOR_ROCKCHIP, 28, "RK3368",  NULL} },
     {0x3399, {SOC_ROCKCHIP_3399, SOC_VENDOR_ROCKCHIP, 28, "RK3399",  NULL} },
+    {0x5366, {SOC_ROCKCHIP_3566, SOC_VENDOR_ROCKCHIP, 22, "RK3566",  NULL} },
+    {0x5386, {SOC_ROCKCHIP_3568, SOC_VENDOR_ROCKCHIP, 22, "RK3568",  NULL} },
+    {0x5388, {SOC_ROCKCHIP_3588, SOC_VENDOR_ROCKCHIP,  8, "RK3588",  NULL} },
     // Unknown
     {0x0000, {UNKNOWN,           SOC_VENDOR_UNKNOWN,   -1,       "", NULL} }
   };
