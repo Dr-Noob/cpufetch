@@ -16,10 +16,12 @@
 #elif ARCH_PPC
   #include "../ppc/uarch.h"
   #include "../ppc/ppc.h"
-#else
+#elif ARCH_ARM
   #include "../arm/uarch.h"
   #include "../arm/midr.h"
   #include "../arm/soc.h"
+#elif ARCH_RISCV
+  #include "../riscv/riscv.h"
 #endif
 
 #ifdef _WIN32
@@ -911,6 +913,13 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
 }
 #endif
 
+#ifdef ARCH_RISCV
+bool print_cpufetch_riscv(struct cpuInfo* cpu, STYLE s, struct color** cs, struct terminal* term) {
+  printf("Unimplemented\n");
+  return true;
+}
+#endif
+
 struct terminal* get_terminal_size(void) {
   struct terminal* term = emalloc(sizeof(struct terminal));
 
@@ -948,5 +957,7 @@ bool print_cpufetch(struct cpuInfo* cpu, STYLE s, struct color** cs, bool show_f
   return print_cpufetch_ppc(cpu, s, cs, term, show_full_cpu_name);
 #elif ARCH_ARM
   return print_cpufetch_arm(cpu, s, cs, term);
+#elif ARCH_RISCV
+  return print_cpufetch_riscv(cpu, s, cs, term);
 #endif
 }

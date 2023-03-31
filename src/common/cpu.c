@@ -14,6 +14,8 @@
   #include "../ppc/uarch.h"
 #elif ARCH_ARM
   #include "../arm/uarch.h"
+#elif ARCH_RISCV
+  #include "../riscv/uarch.h"
 #endif
 
 #define STRING_YES        "Yes"

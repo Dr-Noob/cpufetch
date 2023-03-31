@@ -11,6 +11,8 @@ typedef int STYLE;
   #include "../ppc/ppc.h"
 #elif ARCH_ARM
   #include "../arm/midr.h"
+#elif ARCH_RISCV
+  #include "../riscv/riscv.h"
 #endif
 
 //                              +-----------------------------------+-----------------------+
