@@ -20,6 +20,8 @@ enum {
   CPU_VENDOR_SAMSUNG,
   CPU_VENDOR_MARVELL,
   CPU_VENDOR_PHYTIUM,
+// ARCH_RISCV
+  CPU_VENDOR_RISCV,
 // OTHERS
   CPU_VENDOR_UNKNOWN,
   CPU_VENDOR_INVALID
@@ -149,7 +151,7 @@ struct cpuInfo {
   uint32_t midr;
 #endif
 
-#ifdef ARCH_ARM
+#if defined(ARCH_ARM) || defined(ARCH_RISCV)
   struct system_on_chip* soc;
 #endif
 

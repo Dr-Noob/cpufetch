@@ -22,6 +22,8 @@
   #include "../arm/soc.h"
 #elif ARCH_RISCV
   #include "../riscv/riscv.h"
+  #include "../riscv/uarch.h"
+  #include "../riscv/soc.h"
 #endif
 
 #ifdef _WIN32
@@ -366,6 +368,8 @@ void choose_ascii_art(struct ascii* art, struct color** cs, struct terminal* ter
   else {
     art->art = choose_ascii_art_aux(&logo_arm_l, &logo_arm, term, lf);
   }
+#elif ARCH_RISCV
+  art->art = &logo_riscv;
 #endif
 
   // 2. Choose colors
@@ -431,7 +435,7 @@ uint32_t longest_field_length(struct ascii* art, int la) {
   return max;
 }
 
-#if defined(ARCH_X86) || defined(ARCH_PPC)
+#if defined(ARCH_X86) || defined(ARCH_PPC) || defined(ARCH_RISCV)
 void print_ascii_generic(struct ascii* art, uint32_t la, int32_t termw, const char** attribute_fields, bool hybrid_architecture) {
   struct ascii_logo* logo = art->art;
   int attr_to_print = 0;
@@ -915,7 +919,50 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
 
 #ifdef ARCH_RISCV
 bool print_cpufetch_riscv(struct cpuInfo* cpu, STYLE s, struct color** cs, struct terminal* term) {
-  printf("Unimplemented\n");
+  struct ascii* art = set_ascii(get_cpu_vendor(cpu), s);
+  if(art == NULL)
+    return false;
+
+  // Step 1. Retrieve attributes
+  char* uarch = get_str_uarch(cpu);
+  char* manufacturing_process = get_str_process(cpu->soc);
+  char* max_frequency = get_str_freq(cpu->freq);
+  char* n_cores = get_str_topology(cpu, cpu->topo);
+
+  /*char* l1i = get_str_l1i(cpu->cach);
+  char* l1d = get_str_l1d(cpu->cach);
+  char* l2 = get_str_l2(cpu->cach);
+  char* l3 = get_str_l3(cpu->cach);*/
+  char* pp = get_str_peak_performance(cpu->peak_performance);
+
+  // Step 2. Set attributes
+  setAttribute(art,ATTRIBUTE_UARCH,uarch);
+  setAttribute(art,ATTRIBUTE_TECHNOLOGY,manufacturing_process);
+  setAttribute(art,ATTRIBUTE_FREQUENCY,max_frequency);
+  setAttribute(art,ATTRIBUTE_NCORES, n_cores);
+  /*setAttribute(art,ATTRIBUTE_L1i,l1i);
+  setAttribute(art,ATTRIBUTE_L1d,l1d);
+  setAttribute(art,ATTRIBUTE_L2,l2);
+  if(l3 != NULL) {
+    setAttribute(art,ATTRIBUTE_L3,l3);
+  }*/
+  setAttribute(art,ATTRIBUTE_PEAK,pp);
+
+  // Step 3. Print output
+  const char** attribute_fields = ATTRIBUTE_FIELDS;
+  uint32_t longest_attribute = longest_attribute_length(art, attribute_fields);
+  uint32_t longest_field = longest_field_length(art, longest_attribute);
+  choose_ascii_art(art, cs, term, longest_field);
+
+  if(!ascii_fits_screen(term->w, *art->art, longest_field)) {
+    // Despite of choosing the smallest logo, the output does not fit
+    // Choose the shorter field names and recalculate the longest attr
+    attribute_fields = ATTRIBUTE_FIELDS_SHORT;
+    longest_attribute = longest_attribute_length(art, attribute_fields);
+  }
+
+  print_ascii_generic(art, longest_attribute, term->w, attribute_fields, false);
+
   return true;
 }
 #endif

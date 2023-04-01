@@ -246,6 +246,26 @@ $C1##.  ###.  ####. #### ###  .## #### ###  ###   #.#####    \
 $C1                                                ##        \
 $C1                                                          "
 
+#define ASCII_RISCV \
+"$C1                                                               \
+$C1                                ************                   \
+$C1                    %%%%%%%%%    ***********                   \
+$C1                    %%%%%%%%%%   **********                    \
+$C1                    %%%%%%%%%    *********                     \
+$C1                    %           ********                       \
+$C1                    %%      .*********     %                   \
+$C1                    %%%%     *******     %%%                   \
+$C1                    %%%%%%.    ****    %%%%%                   \
+$C1                    %%%%%%%%.        %%%%%%%                   \
+$C1                                                               \
+$C1                                                               \
+$C1 ###########   ##   .#########    #########   .##           ## \
+$C1 ##        ##  ##  ##           ##              ###       ###  \
+$C1 ###########   ##  ##########. ##          ####  .##     ##    \
+$C1 ##     ###    ##           ##. ##                 ### ###     \
+$C1 ##       ###  ##  ##########.   ##########          ###       \
+$C1                                                               "
+
 // --------------------- LONG LOGOS ------------------------- //
 #define ASCII_AMD_L \
 "$C1                                                              \
@@ -348,6 +368,7 @@ asciiL logo_ibm         = { ASCII_IBM,         42,  9, false, {C_FG_CYAN, C_FG_W
 asciiL logo_apple       = { ASCII_APPLE,       32, 17, false, {C_FG_WHITE},                       {C_FG_CYAN,    C_FG_B_WHITE} };
 asciiL logo_allwinner   = { ASCII_ALLWINNER,   47, 16, false, {C_FG_CYAN},                        {C_FG_B_BLACK, C_FG_B_CYAN } };
 asciiL logo_rockchip    = { ASCII_ROCKCHIP,    58,  8, false, {C_FG_CYAN, C_FG_YELLOW},           {C_FG_CYAN,    C_FG_YELLOW}  };
+asciiL logo_riscv       = { ASCII_RISCV,       63, 18, false, {C_FG_CYAN, C_FG_YELLOW},           {C_FG_CYAN,    C_FG_YELLOW}  };
 
 // Long variants          | ----------------------------------------------------------------------------------------------------|
 asciiL logo_amd_l       = { ASCII_AMD_L,       62, 19, true,  {C_BG_WHITE, C_BG_GREEN},           {C_FG_WHITE, C_FG_GREEN}     };
