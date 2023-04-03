@@ -369,7 +369,10 @@ void choose_ascii_art(struct ascii* art, struct color** cs, struct terminal* ter
     art->art = choose_ascii_art_aux(&logo_arm_l, &logo_arm, term, lf);
   }
 #elif ARCH_RISCV
-  art->art = &logo_riscv;
+  if(art->vendor == SOC_VENDOR_SIFIVE)
+    art->art = &logo_sifive;
+  else
+    art->art = &logo_riscv;
 #endif
 
   // 2. Choose colors
@@ -919,7 +922,7 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
 
 #ifdef ARCH_RISCV
 bool print_cpufetch_riscv(struct cpuInfo* cpu, STYLE s, struct color** cs, struct terminal* term) {
-  struct ascii* art = set_ascii(get_cpu_vendor(cpu), s);
+  struct ascii* art = set_ascii(get_soc_vendor(cpu->soc), s);
   if(art == NULL)
     return false;
 

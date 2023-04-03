@@ -38,7 +38,6 @@ struct cpuInfo* get_cpu_info(void) {
   cpu->hv->present = false;
   cpu->soc = get_soc();
   cpu->freq = get_frequency_info(0);
-  cpu->cpu_vendor = CPU_VENDOR_RISCV;
   cpu->peak_performance = get_peak_performance(cpu);
 
   return cpu;

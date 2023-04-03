@@ -5,6 +5,10 @@
 
 #include <string.h>
 
+VENDOR get_soc_vendor(struct system_on_chip* soc) {
+  return soc->soc_vendor;
+}
+
 char* get_str_process(struct system_on_chip* soc) {
   char* str;
 
