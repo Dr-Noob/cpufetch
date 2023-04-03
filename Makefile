@@ -43,8 +43,8 @@ ifneq ($(OS),Windows_NT)
 		endif
         else ifeq ($(arch), $(filter $(arch), riscv64 riscv32))
                 SRC_DIR=src/riscv/
-                SOURCE += $(COMMON_SRC) $(SRC_DIR)riscv.c $(SRC_DIR)uarch.c $(SRC_DIR)soc.c
-                HEADERS += $(COMMON_SRC) $(SRC_DIR)riscv.h $(SRC_DIR)uarch.h $(SRC_DIR)soc.h
+                SOURCE += $(COMMON_SRC) $(SRC_DIR)riscv.c $(SRC_DIR)uarch.c $(SRC_DIR)soc.c $(SRC_DIR)udev.c
+                HEADERS += $(COMMON_SRC) $(SRC_DIR)riscv.h $(SRC_DIR)uarch.h $(SRC_DIR)soc.h $(SRC_DIR)udev.h $(SRC_DIR)socs.h
                 CFLAGS += -DARCH_RISCV -Wno-unused-parameter -std=c99 -fstack-protector-all
 	else
 		# Error lines should not be tabulated because Makefile complains about it

@@ -46,7 +46,7 @@
 enum {
 #if defined(ARCH_X86) || defined(ARCH_PPC)
   ATTRIBUTE_NAME,
-#elif ARCH_ARM
+#elif defined(ARCH_ARM) || defined(ARCH_RISCV)
   ATTRIBUTE_SOC,
 #endif
 #if defined(ARCH_X86) || defined(ARCH_ARM)
@@ -79,7 +79,7 @@ static const char* ATTRIBUTE_FIELDS [] = {
   "Name:",
 #elif ARCH_PPC
   "Part Number:",
-#elif ARCH_ARM
+#elif defined(ARCH_ARM) || defined(ARCH_RISCV)
   "SoC:",
 #endif
 #if defined(ARCH_X86) || defined(ARCH_ARM)
@@ -926,6 +926,8 @@ bool print_cpufetch_riscv(struct cpuInfo* cpu, STYLE s, struct color** cs, struc
   // Step 1. Retrieve attributes
   char* uarch = get_str_uarch(cpu);
   char* manufacturing_process = get_str_process(cpu->soc);
+  char* soc_name = get_soc_name(cpu->soc);
+  char* features = get_str_features(cpu);
   char* max_frequency = get_str_freq(cpu->freq);
   char* n_cores = get_str_topology(cpu, cpu->topo);
 
@@ -936,10 +938,11 @@ bool print_cpufetch_riscv(struct cpuInfo* cpu, STYLE s, struct color** cs, struc
   char* pp = get_str_peak_performance(cpu->peak_performance);
 
   // Step 2. Set attributes
-  setAttribute(art,ATTRIBUTE_UARCH,uarch);
+  setAttribute(art,ATTRIBUTE_SOC,soc_name);
   setAttribute(art,ATTRIBUTE_TECHNOLOGY,manufacturing_process);
-  setAttribute(art,ATTRIBUTE_FREQUENCY,max_frequency);
+  setAttribute(art,ATTRIBUTE_UARCH,uarch);
   setAttribute(art,ATTRIBUTE_NCORES, n_cores);
+  setAttribute(art,ATTRIBUTE_FREQUENCY,max_frequency);
   /*setAttribute(art,ATTRIBUTE_L1i,l1i);
   setAttribute(art,ATTRIBUTE_L1d,l1d);
   setAttribute(art,ATTRIBUTE_L2,l2);
