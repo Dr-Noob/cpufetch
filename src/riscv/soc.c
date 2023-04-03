@@ -31,7 +31,8 @@ char* get_soc_name(struct system_on_chip* soc) {
 }
 
 static char* soc_trademark_string[] = {
-  [SOC_VENDOR_SIFIVE] = "SiFive "
+  [SOC_VENDOR_SIFIVE] = "SiFive ",
+  [SOC_VENDOR_STARFIVE] = "StarFive "
 };
 
 void fill_soc(struct system_on_chip* soc, char* soc_name, SOC soc_model, int32_t process) {
@@ -77,8 +78,19 @@ bool match_sifive(char* soc_name, struct system_on_chip* soc) {
   SOC_END
 }
 
+bool match_starfive(char* soc_name, struct system_on_chip* soc) {
+  SOC_START
+  SOC_EQ(soc_name, "jh7110#", "VisionFive 2",  SOC_STARFIVE_VF2, soc, 28) // https://blog.bitsofnetworks.org/benchmarking-risc-v-visionfive-2-vs-the-world.html
+  SOC_EQ(soc_name, "jh7110",  "VisionFive 2",  SOC_STARFIVE_VF2, soc, 28)
+  SOC_END
+}
+
 struct system_on_chip* parse_soc_from_string(struct system_on_chip* soc) {
   char* raw_name = soc->raw_name;
+
+  if(match_starfive(raw_name, soc))
+    return soc;
+
   match_sifive(raw_name, soc);
   return soc;
 }

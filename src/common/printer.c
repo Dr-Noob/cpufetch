@@ -371,6 +371,8 @@ void choose_ascii_art(struct ascii* art, struct color** cs, struct terminal* ter
 #elif ARCH_RISCV
   if(art->vendor == SOC_VENDOR_SIFIVE)
     art->art = &logo_sifive;
+  else if(art->vendor == SOC_VENDOR_STARFIVE)
+    art->art = &logo_starfive;
   else
     art->art = &logo_riscv;
 #endif

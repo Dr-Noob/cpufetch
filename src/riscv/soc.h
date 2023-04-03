@@ -8,7 +8,8 @@ typedef int32_t SOC;
 
 enum {
   SOC_VENDOR_UNKNOWN,
-  SOC_VENDOR_SIFIVE
+  SOC_VENDOR_SIFIVE,
+  SOC_VENDOR_STARFIVE
 };
 
 struct system_on_chip {
