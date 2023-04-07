@@ -32,7 +32,8 @@ char* get_soc_name(struct system_on_chip* soc) {
 
 static char* soc_trademark_string[] = {
   [SOC_VENDOR_SIFIVE] = "SiFive ",
-  [SOC_VENDOR_STARFIVE] = "StarFive "
+  [SOC_VENDOR_STARFIVE] = "StarFive ",
+  [SOC_VENDOR_ALLWINNER]  = "Allwinner "
 };
 
 void fill_soc(struct system_on_chip* soc, char* soc_name, SOC soc_model, int32_t process) {
@@ -85,10 +86,19 @@ bool match_starfive(char* soc_name, struct system_on_chip* soc) {
   SOC_END
 }
 
+bool match_allwinner(char* soc_name, struct system_on_chip* soc) {
+  SOC_START
+  SOC_EQ(soc_name, "sun20i-d1", "D1-H", SOC_ALLWINNER_D1H, soc, 22)
+  SOC_END
+}
+
 struct system_on_chip* parse_soc_from_string(struct system_on_chip* soc) {
   char* raw_name = soc->raw_name;
 
   if(match_starfive(raw_name, soc))
+    return soc;
+
+  if(match_allwinner(raw_name, soc))
     return soc;
 
   match_sifive(raw_name, soc);
