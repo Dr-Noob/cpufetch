@@ -6,5 +6,6 @@
 #define UNKNOWN -1
 
 char* get_hardware_from_devtree(void);
+char* get_uarch_from_cpuinfo(void);
 
 #endif
