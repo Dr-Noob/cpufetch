@@ -44,6 +44,7 @@ void print_help(char *argv[]) {
   printf("  * \"amd\":       Use AMD default color scheme \n");
   printf("  * \"ibm\",       Use IBM default color scheme \n");
   printf("  * \"arm\":       Use ARM default color scheme \n");
+  printf("  * \"sifive\":    Use SiFive default color scheme \n");
   printf("  * custom:      If the argument of --color does not match any of the previous strings, a custom scheme can be specified.\n");
   printf("                 5 colors must be given in RGB with the format: R,G,B:R,G,B:...\n");
   printf("                 The first 3 colors are the CPU art color and the next 2 colors are the text colors\n");
