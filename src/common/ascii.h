@@ -267,6 +267,25 @@ $C1 ##       ###  ##  ##########.   ##########          ###       \
 $C1                                                               "
 
 #define ASCII_SIFIVE \
+"$C1         ########################            \
+$C1        ############################         \
+$C1       ####                      ####        \
+$C1      ####                        ####       \
+$C1     ####                          ####      \
+$C1    ####       #########################     \
+$C1   ####       ###########################    \
+$C1  ####                                ####   \
+$C1 ####                                  ####  \
+$C1###############################         #### \
+$C1#############################           #### \
+$C1 ######            ######            ######  \
+$C1     #####           ##           #####      \
+$C1        ######                ######         \
+$C1            #####          #####             \
+$C1               ######  ######                \
+$C1                   ######                    "
+
+#define ASCII_SIFIVE_L \
 "$C1            ###########################            \
 $C1          ###############################          \
 $C1         ####                         ####         \
@@ -288,6 +307,25 @@ $C1                    ###########                    \
 $C1                        ###                        "
 
 #define ASCII_STARFIVE \
+"$C1                   #             \
+$C1               ##########        \
+$C1          ########   ########    \
+$C1     ########              ####  \
+$C1  #######           ####         \
+$C1 ####                #######     \
+$C1 ####        #####       ####### \
+$C1  #######      ########      .## \
+$C1      ########      ########     \
+$C1 ###      ########.     #######  \
+$C1 #######       #####        #### \
+$C1     ########      #.       #### \
+$C1  #      ####           #######  \
+$C1  #####             #######      \
+$C1    ########   ########          \
+$C1         #########               \
+$C1             #                   "
+
+#define ASCII_STARFIVE_L \
 "$C1                          #######                 \
 $C1                     ################.            \
 $C1                ############   ###########        \
@@ -415,8 +453,8 @@ asciiL logo_apple       = { ASCII_APPLE,       32, 17, false, {C_FG_WHITE},     
 asciiL logo_allwinner   = { ASCII_ALLWINNER,   47, 16, false, {C_FG_CYAN},                        {C_FG_B_BLACK, C_FG_B_CYAN } };
 asciiL logo_rockchip    = { ASCII_ROCKCHIP,    58,  8, false, {C_FG_CYAN, C_FG_YELLOW},           {C_FG_CYAN,    C_FG_YELLOW}  };
 asciiL logo_riscv       = { ASCII_RISCV,       63, 18, false, {C_FG_CYAN, C_FG_YELLOW},           {C_FG_CYAN,    C_FG_YELLOW}  };
-asciiL logo_sifive      = { ASCII_SIFIVE,      51, 19, false, {C_FG_WHITE},                       {C_FG_WHITE,   C_FG_CYAN}    };
-asciiL logo_starfive    = { ASCII_STARFIVE,    50, 24, false, {C_FG_WHITE},                       {C_FG_WHITE,   C_FG_BLUE}    };
+asciiL logo_sifive      = { ASCII_SIFIVE,      45, 17, false, {C_FG_WHITE},                       {C_FG_WHITE,   C_FG_CYAN}    };
+asciiL logo_starfive    = { ASCII_STARFIVE,    33, 17, false, {C_FG_WHITE},                       {C_FG_WHITE,   C_FG_BLUE}    };
 
 // Long variants          | ----------------------------------------------------------------------------------------------------|
 asciiL logo_amd_l       = { ASCII_AMD_L,       62, 19, true,  {C_BG_WHITE, C_BG_GREEN},           {C_FG_WHITE, C_FG_GREEN}     };
@@ -424,6 +462,8 @@ asciiL logo_intel_l     = { ASCII_INTEL_L,     62, 19, true,  {C_BG_CYAN, C_BG_W
 asciiL logo_intel_l_new = { ASCII_INTEL_L_NEW, 57, 14, true,  {C_BG_CYAN, C_BG_WHITE, C_BG_BLUE}, {C_FG_CYAN,  C_FG_WHITE}     };
 asciiL logo_arm_l       = { ASCII_ARM_L,       60,  8, true,  {C_BG_CYAN},                        {C_FG_WHITE, C_FG_CYAN}      };
 asciiL logo_ibm_l       = { ASCII_IBM_L,       62, 13, true,  {C_BG_CYAN, C_FG_WHITE},            {C_FG_CYAN,  C_FG_WHITE}     };
+asciiL logo_starfive_l  = { ASCII_STARFIVE_L,  50, 22, false, {C_FG_WHITE},                       {C_FG_WHITE,   C_FG_BLUE}    };
+asciiL logo_sifive_l    = { ASCII_SIFIVE_L,    51, 19, false, {C_FG_WHITE},                       {C_FG_WHITE,   C_FG_CYAN}    };
 asciiL logo_unknown     = { NULL,               0,  0, false, {COLOR_NONE},                       {COLOR_NONE, COLOR_NONE}     };
 
 #endif

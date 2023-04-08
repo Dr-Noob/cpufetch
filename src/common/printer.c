@@ -370,9 +370,9 @@ void choose_ascii_art(struct ascii* art, struct color** cs, struct terminal* ter
   }
 #elif ARCH_RISCV
   if(art->vendor == SOC_VENDOR_SIFIVE)
-    art->art = &logo_sifive;
+    art->art = choose_ascii_art_aux(&logo_sifive_l, &logo_sifive, term, lf);
   else if(art->vendor == SOC_VENDOR_STARFIVE)
-    art->art = &logo_starfive;
+    art->art = choose_ascii_art_aux(&logo_starfive_l, &logo_starfive, term, lf);
   else if(art->vendor == SOC_VENDOR_ALLWINNER)
     art->art = &logo_allwinner;
   else
