@@ -7,6 +7,7 @@
 #define _PATH_CPUINFO          "/proc/cpuinfo"
 #define _PATH_DEVTREE          "/proc/device-tree/compatible"
 #define CPUINFO_UARCH_STR      "uarch\t\t: "
+#define CPUINFO_EXTENSIONS_STR "isa\t\t: "
 #define DEVTREE_HARDWARE_FIELD 0
 
 char* get_field_from_devtree(int DEVTREE_FIELD) {
@@ -84,3 +85,8 @@ char* get_hardware_from_devtree(void) {
 char* get_uarch_from_cpuinfo(void) {
   return parse_cpuinfo_field(CPUINFO_UARCH_STR);
 }
+
+char* get_extensions_from_cpuinfo() {
+  return parse_cpuinfo_field(CPUINFO_EXTENSIONS_STR);
+}
+
