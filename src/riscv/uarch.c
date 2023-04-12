@@ -16,7 +16,11 @@ struct uarch {
 enum {
   UARCH_UNKNOWN,
   // SIFIVE
-  UARCH_U74MC
+  UARCH_U54,
+  UARCH_U74,
+  // THEAD
+  UARCH_C906,
+  UARCH_C910
 };
 
 #define UARCH_START if (false) {}
@@ -31,6 +35,9 @@ void fill_uarch(struct uarch* arch, struct cpuInfo* cpu, char* str, MICROARCH u,
   strcpy(arch->uarch_str, str);
 }
 
+// https://elixir.bootlin.com/linux/latest/source/Documentation/devicetree/bindings/riscv/cpus.yaml
+// SiFive: https://www.sifive.com/risc-v-core-ip
+// T-Head: https://www.t-head.cn/product/c906
 struct uarch* get_uarch_from_cpuinfo_str(char* cpuinfo_str, struct cpuInfo* cpu) {
   struct uarch* arch = emalloc(sizeof(struct uarch));
   if(cpuinfo_str == NULL) {
@@ -39,8 +46,23 @@ struct uarch* get_uarch_from_cpuinfo_str(char* cpuinfo_str, struct cpuInfo* cpu)
     return arch;
   }
 
+  // U74/U74-MC:
+  // SiFive says that U74-MC is "Multicore: four U74 cores and one S76 core" while
+  // U74 is "High performance Linux-capable processor". It's like U74-MC is somehow a small SoC containing
+  // the U74 and the S76? Then U74-MC is not a microarchitecture per se...
   UARCH_START
-  CHECK_UARCH(arch, cpu, cpuinfo_str, "sifive,u74-mc", "U74-MC", UARCH_U74MC, CPU_VENDOR_SIFIVE)
+  CHECK_UARCH(arch, cpu, cpuinfo_str, "sifive,bullet0", "U74",         UARCH_U74, CPU_VENDOR_SIFIVE) // bullet0 is present in U740, which has U74
+  // CHECK_UARCH(arch, cpu, cpuinfo_str, "sifive,e5",      "XXXXXX",      UARCH_U74, CPU_VENDOR_SIFIVE)
+  // CHECK_UARCH(arch, cpu, cpuinfo_str, "sifive,e7",      "XXXXXX",      UARCH_U74, CPU_VENDOR_SIFIVE)
+  // CHECK_UARCH(arch, cpu, cpuinfo_str, "sifive,e71",     "XXXXXX",      UARCH_U74, CPU_VENDOR_SIFIVE)
+  // CHECK_UARCH(arch, cpu, cpuinfo_str, "sifive,rocket0", "XXXXXX",      UARCH_U74, CPU_VENDOR_SIFIVE)
+  // CHECK_UARCH(arch, cpu, cpuinfo_str, "sifive,u5",      "XXXXXX",      UARCH_U74, CPU_VENDOR_SIFIVE)
+  CHECK_UARCH(arch, cpu, cpuinfo_str, "sifive,u54",     "U54",         UARCH_U54,  CPU_VENDOR_SIFIVE)
+  // CHECK_UARCH(arch, cpu, cpuinfo_str, "sifive,u7",      "XXXXXX",      UARCH_U74, CPU_VENDOR_SIFIVE)
+  CHECK_UARCH(arch, cpu, cpuinfo_str, "sifive,u74",     "U74",         UARCH_U74,  CPU_VENDOR_SIFIVE)
+  CHECK_UARCH(arch, cpu, cpuinfo_str, "sifive,u74-mc",  "U74",         UARCH_U74,  CPU_VENDOR_SIFIVE)
+  CHECK_UARCH(arch, cpu, cpuinfo_str, "thead,c906",     "T-Head C906", UARCH_C906, CPU_VENDOR_THEAD)
+  CHECK_UARCH(arch, cpu, cpuinfo_str, "thead,c910",     "T-Head C910", UARCH_C910, CPU_VENDOR_THEAD)
   UARCH_END
 
   return arch;

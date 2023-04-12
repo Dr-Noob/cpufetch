@@ -56,7 +56,7 @@ char* get_str_topology(struct cpuInfo* cpu, struct topology* topo) {
   return string;
 }
 
-char* get_str_features(struct cpuInfo* cpu) {
+char* get_str_extensions(struct cpuInfo* cpu) {
   return NULL;
 }
 

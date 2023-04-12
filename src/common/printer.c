@@ -934,7 +934,7 @@ bool print_cpufetch_riscv(struct cpuInfo* cpu, STYLE s, struct color** cs, struc
   char* uarch = get_str_uarch(cpu);
   char* manufacturing_process = get_str_process(cpu->soc);
   char* soc_name = get_soc_name(cpu->soc);
-  char* features = get_str_features(cpu);
+  char* extensions = get_str_extensions(cpu);
   char* max_frequency = get_str_freq(cpu->freq);
   char* n_cores = get_str_topology(cpu, cpu->topo);
 
