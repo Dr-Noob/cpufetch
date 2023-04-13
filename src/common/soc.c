@@ -54,10 +54,23 @@ void fill_soc(struct system_on_chip* soc, char* soc_name, SOC soc_model, int32_t
   soc->soc_model = soc_model;
   soc->soc_vendor = get_soc_vendor_from_soc(soc_model);
   soc->process = process;
-  int len = strlen(soc_name) + strlen(soc_trademark_string[soc->soc_vendor]) + 1;
-  soc->soc_name = emalloc(sizeof(char) * len);
-  memset(soc->soc_name, 0, sizeof(char) * len);
-  sprintf(soc->soc_name, "%s%s", soc_trademark_string[soc->soc_vendor], soc_name);
+  if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) {
+    printBug("fill_soc: soc->soc_vendor == SOC_VENDOR_UNKOWN");
+    // If we fall here there is a bug in socs.h
+    // Reset everything to avoid segfault
+    soc->soc_vendor = SOC_VENDOR_UNKNOWN;
+    soc->soc_model = SOC_MODEL_UNKNOWN;
+    soc->process = UNKNOWN;
+    soc->raw_name = emalloc(sizeof(char) * (strlen(STRING_UNKNOWN)+1));
+    snprintf(soc->raw_name, strlen(STRING_UNKNOWN)+1, STRING_UNKNOWN);
+  }
+  else {
+    soc->process = process;
+    int len = strlen(soc_name) + strlen(soc_trademark_string[soc->soc_vendor]) + 1;
+    soc->soc_name = emalloc(sizeof(char) * len);
+    memset(soc->soc_name, 0, sizeof(char) * len);
+    sprintf(soc->soc_name, "%s%s", soc_trademark_string[soc->soc_vendor], soc_name);
+  }
 }
 
 bool match_soc(struct system_on_chip* soc, char* raw_name, char* expected_name, char* soc_name, SOC soc_model, int32_t process) {
