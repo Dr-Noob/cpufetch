@@ -677,11 +677,11 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
 
   // Step 2. Set attributes
   if(cpu_name != NULL) {
-    setAttribute(art,ATTRIBUTE_NAME,cpu_name);
+    setAttribute(art, ATTRIBUTE_NAME, cpu_name);
   }
-  setAttribute(art,ATTRIBUTE_UARCH,uarch);
-  setAttribute(art,ATTRIBUTE_TECHNOLOGY,manufacturing_process);
-  setAttribute(art,ATTRIBUTE_FREQUENCY,max_frequency);
+  setAttribute(art, ATTRIBUTE_UARCH, uarch);
+  setAttribute(art, ATTRIBUTE_TECHNOLOGY, manufacturing_process);
+  setAttribute(art, ATTRIBUTE_FREQUENCY, max_frequency);
   uint32_t socket_num = get_nsockets(cpu->topo);
   if (socket_num > 1) {
     setAttribute(art, ATTRIBUTE_SOCKETS, sockets);
@@ -689,16 +689,16 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
     setAttribute(art, ATTRIBUTE_NCORES_DUAL, n_cores_dual);
   }
   else {
-    setAttribute(art,ATTRIBUTE_NCORES, n_cores);
+    setAttribute(art, ATTRIBUTE_NCORES, n_cores);
   }
-  setAttribute(art,ATTRIBUTE_ALTIVEC, altivec);
-  setAttribute(art,ATTRIBUTE_L1i,l1i);
-  setAttribute(art,ATTRIBUTE_L1d,l1d);
-  setAttribute(art,ATTRIBUTE_L2,l2);
+  setAttribute(art, ATTRIBUTE_ALTIVEC, altivec);
+  setAttribute(art, ATTRIBUTE_L1i, l1i);
+  setAttribute(art, ATTRIBUTE_L1d, l1d);
+  setAttribute(art, ATTRIBUTE_L2, l2);
   if(l3 != NULL) {
-    setAttribute(art,ATTRIBUTE_L3,l3);
+    setAttribute(art, ATTRIBUTE_L3, l3);
   }
-  setAttribute(art,ATTRIBUTE_PEAK,pp);
+  setAttribute(art, ATTRIBUTE_PEAK, pp);
 
   // Step 3. Print output
   const char** attribute_fields = ATTRIBUTE_FIELDS;
@@ -839,26 +839,17 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
   char* manufacturing_process = get_str_process(cpu->soc);
   char* soc_name = get_soc_name(cpu->soc);
   char* features = get_str_features(cpu);
-  setAttribute(art,ATTRIBUTE_SOC,soc_name);
-  setAttribute(art,ATTRIBUTE_TECHNOLOGY,manufacturing_process);
+  setAttribute(art, ATTRIBUTE_SOC, soc_name);
+  setAttribute(art, ATTRIBUTE_TECHNOLOGY, manufacturing_process);
 
   if(cpu->num_cpus == 1) {
     char* uarch = get_str_uarch(cpu);
     char* max_frequency = get_str_freq(cpu->freq);
     char* n_cores = get_str_topology(cpu, cpu->topo, false);
-    /*
-     * char* l1i = get_str_l1i(cpu->cach);
-     * char* l1d = get_str_l1d(cpu->cach);
-     * char* l2 = get_str_l2(cpu->cach);
-     * char* l3 = get_str_l3(cpu->cach);
-     * Do not setAttribute for caches.
-     * Cache functionality may be implemented
-     * in the future
-    */
 
-    setAttribute(art,ATTRIBUTE_UARCH,uarch);
-    setAttribute(art,ATTRIBUTE_FREQUENCY,max_frequency);
-    setAttribute(art,ATTRIBUTE_NCORES,n_cores);
+    setAttribute(art, ATTRIBUTE_UARCH, uarch);
+    setAttribute(art, ATTRIBUTE_FREQUENCY, max_frequency);
+    setAttribute(art, ATTRIBUTE_NCORES, n_cores);
     if(features != NULL) {
       setAttribute(art, ATTRIBUTE_FEATURES, features);
     }
@@ -869,17 +860,8 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
       char* uarch = get_str_uarch(ptr);
       char* max_frequency = get_str_freq(ptr->freq);
       char* n_cores = get_str_topology(ptr, ptr->topo, false);
-      /*
-       * char* l1i = get_str_l1i(cpu->cach);
-       * char* l1d = get_str_l1d(cpu->cach);
-       * char* l2 = get_str_l2(cpu->cach);
-       * char* l3 = get_str_l3(cpu->cach);
-       * Do not setAttribute for caches.
-       * Cache functionality may be implemented
-       * in the future
-       */
-
       char* cpu_num = emalloc(sizeof(char) * 9);
+
       sprintf(cpu_num, "CPU %d:", i+1);
       setAttribute(art, ATTRIBUTE_CPU_NUM, cpu_num);
       setAttribute(art, ATTRIBUTE_UARCH, uarch);
@@ -891,7 +873,7 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
     }
   }
   char* pp = get_str_peak_performance(cpu->peak_performance);
-  setAttribute(art,ATTRIBUTE_PEAK,pp);
+  setAttribute(art, ATTRIBUTE_PEAK, pp);
   if(cpu->hv->present) {
     setAttribute(art, ATTRIBUTE_HYPERVISOR, cpu->hv->hv_name);
   }
@@ -1035,29 +1017,18 @@ bool print_cpufetch_riscv(struct cpuInfo* cpu, STYLE s, struct color** cs, struc
   char* extensions = get_str_extensions(cpu);
   char* max_frequency = get_str_freq(cpu->freq);
   char* n_cores = get_str_topology(cpu, cpu->topo);
-
-  /*char* l1i = get_str_l1i(cpu->cach);
-  char* l1d = get_str_l1d(cpu->cach);
-  char* l2 = get_str_l2(cpu->cach);
-  char* l3 = get_str_l3(cpu->cach);*/
   char* pp = get_str_peak_performance(cpu->peak_performance);
 
   // Step 2. Set attributes
-  setAttribute(art,ATTRIBUTE_SOC,soc_name);
-  setAttribute(art,ATTRIBUTE_TECHNOLOGY,manufacturing_process);
-  setAttribute(art,ATTRIBUTE_UARCH,uarch);
-  setAttribute(art,ATTRIBUTE_NCORES, n_cores);
-  setAttribute(art,ATTRIBUTE_FREQUENCY,max_frequency);
+  setAttribute(art, ATTRIBUTE_SOC, soc_name);
+  setAttribute(art, ATTRIBUTE_TECHNOLOGY, manufacturing_process);
+  setAttribute(art, ATTRIBUTE_UARCH, uarch);
+  setAttribute(art, ATTRIBUTE_NCORES, n_cores);
+  setAttribute(art, ATTRIBUTE_FREQUENCY, max_frequency);
   if(extensions != NULL) {
-    setAttribute(art,ATTRIBUTE_EXTENSIONS,extensions);
+    setAttribute(art, ATTRIBUTE_EXTENSIONS, extensions);
   }
-  /*setAttribute(art,ATTRIBUTE_L1i,l1i);
-  setAttribute(art,ATTRIBUTE_L1d,l1d);
-  setAttribute(art,ATTRIBUTE_L2,l2);
-  if(l3 != NULL) {
-    setAttribute(art,ATTRIBUTE_L3,l3);
-  }*/
-  setAttribute(art,ATTRIBUTE_PEAK,pp);
+  setAttribute(art, ATTRIBUTE_PEAK, pp);
 
   // Step 3. Print output
   const char** attribute_fields = ATTRIBUTE_FIELDS;

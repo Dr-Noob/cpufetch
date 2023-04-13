@@ -40,11 +40,13 @@ void print_help(char *argv[]) {
   printf("  -%c, --%s %*s Print cpufetch version and exit\n", c[ARG_VERSION], t[ARG_VERSION], (int) (max_len-strlen(t[ARG_VERSION])), "");
 
   printf("\nCOLORS: \n");
-  printf("  * \"intel\":     Use Intel default color scheme \n");
-  printf("  * \"amd\":       Use AMD default color scheme \n");
-  printf("  * \"ibm\",       Use IBM default color scheme \n");
-  printf("  * \"arm\":       Use ARM default color scheme \n");
-  printf("  * \"sifive\":    Use SiFive default color scheme \n");
+  printf("  * \"intel\":     Use Intel color scheme \n");
+  printf("  * \"intel-new\": Use Intel (new logo) color scheme \n");
+  printf("  * \"amd\":       Use AMD color scheme \n");
+  printf("  * \"ibm\",       Use IBM color scheme \n");
+  printf("  * \"arm\":       Use ARM color scheme \n");
+  printf("  * \"rockchip\":  Use ARM color scheme \n");
+  printf("  * \"sifive\":    Use SiFive color scheme \n");
   printf("  * custom:      If the argument of --color does not match any of the previous strings, a custom scheme can be specified.\n");
   printf("                 5 colors must be given in RGB with the format: R,G,B:R,G,B:...\n");
   printf("                 The first 3 colors are the CPU art color and the next 2 colors are the text colors\n");
@@ -74,8 +76,10 @@ void print_help(char *argv[]) {
   printf("\nNOTE: \n");
   printf("    Peak performance information is NOT accurate. cpufetch computes peak performance using the max\n");
   printf("    frequency of the CPU. However, to compute the peak performance, you need to know the frequency of the\n");
-  printf("    CPU running AVX code. This value is not be fetched by cpufetch since it depends on each specific CPU.\n");
-  printf("    To correctly measure peak performance, see: https://github.com/Dr-Noob/peakperf\n");
+  printf("    CPU running AVX code. By default, this value is not fetched by cpufetch, but you can use the\n");
+  printf("    --accurate-pp option, which will measure the AVX frequency and show a more precise estimation\n");
+  printf("    (this option is only available in x86 architectures).\n");
+  printf("    To precisely measure peak performance, see: https://github.com/Dr-Noob/peakperf\n");
 }
 
 int main(int argc, char* argv[]) {
@@ -116,8 +120,10 @@ int main(int argc, char* argv[]) {
   #endif
   }
 
-  if(print_cpufetch(cpu, get_style(), get_colors(), show_full_cpu_name()))
+  if(print_cpufetch(cpu, get_style(), get_colors(), show_full_cpu_name())) {
     return EXIT_SUCCESS;
-  else
+  }
+  else {
     return EXIT_FAILURE;
+  }
 }
