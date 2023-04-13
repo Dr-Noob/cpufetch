@@ -20,6 +20,10 @@ enum {
   CPU_VENDOR_SAMSUNG,
   CPU_VENDOR_MARVELL,
   CPU_VENDOR_PHYTIUM,
+// ARCH_RISCV
+  CPU_VENDOR_RISCV,
+  CPU_VENDOR_SIFIVE,
+  CPU_VENDOR_THEAD,
 // OTHERS
   CPU_VENDOR_UNKNOWN,
   CPU_VENDOR_INVALID
@@ -116,15 +120,27 @@ struct features {
 #endif  
 };
 
+struct extensions {
+  char* str;
+  uint32_t mask;
+};
+
 struct cpuInfo {
-  VENDOR cpu_vendor;  
+  VENDOR cpu_vendor;
   struct uarch* arch;
   struct hypervisor* hv;
   struct frequency* freq;
   struct cache* cach;
   struct topology* topo;
-  struct features* feat;
   int64_t peak_performance;
+
+  // Similar but not exactly equal
+  // to struct features
+#ifdef ARCH_RISCV
+  struct extensions* ext;
+#else
+  struct features* feat;
+#endif
 
 #if defined(ARCH_X86) || defined(ARCH_PPC)
   // CPU name from model
@@ -149,7 +165,7 @@ struct cpuInfo {
   uint32_t midr;
 #endif
 
-#ifdef ARCH_ARM
+#if defined(ARCH_ARM) || defined(ARCH_RISCV)
   struct system_on_chip* soc;
 #endif
 

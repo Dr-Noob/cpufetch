@@ -16,10 +16,14 @@
 #elif ARCH_PPC
   #include "../ppc/uarch.h"
   #include "../ppc/ppc.h"
-#else
+#elif ARCH_ARM
   #include "../arm/uarch.h"
   #include "../arm/midr.h"
   #include "../arm/soc.h"
+#elif ARCH_RISCV
+  #include "../riscv/riscv.h"
+  #include "../riscv/uarch.h"
+  #include "../riscv/soc.h"
 #endif
 
 #ifdef _WIN32
@@ -42,7 +46,7 @@
 enum {
 #if defined(ARCH_X86) || defined(ARCH_PPC)
   ATTRIBUTE_NAME,
-#elif ARCH_ARM
+#elif defined(ARCH_ARM) || defined(ARCH_RISCV)
   ATTRIBUTE_SOC,
 #endif
 #if defined(ARCH_X86) || defined(ARCH_ARM)
@@ -62,6 +66,8 @@ enum {
   ATTRIBUTE_ALTIVEC,
 #elif ARCH_ARM
   ATTRIBUTE_FEATURES,
+#elif ARCH_RISCV
+  ATTRIBUTE_EXTENSIONS,
 #endif
   ATTRIBUTE_L1i,
   ATTRIBUTE_L1d,
@@ -75,7 +81,7 @@ static const char* ATTRIBUTE_FIELDS [] = {
   "Name:",
 #elif ARCH_PPC
   "Part Number:",
-#elif ARCH_ARM
+#elif defined(ARCH_ARM) || defined(ARCH_RISCV)
   "SoC:",
 #endif
 #if defined(ARCH_X86) || defined(ARCH_ARM)
@@ -95,6 +101,8 @@ static const char* ATTRIBUTE_FIELDS [] = {
   "Altivec: ",
 #elif defined(ARCH_ARM)
   "Features: ",
+#elif defined(ARCH_RISCV)
+  "Extensions: ",
 #endif
   "L1i Size:",
   "L1d Size:",
@@ -128,6 +136,8 @@ static const char* ATTRIBUTE_FIELDS_SHORT [] = {
   "Altivec: ",
 #elif defined(ARCH_ARM)
   "Features: ",
+#elif defined(ARCH_RISCV)
+  "Extensions: ",
 #endif
   "L1i Size:",
   "L1d Size:",
@@ -364,6 +374,15 @@ void choose_ascii_art(struct ascii* art, struct color** cs, struct terminal* ter
   else {
     art->art = choose_ascii_art_aux(&logo_arm_l, &logo_arm, term, lf);
   }
+#elif ARCH_RISCV
+  if(art->vendor == SOC_VENDOR_SIFIVE)
+    art->art = choose_ascii_art_aux(&logo_sifive_l, &logo_sifive, term, lf);
+  else if(art->vendor == SOC_VENDOR_STARFIVE)
+    art->art = choose_ascii_art_aux(&logo_starfive_l, &logo_starfive, term, lf);
+  else if(art->vendor == SOC_VENDOR_ALLWINNER)
+    art->art = &logo_allwinner;
+  else
+    art->art = &logo_riscv;
 #endif
 
   // 2. Choose colors
@@ -911,6 +930,154 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
 }
 #endif
 
+#ifdef ARCH_RISCV
+// https://stackoverflow.com/questions/109023/count-the-number-of-set-bits-in-a-32-bit-integer
+int number_of_bits(uint32_t i) {
+  i = i - ((i >> 1) & 0x55555555);                 // add pairs of bits
+  i = (i & 0x33333333) + ((i >> 2) & 0x33333333);  // quads
+  i = (i + (i >> 4)) & 0x0F0F0F0F;                 // groups of 8
+
+  return (i * 0x01010101) >> 24;                   // horizontal sum of bytes
+}
+
+void print_ascii_riscv(struct ascii* art, uint32_t la, int32_t termw, const char** attribute_fields, uint32_t extensions_mask) {
+  struct ascii_logo* logo = art->art;
+  int attr_to_print = 0;
+  int attr_type;
+  char* attr_value;
+  int32_t beg_space;
+  int32_t space_right;
+  int32_t ext_list_size = sizeof(extension_list)/sizeof(extension_list[0]);
+  int32_t ext_num = 0;
+  int32_t ext_to_print = 0;
+  int32_t num_extensions = number_of_bits(extensions_mask);
+  int32_t space_up = ((int)logo->height - (int)(art->n_attributes_set + num_extensions))/2;
+  int32_t space_down = (int)logo->height - (int)(art->n_attributes_set + num_extensions) - (int)space_up;
+  uint32_t logo_pos = 0;
+  int32_t iters = max(logo->height, art->n_attributes_set);
+
+  struct line_buffer* lbuf = emalloc(sizeof(struct line_buffer));
+  lbuf->buf = emalloc(sizeof(char) * LINE_BUFFER_SIZE);
+  lbuf->pos = 0;
+  lbuf->chars = 0;
+
+  printf("\n");
+  for(int32_t n=0; n < iters; n++) {
+    // 1. Print logo
+    if(space_up > 0 || (space_up + n >= 0 && space_up + n < (int)logo->height)) {
+      for(uint32_t i=0; i < logo->width; i++) {
+        if(logo->art[logo_pos] == '$') {
+          if(logo->replace_blocks) logo_pos += 3;
+          else parse_print_color(art, lbuf, &logo_pos);
+        }
+        if(logo->replace_blocks && logo->art[logo_pos] != ' ') {
+          if(logo->art[logo_pos] == '#') printOut(lbuf, 1, "%s%c%s", logo->color_ascii[0], ' ', art->reset);
+          else if(logo->art[logo_pos] == '@') printOut(lbuf, 1, "%s%c%s", logo->color_ascii[1], ' ', art->reset);
+          else if(logo->art[logo_pos] == '%') printOut(lbuf, 1, "%s%c%s", logo->color_ascii[2], ' ', art->reset);
+          else printOut(lbuf, 1, "%c", logo->art[logo_pos]);
+        }
+        else
+          printOut(lbuf, 1, "%c", logo->art[logo_pos]);
+
+        logo_pos++;
+      }
+      printOut(lbuf, 0, "%s", art->reset);
+    }
+    else {
+      // If logo should not be printed, fill with spaces
+      printOut(lbuf, logo->width, "%*c", logo->width, ' ');
+    }
+
+    // 2. Print text
+    if(space_up < 0 || (n > space_up-1 && n < (int)logo->height - space_down)) {
+      attr_type = art->attributes[attr_to_print]->type;
+      attr_value = art->attributes[attr_to_print]->value;
+
+      // Print extension
+      if(attr_to_print > 0 && art->attributes[attr_to_print-1]->type == ATTRIBUTE_EXTENSIONS && ext_num != num_extensions) {
+        // Search for the extension to print
+        while(ext_to_print < ext_list_size && !((extensions_mask >> extension_list[ext_to_print].id) & 1U)) ext_to_print++;
+        if(ext_to_print == ext_list_size) {
+          printBug("print_ascii_riscv: Unable to find the extension to print");
+        }
+
+        printOut(lbuf, 3 + strlen(extension_list[ext_to_print].str), "%s - %s%s", logo->color_text[0], extension_list[ext_to_print].str, art->reset);
+        ext_num++;
+        ext_to_print++;
+      }
+      else {
+        attr_to_print++;
+        beg_space = 0;
+        space_right = 2 + 1 + (la - strlen(attribute_fields[attr_type]));
+
+        printOut(lbuf, beg_space + strlen(attribute_fields[attr_type]) + space_right + strlen(attr_value),
+                 "%*s%s%s%s%*s%s%s%s", beg_space, "", logo->color_text[0], attribute_fields[attr_type], art->reset, space_right, "", logo->color_text[1], attr_value, art->reset);
+      }
+    }
+    printOutLine(lbuf, art, termw);
+    printf("\n");
+  }
+  printf("\n");
+
+  free(lbuf->buf);
+  free(lbuf);
+}
+
+bool print_cpufetch_riscv(struct cpuInfo* cpu, STYLE s, struct color** cs, struct terminal* term) {
+  struct ascii* art = set_ascii(get_soc_vendor(cpu->soc), s);
+  if(art == NULL)
+    return false;
+
+  // Step 1. Retrieve attributes
+  char* uarch = get_str_uarch(cpu);
+  char* manufacturing_process = get_str_process(cpu->soc);
+  char* soc_name = get_soc_name(cpu->soc);
+  char* extensions = get_str_extensions(cpu);
+  char* max_frequency = get_str_freq(cpu->freq);
+  char* n_cores = get_str_topology(cpu, cpu->topo);
+
+  /*char* l1i = get_str_l1i(cpu->cach);
+  char* l1d = get_str_l1d(cpu->cach);
+  char* l2 = get_str_l2(cpu->cach);
+  char* l3 = get_str_l3(cpu->cach);*/
+  char* pp = get_str_peak_performance(cpu->peak_performance);
+
+  // Step 2. Set attributes
+  setAttribute(art,ATTRIBUTE_SOC,soc_name);
+  setAttribute(art,ATTRIBUTE_TECHNOLOGY,manufacturing_process);
+  setAttribute(art,ATTRIBUTE_UARCH,uarch);
+  setAttribute(art,ATTRIBUTE_NCORES, n_cores);
+  setAttribute(art,ATTRIBUTE_FREQUENCY,max_frequency);
+  if(extensions != NULL) {
+    setAttribute(art,ATTRIBUTE_EXTENSIONS,extensions);
+  }
+  /*setAttribute(art,ATTRIBUTE_L1i,l1i);
+  setAttribute(art,ATTRIBUTE_L1d,l1d);
+  setAttribute(art,ATTRIBUTE_L2,l2);
+  if(l3 != NULL) {
+    setAttribute(art,ATTRIBUTE_L3,l3);
+  }*/
+  setAttribute(art,ATTRIBUTE_PEAK,pp);
+
+  // Step 3. Print output
+  const char** attribute_fields = ATTRIBUTE_FIELDS;
+  uint32_t longest_attribute = longest_attribute_length(art, attribute_fields);
+  uint32_t longest_field = longest_field_length(art, longest_attribute);
+  choose_ascii_art(art, cs, term, longest_field);
+
+  if(!ascii_fits_screen(term->w, *art->art, longest_field)) {
+    // Despite of choosing the smallest logo, the output does not fit
+    // Choose the shorter field names and recalculate the longest attr
+    attribute_fields = ATTRIBUTE_FIELDS_SHORT;
+    longest_attribute = longest_attribute_length(art, attribute_fields);
+  }
+
+  print_ascii_riscv(art, longest_attribute, term->w, attribute_fields, cpu->ext->mask);
+
+  return true;
+}
+#endif
+
 struct terminal* get_terminal_size(void) {
   struct terminal* term = emalloc(sizeof(struct terminal));
 
@@ -948,5 +1115,7 @@ bool print_cpufetch(struct cpuInfo* cpu, STYLE s, struct color** cs, bool show_f
   return print_cpufetch_ppc(cpu, s, cs, term, show_full_cpu_name);
 #elif ARCH_ARM
   return print_cpufetch_arm(cpu, s, cs, term);
+#elif ARCH_RISCV
+  return print_cpufetch_riscv(cpu, s, cs, term);
 #endif
 }

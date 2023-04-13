@@ -11,6 +11,8 @@ typedef int STYLE;
   #include "../ppc/ppc.h"
 #elif ARCH_ARM
   #include "../arm/midr.h"
+#elif ARCH_RISCV
+  #include "../riscv/riscv.h"
 #endif
 
 //                              +-----------------------------------+-----------------------+
@@ -22,6 +24,7 @@ typedef int STYLE;
 #define COLOR_DEFAULT_IBM       "092,119,172:092,119,172:000,000,000:240,240,240:092,119,172"
 #define COLOR_DEFAULT_ARM       "000,145,189:000,145,189:000,000,000:240,240,240:000,145,189"
 #define COLOR_DEFAULT_ROCKCHIP  "114,159,207:229,195,000:000,000,000:240,240,240:114,159,207"
+#define COLOR_DEFAULT_SIFIVE    "255,255,255:000,000,000:000,000,000:255,255,255:000,000,000"
 
 #ifdef ARCH_X86
 void print_levels(struct cpuInfo* cpu);
