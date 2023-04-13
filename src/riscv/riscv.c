@@ -101,5 +101,20 @@ char* get_str_extensions(struct cpuInfo* cpu) {
 }
 
 void print_debug(struct cpuInfo* cpu) {
-  printf("Unimplemented!\n");
+  printf("- soc: ");
+  if(cpu->soc->raw_name == NULL) {
+    printf("NULL\n");
+  }
+  else {
+    printf("'%s'\n", cpu->soc->raw_name);
+  }
+
+  printf("- uarch: ");
+  char* arch_cpuinfo_str = get_arch_cpuinfo_str(cpu);
+  if(arch_cpuinfo_str == NULL) {
+    printf("NULL\n");
+  }
+  else {
+    printf("'%s'\n", arch_cpuinfo_str);
+  }
 }

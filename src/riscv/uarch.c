@@ -11,6 +11,7 @@ typedef uint32_t MICROARCH;
 struct uarch {
   MICROARCH uarch;
   char* uarch_str;
+  char* cpuinfo_str;
 };
 
 enum {
@@ -40,6 +41,7 @@ void fill_uarch(struct uarch* arch, struct cpuInfo* cpu, char* str, MICROARCH u,
 // T-Head: https://www.t-head.cn/product/c906
 struct uarch* get_uarch_from_cpuinfo_str(char* cpuinfo_str, struct cpuInfo* cpu) {
   struct uarch* arch = emalloc(sizeof(struct uarch));
+  arch->cpuinfo_str = cpuinfo_str;
   if(cpuinfo_str == NULL) {
     printWarn("get_uarch_from_cpuinfo: Unable to detect microarchitecture, cpuinfo_str is NULL");
     fill_uarch(arch, cpu, "Unknown", UARCH_UNKNOWN, CPU_VENDOR_UNKNOWN);
@@ -70,6 +72,10 @@ struct uarch* get_uarch_from_cpuinfo_str(char* cpuinfo_str, struct cpuInfo* cpu)
 
 char* get_str_uarch(struct cpuInfo* cpu) {
   return cpu->arch->uarch_str;
+}
+
+char* get_arch_cpuinfo_str(struct cpuInfo* cpu) {
+  return cpu->arch->cpuinfo_str;
 }
 
 void free_uarch_struct(struct uarch* arch) {
