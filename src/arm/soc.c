@@ -15,47 +15,12 @@
 #define min(a,b) (((a)<(b))?(a):(b))
 #define ARRAY_SIZE(arr)     (sizeof(arr) / sizeof((arr)[0]))
 
-static char* soc_trademark_string[] = {
-  [SOC_VENDOR_SNAPDRAGON] = "Snapdragon ",
-  [SOC_VENDOR_MEDIATEK]   = "MediaTek ",
-  [SOC_VENDOR_EXYNOS]     = "Exynos ",
-  [SOC_VENDOR_KIRIN]      = "Kirin ",
-  [SOC_VENDOR_BROADCOM]   = "Broadcom BCM",
-  [SOC_VENDOR_APPLE]      = "Apple ",
-  [SOC_VENDOR_ALLWINNER]  = "Allwinner ",
-  [SOC_VENDOR_ROCKCHIP]   = "Rockchip ",
-};
-
 static char* soc_rpi_string[] = {
   "BCM2835",
   "BCM2836",
   "BCM2837",
   "BCM2711"
 };
-
-void fill_soc(struct system_on_chip* soc, char* soc_name, SOC soc_model, int32_t process) {
-  soc->soc_model = soc_model;
-  soc->soc_vendor = get_soc_vendor_from_soc(soc_model);
-  soc->process = process;
-  int len = strlen(soc_name) + strlen(soc_trademark_string[soc->soc_vendor]) + 1;
-  soc->soc_name = emalloc(sizeof(char) * len);
-  memset(soc->soc_name, 0, sizeof(char) * len);
-  sprintf(soc->soc_name, "%s%s", soc_trademark_string[soc->soc_vendor], soc_name);
-}
-
-bool match_soc(struct system_on_chip* soc, char* raw_name, char* expected_name, char* soc_name, SOC soc_model, int32_t process) {
-  int len1 = strlen(raw_name);
-  int len2 = strlen(expected_name);
-  int len = min(len1, len2);
-
-  if(strncmp(raw_name, expected_name, len) != 0) {
-    return false;
-  }
-  else {
-    fill_soc(soc, soc_name, soc_model, process);
-    return true;
-  }
-}
 
 char* toupperstr(char* str) {
   int len = strlen(str) + 1;
@@ -123,11 +88,7 @@ bool get_sunxisoc_from_sid(struct system_on_chip* soc, char* raw_name, uint32_t 
   return false;
 }
 
-#define SOC_START if (false) {}
-#define SOC_EQ(raw_name, expected_name, soc_name, soc_model, soc, process) \
-   else if (match_soc(soc, raw_name, expected_name, soc_name, soc_model, process)) return true;
-#define SOC_END else { return false; }
-// Exynos special define
+// Exynos special define (not included in src/common/soc.h)
 #define SOC_EXY_EQ(raw_name, tmpsoc, soc_name, soc_model, soc, process)             \
    sprintf(tmpsoc, "exynos%s", soc_name);                                           \
    if (match_soc(soc, raw_name, tmpsoc, soc_name, soc_model, process)) return true; \
@@ -870,29 +831,4 @@ struct system_on_chip* get_soc(void) {
   }
 
   return soc;
-}
-
-char* get_soc_name(struct system_on_chip* soc) {
-  if(soc->soc_model == SOC_MODEL_UNKNOWN)
-    return soc->raw_name;
-  return soc->soc_name;
-}
-
-VENDOR get_soc_vendor(struct system_on_chip* soc) {
-  return soc->soc_vendor;
-}
-
-char* get_str_process(struct system_on_chip* soc) {
-  char* str;
-
-  if(soc->process == UNKNOWN) {
-    str = emalloc(sizeof(char) * (strlen(STRING_UNKNOWN)+1));
-    snprintf(str, strlen(STRING_UNKNOWN)+1, STRING_UNKNOWN);
-  }
-  else {
-    str = emalloc(sizeof(char) * 5);
-    memset(str, 0, sizeof(char) * 5);
-    snprintf(str, 5, "%dnm", soc->process);
-  }
-  return str;
 }

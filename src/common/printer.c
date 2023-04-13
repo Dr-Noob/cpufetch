@@ -20,6 +20,7 @@
   #include "../arm/uarch.h"
   #include "../arm/midr.h"
   #include "../arm/soc.h"
+  #include "../common/soc.h"
 #elif ARCH_RISCV
   #include "../riscv/riscv.h"
   #include "../riscv/uarch.h"

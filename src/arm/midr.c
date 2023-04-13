@@ -13,10 +13,10 @@
 #endif
 
 #include "../common/global.h"
+#include "../common/soc.h"
 #include "udev.h"
 #include "midr.h"
 #include "uarch.h"
-#include "soc.h"
 
 bool cores_are_equal(int c1pos, int c2pos, uint32_t* midr_array, int32_t* freq_array) {
   return midr_array[c1pos] == midr_array[c2pos] && freq_array[c1pos] == freq_array[c2pos];
