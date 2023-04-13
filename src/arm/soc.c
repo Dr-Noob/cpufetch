@@ -618,7 +618,7 @@ struct system_on_chip* guess_soc_from_cpuinfo(struct system_on_chip* soc) {
   return soc;
 }
 
-char* get_rk_efuse() {
+char* get_rk_efuse(void) {
   int filelen;
   char* rk_soc = read_file(_PATH_RK_EFUSE0, &filelen);
   if(rk_soc == NULL) {

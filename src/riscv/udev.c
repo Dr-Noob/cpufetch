@@ -86,7 +86,7 @@ char* get_uarch_from_cpuinfo(void) {
   return parse_cpuinfo_field(CPUINFO_UARCH_STR);
 }
 
-char* get_extensions_from_cpuinfo() {
+char* get_extensions_from_cpuinfo(void) {
   return parse_cpuinfo_field(CPUINFO_EXTENSIONS_STR);
 }
 

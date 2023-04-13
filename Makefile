@@ -1,7 +1,7 @@
 CC ?= gcc
 
 CFLAGS+=-Wall -Wextra -pedantic
-SANITY_FLAGS=-Wfloat-equal -Wshadow -Wpointer-arith
+SANITY_FLAGS=-Wfloat-equal -Wshadow -Wpointer-arith -Wstrict-prototypes
 
 PREFIX ?= /usr
 
