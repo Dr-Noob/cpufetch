@@ -814,8 +814,10 @@ struct system_on_chip* get_soc(void) {
       printWarn("SoC detection failed using Android: Found '%s' string", soc->raw_name);
     }
 #endif // ifdef __ANDROID__
-    // If cpufinfo detection fails, try with nvmem
-    soc = guess_soc_from_nvmem(soc);
+    // If cpufinfo/Android (if available) detection fails, try with nvmem
+    if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) {
+      soc = guess_soc_from_nvmem(soc);
+    }
   }
 #elif defined __APPLE__ || __MACH__
   soc = guess_soc_apple(soc);
