@@ -364,6 +364,7 @@ struct uarch* get_uarch_from_cpuid_amd(uint32_t ef, uint32_t f, uint32_t em, uin
   CHECK_UARCH(arch,  8, 15,  7,  1, NA, "Zen 2",       UARCH_ZEN2,         7) // samples from Steven Noonan and instlatx64
   CHECK_UARCH(arch,  8, 15,  9,  0,  2, "Zen 2",       UARCH_ZEN2,         7) // Steam Deck (instlatx64)
   CHECK_UARCH(arch, 10, 15,  0,  1, NA, "Zen 3",       UARCH_ZEN3,         7) // instlatx64
+  CHECK_UARCH(arch, 10, 15,  1,  1, NA, "Zen 4",       UARCH_ZEN4,         5) // instlatx64
   CHECK_UARCH(arch, 10, 15,  2,  1, NA, "Zen 3",       UARCH_ZEN3,         7) // instlatx64
   CHECK_UARCH(arch, 10, 15,  4,  4, NA, "Zen 3+",      UARCH_ZEN3_PLUS,    6) // instlatx64 (they say it is Zen3...)
   CHECK_UARCH(arch, 10, 15,  5,  0, NA, "Zen 3",       UARCH_ZEN3,         7) // instlatx64
