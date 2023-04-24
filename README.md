@@ -57,17 +57,17 @@ cpufetch is a command-line tool written in C that displays the CPU information i
 
 ## 1. Support
 
-| OS          | x86_64 / x86       | ARM                | PowerPC            |
-|:-----------:|:------------------:|:------------------:|:------------------:|
-| GNU / Linux | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
-| Windows     | :heavy_check_mark: | :x:                | :x:                |
-| Android     | :heavy_check_mark: | :heavy_check_mark: | :x:                |
-| macOS       | :heavy_check_mark: | :heavy_check_mark: | :x:                |
-| FreeBSD     | :heavy_check_mark: | :x:                | :x:                |
+| OS          | x86_64 / x86       | ARM                | RISC-V             | PowerPC            |
+|:-----------:|:------------------:|:------------------:|:------------------:|:------------------:|
+| GNU / Linux | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| Windows     | :heavy_check_mark: | :x:                | :x:                | :x:                |
+| Android     | :heavy_check_mark: | :heavy_check_mark: | :x:                | :x:                |
+| macOS       | :heavy_check_mark: | :heavy_check_mark: | :x:                | :heavy_check_mark: |
+| FreeBSD     | :heavy_check_mark: | :x:                | :x:                | :x:                |
 
 **NOTES:**
 - Colors will be used in Windows only if the terminal supports it.
-- Support in macOS ARM is limited to Apple M1 only
+- Support in macOS ARM is limited to Apple chips only
 
 ## 2. Installation
 ### 2.1 Installing from a package
@@ -153,9 +153,10 @@ See [cpufetch contributing guidelines](https://github.com/Dr-Noob/cpufetch/blob/
 Thanks to the fellow contributors and interested people in the project. Special thanks to:
 - [Gonzalocl](https://github.com/Gonzalocl) and [OdnetninI](https://github.com/OdnetninI): Tested cpufetch in the earlier versions of the project in many different CPUs.
 - [Kyngo](https://github.com/Kyngo): Tested cpufetch in the Apple M1 CPU.
-- [avollmerhaus](https://github.com/avollmerhaus): Gave me ssh acess to a PowerPC machine, allowing me to develop the PowerPC port.
+- [avollmerhaus](https://github.com/avollmerhaus): Helped with PowerPC port giving ssh access to a PowerPC machine.
 - [bbonev](https://github.com/bbonev) and [stephan-cr](https://github.com/stephan-cr): Reviewed the source code.
-- [mdoksa76](https://github.com/mdoksa76) and [exkc](https://github.com/exkc): Excellent ideas and impeccable feedback for supporting Allwinner SoCs.
+- [mdoksa76](https://github.com/mdoksa76) and [exkc](https://github.com/exkc): Excellent ideas and feedback for supporting Allwinner SoCs.
+- [Sakura286](https://github.com/Sakura286), [exkc](https://github.com/exkc) and [Patola](https://github.com/Patola): Helped with RISC-V port with ssh access, ideas, testing, etc.
 
 ## 8. cpufetch for GPUs (gpufetch)
 See [gpufetch](https://github.com/Dr-Noob/gpufetch) project!
