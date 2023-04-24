@@ -223,9 +223,10 @@ int64_t get_peak_performance(struct cpuInfo* cpu, bool accurate_pp) {
     if(feat->FMA3 || feat->FMA4)
       flops = flops*2;
 
-    // Ice Lake has AVX512, but it has 1 VPU for AVX512, while
-    // it has 2 for AVX2. If this is a Ice Lake CPU, we are computing
-    // the peak performance supposing AVX2, not AVX512
+    // NOTE:
+    // Some CPUs (Ice Lake, Zen 4) have AVX512, but they have only
+    // 1 VPU for AVX512, while they have 2 for AVX2. In such cases,
+    // we are computing the peak performance supposing AVX2, not AVX512
     if(feat->AVX512 && vpus_are_AVX512(ptr))
       flops = flops*16;
     else if(feat->AVX || feat->AVX2)

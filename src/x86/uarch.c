@@ -414,7 +414,9 @@ struct uarch* get_uarch_from_cpuid(struct cpuInfo* cpu, uint32_t dump, uint32_t 
 }
 
 bool vpus_are_AVX512(struct cpuInfo* cpu) {
-  return cpu->arch->uarch != UARCH_ICE_LAKE && cpu->arch->uarch != UARCH_TIGER_LAKE;
+  return cpu->arch->uarch != UARCH_ICE_LAKE &&
+         cpu->arch->uarch != UARCH_TIGER_LAKE &&
+         cpu->arch->uarch != UARCH_ZEN4;
 }
 
 bool is_knights_landing(struct cpuInfo* cpu) {
