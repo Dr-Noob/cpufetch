@@ -44,6 +44,17 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
   return cach;
 }
 
+bool check_package_ids_integrity(int* package_ids, int total_cores) {
+  for(int i=0; i < total_cores; i++) {
+    if(package_ids[i] >= total_cores || package_ids[i] < 0) {
+      printBug("check_package_ids_integrity: package_ids[%d]=%d", i, package_ids[i]);
+      return false;
+    }
+  }
+
+  return true;
+}
+
 struct topology* get_topology_info(struct cache* cach) {
   struct topology* topo = emalloc(sizeof(struct topology));
   init_topology_struct(topo, cach);
@@ -66,6 +77,10 @@ struct topology* get_topology_info(struct cache* cach) {
   if(!fill_package_ids_from_sys(package_ids, topo->total_cores)) {
     printWarn("fill_package_ids_from_sys failed, output may be incomplete/invalid");
     for(int i=0; i < topo->total_cores; i++) package_ids[i] = 0;
+  }
+
+  if(!check_package_ids_integrity(package_ids, topo->total_cores)) {
+    return NULL;
   }
 
   // 2. Socket detection
