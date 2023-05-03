@@ -44,17 +44,6 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
   return cach;
 }
 
-bool check_package_ids_integrity(int* package_ids, int total_cores) {
-  for(int i=0; i < total_cores; i++) {
-    if(package_ids[i] >= total_cores || package_ids[i] < 0) {
-      printBug("check_package_ids_integrity: package_ids[%d]=%d", i, package_ids[i]);
-      return false;
-    }
-  }
-
-  return true;
-}
-
 struct topology* get_topology_info(struct cache* cach) {
   struct topology* topo = emalloc(sizeof(struct topology));
   init_topology_struct(topo, cach);
@@ -74,27 +63,30 @@ struct topology* get_topology_info(struct cache* cach) {
     printWarn("fill_core_ids_from_sys failed, output may be incomplete/invalid");
     for(int i=0; i < topo->total_cores; i++) core_ids[i] = 0;
   }
+
   if(!fill_package_ids_from_sys(package_ids, topo->total_cores)) {
     printWarn("fill_package_ids_from_sys failed, output may be incomplete/invalid");
     for(int i=0; i < topo->total_cores; i++) package_ids[i] = 0;
+    // fill_package_ids_from_sys failed, use a
+    // more sophisticated wat to find the number of sockets
+    topo->sockets = get_num_sockets_package_cpus(topo);
   }
-
-  if(!check_package_ids_integrity(package_ids, topo->total_cores)) {
-    return NULL;
-  }
-
-  // 2. Socket detection
-  int *package_ids_count = emalloc(sizeof(int) * topo->total_cores);
-  for(int i=0; i < topo->total_cores; i++) {
-    package_ids_count[i] = 0;
-  }
-  for(int i=0; i < topo->total_cores; i++) {
-    package_ids_count[package_ids[i]]++;
-  }
-  for(int i=0; i < topo->total_cores; i++) {
-    if(package_ids_count[i] != 0) {
-      topo->sockets++;
+  else {
+    // fill_package_ids_from_sys succeeded, use the
+    // traditional socket detection algorithm
+    int *package_ids_count = emalloc(sizeof(int) * topo->total_cores);
+    for(int i=0; i < topo->total_cores; i++) {
+      package_ids_count[i] = 0;
     }
+    for(int i=0; i < topo->total_cores; i++) {
+      package_ids_count[package_ids[i]]++;
+    }
+    for(int i=0; i < topo->total_cores; i++) {
+      if(package_ids_count[i] != 0) {
+        topo->sockets++;
+      }
+    }
+    free(package_ids_count);
   }
 
   // 3. Physical cores detection
@@ -120,7 +112,6 @@ struct topology* get_topology_info(struct cache* cach) {
 
   free(core_ids);
   free(package_ids);
-  free(package_ids_count);
   free(core_ids_unified);
 
   return topo;
@@ -187,7 +178,9 @@ struct cpuInfo* get_cpu_info(void) {
   char* path = emalloc(sizeof(char) * (strlen(_PATH_DT) + strlen(_PATH_DT_PART) + 1));
   sprintf(path, "%s%s", _PATH_DT, _PATH_DT_PART);
 
-  cpu->cpu_name = read_file(path, &len);
+  if((cpu->cpu_name = read_file(path, &len)) == NULL) {
+    printWarn("Could not open '%s'", path);
+  }
   cpu->pvr = mfpvr();
   cpu->arch = get_cpu_uarch(cpu);
   cpu->freq = get_frequency_info();

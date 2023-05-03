@@ -278,3 +278,99 @@ int get_num_caches_by_level(struct cpuInfo* cpu, uint32_t level) {
 
   return ret;
 }
+
+// TODO: This function is very similar to get_num_caches_from_files,
+// refactoring should be considered
+int get_num_sockets_from_files(char** paths, int num_paths) {
+  int filelen;
+  char* buf;
+  char* tmpbuf;
+
+  // 1. Count the number of bitmasks per file
+  if((buf = read_file(paths[0], &filelen)) == NULL) {
+    printWarn("Could not open '%s'", paths[0]);
+    return -1;
+  }
+  int num_bitmasks = 1;
+  for(int i=0; buf[i]; i++) {
+    num_bitmasks += (buf[i] == ',');
+  }
+
+  // 2. Read package_cpus from every core
+  uint32_t** package_cpus = emalloc(sizeof(uint32_t *) * num_paths);
+  for(int i=0; i < num_paths; i++) {
+    package_cpus[i] = emalloc(sizeof(uint32_t) * num_bitmasks);
+
+    if((buf = read_file(paths[i], &filelen)) == NULL) {
+      printWarn("Could not open '%s'", paths[i]);
+      return -1;
+    }
+
+    for(int j=0; j < num_bitmasks; j++) {
+      char* end;
+      tmpbuf = emalloc(sizeof(char) * (strlen(buf) + 1));
+      char* commaend = strstr(buf, ",");
+      if(commaend == NULL) {
+        strcpy(tmpbuf, buf);
+      }
+      else {
+        strncpy(tmpbuf, buf, commaend-buf);
+      }
+      errno = 0;
+      long ret = strtol(tmpbuf, &end, 16);
+      if(errno != 0) {
+        printf("strtol: %s", strerror(errno));
+        free(buf);
+        return -1;
+      }
+
+      package_cpus[i][j] = (uint32_t) ret;
+      buf = commaend + 1;
+      free(tmpbuf);
+    }
+  }
+
+  // 3. Count number of different packages; this is the number of sockets
+  int num_sockets = 0;
+  bool found = false;
+  uint32_t** unique_package_cpu = emalloc(sizeof(uint32_t *) * num_paths);
+  for(int i=0; i < num_paths; i++) {
+    unique_package_cpu[i] = emalloc(sizeof(uint32_t) * num_bitmasks);
+    for(int j=0; j < num_bitmasks; j++) {
+      unique_package_cpu[i][j] = 0;
+    }
+  }
+
+  for(int i=0; i < num_paths; i++) {
+    for(int j=0; j < num_paths && !found; j++) {
+      if(maps_equal(package_cpus[i], unique_package_cpu[j], num_bitmasks)) found = true;
+    }
+    if(!found) {
+      add_shared_map(package_cpus, i, unique_package_cpu, num_sockets, num_bitmasks);
+      num_sockets++;
+    }
+    found = false;
+  }
+
+  return num_sockets;
+}
+
+int get_num_sockets_package_cpus(struct topology* topo) {
+  // Get number of sockets using
+  // /sys/devices/system/cpu/cpu*/topology/package_cpus
+
+  char** paths = emalloc(sizeof(char *) * topo->total_cores);
+
+  for(int i=0; i < topo->total_cores; i++) {
+    paths[i] = emalloc(sizeof(char) * _PATH_PACKAGE_MAX_LEN);
+    sprintf(paths[i], "%s%s/cpu%d%s",  _PATH_SYS_SYSTEM, _PATH_SYS_CPU, i, _PATH_TOPO_PACKAGE_CPUS);
+  }
+
+  int ret = get_num_sockets_from_files(paths, topo->total_cores);
+
+  for(int i=0; i < topo->total_cores; i++)
+    free(paths[i]);
+  free(paths);
+
+  return ret;
+}
