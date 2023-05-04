@@ -681,6 +681,9 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
     setAttribute(art, ATTRIBUTE_NAME, cpu_name);
   }
   setAttribute(art, ATTRIBUTE_UARCH, uarch);
+  if(cpu->hv->present) {
+    setAttribute(art, ATTRIBUTE_HYPERVISOR, cpu->hv->hv_name);
+  }
   setAttribute(art, ATTRIBUTE_TECHNOLOGY, manufacturing_process);
   setAttribute(art, ATTRIBUTE_FREQUENCY, max_frequency);
   uint32_t socket_num = get_nsockets(cpu->topo);

@@ -374,3 +374,18 @@ int get_num_sockets_package_cpus(struct topology* topo) {
 
   return ret;
 }
+
+// Inspired in is_devtree_compatible from lscpu
+bool is_devtree_compatible(char* str) {
+  int filelen;
+  char* buf;
+  if((buf = read_file("/proc/device-tree/compatible", &filelen)) == NULL) {
+    return false;
+  }
+
+  char* tmp;
+  if((tmp = strstr(buf, str)) == NULL) {
+    return false;
+  }
+  return true;
+}

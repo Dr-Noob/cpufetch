@@ -11,6 +11,17 @@
 #include "../common/udev.h"
 #include "../common/global.h"
 
+static char *hv_vendors_name[] = {
+  [HV_VENDOR_KVM]       = "KVM",
+  [HV_VENDOR_QEMU]      = "QEMU",
+  [HV_VENDOR_HYPERV]    = "Microsoft Hyper-V",
+  [HV_VENDOR_VMWARE]    = "VMware",
+  [HV_VENDOR_XEN]       = "Xen",
+  [HV_VENDOR_PARALLELS] = "Parallels",
+  [HV_VENDOR_PHYP]      = "pHyp",
+  [HV_VENDOR_INVALID]   = STRING_UNKNOWN
+};
+
 struct cache* get_cache_info(struct cpuInfo* cpu) {
   struct cache* cach = emalloc(sizeof(struct cache));
   init_cache_struct(cach);
@@ -164,6 +175,28 @@ int64_t get_peak_performance(struct cpuInfo* cpu, struct topology* topo, int64_t
   return flops;
 }
 
+struct hypervisor* get_hp_info(void) {
+  struct hypervisor* hv = emalloc(sizeof(struct hypervisor));
+  hv->present = false;
+
+  // Weird heuristic found in lscpu:
+  // https://github.com/util-linux/util-linux/blob/master/sys-utils/lscpu-virt.c
+  if(access("/proc" _PATH_DT_IBM_PARTIT_NAME, F_OK) == 0 &&
+     access("/proc" _PATH_DT_HMC_MANAGED, F_OK) == 0 &&
+     access("/proc" _PATH_DT_QEMU_WIDTH, F_OK) != 0) {
+    hv->present = true;
+    hv->hv_vendor = HV_VENDOR_PHYP;
+  }
+  else if(is_devtree_compatible("qemu,pseries")) {
+    hv->present = true;
+    hv->hv_vendor = HV_VENDOR_QEMU;
+  }
+
+  hv->hv_name = hv_vendors_name[hv->hv_vendor];
+
+  return hv;
+}
+
 struct cpuInfo* get_cpu_info(void) {
   struct cpuInfo* cpu = emalloc(sizeof(struct cpuInfo));
   struct features* feat = emalloc(sizeof(struct features));
@@ -182,6 +215,7 @@ struct cpuInfo* get_cpu_info(void) {
     printWarn("Could not open '%s'", path);
   }
   cpu->pvr = mfpvr();
+  cpu->hv = get_hp_info();
   cpu->arch = get_cpu_uarch(cpu);
   cpu->freq = get_frequency_info();
   cpu->topo = get_topology_info(cpu->cach);

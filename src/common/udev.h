@@ -40,5 +40,6 @@ long get_l3_cache_size(uint32_t core);
 int get_num_caches_by_level(struct cpuInfo* cpu, uint32_t level);
 int get_num_sockets_package_cpus(struct topology* topo);
 int get_ncores_from_cpuinfo(void);
+bool is_devtree_compatible(char* str);
 
 #endif
