@@ -146,6 +146,12 @@ struct frequency* get_frequency_info(void) {
   freq->max = get_max_freq_from_file(0);
   freq->base = get_min_freq_from_file(0);
 
+  if(freq->max == UNKNOWN_DATA) {
+    // If we are unable to find it in the
+    // standard path, try /proc/cpuinfo
+    freq->max = get_frequency_from_cpuinfo();
+  }
+
   return freq;
 }
 

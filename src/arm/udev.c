@@ -108,27 +108,6 @@ uint32_t get_midr_from_cpuinfo(uint32_t core, bool* success) {
   return midr;
 }
 
-char* get_field_from_cpuinfo(char* CPUINFO_FIELD) {
-  int filelen;
-  char* buf;
-  if((buf = read_file(_PATH_CPUINFO, &filelen)) == NULL) {
-    printWarn("read_file: %s: %s:\n", _PATH_CPUINFO, strerror(errno));
-    return NULL;
-  }
-
-  char* tmp1 = strstr(buf, CPUINFO_FIELD);
-  if(tmp1 == NULL) return NULL;
-  tmp1 = tmp1 + strlen(CPUINFO_FIELD);
-  char* tmp2 = strstr(tmp1, "\n");
-
-  int strlen = (1 + (tmp2-tmp1));
-  char* hardware = emalloc(sizeof(char) * strlen);
-  memset(hardware, 0, sizeof(char) * strlen);
-  strncpy(hardware, tmp1, tmp2-tmp1);
-
-  return hardware;
-}
-
 char* get_hardware_from_cpuinfo(void) {
   return get_field_from_cpuinfo(CPUINFO_HARDWARE_STR);
 }

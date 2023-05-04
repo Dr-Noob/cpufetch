@@ -129,6 +129,27 @@ long get_cache_size_from_file(char* path) {
   return ret * 1024;
 }
 
+char* get_field_from_cpuinfo(char* CPUINFO_FIELD) {
+  int filelen;
+  char* buf;
+  if((buf = read_file(_PATH_CPUINFO, &filelen)) == NULL) {
+    printWarn("read_file: %s: %s:\n", _PATH_CPUINFO, strerror(errno));
+    return NULL;
+  }
+
+  char* tmp1 = strstr(buf, CPUINFO_FIELD);
+  if(tmp1 == NULL) return NULL;
+  tmp1 = tmp1 + strlen(CPUINFO_FIELD);
+  char* tmp2 = strstr(tmp1, "\n");
+
+  int strlen = (1 + (tmp2-tmp1));
+  char* hardware = emalloc(sizeof(char) * strlen);
+  memset(hardware, 0, sizeof(char) * strlen);
+  strncpy(hardware, tmp1, tmp2-tmp1);
+
+  return hardware;
+}
+
 long get_max_freq_from_file(uint32_t core) {
   char path[_PATH_FREQUENCY_MAX_LEN];
   sprintf(path, "%s%s/cpu%d%s%s", _PATH_SYS_SYSTEM, _PATH_SYS_CPU, core, _PATH_FREQUENCY, _PATH_FREQUENCY_MAX);
