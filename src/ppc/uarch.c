@@ -35,6 +35,7 @@ enum {
   UARCH_POWER7,
   UARCH_POWER7PLUS,
   UARCH_POWER8,
+  UARCH_POWER8_DD21,
   UARCH_POWER9,
   UARCH_POWER9_DD20,
   UARCH_POWER9_DD21,
@@ -84,6 +85,7 @@ void fill_uarch(struct uarch* arch, MICROARCH u) {
   FILL_UARCH(arch->uarch, UARCH_POWER7,      "POWER7",         45)
   FILL_UARCH(arch->uarch, UARCH_POWER7PLUS,  "POWER7+",        32)
   FILL_UARCH(arch->uarch, UARCH_POWER8,      "POWER8",         22)
+  FILL_UARCH(arch->uarch, UARCH_POWER8_DD21, "POWER8 (DD2.1)", 22)
   FILL_UARCH(arch->uarch, UARCH_POWER9,      "POWER9",         14)
   FILL_UARCH(arch->uarch, UARCH_POWER9_DD20, "POWER9 (DD2.0)", 14)
   FILL_UARCH(arch->uarch, UARCH_POWER9_DD21, "POWER9 (DD2.1)", 14)
@@ -100,7 +102,19 @@ void fill_uarch(struct uarch* arch, MICROARCH u) {
 }
 
 /*
- * PVR masks/values from arch/powerpc/kernel/cputable.c (Linux kernel)
+ * PVR masks/values from Linux kernel:
+ * - arch/powerpc/kernel/cputable.c            (kernel <= 6.0)
+ * - arch/powerpc/kernel/cpu_specs_book3s_64.h (kernel >= 6.1)
+ *
+ * In the kernel, there is a POWER8E identifier. In
+ * https://wiki.raptorcs.com/wiki/POWER8E it says it is
+ * actually DD2.1, while other POWER8 should be DD2.0.
+ * The last assumption does not seem to be correct according
+ * to https://openbenchmarking.org/s/POWER8NVL, which shows a
+ * POWER8NVL where kernel says it is DD1.0. We implement this
+ * to show only the uarch, not the revision, since it seems a bit
+ * redundant?
+ *
  * This list may be incorrect, incomplete or overly simplified,
  * specially in the case of 32 bit entries
  */
@@ -125,7 +139,7 @@ struct uarch* get_uarch_from_pvr(uint32_t pvr) {
   CHECK_UARCH(arch, pvr, 0xffffffff, 0x0f000006, UARCH_POWER10)
   CHECK_UARCH(arch, pvr, 0xffff0000, 0x003f0000, UARCH_POWER7)
   CHECK_UARCH(arch, pvr, 0xffff0000, 0x004A0000, UARCH_POWER7PLUS)
-  CHECK_UARCH(arch, pvr, 0xffff0000, 0x004b0000, UARCH_POWER8)
+  CHECK_UARCH(arch, pvr, 0xffff0000, 0x004b0000, UARCH_POWER8_DD21)
   CHECK_UARCH(arch, pvr, 0xffff0000, 0x004c0000, UARCH_POWER8)
   CHECK_UARCH(arch, pvr, 0xffff0000, 0x004d0000, UARCH_POWER8)
   CHECK_UARCH(arch, pvr, 0xffffefff, 0x004e0200, UARCH_POWER9_DD20)
@@ -234,6 +248,7 @@ bool has_altivec(struct uarch* arch) {
     case UARCH_POWER7:
     case UARCH_POWER7PLUS:
     case UARCH_POWER8:
+    case UARCH_POWER8_DD21:
     case UARCH_POWER9:
     case UARCH_POWER9_DD20:
     case UARCH_POWER9_DD21:
