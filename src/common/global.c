@@ -51,7 +51,7 @@
 #endif
 
 #ifndef GIT_FULL_VERSION
-  static const char* VERSION = "1.03";
+  static const char* VERSION = "1.04";
 #endif
 
 enum {
