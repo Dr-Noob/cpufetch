@@ -80,26 +80,21 @@ int64_t get_peak_performance(struct cpuInfo* cpu) {
     }
   }
 
-  int64_t flops = 0;
+  int64_t total_flops = 0;
   ptr = cpu;
 
-  if(cpu->soc->soc_vendor == SOC_VENDOR_APPLE) {
-    // Special case for M1/M2
-    // First we find the E cores, then the P
-    // M1 have 2 (E cores) or 4 (P cores) FMA units
-    // Source: https://dougallj.github.io/applecpu/firestorm-simd.html
-    flops += ptr->topo->total_cores * (get_freq(ptr->freq) * 1000000) * 2 * 4 * 2;
-    ptr = ptr->next_cpu;
-    flops += ptr->topo->total_cores * (get_freq(ptr->freq) * 1000000) * 2 * 4 * 4;
-  }
-  else {
-    for(int i=0; i < cpu->num_cpus; ptr = ptr->next_cpu, i++) {
-      flops += ptr->topo->total_cores * (get_freq(ptr->freq) * 1000000);
-    }
-    if(cpu->feat->NEON) flops = flops * 4;
+  for(int i=0; i < cpu->num_cpus; ptr = ptr->next_cpu, i++) {
+    int vpus = get_number_of_vpus(ptr);
+    int vpus_width = get_vpus_width(ptr);
+    bool has_fma = has_fma_support(ptr);
+
+    int64_t flops = ptr->topo->total_cores * get_freq(ptr->freq) * 1000000 * vpus * (vpus_width/32);
+    if(has_fma) flops = flops * 2;
+
+    total_flops += flops;
   }
 
-  return flops;
+  return total_flops;
 }
 
 uint32_t fill_ids_from_midr(uint32_t* midr_array, int32_t* freq_array, uint32_t* ids_array, int len) {

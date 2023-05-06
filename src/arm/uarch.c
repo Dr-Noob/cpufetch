@@ -72,6 +72,7 @@ enum {
   UARCH_CORTEX_X2,
   UARCH_NEOVERSE_N1,
   UARCH_NEOVERSE_E1,
+  UARCH_NEOVERSE_V1,
   UARCH_SCORPION,
   UARCH_KRAIT,
   UARCH_KYRO,
@@ -104,7 +105,7 @@ enum {
   UARCH_AVALANCHE,  // Apple M2 processor (big cores).
   // CAVIUM
   UARCH_THUNDERX,   // Cavium ThunderX
-  UARCH_THUNDERX2,  //  Cavium ThunderX2 (originally Broadcom Vulkan).
+  UARCH_THUNDERX2,  // Cavium ThunderX2 (originally Broadcom Vulkan).
   // MARVELL
   UARCH_PJ4,
   UARCH_BRAHMA_B15,
@@ -146,6 +147,7 @@ static const ISA isas_uarch[] = {
   [UARCH_CORTEX_X2]    = ISA_ARMv9_A,
   [UARCH_NEOVERSE_N1]  = ISA_ARMv8_2_A,
   [UARCH_NEOVERSE_E1]  = ISA_ARMv8_2_A,
+  [UARCH_NEOVERSE_V1]  = ISA_ARMv8_4_A,
   [UARCH_BRAHMA_B15]   = ISA_ARMv7_A,   // Same as Cortex-A15
   [UARCH_BRAHMA_B53]   = ISA_ARMv8_A,   // Same as Cortex-A53
   [UARCH_THUNDERX]     = ISA_ARMv8_A,
@@ -254,6 +256,7 @@ struct uarch* get_uarch_from_midr(uint32_t midr, struct cpuInfo* cpu) {
   CHECK_UARCH(arch, cpu, 'A', 0xD0C, NA, NA, "Neoverse N1",           UARCH_NEOVERSE_N1,  CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD0D, NA, NA, "Cortex-A77",            UARCH_CORTEX_A77,   CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD0E, NA, NA, "Cortex-A76",            UARCH_CORTEX_A76,   CPU_VENDOR_ARM)
+  CHECK_UARCH(arch, cpu, 'A', 0xD40, NA, NA, "Neoverse V1",           UARCH_NEOVERSE_V1,  CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD41, NA, NA, "Cortex-A78",            UARCH_CORTEX_A78,   CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD44, NA, NA, "Cortex-X1",             UARCH_CORTEX_X1,    CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD46, NA, NA, "Cortex‑A510",           UARCH_CORTEX_A510,  CPU_VENDOR_ARM)
@@ -323,6 +326,96 @@ struct uarch* get_uarch_from_midr(uint32_t midr, struct cpuInfo* cpu) {
   UARCH_END
 
   return arch;
+}
+
+bool is_ARMv8_or_newer(struct cpuInfo* cpu) {
+  return cpu->arch->isa == ISA_ARMv8_A         ||
+         cpu->arch->isa == ISA_ARMv8_A_AArch32 ||
+         cpu->arch->isa == ISA_ARMv8_1_A       ||
+         cpu->arch->isa == ISA_ARMv8_2_A       ||
+         cpu->arch->isa == ISA_ARMv8_3_A       ||
+         cpu->arch->isa == ISA_ARMv8_4_A       ||
+         cpu->arch->isa == ISA_ARMv8_5_A       ||
+         cpu->arch->isa == ISA_ARMv9_A;
+}
+
+bool has_fma_support(struct cpuInfo* cpu) {
+  // Arm A64 Instruction Set Architecture
+  // https://developer.arm.com/documentation/ddi0596/2021-12/SIMD-FP-Instructions
+  return is_ARMv8_or_newer(cpu);
+}
+
+int get_vpus_width(struct cpuInfo* cpu) {
+  // If the CPU has NEON, width can be 64 or 128 [1].
+  // In >= ARMv8, NEON are 128 bits width [2]
+  // If the CPU has SVE/SVE2, width can be between 128-2048 [3],
+  // so we must check the exact width depending on
+  // the exact chip (Neoverse V1 uses 256b implementations.)
+  //
+  // [1] https://en.wikipedia.org/wiki/ARM_architecture_family#Advanced_SIMD_(Neon)
+  // [2] https://developer.arm.com/documentation/102474/0100/Fundamentals-of-Armv8-Neon-technology
+  // [3] https://www.anandtech.com/show/16640/arm-announces-neoverse-v1-n2-platforms-cpus-cmn700-mesh/5
+
+  MICROARCH ua = cpu->arch->uarch;
+  switch(ua) {
+    case UARCH_NEOVERSE_V1:
+      return 256;
+    default:
+      if(cpu->feat->NEON) {
+        if(is_ARMv8_or_newer(cpu)) {
+          return 128;
+        }
+        else {
+          return 64;
+        }
+      }
+      else {
+        return 32;
+      }
+  }
+}
+
+int get_number_of_vpus(struct cpuInfo* cpu) {
+  MICROARCH ua = cpu->arch->uarch;
+
+  switch(ua) {
+    case UARCH_FIRESTORM:   // [https://dougallj.github.io/applecpu/firestorm-simd.html]
+    case UARCH_AVALANCHE:   // [https://en.wikipedia.org/wiki/Comparison_of_ARM_processors]
+    case UARCH_CORTEX_X1:   // [https://www.anandtech.com/show/15813/arm-cortex-a78-cortex-x1-cpu-ip-diverging/3]
+    case UARCH_CORTEX_X2:   // [https://www.anandtech.com/show/16693/arm-announces-mobile-armv9-cpu-microarchitectures-cortexx2-cortexa710-cortexa510/2]
+    case UARCH_NEOVERSE_V1: // [https://en.wikichip.org/wiki/arm_holdings/microarchitectures/neoverse_v1]
+      return 4;
+    case UARCH_EXYNOS_M3:   // [https://www.anandtech.com/show/12361/samsung-exynos-m3-architecture]
+    case UARCH_EXYNOS_M4:   // [https://en.wikichip.org/wiki/samsung/microarchitectures/m4#Block_Diagram]
+    case UARCH_EXYNOS_M5:   // [https://en.wikichip.org/wiki/samsung/microarchitectures/m5]
+      return 3;
+    case UARCH_ICESTORM:    // [https://dougallj.github.io/applecpu/icestorm-simd.html]
+    case UARCH_BLIZZARD:    // [https://en.wikipedia.org/wiki/Comparison_of_ARM_processors]
+    case UARCH_CORTEX_A57:  // [https://www.anandtech.com/show/8718/the-samsung-galaxy-note-4-exynos-review/5]
+    case UARCH_CORTEX_A72:  // [https://www.anandtech.com/show/10347/arm-cortex-a73-artemis-unveiled/2]
+    case UARCH_CORTEX_A73:  // [https://www.anandtech.com/show/10347/arm-cortex-a73-artemis-unveiled/2]
+    case UARCH_CORTEX_A75:  // [https://www.anandtech.com/show/11441/dynamiq-and-arms-new-cpus-cortex-a75-a55/3]
+    case UARCH_CORTEX_A76:  // [https://www.anandtech.com/show/12785/arm-cortex-a76-cpu-unveiled-7nm-powerhouse/3]
+    case UARCH_CORTEX_A77:  // [https://fuse.wikichip.org/news/2339/arm-unveils-cortex-a77-emphasizes-single-thread-performance]
+    case UARCH_CORTEX_A78:  // [https://fuse.wikichip.org/news/3536/arm-unveils-the-cortex-a78-when-less-is-more]
+    case UARCH_EXYNOS_M1:   // [https://www.anandtech.com/show/12361/samsung-exynos-m3-architecture]
+    case UARCH_EXYNOS_M2:   // [https://www.anandtech.com/show/12361/samsung-exynos-m3-architecture]
+    case UARCH_NEOVERSE_N1: // [https://en.wikichip.org/wiki/arm_holdings/microarchitectures/neoverse_n1#Individual_Core]
+      return 2;
+    case UARCH_NEOVERSE_E1: // [https://www.anandtech.com/show/13959/arm-announces-neoverse-n1-platform/5]
+    // A510 is integrated as part of a Complex. Normally, each complex would incorporate two Cortex-A510 cores.
+    // Each complex incorporates a single VPU with 2 ports, so for each A510 there is theoretically 1 port.
+    case UARCH_CORTEX_A510: // [https://en.wikichip.org/wiki/arm_holdings/microarchitectures/cortex-a510#Vector_Processing_Unit_.28VPU.29]
+    // Not sure about this one since there is no explicit information saying it has one, but they never state it has more either.
+    case UARCH_CORTEX_A710: // [Arm Cortex‑A710 Core Technical Reference Manual]
+      return 1;
+    default:
+      // ARMv6
+      // ARMv7
+      // Remaining UARCH_CORTEX_AXX
+      // Old Snapdragon (e.g., Scorpion, Krait, etc)
+      return 1;
+  }
 }
 
 char* get_str_uarch(struct cpuInfo* cpu) {
