@@ -632,6 +632,7 @@ bool get_cache_topology_amd(struct cpuInfo* cpu, struct topology* topo) {
   return true;
 }
 
+#ifdef __linux__
 void get_topology_from_udev(struct topology* topo) {
   // TODO: To be improved in the future
   topo->total_cores = get_ncores_from_cpuinfo();
@@ -641,6 +642,7 @@ void get_topology_from_udev(struct topology* topo) {
   topo->smt_supported = 1;
   topo->sockets = 1;
 }
+#endif
 
 // Main reference: https://software.intel.com/content/www/us/en/develop/articles/intel-64-architecture-processor-topology-enumeration.html
 // Very interesting resource: https://wiki.osdev.org/Detecting_CPU_Topology_(80x86)
