@@ -3,8 +3,6 @@
 #include "midr.h"
 
 #define _PATH_DEVICETREE_MODEL       "/sys/firmware/devicetree/base/model"
-#define _PATH_CPUINFO                "/proc/cpuinfo"
-//#define _PATH_CPUINFO                "cpuinfo_debug"
 
 #define CPUINFO_CPU_IMPLEMENTER_STR  "CPU implementer\t: "
 #define CPUINFO_CPU_ARCHITECTURE_STR "CPU architecture: "

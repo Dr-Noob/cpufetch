@@ -4,7 +4,6 @@
 #include "../common/global.h"
 #include "udev.h"
 
-#define _PATH_CPUINFO          "/proc/cpuinfo"
 #define _PATH_DEVTREE          "/proc/device-tree/compatible"
 #define CPUINFO_UARCH_STR      "uarch\t\t: "
 #define CPUINFO_EXTENSIONS_STR "isa\t\t: "
