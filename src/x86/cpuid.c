@@ -1091,12 +1091,29 @@ void print_debug(struct cpuInfo* cpu) {
   free_cpuinfo_struct(cpu);
 }
 
-// TODO: Query HV and Xeon Phi levels
+void print_raw_level(uint32_t reg) {
+  uint32_t eax = reg;
+  uint32_t ebx = 0;
+  uint32_t ecx = 0;
+  uint32_t edx = 0;
+
+  cpuid(&eax, &ebx, &ecx, &edx);
+
+  printf("  0x%.8X 0x%.2X: 0x%.8X 0x%.8X 0x%.8X 0x%.8X\n", reg, 0x00, eax, ebx, ecx, edx);
+}
+
+void print_raw_sublevel(uint32_t reg, uint32_t reg2) {
+  uint32_t eax = reg;
+  uint32_t ebx = 0;
+  uint32_t ecx = reg2;
+  uint32_t edx = 0;
+
+  cpuid(&eax, &ebx, &ecx, &edx);
+
+  printf("  0x%.8X 0x%.2X: 0x%.8X 0x%.8X 0x%.8X 0x%.8X\n", reg, reg2, eax, ebx, ecx, edx);
+}
+
 void print_raw(struct cpuInfo* cpu) {
-  uint32_t eax;
-  uint32_t ebx;
-  uint32_t ecx;
-  uint32_t edx;
   printf("%s\n\n", cpu->cpu_name);
   printf("  CPUID leaf sub   EAX        EBX        ECX        EDX       \n");
   printf("--------------------------------------------------------------\n");
@@ -1111,66 +1128,40 @@ void print_raw(struct cpuInfo* cpu) {
 
     printf("CPU %d:\n", c);
 
+    // Standard levels
     for(uint32_t reg=0x00000000; reg <= cpu->maxLevels; reg++) {
       if(reg == 0x00000004) {
         for(uint32_t reg2=0x00000000; reg2 < cpu->cach->max_cache_level; reg2++) {
-          eax = reg;
-          ebx = 0;
-          ecx = reg2;
-          edx = 0;
-
-          cpuid(&eax, &ebx, &ecx, &edx);
-
-          printf("  0x%.8X 0x%.2X: 0x%.8X 0x%.8X 0x%.8X 0x%.8X\n", reg, reg2, eax, ebx, ecx, edx);
+          print_raw_sublevel(reg, reg2);
         }
       }
       else if(reg == 0x0000000B) {
         for(uint32_t reg2=0x00000000; reg2 < cpu->topo->smt_supported; reg2++) {
-          eax = reg;
-          ebx = 0;
-          ecx = reg2;
-          edx = 0;
-
-          cpuid(&eax, &ebx, &ecx, &edx);
-
-          printf("  0x%.8X 0x%.2X: 0x%.8X 0x%.8X 0x%.8X 0x%.8X\n", reg, reg2, eax, ebx, ecx, edx);
+          print_raw_sublevel(reg, reg2);
         }
       }
       else {
-        eax = reg;
-        ebx = 0;
-        ecx = 0;
-        edx = 0;
-
-        cpuid(&eax, &ebx, &ecx, &edx);
-
-        printf("  0x%.8X 0x%.2X: 0x%.8X 0x%.8X 0x%.8X 0x%.8X\n", reg, 0x00, eax, ebx, ecx, edx);
+        print_raw_level(reg);
       }
     }
+
+    // Hypervisor levels
+    for(uint32_t reg=0x40000000; reg <= 0x40000006; reg++) {
+      print_raw_level(reg);
+    }
+
+    // Extended levels
     for(uint32_t reg=0x80000000; reg <= cpu->maxExtendedLevels; reg++) {
       if(reg == 0x8000001D) {
         for(uint32_t reg2=0x00000000; reg2 < cpu->cach->max_cache_level; reg2++) {
-          eax = reg;
-          ebx = 0;
-          ecx = reg2;
-          edx = 0;
-
-          cpuid(&eax, &ebx, &ecx, &edx);
-
-          printf("  0x%.8X 0x%.2X: 0x%.8X 0x%.8X 0x%.8X 0x%.8X\n", reg, reg2, eax, ebx, ecx, edx);
+          print_raw_sublevel(reg, reg2);
         }
       }
       else {
-        eax = reg;
-        ebx = 0;
-        ecx = 0;
-        edx = 0;
-
-        cpuid(&eax, &ebx, &ecx, &edx);
-
-        printf("  0x%.8X 0x%.2X: 0x%.8X 0x%.8X 0x%.8X 0x%.8X\n", reg, 0x00, eax, ebx, ecx, edx);
+        print_raw_level(reg);
       }
     }
+
   }
 }
 
