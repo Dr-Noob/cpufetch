@@ -261,23 +261,29 @@ struct hypervisor* get_hp_info(bool hv_present) {
 
   cpuid(&eax, &ebx, &ecx, &edx);
 
-  char name[13];
-  memset(name, 0, 13);
-  get_name_cpuid(name, ebx, ecx, edx);
-
-  bool found = false;
-  uint8_t len = sizeof(hv_vendors_string) / sizeof(hv_vendors_string[0]);
-
-  for(uint8_t v=0; v < len && !found; v++) {
-    if(hv_vendors_string[v] != NULL && strcmp(hv_vendors_string[v], name) == 0) {
-      hv->hv_vendor = v;
-      found = true;
-    }
-  }
-
-  if(!found) {
+  if(ebx == 0x0 && ecx == 0x0 && edx == 0x0) {
     hv->hv_vendor = HV_VENDOR_INVALID;
-    printBug("Unknown hypervisor vendor: %s", name);
+    printWarn("Hypervisor vendor is empty");
+  }
+  else {
+    char name[13];
+    memset(name, 0, 13);
+    get_name_cpuid(name, ebx, ecx, edx);
+
+    bool found = false;
+    uint8_t len = sizeof(hv_vendors_string) / sizeof(hv_vendors_string[0]);
+
+    for(uint8_t v=0; v < len && !found; v++) {
+      if(hv_vendors_string[v] != NULL && strcmp(hv_vendors_string[v], name) == 0) {
+        hv->hv_vendor = v;
+        found = true;
+      }
+    }
+
+    if(!found) {
+      hv->hv_vendor = HV_VENDOR_INVALID;
+      printBug("Unknown hypervisor vendor: %s", name);
+    }
   }
 
   hv->hv_name = hv_vendors_name[hv->hv_vendor];
