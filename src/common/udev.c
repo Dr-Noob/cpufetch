@@ -233,6 +233,7 @@ int get_num_elements_from_files(char** paths, int num_paths) {
     for(int j=0; j < num_bitmasks; j++) {
       char* end;
       tmpbuf = emalloc(sizeof(char) * (strlen(buf) + 1));
+      memset(tmpbuf, 0, sizeof(char) * (strlen(buf) + 1));
       char* commaend = strstr(buf, ",");
       if(commaend == NULL) {
         strcpy(tmpbuf, buf);
