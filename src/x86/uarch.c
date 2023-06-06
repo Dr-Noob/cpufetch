@@ -245,6 +245,7 @@ struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, u
   CHECK_UARCH(arch, 0,  6, 10,  6, NA, "Comet Lake",      UARCH_COMET_LAKE,       14) // instlatx64.atw.hu (i7-10710U)
   CHECK_UARCH(arch, 0,  6, 10,  7, NA, "Rocket Lake",     UARCH_ROCKET_LAKE,      14) // instlatx64.atw.hu (i7-11700K)
   CHECK_UARCH(arch, 0,  6, 11,  7, NA, "Raptor Lake",     UARCH_RAPTOR_LAKE,      10) // instlatx64.atw.hu (i5-13600K)
+  CHECK_UARCH(arch, 0,  6, 11, 10, NA, "Raptor Lake",     UARCH_RAPTOR_LAKE,      10) // instlatx64.atw.hu (i7-1370P)
   CHECK_UARCH(arch, 0, 11,  0,  0, NA, "Knights Ferry",   UARCH_KNIGHTS_FERRY,    45) // found only on en.wikichip.org
   CHECK_UARCH(arch, 0, 11,  0,  1, NA, "Knights Corner",  UARCH_KNIGHTS_CORNER,   22)
   CHECK_UARCH(arch, 0, 15,  0,  0, NA, "Willamette",      UARCH_WILLAMETTE,      180)
@@ -257,7 +258,6 @@ struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, u
   CHECK_UARCH(arch, 1, 15,  0,  1, NA, "Itanium2",        UARCH_ITANIUM2,        130)
   CHECK_UARCH(arch, 1, 15,  0,  2, NA, "Itanium2",        UARCH_ITANIUM2,        130)
   UARCH_END
-
   return arch;
 }
 
