@@ -351,9 +351,29 @@ struct cpuInfo* get_cpu_info_mach(struct cpuInfo* cpu) {
     cpu->peak_performance = get_peak_performance(cpu);
   }
   else if(cpu_family == CPUFAMILY_ARM_AVALANCHE_BLIZZARD) {
-    // Just the "normal" M2 exists for now
     cpu->num_cpus = 2;
-    fill_cpu_info_avalanche_blizzard(cpu, 4, 4);
+    // Now detect the M2 version
+    uint32_t cpu_subfamily = get_sys_info_by_name("hw.cpusubfamily");
+    if(cpu_subfamily == CPUSUBFAMILY_ARM_HG) {
+      // Apple M2
+      fill_cpu_info_avalanche_blizzard(cpu, 4, 4);
+    }
+    else if(cpu_subfamily == CPUSUBFAMILY_ARM_HS) {
+      // Apple M2 Pro. Detect number of cores
+      uint32_t physicalcpu = get_sys_info_by_name("hw.physicalcpu");
+      if(physicalcpu == 10 || physicalcpu == 12) {
+        // M2 Pro (or Max?)
+        fill_cpu_info_avalanche_blizzard(cpu, physicalcpu-4, 4);
+      }
+      else {
+        printBug("Found invalid physical cpu number: %d", physicalcpu);
+        return NULL;
+      }
+    }
+    else {
+      printBug("Found invalid cpu_subfamily: 0x%.8X", cpu_subfamily);
+      return NULL;
+    }
     cpu->soc = get_soc();
     cpu->peak_performance = get_peak_performance(cpu);
   }

@@ -765,6 +765,9 @@ struct system_on_chip* guess_soc_apple(struct system_on_chip* soc) {
     if(cpu_subfamily == CPUSUBFAMILY_ARM_HG) {
       fill_soc(soc, "M2", SOC_APPLE_M2, 5);
     }
+    else if(cpu_subfamily == CPUSUBFAMILY_ARM_HS) {
+      fill_soc(soc, "M2 Pro", SOC_APPLE_M2_PRO, 5);
+    }
     else {
       printBug("Found invalid cpu_subfamily: 0x%.8X", cpu_subfamily);
       soc->soc_vendor = SOC_VENDOR_UNKNOWN;
