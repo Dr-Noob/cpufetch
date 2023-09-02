@@ -302,6 +302,7 @@ enum {
   SOC_ROCKCHIP_3566,
   SOC_ROCKCHIP_3568,
   SOC_ROCKCHIP_3588,
+  SOC_ROCKCHIP_3588S,
   // UNKNOWN
   SOC_MODEL_UNKNOWN
 };
@@ -314,7 +315,7 @@ inline static VENDOR get_soc_vendor_from_soc(SOC soc) {
   else if(soc >= SOC_SNAPD_QSD8650 && soc <= SOC_SNAPD_SM8450) return SOC_VENDOR_SNAPDRAGON;
   else if(soc >= SOC_APPLE_M1 && soc <= SOC_APPLE_M2) return SOC_VENDOR_APPLE;
   else if(soc >= SOC_ALLWINNER_A10 && soc <= SOC_ALLWINNER_R328) return SOC_VENDOR_ALLWINNER;
-  else if(soc >= SOC_ROCKCHIP_3288 && soc <= SOC_ROCKCHIP_3588) return SOC_VENDOR_ROCKCHIP;
+  else if(soc >= SOC_ROCKCHIP_3288 && soc <= SOC_ROCKCHIP_3588S) return SOC_VENDOR_ROCKCHIP;
   return SOC_VENDOR_UNKNOWN;
 }
 
