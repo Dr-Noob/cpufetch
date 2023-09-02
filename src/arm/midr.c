@@ -359,10 +359,14 @@ struct cpuInfo* get_cpu_info_mach(struct cpuInfo* cpu) {
       fill_cpu_info_avalanche_blizzard(cpu, 4, 4);
     }
     else if(cpu_subfamily == CPUSUBFAMILY_ARM_HS) {
-      // Apple M2 Pro. Detect number of cores
+      // Apple M2 Pro/Max/Ultra. Detect number of cores
       uint32_t physicalcpu = get_sys_info_by_name("hw.physicalcpu");
-      if(physicalcpu == 10 || physicalcpu == 12) {
-        // M2 Pro (or Max?)
+      if(physicalcpu == 24) {
+        // M2 Ultra
+        fill_cpu_info_avalanche_blizzard(cpu, 16, 8);
+      }
+      else if(physicalcpu == 10 || physicalcpu == 12) {
+        // M2 Pro/Max
         fill_cpu_info_avalanche_blizzard(cpu, physicalcpu-4, 4);
       }
       else {

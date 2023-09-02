@@ -773,6 +773,20 @@ struct system_on_chip* guess_soc_apple(struct system_on_chip* soc) {
     else if(cpu_subfamily == CPUSUBFAMILY_ARM_HS) {
       fill_soc(soc, "M2 Pro", SOC_APPLE_M2_PRO, 5);
     }
+    else if(cpu_subfamily == CPUSUBFAMILY_ARM_HC_HD) {
+      // Could be M2 Max or M2 Ultra (2x M1 Max)
+      uint32_t physicalcpu = get_sys_info_by_name("hw.physicalcpu");
+      if(physicalcpu == 24) {
+        fill_soc(soc, "M2 Ultra", SOC_APPLE_M2_ULTRA, 5);
+      }
+      else if(physicalcpu == 12) {
+        fill_soc(soc, "M2 Max", SOC_APPLE_M2_MAX, 5);
+      }
+      else {
+        printBug("Found invalid physical cpu number: %d", physicalcpu);
+        soc->soc_vendor = SOC_VENDOR_UNKNOWN;
+      }
+    }
     else {
       printBug("Found invalid cpu_subfamily: 0x%.8X", cpu_subfamily);
       soc->soc_vendor = SOC_VENDOR_UNKNOWN;
