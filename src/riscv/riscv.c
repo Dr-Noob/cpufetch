@@ -9,6 +9,11 @@
 #include "uarch.h"
 #include "soc.h"
 
+#define SET_ISA_EXT_MAP(name, bit)             \
+  if(strncmp(multi_letter_extension, name,     \
+             multi_letter_extension_len) == 0) \
+    ext->mask |= 1UL << bit;                   \
+
 struct frequency* get_frequency_info(uint32_t core) {
   struct frequency* freq = emalloc(sizeof(struct frequency));
 
@@ -41,10 +46,27 @@ int parse_multi_letter_extension(struct extensions* ext, char* e) {
 
   int multi_letter_extension_len = multi_letter_extension_end-(e+1);
 
-  // TODO: Parse extension and fill ext struct
   char* multi_letter_extension = emalloc(multi_letter_extension_len);
   strncpy(multi_letter_extension, e+1, multi_letter_extension_len);
-  printWarn("Not parsed multi-letter extension: %s", multi_letter_extension);
+  // TODO: Add more extensions
+  // https://en.wikipedia.org/wiki/RISC-V
+  SET_ISA_EXT_MAP("smaia",       RISCV_ISA_EXT_SMAIA);
+  SET_ISA_EXT_MAP("ssaia",       RISCV_ISA_EXT_SSAIA);
+  SET_ISA_EXT_MAP("sscofpmf",    RISCV_ISA_EXT_SSCOFPMF);
+  SET_ISA_EXT_MAP("sstc",        RISCV_ISA_EXT_SSTC);
+  SET_ISA_EXT_MAP("svinval",     RISCV_ISA_EXT_SVINVAL);
+  SET_ISA_EXT_MAP("svnapot",     RISCV_ISA_EXT_SVNAPOT);
+  SET_ISA_EXT_MAP("svpbmt",      RISCV_ISA_EXT_SVPBMT);
+  SET_ISA_EXT_MAP("zba",         RISCV_ISA_EXT_ZBA);
+  SET_ISA_EXT_MAP("zbb",         RISCV_ISA_EXT_ZBB);
+  SET_ISA_EXT_MAP("zbs",         RISCV_ISA_EXT_ZBS);
+  SET_ISA_EXT_MAP("zicbom",      RISCV_ISA_EXT_ZICBOM);
+  SET_ISA_EXT_MAP("zicboz",      RISCV_ISA_EXT_ZICBOZ);
+  SET_ISA_EXT_MAP("zihintpause", RISCV_ISA_EXT_ZIHINTPAUSE);
+  else {
+    printBug("parse_multi_letter_extension: Unknown multi-letter extension: %s", multi_letter_extension);
+    return -1;
+  }
 
   return multi_letter_extension_len;
 }
