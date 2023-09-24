@@ -30,6 +30,7 @@ static const char *hv_vendors_string[] = {
   [HV_VENDOR_VMWARE]    = "VMwareVMware",
   [HV_VENDOR_XEN]       = "XenVMMXenVMM",
   [HV_VENDOR_PARALLELS] = "lrpepyh vr",
+  [HV_VENDOR_BHYVE]     = "bhyve bhyve",
   [HV_VENDOR_PHYP]      = NULL
 };
 
@@ -41,6 +42,7 @@ static char *hv_vendors_name[] = {
   [HV_VENDOR_XEN]       = "Xen",
   [HV_VENDOR_PARALLELS] = "Parallels",
   [HV_VENDOR_PHYP]      = "pHyp",
+  [HV_VENDOR_BHYVE]     = "bhyve",
   [HV_VENDOR_INVALID]   = STRING_UNKNOWN
 };
 
