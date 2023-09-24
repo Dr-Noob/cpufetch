@@ -917,16 +917,14 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
 #endif
 
 #ifdef ARCH_RISCV
-// https://stackoverflow.com/questions/109023/count-the-number-of-set-bits-in-a-32-bit-integer
-int number_of_bits(uint32_t i) {
-  i = i - ((i >> 1) & 0x55555555);                 // add pairs of bits
-  i = (i & 0x33333333) + ((i >> 2) & 0x33333333);  // quads
-  i = (i + (i >> 4)) & 0x0F0F0F0F;                 // groups of 8
-
-  return (i * 0x01010101) >> 24;                   // horizontal sum of bytes
+// https://stackoverflow.com/a/2709523
+uint64_t number_of_bits(uint64_t i) {
+  i = i - ((i >> 1) & 0x5555555555555555);
+  i = (i & 0x3333333333333333) + ((i >> 2) & 0x3333333333333333);
+  return (((i + (i >> 4)) & 0xF0F0F0F0F0F0F0F) * 0x101010101010101) >> 56;
 }
 
-void print_ascii_riscv(struct ascii* art, uint32_t la, int32_t termw, const char** attribute_fields, uint32_t extensions_mask) {
+void print_ascii_riscv(struct ascii* art, uint32_t la, int32_t termw, const char** attribute_fields, uint64_t extensions_mask) {
   struct ascii_logo* logo = art->art;
   int attr_to_print = 0;
   int attr_type;
@@ -940,7 +938,7 @@ void print_ascii_riscv(struct ascii* art, uint32_t la, int32_t termw, const char
   int32_t space_up = ((int)logo->height - (int)(art->n_attributes_set + num_extensions))/2;
   int32_t space_down = (int)logo->height - (int)(art->n_attributes_set + num_extensions) - (int)space_up;
   uint32_t logo_pos = 0;
-  int32_t iters = max(logo->height, art->n_attributes_set);
+  int32_t iters = max(logo->height, art->n_attributes_set + num_extensions);
 
   struct line_buffer* lbuf = emalloc(sizeof(struct line_buffer));
   lbuf->buf = emalloc(sizeof(char) * LINE_BUFFER_SIZE);

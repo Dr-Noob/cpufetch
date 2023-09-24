@@ -123,7 +123,7 @@ struct features {
 
 struct extensions {
   char* str;
-  uint32_t mask;
+  uint64_t mask;
 };
 
 struct cpuInfo {
