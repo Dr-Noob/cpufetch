@@ -9,6 +9,13 @@
 #include "uarch.h"
 #include "soc.h"
 
+#define SET_ISA_EXT_MAP(name, bit)          \
+  if(strncmp(multi_letter_extension, name,  \
+        multi_letter_extension_len) == 0) { \
+    ext->mask |= 1UL << bit;                \
+    maskset = true;                         \
+  }                                         \
+
 struct frequency* get_frequency_info(uint32_t core) {
   struct frequency* freq = emalloc(sizeof(struct frequency));
 
@@ -28,6 +35,49 @@ int64_t get_peak_performance(struct cpuInfo* cpu) {
   return flops;
 }
 
+// Returns the length of the multi-letter
+// extension, or -1 if an error occurs
+int parse_multi_letter_extension(struct extensions* ext, char* e) {
+  if(*e != '_') return -1;
+  char* multi_letter_extension_end = strstr(e+1, "_");
+  if(multi_letter_extension_end == NULL) {
+    // This is the last extension, find the end
+    // of the string
+    multi_letter_extension_end = e + strlen(e);
+  }
+
+  int multi_letter_extension_len = multi_letter_extension_end-(e+1);
+  bool maskset = false;
+  char* multi_letter_extension = emalloc(multi_letter_extension_len);
+  strncpy(multi_letter_extension, e+1, multi_letter_extension_len);
+  // This should be up-to-date with
+  // https://elixir.bootlin.com/linux/latest/source/arch/riscv/kernel/cpufeature.c
+  // which should represent the list of extensions available in real chips
+  SET_ISA_EXT_MAP("sscofpmf",    RISCV_ISA_EXT_SSCOFPMF)
+  SET_ISA_EXT_MAP("sstc",        RISCV_ISA_EXT_SSTC)
+  SET_ISA_EXT_MAP("svinval",     RISCV_ISA_EXT_SVINVAL)
+  SET_ISA_EXT_MAP("svpbmt",      RISCV_ISA_EXT_SVPBMT)
+  SET_ISA_EXT_MAP("zbb",         RISCV_ISA_EXT_ZBB)
+  SET_ISA_EXT_MAP("zicbom",      RISCV_ISA_EXT_ZICBOM)
+  SET_ISA_EXT_MAP("zihintpause", RISCV_ISA_EXT_ZIHINTPAUSE)
+  SET_ISA_EXT_MAP("svnapot",     RISCV_ISA_EXT_SVNAPOT)
+  SET_ISA_EXT_MAP("zicboz",      RISCV_ISA_EXT_ZICBOZ)
+  SET_ISA_EXT_MAP("smaia",       RISCV_ISA_EXT_SMAIA)
+  SET_ISA_EXT_MAP("ssaia",       RISCV_ISA_EXT_SSAIA)
+  SET_ISA_EXT_MAP("zba",         RISCV_ISA_EXT_ZBA)
+  SET_ISA_EXT_MAP("zbs",         RISCV_ISA_EXT_ZBS)
+  SET_ISA_EXT_MAP("zicntr",      RISCV_ISA_EXT_ZICNTR)
+  SET_ISA_EXT_MAP("zicsr",       RISCV_ISA_EXT_ZICSR)
+  SET_ISA_EXT_MAP("zifencei",    RISCV_ISA_EXT_ZIFENCEI)
+  SET_ISA_EXT_MAP("zihpm",       RISCV_ISA_EXT_ZIHPM)
+  if(!maskset) {
+    printBug("parse_multi_letter_extension: Unknown multi-letter extension: %s", multi_letter_extension);
+    return -1;
+  }
+
+  return multi_letter_extension_len;
+}
+
 struct extensions* get_extensions_from_str(char* str) {
   struct extensions* ext = emalloc(sizeof(struct extensions));
   ext->mask = 0;
@@ -42,7 +92,7 @@ struct extensions* get_extensions_from_str(char* str) {
   memset(ext->str, 0, len);
   strncpy(ext->str, str, sizeof(char) * len);
 
-  // Code inspired in Linux kernel:
+  // Code inspired in Linux kernel (riscv_fill_hwcap):
   // https://elixir.bootlin.com/linux/v6.2.10/source/arch/riscv/kernel/cpufeature.c
   char* isa = str;
   if (!strncmp(isa, "rv32", 4))
@@ -55,8 +105,18 @@ struct extensions* get_extensions_from_str(char* str) {
   }
 
   for(char* e = isa; *e != '\0'; e++) {
-    int n = *e - 'a';
-    ext->mask |= 1UL << n;
+    if(*e == '_') {
+      // Multi-letter extension
+      int multi_letter_extension_len = parse_multi_letter_extension(ext, e);
+      if(multi_letter_extension_len == -1) {
+        return ext;
+      }
+      e += multi_letter_extension_len;
+    }
+    else {
+      int n = *e - 'a';
+      ext->mask |= 1UL << n;
+    }
   }
 
   return ext;

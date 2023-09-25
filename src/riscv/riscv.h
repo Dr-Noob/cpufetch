@@ -8,6 +8,34 @@ struct extension {
   char* str;
 };
 
+#define RISCV_ISA_EXT_NAME_LEN_MAX 32
+#define RISCV_ISA_EXT_BASE         26
+
+// https://elixir.bootlin.com/linux/latest/source/arch/riscv/include/asm/hwcap.h
+// This enum represent the logical ID for multi-letter RISC-V ISA extensions.
+// The logical ID should start from RISCV_ISA_EXT_BASE
+enum riscv_isa_ext_id {
+  RISCV_ISA_EXT_SSCOFPMF = RISCV_ISA_EXT_BASE,
+  RISCV_ISA_EXT_SSTC,
+  RISCV_ISA_EXT_SVINVAL,
+  RISCV_ISA_EXT_SVPBMT,
+  RISCV_ISA_EXT_ZBB,
+  RISCV_ISA_EXT_ZICBOM,
+  RISCV_ISA_EXT_ZIHINTPAUSE,
+  RISCV_ISA_EXT_SVNAPOT,
+  RISCV_ISA_EXT_ZICBOZ,
+  RISCV_ISA_EXT_SMAIA,
+  RISCV_ISA_EXT_SSAIA,
+  RISCV_ISA_EXT_ZBA,
+  RISCV_ISA_EXT_ZBS,
+  RISCV_ISA_EXT_ZICNTR,
+  RISCV_ISA_EXT_ZICSR,
+  RISCV_ISA_EXT_ZIFENCEI,
+  RISCV_ISA_EXT_ZIHPM,
+  RISCV_ISA_EXT_ID_MAX
+};
+
+// https://five-embeddev.com/riscv-isa-manual/latest/preface.html#preface
 // https://en.wikichip.org/wiki/risc-v/standard_extensions
 // Included all except for G
 static const struct extension extension_list[] = {
@@ -26,7 +54,25 @@ static const struct extension extension_list[] = {
   { 'v' - 'a', "(V) Vector Operations" },
   { 'n' - 'a', "(N) User-Level Interrupts" },
   { 'h' - 'a', "(H) Hypervisor" },
-  { 's' - 'a', "(S) Supervisor-level Instructions" }
+  { 's' - 'a', "(S) Supervisor-level Instructions" },
+  // multi-letter extensions
+  { RISCV_ISA_EXT_SSCOFPMF,    "(Sscofpmf) Count OverFlow and Privilege Mode Filtering" },
+  { RISCV_ISA_EXT_SSTC,        "(Sstc) S and VS level Time Compare" },
+  { RISCV_ISA_EXT_SVINVAL,     "(Svinval) Fast TLB Invalidation" },
+  { RISCV_ISA_EXT_SVPBMT,      "(Svpbmt) Page-based Memory Types" },
+  { RISCV_ISA_EXT_ZBB,         "(Zbb) Basic bit-manipulation" },
+  { RISCV_ISA_EXT_ZICBOM,      "(Zicbom) Cache Block Management Operations" },
+  { RISCV_ISA_EXT_ZIHINTPAUSE, "(Zihintpause) Pause Hint" },
+  { RISCV_ISA_EXT_SVNAPOT,     "(Svnapot) Naturally Aligned Power of Two Pages" },
+  { RISCV_ISA_EXT_ZICBOZ,      "(Zicboz) Cache Block Zero Operations" },
+  { RISCV_ISA_EXT_SMAIA,       "(Smaia) Advanced Interrupt Architecture" },
+  { RISCV_ISA_EXT_SSAIA,       "(Ssaia) Advanced Interrupt Architecture" },
+  { RISCV_ISA_EXT_ZBA,         "(Zba) Address Generation" },
+  { RISCV_ISA_EXT_ZBS,         "(Zbs) Single-bit Instructions" },
+  { RISCV_ISA_EXT_ZICNTR,      "(Zicntr) Base Counters and Timers" },
+  { RISCV_ISA_EXT_ZICSR,       "(Zicsr) Control and Status Register" },
+  { RISCV_ISA_EXT_ZIFENCEI,    "(Zifencei) Instruction-Fetch Fence" },
+  { RISCV_ISA_EXT_ZIHPM,       "(Zihpm) Hardware Performance Counters" }
 };
 
 struct cpuInfo* get_cpu_info(void);
