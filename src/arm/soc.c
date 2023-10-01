@@ -19,7 +19,8 @@ static char* soc_rpi_string[] = {
   "BCM2835",
   "BCM2836",
   "BCM2837",
-  "BCM2711"
+  "BCM2711",
+  "BCM2712"
 };
 
 char* toupperstr(char* str) {
@@ -111,7 +112,6 @@ bool match_broadcom(char* soc_name, struct system_on_chip* soc) {
   SOC_EQ(tmp, "BCM2836",              "2836",              SOC_BCM_2836,   soc, 40)
   SOC_EQ(tmp, "BCM2837",              "2837",              SOC_BCM_2837,   soc, 40)
   SOC_EQ(tmp, "BCM2837B0",            "2837B0",            SOC_BCM_2837B0, soc, 40)
-  SOC_EQ(tmp, "BCM2711",              "2711",              SOC_BCM_2711,   soc, 28)
   SOC_EQ(tmp, "BCM21553",             "21553",             SOC_BCM_21553,  soc, 65)
   SOC_EQ(tmp, "BCM21553-Thunderbird", "21553 Thunderbird", SOC_BCM_21553T, soc, 65)
   SOC_EQ(tmp, "BCM21663",             "21663",             SOC_BCM_21663,  soc, 40)
@@ -121,6 +121,8 @@ bool match_broadcom(char* soc_name, struct system_on_chip* soc) {
   SOC_EQ(tmp, "BCM28145",             "28145",             SOC_BCM_28145,  soc, 40)
   SOC_EQ(tmp, "BCM2157",              "2157",              SOC_BCM_2157,   soc, 65)
   SOC_EQ(tmp, "BCM21654",             "21654",             SOC_BCM_21654,  soc, 40)
+  SOC_EQ(tmp, "BCM2711",              "2711",              SOC_BCM_2711,   soc, 28)
+  SOC_EQ(tmp, "BCM2712",              "2712",              SOC_BCM_2712,   soc, 16)
   SOC_END
 }
 

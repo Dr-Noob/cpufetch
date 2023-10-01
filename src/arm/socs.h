@@ -10,7 +10,6 @@ enum {
   SOC_BCM_2836,
   SOC_BCM_2837,
   SOC_BCM_2837B0,
-  SOC_BCM_2711,
   SOC_BCM_21553,
   SOC_BCM_21553T,
   SOC_BCM_21663,
@@ -20,6 +19,8 @@ enum {
   SOC_BCM_28145,
   SOC_BCM_2157,
   SOC_BCM_21654,
+  SOC_BCM_2711,
+  SOC_BCM_2712,
   // Hisilicon //
   SOC_HISILICON_3620,
   SOC_HISILICON_3630,
@@ -308,7 +309,7 @@ enum {
 };
 
 inline static VENDOR get_soc_vendor_from_soc(SOC soc) {
-  if(soc >= SOC_BCM_2835 && soc <= SOC_BCM_21654) return SOC_VENDOR_BROADCOM;
+  if(soc >= SOC_BCM_2835 && soc <= SOC_BCM_2712) return SOC_VENDOR_BROADCOM;
   else if(soc >= SOC_HISILICON_3620 && soc <= SOC_HISILICON_3690) return SOC_VENDOR_KIRIN;
   else if(soc >= SOC_EXYNOS_3475 && soc <= SOC_EXYNOS_880) return SOC_VENDOR_EXYNOS;
   else if(soc >= SOC_MTK_MT6893 && soc <= SOC_MTK_MT8783) return SOC_VENDOR_MEDIATEK;
