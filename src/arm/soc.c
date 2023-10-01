@@ -698,7 +698,13 @@ int hex2int(char c) {
   return -1;
 }
 
-// https://www.raspberrypi.org/documentation/hardware/raspberrypi/revision-codes/README.md
+/*
+ * https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-revision-codes:
+ * NOTE: As of the 4.9 kernel, all Raspberry Pi computers report BCM2835, even those with BCM2836,
+ * BCM2837 and BCM2711 processors. You should not use this string to detect the processor. Decode the
+ * revision code using the information below.
+ * https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#new-style-revision-codes-in-use
+ */
 struct system_on_chip* guess_soc_raspbery_pi(struct system_on_chip* soc) {
   char* revision = get_revision_from_cpuinfo();
 
@@ -714,22 +720,19 @@ struct system_on_chip* guess_soc_raspbery_pi(struct system_on_chip* soc) {
 
   int arr_size = ARRAY_SIZE(soc_rpi_string);
   int pppp = hex2int(revision[2]);
-  if(pppp == -1) {
-    printErr("[RPi] Found invalid RPi PPPP code: %s", revision[2]);
+  if(pppp < 0) {
+    printBug("[RPi] Found invalid RPi PPPP code: %s", pppp);
     return soc;
   }
 
-  if(pppp > arr_size) {
-    printErr("[RPi] Found invalid RPi PPPP code: %d while max is %d", pppp, arr_size);
+  if(pppp > arr_size-1) {
+    printBug("[RPi] Found invalid RPi PPPP code: %d (max is %d)", pppp, arr_size-1);
     return soc;
   }
 
   char* soc_raw_name = soc_rpi_string[pppp];
-  /*int soc_len = strlen(soc_raw_name);
-  soc->raw_name = emalloc(sizeof(char) * (soc_len + 1));
-  strncpy(soc->raw_name, soc_raw_name, soc_len + 1);*/
-
   match_broadcom(soc_raw_name, soc);
+
   return soc;
 }
 
@@ -812,7 +815,7 @@ struct system_on_chip* get_soc(void) {
   if(isRPi) {
     soc = guess_soc_raspbery_pi(soc);
     if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) {
-      printWarn("SoC detection failed using revision code");
+      printErr("[RPi] SoC detection failed using revision code, falling back to cpuinfo detection");
     }
     else {
       return soc;
