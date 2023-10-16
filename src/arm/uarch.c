@@ -68,8 +68,10 @@ enum {
   UARCH_CORTEX_A78,
   UARCH_CORTEX_A510,
   UARCH_CORTEX_A710,
+  UARCH_CORTEX_A715,
   UARCH_CORTEX_X1,
   UARCH_CORTEX_X2,
+  UARCH_CORTEX_X3,
   UARCH_NEOVERSE_N1,
   UARCH_NEOVERSE_E1,
   UARCH_NEOVERSE_V1,
@@ -143,8 +145,10 @@ static const ISA isas_uarch[] = {
   [UARCH_CORTEX_A78]   = ISA_ARMv8_2_A,
   [UARCH_CORTEX_A510]   = ISA_ARMv9_A,
   [UARCH_CORTEX_A710]   = ISA_ARMv9_A,
+  [UARCH_CORTEX_A715]  = ISA_ARMv9_A,
   [UARCH_CORTEX_X1]    = ISA_ARMv8_2_A,
   [UARCH_CORTEX_X2]    = ISA_ARMv9_A,
+  [UARCH_CORTEX_X3]    = ISA_ARMv9_A,
   [UARCH_NEOVERSE_N1]  = ISA_ARMv8_2_A,
   [UARCH_NEOVERSE_E1]  = ISA_ARMv8_2_A,
   [UARCH_NEOVERSE_V1]  = ISA_ARMv8_4_A,
@@ -210,7 +214,7 @@ void fill_uarch(struct uarch* arch, struct cpuInfo* cpu, char* str, MICROARCH u,
 
 /*
  * Codes are based on pytorch/cpuinfo, more precisely:
- * - https://github.com/pytorch/cpuinfo/blob/master/src/arm/uarch.c
+ * - https://github.com/pytorch/cpuinfo/blob/main/src/arm/uarch.c
  * Other sources:
  * - https://elixir.bootlin.com/linux/latest/source/arch/arm64/include/asm/cputype.h
  * - https://elixir.bootlin.com/linux/latest/source/arch/arm/include/asm/cputype.h
@@ -263,6 +267,8 @@ struct uarch* get_uarch_from_midr(uint32_t midr, struct cpuInfo* cpu) {
   CHECK_UARCH(arch, cpu, 'A', 0xD47, NA, NA, "Cortex‑A710",           UARCH_CORTEX_A710,  CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD48, NA, NA, "Cortex-X2",             UARCH_CORTEX_X2,    CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD4A, NA, NA, "Neoverse E1",           UARCH_NEOVERSE_E1,  CPU_VENDOR_ARM)
+  CHECK_UARCH(arch, cpu, 'A', 0xD4D, NA, NA, "Cortex-A715",           UARCH_CORTEX_A715,  CPU_VENDOR_ARM)
+  CHECK_UARCH(arch, cpu, 'A', 0xD4E, NA, NA, "Cortex-X3",             UARCH_CORTEX_X3,    CPU_VENDOR_ARM)
 
   CHECK_UARCH(arch, cpu, 'B', 0x00F, NA, NA, "Brahma B15",            UARCH_BRAHMA_B15,   CPU_VENDOR_BROADCOM)
   CHECK_UARCH(arch, cpu, 'B', 0x100, NA, NA, "Brahma B53",            UARCH_BRAHMA_B53,   CPU_VENDOR_BROADCOM)
@@ -383,6 +389,7 @@ int get_number_of_vpus(struct cpuInfo* cpu) {
     case UARCH_AVALANCHE:   // [https://en.wikipedia.org/wiki/Comparison_of_ARM_processors]
     case UARCH_CORTEX_X1:   // [https://www.anandtech.com/show/15813/arm-cortex-a78-cortex-x1-cpu-ip-diverging/3]
     case UARCH_CORTEX_X2:   // [https://www.anandtech.com/show/16693/arm-announces-mobile-armv9-cpu-microarchitectures-cortexx2-cortexa710-cortexa510/2]
+    case UARCH_CORTEX_X3:   // [https://www.hwcooling.net/en/cortex-x3-the-new-fastest-arm-core-architecture-analysis: "The FPU and SIMD unit of the core still has four pipelines"]
     case UARCH_NEOVERSE_V1: // [https://en.wikichip.org/wiki/arm_holdings/microarchitectures/neoverse_v1]
       return 4;
     case UARCH_EXYNOS_M3:   // [https://www.anandtech.com/show/12361/samsung-exynos-m3-architecture]
@@ -401,13 +408,13 @@ int get_number_of_vpus(struct cpuInfo* cpu) {
     case UARCH_EXYNOS_M1:   // [https://www.anandtech.com/show/12361/samsung-exynos-m3-architecture]
     case UARCH_EXYNOS_M2:   // [https://www.anandtech.com/show/12361/samsung-exynos-m3-architecture]
     case UARCH_NEOVERSE_N1: // [https://en.wikichip.org/wiki/arm_holdings/microarchitectures/neoverse_n1#Individual_Core]
+    case UARCH_CORTEX_A710: // [https://chipsandcheese.com/2023/08/11/arms-cortex-a710-winning-by-default/]: Fig in Core Overview. Table in Instruction Scheduling and Execution
+    case UARCH_CORTEX_A715: // [https://www.hwcooling.net/en/arm-introduces-new-cortex-a715-core-architecture-analysis/]: "the numbers of ALU and FPU execution units themselves >
       return 2;
     case UARCH_NEOVERSE_E1: // [https://www.anandtech.com/show/13959/arm-announces-neoverse-n1-platform/5]
     // A510 is integrated as part of a Complex. Normally, each complex would incorporate two Cortex-A510 cores.
     // Each complex incorporates a single VPU with 2 ports, so for each A510 there is theoretically 1 port.
     case UARCH_CORTEX_A510: // [https://en.wikichip.org/wiki/arm_holdings/microarchitectures/cortex-a510#Vector_Processing_Unit_.28VPU.29]
-    // Not sure about this one since there is no explicit information saying it has one, but they never state it has more either.
-    case UARCH_CORTEX_A710: // [Arm Cortex‑A710 Core Technical Reference Manual]
       return 1;
     default:
       // ARMv6
