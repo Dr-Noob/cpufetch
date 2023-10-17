@@ -304,6 +304,10 @@ enum {
   SOC_ROCKCHIP_3568,
   SOC_ROCKCHIP_3588,
   SOC_ROCKCHIP_3588S,
+  // GOOGLE
+  SOC_GOOGLE_TENSOR,
+  SOC_GOOGLE_TENSOR_G2,
+  SOC_GOOGLE_TENSOR_G3,
   // UNKNOWN
   SOC_MODEL_UNKNOWN
 };
@@ -317,6 +321,7 @@ inline static VENDOR get_soc_vendor_from_soc(SOC soc) {
   else if(soc >= SOC_APPLE_M1 && soc <= SOC_APPLE_M2_ULTRA) return SOC_VENDOR_APPLE;
   else if(soc >= SOC_ALLWINNER_A10 && soc <= SOC_ALLWINNER_R328) return SOC_VENDOR_ALLWINNER;
   else if(soc >= SOC_ROCKCHIP_3288 && soc <= SOC_ROCKCHIP_3588S) return SOC_VENDOR_ROCKCHIP;
+  else if(soc >= SOC_GOOGLE_TENSOR && soc <= SOC_GOOGLE_TENSOR_G3) return SOC_VENDOR_GOOGLE;
   return SOC_VENDOR_UNKNOWN;
 }
 

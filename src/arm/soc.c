@@ -126,6 +126,22 @@ bool match_broadcom(char* soc_name, struct system_on_chip* soc) {
   SOC_END
 }
 
+// https://en.wikipedia.org/wiki/Google_Tensor
+bool match_google(char* soc_name, struct system_on_chip* soc) {
+  char* tmp;
+
+  if((tmp = strstr(soc_name, "gs")) == NULL)
+    return false;
+
+  soc->soc_vendor = SOC_VENDOR_GOOGLE;
+
+  SOC_START
+  SOC_EQ(tmp, "gs101", "Tensor",    SOC_GOOGLE_TENSOR,    soc, 5)
+  SOC_EQ(tmp, "gs201", "Tensor G2", SOC_GOOGLE_TENSOR_G2, soc, 5)
+  SOC_EQ(tmp, "gs301", "Tensor G3", SOC_GOOGLE_TENSOR_G3, soc, 4)
+  SOC_END
+}
+
 // https://www.techinsights.com/
 // https://datasheetspdf.com/pdf-file/1316605/HiSilicon/Hi3660/1
 bool match_hisilicon(char* soc_name, struct system_on_chip* soc) {
@@ -537,6 +553,21 @@ bool match_special(char* soc_name, struct system_on_chip* soc) {
     return true;
   }
 
+  // Google Pixel 6
+  // https://github.com/Dr-Noob/cpufetch/issues/134
+  if(strcmp(soc_name, "oriole") == 0) {
+    fill_soc(soc, "Tensor", SOC_GOOGLE_TENSOR, 5);
+    return true;
+  }
+
+  // Google Pixel 8
+  // https://github.com/Dr-Noob/cpufetch/issues/198
+  if(strcmp(soc_name, "husky") == 0 ||
+     strcmp(soc_name, "zuma") == 0) {
+    fill_soc(soc, "Tensor G3", SOC_GOOGLE_TENSOR_G3, 4);
+    return true;
+  }
+
   return false;
 }
 
@@ -559,6 +590,9 @@ struct system_on_chip* parse_soc_from_string(struct system_on_chip* soc) {
     return soc;
 
   if(match_allwinner(raw_name, soc))
+    return soc;
+
+  if(match_google(raw_name, soc))
     return soc;
 
   match_broadcom(raw_name, soc);
