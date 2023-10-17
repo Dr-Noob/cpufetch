@@ -218,6 +218,23 @@ $C1    kMMMMMMMMMMMMMMMMMMMMMMd    \
 $C1     'KMMMMMMMWXXWMMMMMMMk.     \
 $C1       \"cooc\"*    \"*coo'\"       "
 
+#define ASCII_GOOGLE \
+"$C1            aaaaaaaa               \
+$C1        .MMMMMMMMMMMMMMMM.         \
+$C1     .MMMMMMMMMMMMMMMMMMMMM*       \
+$C1   .MMMMMMMM**        *MM*         \
+$C1  MMMMMMM.                         \
+$C1 *MMMMM.                           \
+$C1*MMMMMM          lMMMMMMMMMMMMMMM* \
+$C1MMMMMMM          lMMMMMMMMMMMMMMMM \
+$C1*MMMMMM          lMMMMMMMMMMMMMMMd \
+$C1 MMMMMMM.                  *MMMMM. \
+$C1  MMMMMMMM.              .MMMMMM.  \
+$C1   *MMMMMMMMM*.......MMMMMMMMM*    \
+$C1     *MMMMMMMMMMMMMMMMMMMMMM*      \
+$C1         *MMMMMMMMMMMMMM*          \
+$C1              ******               "
+
 #define ASCII_ALLWINNER \
 "$C1                                               \
 $C1                #################              \
@@ -454,6 +471,7 @@ asciiL logo_broadcom    = { ASCII_BROADCOM,    44, 19, false, {C_FG_WHITE, C_FG_
 asciiL logo_arm         = { ASCII_ARM,         42,  5, false, {C_FG_CYAN},                        {C_FG_WHITE,   C_FG_CYAN}    };
 asciiL logo_ibm         = { ASCII_IBM,         42,  9, false, {C_FG_CYAN, C_FG_WHITE},            {C_FG_CYAN,    C_FG_WHITE}   };
 asciiL logo_apple       = { ASCII_APPLE,       32, 17, false, {C_FG_WHITE},                       {C_FG_CYAN,    C_FG_B_WHITE} };
+asciiL logo_google      = { ASCII_GOOGLE,      35, 15, false, {C_FG_WHITE},                       {C_FG_CYAN,    C_FG_B_WHITE} };
 asciiL logo_allwinner   = { ASCII_ALLWINNER,   47, 16, false, {C_FG_CYAN},                        {C_FG_B_BLACK, C_FG_B_CYAN } };
 asciiL logo_rockchip    = { ASCII_ROCKCHIP,    58,  8, false, {C_FG_CYAN, C_FG_YELLOW},           {C_FG_CYAN,    C_FG_YELLOW}  };
 asciiL logo_riscv       = { ASCII_RISCV,       63, 18, false, {C_FG_CYAN, C_FG_YELLOW},           {C_FG_CYAN,    C_FG_YELLOW}  };

@@ -368,6 +368,8 @@ void choose_ascii_art(struct ascii* art, struct color** cs, struct terminal* ter
     art->art = &logo_broadcom;
   else if(art->vendor == SOC_VENDOR_APPLE)
     art->art = &logo_apple;
+  else if(art->vendor == SOC_VENDOR_GOOGLE)
+    art->art = &logo_google;
   else if(art->vendor == SOC_VENDOR_ALLWINNER)
     art->art = &logo_allwinner;
   else if(art->vendor == SOC_VENDOR_ROCKCHIP)
