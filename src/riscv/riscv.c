@@ -78,6 +78,18 @@ int parse_multi_letter_extension(struct extensions* ext, char* e) {
   return multi_letter_extension_len;
 }
 
+bool valid_extension(char ext) {
+  bool found = false;
+  uint64_t idx = 0;
+
+  while(idx < sizeof(extension_list)/sizeof(extension_list[0]) && !found) {
+    found = (extension_list[idx].id == (ext - 'a'));
+    if(!found) idx++;
+  }
+
+  return found;
+}
+
 struct extensions* get_extensions_from_str(char* str) {
   struct extensions* ext = emalloc(sizeof(struct extensions));
   ext->mask = 0;
@@ -114,8 +126,22 @@ struct extensions* get_extensions_from_str(char* str) {
       e += multi_letter_extension_len;
     }
     else {
-      int n = *e - 'a';
-      ext->mask |= 1UL << n;
+      // Single-letter extensions 's' and 'u' are invalid
+      // according to Linux kernel (arch/riscv/kernel/cpufeature.c:
+      // riscv_fill_hwcap). Optionally, we could opt for using
+      // hwcap instead of cpuinfo to avoid this
+      if (*e == 's' || *e == 'u') {
+        continue;
+      }
+      // Make sure that the extension is valid before
+      // adding it to the mask
+      if(valid_extension(*e)) {
+        int n = *e - 'a';
+        ext->mask |= 1UL << n;
+      }
+      else {
+        printBug("get_extensions_from_str: Invalid extension: '%c'", *e);
+      }
     }
   }
 

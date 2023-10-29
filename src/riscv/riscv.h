@@ -54,7 +54,6 @@ static const struct extension extension_list[] = {
   { 'v' - 'a', "(V) Vector Operations" },
   { 'n' - 'a', "(N) User-Level Interrupts" },
   { 'h' - 'a', "(H) Hypervisor" },
-  { 's' - 'a', "(S) Supervisor-level Instructions" },
   // multi-letter extensions
   { RISCV_ISA_EXT_SSCOFPMF,    "(Sscofpmf) Count OverFlow and Privilege Mode Filtering" },
   { RISCV_ISA_EXT_SSTC,        "(Sstc) S and VS level Time Compare" },
