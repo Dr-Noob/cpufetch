@@ -32,6 +32,12 @@ bool match_allwinner(char* soc_name, struct system_on_chip* soc) {
   SOC_END
 }
 
+bool match_sipeed(char* soc_name, struct system_on_chip* soc) {
+  SOC_START
+  SOC_EQ(soc_name, "light", "Lichee Pi 4A", SOC_SIPEED_LICHEEPI4A, soc, 12) // https://github.com/Dr-Noob/cpufetch/issues/200, https://sipeed.com/licheepi4a
+  SOC_END
+}
+
 struct system_on_chip* parse_soc_from_string(struct system_on_chip* soc) {
   char* raw_name = soc->raw_name;
 
@@ -41,7 +47,10 @@ struct system_on_chip* parse_soc_from_string(struct system_on_chip* soc) {
   if(match_allwinner(raw_name, soc))
     return soc;
 
-  match_sifive(raw_name, soc);
+  if(match_sifive(raw_name, soc))
+    return soc;
+
+  match_sipeed(raw_name, soc);
   return soc;
 }
 
