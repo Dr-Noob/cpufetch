@@ -384,6 +384,8 @@ void choose_ascii_art(struct ascii* art, struct color** cs, struct terminal* ter
     art->art = choose_ascii_art_aux(&logo_starfive_l, &logo_starfive, term, lf);
   else if(art->vendor == SOC_VENDOR_ALLWINNER)
     art->art = &logo_allwinner;
+  else if(art->vendor == SOC_VENDOR_SIPEED)
+    art->art = &logo_sipeed;
   else
     art->art = &logo_riscv;
 #endif
