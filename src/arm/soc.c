@@ -12,6 +12,7 @@
   #include "sysctl.h"
 #endif
 
+#define NA -1
 #define min(a,b) (((a)<(b))?(a):(b))
 #define ARRAY_SIZE(arr)     (sizeof(arr) / sizeof((arr)[0]))
 
@@ -240,6 +241,10 @@ bool match_exynos(char* soc_name, struct system_on_chip* soc) {
   SOC_END
 }
 
+// https://www.phonemore.com/processors/mediatek/
+// https://phonedb.net/
+// https://en.wikipedia.org/wiki/List_of_MediaTek_systems_on_chips
+// https://wikimovel.com/index.php/MediaTek
 bool match_mediatek(char* soc_name, struct system_on_chip* soc) {
   char* tmp;
   char* soc_name_upper = toupperstr(soc_name);
@@ -251,25 +256,38 @@ bool match_mediatek(char* soc_name, struct system_on_chip* soc) {
 
   SOC_START
   // Dimensity //
+  SOC_EQ(tmp, "MT6893Z",  "Dimensity 1300",  SOC_MTK_MT6893Z,  soc, 6)
   SOC_EQ(tmp, "MT6893",   "Dimensity 1200",  SOC_MTK_MT6893,   soc, 6)
   SOC_EQ(tmp, "MT6891",   "Dimensity 1100",  SOC_MTK_MT6891,   soc, 6)
+  //SOC_EQ(tmp, "MT6877V",  "Dimensity 1080",  SOC_MTK_MT6877V   soc, 7) // There is a clash between this and another chip
+  SOC_EQ(tmp, "MT6879",   "Dimensity 1050",  SOC_MTK_MT6879,   soc, 6)
   SOC_EQ(tmp, "MT6889",   "Dimensity 1000",  SOC_MTK_MT6889,   soc, 7)
   SOC_EQ(tmp, "MT6885Z",  "Dimensity 1000L", SOC_MTK_MT6885Z,  soc, 7)
-  //SOC_EQ(tmp, "?",      "Dimensity 700",   SOC_MTK_,         soc, 7)
+  SOC_EQ(tmp, "MT6889Z",  "Dimensity 1000+", SOC_MTK_MT6889Z,  soc, 7)
+  SOC_EQ(tmp, "MT6883Z",  "Dimensity 1000C", SOC_MTK_MT6883Z,  soc, 7)
+  SOC_EQ(tmp, "MT6833",   "Dimensity 700",   SOC_MTK_MT6833,   soc, 7)
   SOC_EQ(tmp, "MT6853",   "Dimensity 720",   SOC_MTK_MT6853,   soc, 7)
   SOC_EQ(tmp, "MT6873",   "Dimensity 800",   SOC_MTK_MT6873,   soc, 7)
+  SOC_EQ(tmp, "MT6853V",  "Dimensity 800U",  SOC_MTK_MT6853V,  soc, 7)
+  SOC_EQ(tmp, "MT6833",   "Dimensity 810",   SOC_MTK_MT6833,   soc, 6)
   SOC_EQ(tmp, "MT6875",   "Dimensity 820",   SOC_MTK_MT6875,   soc, 7)
   // Helio //
   SOC_EQ(tmp, "MT6761D",  "Helio A20",       SOC_MTK_MT6761D,  soc, 12)
   SOC_EQ(tmp, "MT6761",   "Helio A22",       SOC_MTK_MT6761,   soc, 12)
   SOC_EQ(tmp, "MT6762D",  "Helio A25",       SOC_MTK_MT6762D,  soc, 12)
-  //SOC_EQ(tmp, "?",      "Helio G25",       SOC_MTK_,         soc, 12)
-  //SOC_EQ(tmp, "?",      "Helio G35",       SOC_MTK_,         soc, 12)
-  //SOC_EQ(tmp, "?",      "Helio G70",       SOC_MTK_,         soc, 12)
-  //SOC_EQ(tmp, "?",      "Helio G80",       SOC_MTK_,         soc, 12)
-  //SOC_EQ(tmp, "?",      "Helio G90",       SOC_MTK_,         soc, 12)
-  //SOC_EQ(tmp, "?",      "Helio G90T",      SOC_MTK_,         soc, 12)
-  //SOC_EQ(tmp, "?",      "Helio G95",       SOC_MTK_,         soc, 12)
+  SOC_EQ(tmp, "MT6762G",  "Helio G25",       SOC_MTK_MT6762G,  soc, 12)
+  SOC_EQ(tmp, "MT6765G",  "Helio G35",       SOC_MTK_MT6765G,  soc, 12)
+  //SOC_EQ(tmp, "???",    "Helio G36",       SOC_MTK_MT6765G,  soc,  ?)
+  SOC_EQ(tmp, "MT6765H",  "Helio G37",       SOC_MTK_MT6765H,  soc, 12)
+  SOC_EQ(tmp, "MT6769V",  "Helio G70",       SOC_MTK_MT6769V,  soc, 12)
+  SOC_EQ(tmp, "MT6769T",  "Helio G80",       SOC_MTK_MT6769T,  soc, 12)
+  SOC_EQ(tmp, "MT6769Z",  "Helio G85",       SOC_MTK_MT6769Z,  soc, 12)
+  SOC_EQ(tmp, "MT6769H",  "Helio G88",       SOC_MTK_MT6769H,  soc, 12)
+  //SOC_EQ(tmp, "MT6785V/CD", "Helio G90",   SOC_MTK_MT6785V_CD, soc, 12) // How to distingish between this and G95?
+  SOC_EQ(tmp, "MT6785V/CC", "Helio G90T",    SOC_MTK_MT6785V_CC, soc, 12)
+  SOC_EQ(tmp, "MT6785V/CD", "Helio G95",     SOC_MTK_MT6785V_CD, soc, 12)
+  SOC_EQ(tmp, "MT6789",   "Helio G99",       SOC_MTK_MT6789,   soc,  6)
+  SOC_EQ(tmp, "MT8781V",  "Helio G99",       SOC_MTK_MT8781V,  soc,  6) // Same as MT6789
   SOC_EQ(tmp, "MT6755",   "Helio P10",       SOC_MTK_MT6755M,  soc, 28)
   SOC_EQ(tmp, "MT6755M",  "Helio P10 M",     SOC_MTK_MT6755M,  soc, 28)
   SOC_EQ(tmp, "MT6755T",  "Helio P15",       SOC_MTK_MT6755T,  soc, 28)
@@ -284,8 +302,8 @@ bool match_mediatek(char* soc_name, struct system_on_chip* soc) {
   SOC_EQ(tmp, "MT6768",   "Helio P65",       SOC_MTK_MT6768,   soc, 12)
   SOC_EQ(tmp, "MT6771T",  "Helio P70",       SOC_MTK_MT6771,   soc, 12)
   SOC_EQ(tmp, "MT6771V",  "Helio P70",       SOC_MTK_MT6771,   soc, 12)
-  SOC_EQ(tmp, "MT6779",   "Helio P90",       SOC_MTK_MT6779,   soc, 12)
-  //SOC_EQ(tmp, "?",      "Helio P95",       SOC_MTK_,         soc, 12)
+  SOC_EQ(tmp, "MT6779V/CU", "Helio P90",     SOC_MTK_MT6779V_CU, soc, 12)
+  SOC_EQ(tmp, "MT6779V/CV", "Helio P95",     SOC_MTK_MT6779V_CV, soc, 12)
   SOC_EQ(tmp, "MT6795",   "Helio X10",       SOC_MTK_MT6795,   soc, 28)
   SOC_EQ(tmp, "MT6795T",  "Helio X10 T",     SOC_MTK_MT6795,   soc, 28)
   SOC_EQ(tmp, "MT6797",   "Helio X20",       SOC_MTK_MT6797,   soc, 20)
@@ -294,7 +312,31 @@ bool match_mediatek(char* soc_name, struct system_on_chip* soc) {
   SOC_EQ(tmp, "MT6797T",  "Helio X25",       SOC_MTK_MT6797T,  soc, 20)
   SOC_EQ(tmp, "MT6797X",  "Helio X27",       SOC_MTK_MT6797X,  soc, 20)
   SOC_EQ(tmp, "MT6799",   "Helio X30",       SOC_MTK_MT6799,   soc, 10)
+  // Pentonic
+  SOC_EQ(tmp, "MT9618",   "Pentonic  700",   SOC_MTK_MT9618,   soc,  7)
+  SOC_EQ(tmp, "MT9653",   "Pentonic  700",   SOC_MTK_MT9653,   soc,  7)
+  SOC_EQ(tmp, "MT9689",   "Pentonic  700",   SOC_MTK_MT9689,   soc,  7) // !! Assumption only, needs confirmation
+  SOC_EQ(tmp, "MT9972",   "Pentonic 1000",   SOC_MTK_MT9972,   soc,  7) // !! Assumption only, needs confirmation
+  SOC_EQ(tmp, "MT9902",   "Pentonic 2000",   SOC_MTK_MT9902,   soc,  7)
+  SOC_EQ(tmp, "MT9982",   "Pentonic 2000",   SOC_MTK_MT9982,   soc,  7)
   // MT XXXX //
+  SOC_EQ(tmp, "MT5327",   "MT5327",          SOC_MTK_MT5327,   soc, NA)
+  SOC_EQ(tmp, "MT5329",   "MT5329",          SOC_MTK_MT5329,   soc, NA)
+  SOC_EQ(tmp, "MT5366",   "MT5366",          SOC_MTK_MT5366,   soc, NA)
+  SOC_EQ(tmp, "MT5389",   "MT5389",          SOC_MTK_MT5389,   soc, NA)
+  SOC_EQ(tmp, "MT5395",   "MT5395",          SOC_MTK_MT5395,   soc, NA)
+  SOC_EQ(tmp, "MT5396",   "MT5396",          SOC_MTK_MT5396,   soc, NA)
+  SOC_EQ(tmp, "MT5398",   "MT5398",          SOC_MTK_MT5398,   soc, NA)
+  SOC_EQ(tmp, "MT5505",   "MT5505",          SOC_MTK_MT5505,   soc, NA)
+  SOC_EQ(tmp, "MT5561",   "MT5561",          SOC_MTK_MT5561,   soc, NA)
+  SOC_EQ(tmp, "MT5580",   "MT5580",          SOC_MTK_MT5580,   soc, NA)
+  SOC_EQ(tmp, "MT5582",   "MT5582",          SOC_MTK_MT5582,   soc, NA)
+  SOC_EQ(tmp, "MT5592",   "MT5592",          SOC_MTK_MT5592,   soc, NA)
+  SOC_EQ(tmp, "MT5595",   "MT5595",          SOC_MTK_MT5595,   soc, NA)
+  SOC_EQ(tmp, "MT5596",   "MT5596",          SOC_MTK_MT5596,   soc, 28) // !! Assumption only, needs confirmation
+  SOC_EQ(tmp, "MT5597",   "MT5597",          SOC_MTK_MT5597,   soc, 28) // !! Assumption only, needs confirmation
+  SOC_EQ(tmp, "MT5895",   "MT5895",          SOC_MTK_MT5895,   soc, 28) // Same as MT9950*
+  SOC_EQ(tmp, "MT5889",   "MT5889",          SOC_MTK_MT5889,   soc, 28) // Same as MT9615 (https://www.displayspecifications.com/en/model/97272c1f)
   SOC_EQ(tmp, "MT6515",   "MT6515",          SOC_MTK_MT6515,   soc, 40)
   SOC_EQ(tmp, "MT6516",   "MT6516",          SOC_MTK_MT6516,   soc, 65)
   SOC_EQ(tmp, "MT6517",   "MT6517",          SOC_MTK_MT6517,   soc, 40)
@@ -340,6 +382,19 @@ bool match_mediatek(char* soc_name, struct system_on_chip* soc) {
   SOC_EQ(tmp, "MT8735",   "MT8735",          SOC_MTK_MT8735,   soc, 28)
   SOC_EQ(tmp, "MT8765B",  "MT8765B",         SOC_MTK_MT8765B,  soc, 28)
   SOC_EQ(tmp, "MT8783",   "MT8783",          SOC_MTK_MT8783,   soc, 28)
+  SOC_EQ(tmp, "MT9602",   "MT9602",          SOC_MTK_MT9602,   soc, 28) // Same as MT9675*
+  SOC_EQ(tmp, "MT9612",   "MT9612",          SOC_MTK_MT9612,   soc, 28) // Same as MT9685*
+  SOC_EQ(tmp, "MT9613",   "MT9613",          SOC_MTK_MT9613,   soc, 28) // !! Assumption only, needs confirmation
+  SOC_EQ(tmp, "MT9615",   "MT9615",          SOC_MTK_MT9615,   soc, 28) // https://gadgetversus.com/processor/mediatek-mt9615-specs/
+  SOC_EQ(tmp, "MT9632",   "MT9632",          SOC_MTK_MT9632,   soc, 28) // Same as MT9675*
+  SOC_EQ(tmp, "MT9638",   "MT9638",          SOC_MTK_MT9638,   soc, 28) // !! Assumption only, needs confirmation
+  SOC_EQ(tmp, "MT9652",   "MT9652",          SOC_MTK_MT9652,   soc, 28) // Same as MT9613*
+  SOC_EQ(tmp, "MT9675",   "MT9675",          SOC_MTK_MT9675,   soc, 28) // !! Assumption only, needs confirmation
+  SOC_EQ(tmp, "MT9685",   "MT9685",          SOC_MTK_MT9685,   soc, 28) // https://gadgetversus.com/processor/mediatek-mt9685-specs/
+  SOC_EQ(tmp, "MT9950",   "MT9950",          SOC_MTK_MT9950,   soc, 28) // https://gadgetversus.com/processor/mediatek-mt9950-specs/
+  SOC_EQ(tmp, "MT9686",   "MT9686",          SOC_MTK_MT9686,   soc, 28) // Same as MT9613*
+  // (*) Many SoCs are reported with different names but they are the same chip.
+  // Source: https://en.wikipedia.org/wiki/List_of_MediaTek_systems_on_chips#Digital_television_SoCs
   SOC_END
 }
 
