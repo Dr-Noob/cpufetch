@@ -112,7 +112,8 @@ enum {
   UARCH_ZEN2,
   UARCH_ZEN3,
   UARCH_ZEN3_PLUS,
-  UARCH_ZEN4
+  UARCH_ZEN4,
+  UARCH_ZEN4C
 };
 
 struct uarch {
@@ -350,6 +351,7 @@ struct uarch* get_uarch_from_cpuid_amd(uint32_t ef, uint32_t f, uint32_t em, uin
   CHECK_UARCH(arch,  6, 15,  6,  5, NA, "Excavator",   UARCH_EXCAVATOR,   28) // undocumented, but sample from Alexandros Couloumbis
   CHECK_UARCH(arch,  6, 15,  7,  0, NA, "Excavator",   UARCH_EXCAVATOR,   28)
   CHECK_UARCH(arch,  7, 15,  0,  0, NA, "Jaguar",      UARCH_JAGUAR,      28)
+  CHECK_UARCH(arch,  7, 15,  1, NA, NA, "Jaguar",      UARCH_JAGUAR,      14) // instlatx64 (PS4) Normal PS4 is 28nm, Slim and Pro are 16nm
   CHECK_UARCH(arch,  7, 15,  2,  6, NA, "Jaguar",      UARCH_JAGUAR,      28) // AMD Cato (Xbox One?)
   CHECK_UARCH(arch,  7, 15,  3,  0, NA, "Puma 2014",   UARCH_PUMA_2014,   28)
   CHECK_UARCH(arch,  8, 15,  0,  0, NA, "Zen",         UARCH_ZEN,         14) // instlatx64 engr sample
@@ -364,14 +366,23 @@ struct uarch* get_uarch_from_cpuid_amd(uint32_t ef, uint32_t f, uint32_t em, uin
   CHECK_UARCH(arch,  8, 15,  6,  0, NA, "Zen 2",       UARCH_ZEN2,         7) // undocumented, geekbench.com example
   CHECK_UARCH(arch,  8, 15,  6,  8, NA, "Zen 2",       UARCH_ZEN2,         7) // found on instlatx64
   CHECK_UARCH(arch,  8, 15,  7,  1, NA, "Zen 2",       UARCH_ZEN2,         7) // samples from Steven Noonan and instlatx64
+  CHECK_UARCH(arch,  8, 15,  8,  4, NA, "Zen 2",       UARCH_ZEN2,         7) // instlatx64 (Xbox Series X?)
   CHECK_UARCH(arch,  8, 15,  9,  0,  2, "Zen 2",       UARCH_ZEN2,         7) // Steam Deck (instlatx64)
+  CHECK_UARCH(arch,  8, 15,  10, 0, NA, "Zen 2",       UARCH_ZEN2,         6) // instlatx64
   CHECK_UARCH(arch, 10, 15,  0,  1, NA, "Zen 3",       UARCH_ZEN3,         7) // instlatx64
+  CHECK_UARCH(arch, 10, 15,  0,  8, NA, "Zen 3",       UARCH_ZEN3,         7) // instlatx64
+  CHECK_UARCH(arch, 10, 15,  1,  1, NA, "Zen 4",       UARCH_ZEN4,         5) // instlatx64
+  CHECK_UARCH(arch, 10, 15,  1,  8, NA, "Zen 4",       UARCH_ZEN4,         5) // instlatx64
   CHECK_UARCH(arch, 10, 15,  2,  1, NA, "Zen 3",       UARCH_ZEN3,         7) // instlatx64
+  CHECK_UARCH(arch, 10, 15,  3, NA, NA, "Zen 3",       UARCH_ZEN3,         7) // instlatx64
   CHECK_UARCH(arch, 10, 15,  4,  4, NA, "Zen 3+",      UARCH_ZEN3_PLUS,    6) // instlatx64 (they say it is Zen3...)
   CHECK_UARCH(arch, 10, 15,  5,  0, NA, "Zen 3",       UARCH_ZEN3,         7) // instlatx64
-  CHECK_UARCH(arch, 10, 15,  1,  1, NA, "Zen 4",       UARCH_ZEN4,         5) // instlatx64
   CHECK_UARCH(arch, 10, 15,  6,  1,  2, "Zen 4",       UARCH_ZEN4,         5) // instlatx64
   CHECK_UARCH(arch, 10, 15,  7,  4,  1, "Zen 4",       UARCH_ZEN4,         4) // instlatx64
+  CHECK_UARCH(arch, 10, 15,  7,  8,  0, "Zen 4",       UARCH_ZEN4,         4) // instlatx64
+  CHECK_UARCH(arch, 10, 15,  8, NA, NA, "Zen 4",       UARCH_ZEN4,         5) // instlatx64 (AMD MI300C)
+  CHECK_UARCH(arch, 10, 15,  9, NA, NA, "Zen 4",       UARCH_ZEN4,         5) // instlatx64 (AMD MI300A)
+  CHECK_UARCH(arch, 10, 15, 10, NA, NA, "Zen 4c",      UARCH_ZEN4C,        5) // instlatx64
   UARCH_END
 
   return arch;
@@ -419,7 +430,8 @@ struct uarch* get_uarch_from_cpuid(struct cpuInfo* cpu, uint32_t dump, uint32_t 
 bool vpus_are_AVX512(struct cpuInfo* cpu) {
   return cpu->arch->uarch != UARCH_ICE_LAKE &&
          cpu->arch->uarch != UARCH_TIGER_LAKE &&
-         cpu->arch->uarch != UARCH_ZEN4;
+         cpu->arch->uarch != UARCH_ZEN4 &&
+         cpu->arch->uarch != UARCH_ZEN4C;
 }
 
 bool is_knights_landing(struct cpuInfo* cpu) {
@@ -455,6 +467,7 @@ int get_number_of_vpus(struct cpuInfo* cpu) {
       case UARCH_ZEN3:
       case UARCH_ZEN3_PLUS:
       case UARCH_ZEN4:
+      case UARCH_ZEN4C:
         return 2;
       default:
         return 1;
