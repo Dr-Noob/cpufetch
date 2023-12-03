@@ -50,6 +50,8 @@ cpufetch is a command-line tool written in C that displays the CPU information i
   - [4.2 Specifying the colors in RGB format](#42-specifying-the-colors-in-rgb-format)
 - [5. Implementation](#5-implementation)
 - [6. Bugs or improvements](#6-bugs-or-improvements)
+  - [6.1 Unknown microarchitecture error](#61-unknown-microarchitecture-error)
+  - [6.2 Other situations](#62-other-situations)
 - [7. Acknowledgements](#7-acknowledgements)
 - [8. cpufetch for GPUs (gpufetch)](#8-cpufetch-for-gpus-gpufetch)
 
@@ -147,6 +149,21 @@ By default, `cpufetch` will print the CPU logo with the system colorscheme. Howe
 See [cpufetch programming documentation](https://github.com/Dr-Noob/cpufetch/tree/master/doc).
 
 ## 6. Bugs or improvements
+### 6.1 Unknown microarchitecture error
+If you get the `Unknown microarchitecture detected` error when running cpufetch, it might be caused by two possible reasons:
+
+1. You are running an old release of cpufetch (most likely)
+2. Your microarchitecture is not yet supported
+
+Download and compile the latest version (see https://github.com/Dr-Noob/cpufetch#22-building-from-source for instructions)
+and verify if the error persists.
+
+* __If the error dissapears__: It means that this is the first situation. In this case, just use the
+latest version of cpufetch which already has support for your hardware.
+* __If the error does not dissapear__: It means that this is the
+second situation. In this case, please create a new issue with the error message and the output of 'cpufetch --debug' on https://github.com/Dr-Noob/cpufetch/issues
+
+### 6.2 Other situations
 See [cpufetch contributing guidelines](https://github.com/Dr-Noob/cpufetch/blob/master/CONTRIBUTING.md).
 
 ## 7. Acknowledgements

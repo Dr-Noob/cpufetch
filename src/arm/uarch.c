@@ -198,7 +198,9 @@ static char* isas_string[] = {
 #define UARCH_START if (false) {}
 #define CHECK_UARCH(arch, cpu, im_, p_, v_, r_, str, uarch, vendor) \
    else if (im_ == im && p_ == p && (v_ == NA || v_ == v) && (r_ == NA || r_ == r)) fill_uarch(arch, cpu, str, uarch, vendor);
-#define UARCH_END else { printBug("Unknown microarchitecture detected: IM=0x%.8X P=0x%.8X V=0x%.8X R=0x%.8X", im, p, v, r); fill_uarch(arch, cpu, "Unknown", UARCH_UNKNOWN, CPU_VENDOR_UNKNOWN); }
+#define UARCH_END else { printErr("Unknown microarchitecture detected: IM=0x%X P=0x%X V=0x%X R=0x%X", im, p, v, r); \
+fprintf(stderr, "Please see https://github.com/Dr-Noob/cpufetch#61-unknown-microarchitecture-error to know how to report this error\n"); \
+fill_uarch(arch, cpu, "Unknown", UARCH_UNKNOWN, CPU_VENDOR_UNKNOWN); }
 
 void fill_uarch(struct uarch* arch, struct cpuInfo* cpu, char* str, MICROARCH u, VENDOR vendor) {
   arch->uarch = u;
