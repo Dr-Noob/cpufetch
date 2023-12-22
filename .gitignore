@@ -1,2 +1,6 @@
 cpufetch
 *.o
+*.exe
+/.cache
+/.vscode
+/compile_commands.json

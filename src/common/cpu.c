@@ -195,6 +195,7 @@ void init_topology_struct(struct topology* topo, struct cache* cach) {
 #ifdef ARCH_X86
   topo->smt_available = 0;
   topo->apic = emalloc(sizeof(struct apic));
+  memset(topo->apic, 0, sizeof(struct apic));
 #endif
 #endif
 }
