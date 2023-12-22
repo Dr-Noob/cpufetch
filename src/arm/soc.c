@@ -886,6 +886,30 @@ struct system_on_chip* guess_soc_apple(struct system_on_chip* soc) {
       soc->soc_vendor = SOC_VENDOR_UNKNOWN;
     }
   }
+  else if(cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH) {
+    // Check M3 version
+    if(cpu_subfamily == CPUSUBFAMILY_ARM_HG) {
+      fill_soc(soc, "M3", SOC_APPLE_M3, 3);
+    }
+    else if(cpu_subfamily == CPUSUBFAMILY_ARM_HS) {
+      fill_soc(soc, "M3 Pro", SOC_APPLE_M3_PRO, 3);
+    }
+    else if(cpu_subfamily == CPUSUBFAMILY_ARM_HC_HD) {
+      // Should be M3 Max
+      uint32_t physicalcpu = get_sys_info_by_name("hw.physicalcpu");
+      if(physicalcpu >= 14 && physicalcpu <= 16) {
+        fill_soc(soc, "M3 Ultra", SOC_APPLE_M3_MAX, 3);
+      }
+      else {
+        printBug("Found invalid physical cpu number: %d", physicalcpu);
+        soc->soc_vendor = SOC_VENDOR_UNKNOWN;
+      }
+    }
+    else {
+      printBug("Found invalid cpu_subfamily: 0x%.8X", cpu_subfamily);
+      soc->soc_vendor = SOC_VENDOR_UNKNOWN;
+    }
+  }
   else {
     printBug("Found invalid cpu_family: 0x%.8X", cpu_family);
     soc->soc_vendor = SOC_VENDOR_UNKNOWN;

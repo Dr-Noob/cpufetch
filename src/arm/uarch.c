@@ -105,6 +105,8 @@ enum {
   UARCH_FIRESTORM,  // Apple M1 processor (big cores).
   UARCH_BLIZZARD,   // Apple M2 processor (little cores).
   UARCH_AVALANCHE,  // Apple M2 processor (big cores).
+  UARCH_SAWTOOTH,   // Apple M3 processor (little cores).
+  UARCH_EVEREST,    // Apple M3 processor (big cores).
   // CAVIUM
   UARCH_THUNDERX,   // Cavium ThunderX
   UARCH_THUNDERX2,  // Cavium ThunderX2 (originally Broadcom Vulkan).
@@ -220,6 +222,7 @@ void fill_uarch(struct uarch* arch, struct cpuInfo* cpu, char* str, MICROARCH u,
  * Other sources:
  * - https://elixir.bootlin.com/linux/latest/source/arch/arm64/include/asm/cputype.h
  * - https://elixir.bootlin.com/linux/latest/source/arch/arm/include/asm/cputype.h
+ * - https://github.com/AsahiLinux/m1n1/blob/main/src/chickens.c
  */
 struct uarch* get_uarch_from_midr(uint32_t midr, struct cpuInfo* cpu) {
   struct uarch* arch = emalloc(sizeof(struct uarch));
@@ -327,6 +330,8 @@ struct uarch* get_uarch_from_midr(uint32_t midr, struct cpuInfo* cpu) {
   CHECK_UARCH(arch, cpu, 'a', 0x023, NA, NA, "Firestorm",             UARCH_FIRESTORM,    CPU_VENDOR_APPLE)
   CHECK_UARCH(arch, cpu, 'a', 0x030, NA, NA, "Blizzard",              UARCH_BLIZZARD,     CPU_VENDOR_APPLE)
   CHECK_UARCH(arch, cpu, 'a', 0x031, NA, NA, "Avalanche",             UARCH_AVALANCHE,    CPU_VENDOR_APPLE)
+  CHECK_UARCH(arch, cpu, 'a', 0x048, NA, NA, "Sawtooth",              UARCH_SAWTOOTH,     CPU_VENDOR_APPLE)
+  CHECK_UARCH(arch, cpu, 'a', 0x049, NA, NA, "Everest",               UARCH_EVEREST,      CPU_VENDOR_APPLE)
 
   CHECK_UARCH(arch, cpu, 'V', 0x581, NA, NA, "PJ4",                   UARCH_PJ4,          CPU_VENDOR_MARVELL)
   CHECK_UARCH(arch, cpu, 'V', 0x584, NA, NA, "PJ4B-MP",               UARCH_PJ4,          CPU_VENDOR_MARVELL)
