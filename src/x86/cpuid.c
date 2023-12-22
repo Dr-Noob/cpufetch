@@ -1170,8 +1170,10 @@ void print_raw(struct cpuInfo* cpu) {
 }
 
 void free_topo_struct(struct topology* topo) {
-  free(topo->apic->cache_select_mask);
-  free(topo->apic->cache_id_apic);
+  if(topo->apic->cache_select_mask != NULL)
+    free(topo->apic->cache_select_mask);
+  if(topo->apic->cache_id_apic != NULL)
+    free(topo->apic->cache_id_apic);
   free(topo->apic);
   free(topo);
 }
