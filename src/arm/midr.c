@@ -422,19 +422,18 @@ struct cpuInfo* get_cpu_info_mach(struct cpuInfo* cpu) {
     cpu->num_cpus = 2;
     // Now detect the M3 version
     if(cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH) {
-      // Apple M3
       fill_cpu_info_everest_sawtooth(cpu, 4, 4);
     }
-    else if(cpu_subfamily == CPUFAMILY_ARM_EVEREST_SAWTOOTH_PRO) {
+    else if(cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH_PRO) {
       uint32_t physicalcpu = get_sys_info_by_name("hw.physicalcpu");
       fill_cpu_info_everest_sawtooth(cpu, physicalcpu-6, 6);
     }
-    else if(cpu_subfamily == CPUFAMILY_ARM_EVEREST_SAWTOOTH_MAX) {
+    else if(cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH_MAX) {
       uint32_t physicalcpu = get_sys_info_by_name("hw.physicalcpu");
       fill_cpu_info_everest_sawtooth(cpu, physicalcpu-4, 4);
     }
     else {
-      printBug("Found invalid cpu_subfamily: 0x%.8X", cpu_subfamily);
+      printBug("Found invalid cpu_family: 0x%.8X", cpu_family);
       return NULL;
     }
     cpu->soc = get_soc();
