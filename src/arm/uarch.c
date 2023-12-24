@@ -392,6 +392,7 @@ int get_number_of_vpus(struct cpuInfo* cpu) {
   MICROARCH ua = cpu->arch->uarch;
 
   switch(ua) {
+    case UARCH_EVEREST:     // Just a guess, needs confirmation.
     case UARCH_FIRESTORM:   // [https://dougallj.github.io/applecpu/firestorm-simd.html]
     case UARCH_AVALANCHE:   // [https://en.wikipedia.org/wiki/Comparison_of_ARM_processors]
     case UARCH_CORTEX_X1:   // [https://www.anandtech.com/show/15813/arm-cortex-a78-cortex-x1-cpu-ip-diverging/3]
@@ -399,6 +400,7 @@ int get_number_of_vpus(struct cpuInfo* cpu) {
     case UARCH_CORTEX_X3:   // [https://www.hwcooling.net/en/cortex-x3-the-new-fastest-arm-core-architecture-analysis: "The FPU and SIMD unit of the core still has four pipelines"]
     case UARCH_NEOVERSE_V1: // [https://en.wikichip.org/wiki/arm_holdings/microarchitectures/neoverse_v1]
       return 4;
+    case UARCH_SAWTOOTH:    // Needs confirmation, rn this is the best we know: https://mastodon.social/@dougall/111118317031041336
     case UARCH_EXYNOS_M3:   // [https://www.anandtech.com/show/12361/samsung-exynos-m3-architecture]
     case UARCH_EXYNOS_M4:   // [https://en.wikichip.org/wiki/samsung/microarchitectures/m4#Block_Diagram]
     case UARCH_EXYNOS_M5:   // [https://en.wikichip.org/wiki/samsung/microarchitectures/m5]
