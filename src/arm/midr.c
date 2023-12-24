@@ -314,6 +314,41 @@ void fill_cpu_info_avalanche_blizzard(struct cpuInfo* cpu, uint32_t pcores, uint
   ava->next_cpu = NULL;
 }
 
+void fill_cpu_info_everest_sawtooth(struct cpuInfo* cpu, uint32_t pcores, uint32_t ecores) {
+  // 1. Fill SAWTOOTH
+  struct cpuInfo* saw = cpu;
+
+  saw->midr = MIDR_APPLE_M3_SAWTOOTH;
+  saw->arch = get_uarch_from_midr(saw->midr, saw);
+  saw->cach = get_cache_info(saw);
+  saw->feat = get_features_info();
+  saw->topo = malloc(sizeof(struct topology));
+  saw->topo->cach = saw->cach;
+  saw->topo->total_cores = pcores;
+  saw->freq = malloc(sizeof(struct frequency));
+  saw->freq->base = UNKNOWN_DATA;
+  saw->freq->max = 2750;
+  saw->hv = malloc(sizeof(struct hypervisor));
+  saw->hv->present = false;
+  saw->next_cpu = malloc(sizeof(struct cpuInfo));
+
+  // 2. Fill EVEREST
+  struct cpuInfo* eve = saw->next_cpu;
+  eve->midr = MIDR_APPLE_M3_EVEREST;
+  eve->arch = get_uarch_from_midr(eve->midr, eve);
+  eve->cach = get_cache_info(eve);
+  eve->feat = get_features_info();
+  eve->topo = malloc(sizeof(struct topology));
+  eve->topo->cach = eve->cach;
+  eve->topo->total_cores = ecores;
+  eve->freq = malloc(sizeof(struct frequency));
+  eve->freq->base = UNKNOWN_DATA;
+  eve->freq->max = 4050;
+  eve->hv = malloc(sizeof(struct hypervisor));
+  eve->hv->present = false;
+  eve->next_cpu = NULL;
+}
+
 struct cpuInfo* get_cpu_info_mach(struct cpuInfo* cpu) {
   uint32_t cpu_family = get_sys_info_by_name("hw.cpufamily");
 
@@ -376,6 +411,29 @@ struct cpuInfo* get_cpu_info_mach(struct cpuInfo* cpu) {
     }
     else {
       printBug("Found invalid cpu_subfamily: 0x%.8X", cpu_subfamily);
+      return NULL;
+    }
+    cpu->soc = get_soc();
+    cpu->peak_performance = get_peak_performance(cpu);
+  }
+  else if(cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH ||
+          cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH_PRO ||
+          cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH_MAX) {
+    cpu->num_cpus = 2;
+    // Now detect the M3 version
+    if(cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH) {
+      fill_cpu_info_everest_sawtooth(cpu, 4, 4);
+    }
+    else if(cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH_PRO) {
+      uint32_t physicalcpu = get_sys_info_by_name("hw.physicalcpu");
+      fill_cpu_info_everest_sawtooth(cpu, physicalcpu-6, 6);
+    }
+    else if(cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH_MAX) {
+      uint32_t physicalcpu = get_sys_info_by_name("hw.physicalcpu");
+      fill_cpu_info_everest_sawtooth(cpu, physicalcpu-4, 4);
+    }
+    else {
+      printBug("Found invalid cpu_family: 0x%.8X", cpu_family);
       return NULL;
     }
     cpu->soc = get_soc();
@@ -467,6 +525,12 @@ void print_debug(struct cpuInfo* cpu) {
       printf("%ld MHz\n", freq);
     }
   }
+
+  #if defined(__APPLE__) || defined(__MACH__)
+    printf("hw.cpufamily: 0x%.8X\n", get_sys_info_by_name("hw.cpufamily"));
+    printf("hw.cpusubfamily: 0x%.8X\n", get_sys_info_by_name("hw.cpusubfamily"));
+    printf("hw.physicalcpu: %d\n", get_sys_info_by_name("hw.physicalcpu"));
+  #endif
 }
 
 void free_topo_struct(struct topology* topo) {

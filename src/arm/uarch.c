@@ -105,6 +105,8 @@ enum {
   UARCH_FIRESTORM,  // Apple M1 processor (big cores).
   UARCH_BLIZZARD,   // Apple M2 processor (little cores).
   UARCH_AVALANCHE,  // Apple M2 processor (big cores).
+  UARCH_SAWTOOTH,   // Apple M3 processor (little cores).
+  UARCH_EVEREST,    // Apple M3 processor (big cores).
   // CAVIUM
   UARCH_THUNDERX,   // Cavium ThunderX
   UARCH_THUNDERX2,  // Cavium ThunderX2 (originally Broadcom Vulkan).
@@ -220,6 +222,7 @@ void fill_uarch(struct uarch* arch, struct cpuInfo* cpu, char* str, MICROARCH u,
  * Other sources:
  * - https://elixir.bootlin.com/linux/latest/source/arch/arm64/include/asm/cputype.h
  * - https://elixir.bootlin.com/linux/latest/source/arch/arm/include/asm/cputype.h
+ * - https://github.com/AsahiLinux/m1n1/blob/main/src/chickens.c
  */
 struct uarch* get_uarch_from_midr(uint32_t midr, struct cpuInfo* cpu) {
   struct uarch* arch = emalloc(sizeof(struct uarch));
@@ -327,6 +330,8 @@ struct uarch* get_uarch_from_midr(uint32_t midr, struct cpuInfo* cpu) {
   CHECK_UARCH(arch, cpu, 'a', 0x023, NA, NA, "Firestorm",             UARCH_FIRESTORM,    CPU_VENDOR_APPLE)
   CHECK_UARCH(arch, cpu, 'a', 0x030, NA, NA, "Blizzard",              UARCH_BLIZZARD,     CPU_VENDOR_APPLE)
   CHECK_UARCH(arch, cpu, 'a', 0x031, NA, NA, "Avalanche",             UARCH_AVALANCHE,    CPU_VENDOR_APPLE)
+  CHECK_UARCH(arch, cpu, 'a', 0x048, NA, NA, "Sawtooth",              UARCH_SAWTOOTH,     CPU_VENDOR_APPLE)
+  CHECK_UARCH(arch, cpu, 'a', 0x049, NA, NA, "Everest",               UARCH_EVEREST,      CPU_VENDOR_APPLE)
 
   CHECK_UARCH(arch, cpu, 'V', 0x581, NA, NA, "PJ4",                   UARCH_PJ4,          CPU_VENDOR_MARVELL)
   CHECK_UARCH(arch, cpu, 'V', 0x584, NA, NA, "PJ4B-MP",               UARCH_PJ4,          CPU_VENDOR_MARVELL)
@@ -387,6 +392,7 @@ int get_number_of_vpus(struct cpuInfo* cpu) {
   MICROARCH ua = cpu->arch->uarch;
 
   switch(ua) {
+    case UARCH_EVEREST:     // Just a guess, needs confirmation.
     case UARCH_FIRESTORM:   // [https://dougallj.github.io/applecpu/firestorm-simd.html]
     case UARCH_AVALANCHE:   // [https://en.wikipedia.org/wiki/Comparison_of_ARM_processors]
     case UARCH_CORTEX_X1:   // [https://www.anandtech.com/show/15813/arm-cortex-a78-cortex-x1-cpu-ip-diverging/3]
@@ -394,6 +400,7 @@ int get_number_of_vpus(struct cpuInfo* cpu) {
     case UARCH_CORTEX_X3:   // [https://www.hwcooling.net/en/cortex-x3-the-new-fastest-arm-core-architecture-analysis: "The FPU and SIMD unit of the core still has four pipelines"]
     case UARCH_NEOVERSE_V1: // [https://en.wikichip.org/wiki/arm_holdings/microarchitectures/neoverse_v1]
       return 4;
+    case UARCH_SAWTOOTH:    // Needs confirmation, rn this is the best we know: https://mastodon.social/@dougall/111118317031041336
     case UARCH_EXYNOS_M3:   // [https://www.anandtech.com/show/12361/samsung-exynos-m3-architecture]
     case UARCH_EXYNOS_M4:   // [https://en.wikichip.org/wiki/samsung/microarchitectures/m4#Block_Diagram]
     case UARCH_EXYNOS_M5:   // [https://en.wikichip.org/wiki/samsung/microarchitectures/m5]

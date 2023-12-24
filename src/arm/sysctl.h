@@ -8,6 +8,9 @@
 // APPLE_CPU_PART_M2_BLIZZARD=0x30,M2_AVALANCHE=0x31
 #define MIDR_APPLE_M2_BLIZZARD  0x610F0300
 #define MIDR_APPLE_M2_AVALANCHE 0x610F0310
+// https://github.com/AsahiLinux/m1n1/blob/main/src/chickens.c
+#define MIDR_APPLE_M3_SAWTOOTH  0x610F0480
+#define MIDR_APPLE_M3_EVEREST   0x610F0490
 
 // M1 / A14
 #ifndef CPUFAMILY_ARM_FIRESTORM_ICESTORM
@@ -17,6 +20,12 @@
 #ifndef CPUFAMILY_ARM_AVALANCHE_BLIZZARD
   #define CPUFAMILY_ARM_AVALANCHE_BLIZZARD 0xDA33D83D
 #endif
+// M3 / A16 / A17
+// https://ratfactor.com/zig/stdlib-browseable2/c/darwin.zig.html
+// https://github.com/Dr-Noob/cpufetch/issues/210
+#define CPUFAMILY_ARM_EVEREST_SAWTOOTH     0x8765EDEA
+#define CPUFAMILY_ARM_EVEREST_SAWTOOTH_PRO 0x5F4DEA93
+#define CPUFAMILY_ARM_EVEREST_SAWTOOTH_MAX 0x72015832
 
 // For detecting different M1 types
 // NOTE: Could also be achieved detecting different
