@@ -416,29 +416,22 @@ struct cpuInfo* get_cpu_info_mach(struct cpuInfo* cpu) {
     cpu->soc = get_soc();
     cpu->peak_performance = get_peak_performance(cpu);
   }
-  else if(cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH) {
+  else if(cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH ||
+          cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH_PRO ||
+          cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH_MAX) {
     cpu->num_cpus = 2;
     // Now detect the M3 version
-    uint32_t cpu_subfamily = get_sys_info_by_name("hw.cpusubfamily");
-    if(cpu_subfamily == CPUSUBFAMILY_ARM_HG) {
+    if(cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH) {
       // Apple M3
       fill_cpu_info_everest_sawtooth(cpu, 4, 4);
     }
-    else if(cpu_subfamily == CPUSUBFAMILY_ARM_HS) {
-      // Apple M3 Pro/Max/Ultra. Detect number of cores
+    else if(cpu_subfamily == CPUFAMILY_ARM_EVEREST_SAWTOOTH_PRO) {
       uint32_t physicalcpu = get_sys_info_by_name("hw.physicalcpu");
-      if(physicalcpu == 11 || physicalcpu == 12) {
-        // M3 Pro
-        fill_cpu_info_everest_sawtooth(cpu, physicalcpu-6, 6);
-      }
-      else if(physicalcpu >= 14 && physicalcpu <= 16) {
-        // M3 Max
-        fill_cpu_info_everest_sawtooth(cpu, physicalcpu-4, 4);
-      }
-      else {
-        printBug("Found invalid physical cpu number: %d", physicalcpu);
-        return NULL;
-      }
+      fill_cpu_info_everest_sawtooth(cpu, physicalcpu-6, 6);
+    }
+    else if(cpu_subfamily == CPUFAMILY_ARM_EVEREST_SAWTOOTH_MAX) {
+      uint32_t physicalcpu = get_sys_info_by_name("hw.physicalcpu");
+      fill_cpu_info_everest_sawtooth(cpu, physicalcpu-4, 4);
     }
     else {
       printBug("Found invalid cpu_subfamily: 0x%.8X", cpu_subfamily);
