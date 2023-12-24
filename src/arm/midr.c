@@ -526,6 +526,12 @@ void print_debug(struct cpuInfo* cpu) {
       printf("%ld MHz\n", freq);
     }
   }
+
+  #if defined(__APPLE__) || defined(__MACH__)
+    printf("hw.cpufamily: 0x%.8X\n", get_sys_info_by_name("hw.cpufamily"));
+    printf("hw.cpusubfamily: 0x%.8X\n", get_sys_info_by_name("hw.cpusubfamily"));
+    printf("hw.physicalcpu: %d\n", get_sys_info_by_name("hw.physicalcpu"));
+  #endif
 }
 
 void free_topo_struct(struct topology* topo) {
