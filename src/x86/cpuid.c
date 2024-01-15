@@ -30,8 +30,9 @@ static const char *hv_vendors_string[] = {
   [HV_VENDOR_VMWARE]    = "VMwareVMware",
   [HV_VENDOR_XEN]       = "XenVMMXenVMM",
   [HV_VENDOR_PARALLELS] = "lrpepyh vr",
+  [HV_VENDOR_PHYP]      = NULL,
   [HV_VENDOR_BHYVE]     = "bhyve bhyve ",
-  [HV_VENDOR_PHYP]      = NULL
+  [HV_VENDOR_APPLEVZ]   = "Apple VZ"
 };
 
 static char *hv_vendors_name[] = {
@@ -43,6 +44,7 @@ static char *hv_vendors_name[] = {
   [HV_VENDOR_PARALLELS] = "Parallels",
   [HV_VENDOR_PHYP]      = "pHyp",
   [HV_VENDOR_BHYVE]     = "bhyve",
+  [HV_VENDOR_APPLEVZ]   = "Apple VZ",
   [HV_VENDOR_INVALID]   = STRING_UNKNOWN
 };
 
@@ -284,7 +286,7 @@ struct hypervisor* get_hp_info(bool hv_present) {
 
     if(!found) {
       hv->hv_vendor = HV_VENDOR_INVALID;
-      printBug("Unknown hypervisor vendor: %s", name);
+      printBug("Unknown hypervisor vendor: '%s'", name);
     }
   }
 

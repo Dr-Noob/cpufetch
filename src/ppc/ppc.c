@@ -20,6 +20,7 @@ static char *hv_vendors_name[] = {
   [HV_VENDOR_PARALLELS] = "Parallels",
   [HV_VENDOR_PHYP]      = "pHyp",
   [HV_VENDOR_BHYVE]     = "bhyve",
+  [HV_VENDOR_APPLEVZ]   = "Apple VZ",
   [HV_VENDOR_INVALID]   = STRING_UNKNOWN
 };
 
