@@ -289,7 +289,7 @@ void fill_cpu_info_avalanche_blizzard(struct cpuInfo* cpu, uint32_t pcores, uint
   bli->feat = get_features_info();
   bli->topo = malloc(sizeof(struct topology));
   bli->topo->cach = bli->cach;
-  bli->topo->total_cores = pcores;
+  bli->topo->total_cores = ecores;
   bli->freq = malloc(sizeof(struct frequency));
   bli->freq->base = UNKNOWN_DATA;
   bli->freq->max = 2800;
@@ -305,7 +305,7 @@ void fill_cpu_info_avalanche_blizzard(struct cpuInfo* cpu, uint32_t pcores, uint
   ava->feat = get_features_info();
   ava->topo = malloc(sizeof(struct topology));
   ava->topo->cach = ava->cach;
-  ava->topo->total_cores = ecores;
+  ava->topo->total_cores = pcores;
   ava->freq = malloc(sizeof(struct frequency));
   ava->freq->base = UNKNOWN_DATA;
   ava->freq->max = 3500;
@@ -324,7 +324,7 @@ void fill_cpu_info_everest_sawtooth(struct cpuInfo* cpu, uint32_t pcores, uint32
   saw->feat = get_features_info();
   saw->topo = malloc(sizeof(struct topology));
   saw->topo->cach = saw->cach;
-  saw->topo->total_cores = pcores;
+  saw->topo->total_cores = ecores;
   saw->freq = malloc(sizeof(struct frequency));
   saw->freq->base = UNKNOWN_DATA;
   saw->freq->max = 2750;
@@ -340,7 +340,7 @@ void fill_cpu_info_everest_sawtooth(struct cpuInfo* cpu, uint32_t pcores, uint32
   eve->feat = get_features_info();
   eve->topo = malloc(sizeof(struct topology));
   eve->topo->cach = eve->cach;
-  eve->topo->total_cores = ecores;
+  eve->topo->total_cores = pcores;
   eve->freq = malloc(sizeof(struct frequency));
   eve->freq->base = UNKNOWN_DATA;
   eve->freq->max = 4050;
