@@ -350,92 +350,42 @@ void fill_cpu_info_everest_sawtooth(struct cpuInfo* cpu, uint32_t pcores, uint32
 }
 
 struct cpuInfo* get_cpu_info_mach(struct cpuInfo* cpu) {
-  uint32_t cpu_family = get_sys_info_by_name("hw.cpufamily");
+  // https://developer.apple.com/documentation/kernel/1387446-sysctlbyname/determining_system_capabilities
+  uint32_t nperflevels = get_sys_info_by_name("hw.nperflevels");
 
+  if((cpu->num_cpus = nperflevels) != 2) {
+    printBug("Expected to find SoC with 2 perf levels, found: %d", cpu->num_cpus);
+    return NULL;
+  }
+
+  uint32_t pcores = get_sys_info_by_name("hw.perflevel0.physicalcpu");
+  uint32_t ecores = get_sys_info_by_name("hw.perflevel1.physicalcpu");
+  if(ecores <= 0) {
+    printBug("Expected to find a numer of ecores > 0, found: %d", ecores);
+    return NULL;
+  }
+  if(pcores <= 0) {
+    printBug("Expected to find a numer of pcores > 0, found: %d", pcores);
+    return NULL;
+  }
+
+  uint32_t cpu_family = get_sys_info_by_name("hw.cpufamily");
   // Manually fill the cpuInfo assuming that
-  // the CPU is an Apple M1/M2
+  // the CPU is an Apple SoC
   if(cpu_family == CPUFAMILY_ARM_FIRESTORM_ICESTORM) {
-    cpu->num_cpus = 2;
-    // Now detect the M1 version
-    uint32_t cpu_subfamily = get_sys_info_by_name("hw.cpusubfamily");
-    if(cpu_subfamily == CPUSUBFAMILY_ARM_HG) {
-      // Apple M1
-      fill_cpu_info_firestorm_icestorm(cpu, 4, 4);
-    }
-    else if(cpu_subfamily == CPUSUBFAMILY_ARM_HS || cpu_subfamily == CPUSUBFAMILY_ARM_HC_HD) {
-      // Apple M1 Pro/Max/Ultra. Detect number of cores
-      uint32_t physicalcpu = get_sys_info_by_name("hw.physicalcpu");
-      if(physicalcpu == 20) {
-        // M1 Ultra
-        fill_cpu_info_firestorm_icestorm(cpu, 16, 4);
-      }
-      else if(physicalcpu == 8 || physicalcpu == 10) {
-        // M1 Pro/Max
-        fill_cpu_info_firestorm_icestorm(cpu, physicalcpu-2, 2);
-      }
-      else {
-        printBug("Found invalid physical cpu number: %d", physicalcpu);
-        return NULL;
-      }
-    }
-    else {
-      printBug("Found invalid cpu_subfamily: 0x%.8X", cpu_subfamily);
-      return NULL;
-    }
+    fill_cpu_info_firestorm_icestorm(cpu, pcores, ecores);
     cpu->soc = get_soc();
     cpu->peak_performance = get_peak_performance(cpu);
   }
   else if(cpu_family == CPUFAMILY_ARM_AVALANCHE_BLIZZARD) {
-    cpu->num_cpus = 2;
-    // Now detect the M2 version
-    uint32_t cpu_subfamily = get_sys_info_by_name("hw.cpusubfamily");
-    if(cpu_subfamily == CPUSUBFAMILY_ARM_HG) {
-      // Apple M2
-      fill_cpu_info_avalanche_blizzard(cpu, 4, 4);
-    }
-    else if(cpu_subfamily == CPUSUBFAMILY_ARM_HS) {
-      // Apple M2 Pro/Max/Ultra. Detect number of cores
-      uint32_t physicalcpu = get_sys_info_by_name("hw.physicalcpu");
-      if(physicalcpu == 24) {
-        // M2 Ultra
-        fill_cpu_info_avalanche_blizzard(cpu, 16, 8);
-      }
-      else if(physicalcpu == 10 || physicalcpu == 12) {
-        // M2 Pro/Max
-        fill_cpu_info_avalanche_blizzard(cpu, physicalcpu-4, 4);
-      }
-      else {
-        printBug("Found invalid physical cpu number: %d", physicalcpu);
-        return NULL;
-      }
-    }
-    else {
-      printBug("Found invalid cpu_subfamily: 0x%.8X", cpu_subfamily);
-      return NULL;
-    }
+    fill_cpu_info_avalanche_blizzard(cpu, pcores, ecores);
     cpu->soc = get_soc();
     cpu->peak_performance = get_peak_performance(cpu);
   }
   else if(cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH ||
           cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH_PRO ||
           cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH_MAX) {
-    cpu->num_cpus = 2;
-    // Now detect the M3 version
-    if(cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH) {
-      fill_cpu_info_everest_sawtooth(cpu, 4, 4);
-    }
-    else if(cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH_PRO) {
-      uint32_t physicalcpu = get_sys_info_by_name("hw.physicalcpu");
-      fill_cpu_info_everest_sawtooth(cpu, physicalcpu-6, 6);
-    }
-    else if(cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH_MAX) {
-      uint32_t physicalcpu = get_sys_info_by_name("hw.physicalcpu");
-      fill_cpu_info_everest_sawtooth(cpu, physicalcpu-4, 4);
-    }
-    else {
-      printBug("Found invalid cpu_family: 0x%.8X", cpu_family);
-      return NULL;
-    }
+    fill_cpu_info_everest_sawtooth(cpu, pcores, ecores);
     cpu->soc = get_soc();
     cpu->peak_performance = get_peak_performance(cpu);
   }
