@@ -747,7 +747,7 @@ bool get_rk_soc_from_efuse(struct system_on_chip* soc, char* efuse) {
     {0x3528, {SOC_ROCKCHIP_3528,  SOC_VENDOR_ROCKCHIP, 28, "RK3528",  NULL} },
     {0x3562, {SOC_ROCKCHIP_3562,  SOC_VENDOR_ROCKCHIP, 22, "RK3562",  NULL} },
     {0x3566, {SOC_ROCKCHIP_3566,  SOC_VENDOR_ROCKCHIP, 22, "RK3566",  NULL} },
-    {0x3586, {SOC_ROCKCHIP_3568,  SOC_VENDOR_ROCKCHIP, 22, "RK3568",  NULL} },
+    {0x3568, {SOC_ROCKCHIP_3568,  SOC_VENDOR_ROCKCHIP, 22, "RK3568",  NULL} },
     {0x3588, {SOC_ROCKCHIP_3588,  SOC_VENDOR_ROCKCHIP,  8, "RK3588",  NULL} }, // No known way to distingish between S version: https://github.com/Dr-Noob/cpufetch/issues/188,209
     // Unknown
     {0x0000, {UNKNOWN,            SOC_VENDOR_UNKNOWN,   -1,       "", NULL} }
