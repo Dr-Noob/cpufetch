@@ -50,6 +50,8 @@ uint32_t get_sid_from_nvmem(char* buf) {
 // SIDs list:
 // - https://linux-sunxi.org/SID_Register_Guide#Currently_known_SID.27s
 // - https://github.com/Dr-Noob/cpufetch/issues/173
+// - https://github.com/ThomasKaiser/sbc-bench/blob/master/sbc-bench.sh
+// - https://linux-sunxi.org/*CHIP_NAME*
 bool get_sunxisoc_from_sid(struct system_on_chip* soc, char* raw_name, uint32_t sid) {
   typedef struct {
     uint32_t sid;
@@ -58,23 +60,41 @@ bool get_sunxisoc_from_sid(struct system_on_chip* soc, char* raw_name, uint32_t 
 
   sidToSoC socFromSid[] = {
     // --- sun8i Family ---
+    // A33
+    {0x0461872a, {SOC_ALLWINNER_A33,    SOC_VENDOR_ALLWINNER, 40, "A33",  raw_name} },
+    // A83T
+    {0x32c00401, {SOC_ALLWINNER_A83T,   SOC_VENDOR_ALLWINNER, 28, "A83T", raw_name} },
+    {0x32c00403, {SOC_ALLWINNER_A83T,   SOC_VENDOR_ALLWINNER, 28, "A83T", raw_name} },
+    // S3
+    {0x12c00001, {SOC_ALLWINNER_S3,     SOC_VENDOR_ALLWINNER, 40, "S3",   raw_name} },
     // H2+
     {0x02c00042, {SOC_ALLWINNER_H2PLUS, SOC_VENDOR_ALLWINNER, 40, "H2+",  raw_name} },
     {0x02c00142, {SOC_ALLWINNER_H2PLUS, SOC_VENDOR_ALLWINNER, 40, "H2+",  raw_name} },
+    {0x02c00242, {SOC_ALLWINNER_H2PLUS, SOC_VENDOR_ALLWINNER, 40, "H2+",  raw_name} },
     // H3
     {0x02c00181, {SOC_ALLWINNER_H3,     SOC_VENDOR_ALLWINNER, 40, "H3",   raw_name} },
     {0x02c00081, {SOC_ALLWINNER_H3,     SOC_VENDOR_ALLWINNER, 40, "H3",   raw_name} },
-    // Others
+    // R40
     {0x12c00017, {SOC_ALLWINNER_R40,    SOC_VENDOR_ALLWINNER, 40, "R40",  raw_name} },
+    // V3S
     {0x12c00000, {SOC_ALLWINNER_V3S,    SOC_VENDOR_ALLWINNER, 40, "V3s",  raw_name} }, // 40nm is only my guess, no source
     // --- sun50i Family ---
+    // H5
     {0x82800001, {SOC_ALLWINNER_H5,     SOC_VENDOR_ALLWINNER, 40, "H5",   raw_name} },
+    // H6
+    {0x82c00001, {SOC_ALLWINNER_H6,     SOC_VENDOR_ALLWINNER, 28, "H6",   raw_name} },
     {0x82c00007, {SOC_ALLWINNER_H6,     SOC_VENDOR_ALLWINNER, 28, "H6",   raw_name} },
-    {0x92c000bb, {SOC_ALLWINNER_H64,    SOC_VENDOR_ALLWINNER, 40, "H64",  raw_name} }, // Same as A64
+    // H64
+    {0x92c000bb, {SOC_ALLWINNER_H64,    SOC_VENDOR_ALLWINNER, 40, "H64",  raw_name} }, // Same manufacturing process as A64
+    // H616
     {0x32c05000, {SOC_ALLWINNER_H616,   SOC_VENDOR_ALLWINNER, 28, "H616", raw_name} },
+    // H618
+    {0x33802000, {SOC_ALLWINNER_H618,   SOC_VENDOR_ALLWINNER, 28, "H618", raw_name} },
+    // A64
     {0x92c000ba, {SOC_ALLWINNER_A64,    SOC_VENDOR_ALLWINNER, 40, "A64",  raw_name} },
+    {0x92c001ba, {SOC_ALLWINNER_A64,    SOC_VENDOR_ALLWINNER, 40, "A64",  raw_name} },
     // Unknown
-    {0x00000000, {UNKNOWN,              SOC_VENDOR_UNKNOWN,   -1, "",    raw_name} }
+    {0x00000000, {UNKNOWN,              SOC_VENDOR_UNKNOWN,   -1, "",     raw_name} }
   };
 
   int index = 0;
