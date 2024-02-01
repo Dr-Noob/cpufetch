@@ -486,9 +486,8 @@ struct cpuInfo* get_cpu_info(void) {
     cpu->cpu_name = get_str_cpu_name_internal();
   }
   else {
-    cpu->cpu_name = emalloc(sizeof(char) * (strlen(STRING_UNKNOWN) + 1));
-    strcpy(cpu->cpu_name, STRING_UNKNOWN);
-    printWarn("Can't read cpu name from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x80000004, cpu->maxExtendedLevels);
+    cpu->cpu_name = NULL;
+    printWarn("Can't read CPU name from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x80000004, cpu->maxExtendedLevels);
   }
 
   cpu->topology_extensions = false;
@@ -556,6 +555,8 @@ struct cpuInfo* get_cpu_info(void) {
     if(cpu->topo == NULL) return cpu;
   }
 
+  if (cpu->cpu_name == NULL)
+    cpu->cpu_name = infer_cpu_name_from_uarch(cpu->arch);
   cpu->num_cpus = modules;
   cpu->peak_performance = get_peak_performance(cpu, accurate_pp());
 
