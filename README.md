@@ -174,6 +174,7 @@ Thanks to the fellow contributors and interested people in the project. Special 
 - [bbonev](https://github.com/bbonev) and [stephan-cr](https://github.com/stephan-cr): Reviewed the source code.
 - [mdoksa76](https://github.com/mdoksa76) and [exkc](https://github.com/exkc): Excellent ideas and feedback for supporting Allwinner SoCs.
 - [Sakura286](https://github.com/Sakura286), [exkc](https://github.com/exkc) and [Patola](https://github.com/Patola): Helped with RISC-V port with ssh access, ideas, testing, etc.
+- [ThomasKaiser](https://github.com/ThomasKaiser): Very valuable feedback on improving ARM SoC detection (Apple, Allwinner, Rockchip).
 
 ## 8. cpufetch for GPUs (gpufetch)
 See [gpufetch](https://github.com/Dr-Noob/gpufetch) project!
