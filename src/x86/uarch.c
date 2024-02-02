@@ -445,7 +445,7 @@ char* infer_cpu_name_from_uarch(struct uarch* arch) {
   char* cpu_name = NULL;
   if (arch == NULL) {
     printErr("infer_cpu_name_from_uarch: Unable to find CPU name");
-    cpu_name = emalloc(sizeof(char) * (strlen(STRING_UNKNOWN) + 1));
+    cpu_name = ecalloc(strlen(STRING_UNKNOWN) + 1, sizeof(char));
     strcpy(cpu_name, STRING_UNKNOWN);
     return cpu_name;
   }
@@ -464,11 +464,11 @@ char* infer_cpu_name_from_uarch(struct uarch* arch) {
     printErr("Unable to find name from uarch: %d", arch->uarch);
 
   if (str == NULL) {
-    cpu_name = emalloc(sizeof(char) * (strlen(STRING_UNKNOWN) + 1));
+    cpu_name = ecalloc(strlen(STRING_UNKNOWN) + 1, sizeof(char));
     strcpy(cpu_name, STRING_UNKNOWN);
   }
   else {
-    cpu_name = emalloc(sizeof(char) * (strlen(str)+1));
+    cpu_name = ecalloc(strlen(str) + 1, sizeof(char));
     strcpy(cpu_name, str);
   }
 
