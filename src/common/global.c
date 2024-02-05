@@ -61,6 +61,14 @@ enum {
 
 int LOG_LEVEL;
 
+void printBugMessage(FILE *restrict stream) {
+  #if defined(ARCH_X86) || defined(ARCH_PPC)
+    fprintf(stream, "Please, create a new issue with this error message, the output of 'cpufetch' and 'cpufetch --debug' on https://github.com/Dr-Noob/cpufetch/issues\n");
+  #elif ARCH_ARM
+    fprintf(stream, "Please, create a new issue with this error message, your smartphone/computer model, the output of 'cpufetch --verbose' and 'cpufetch --debug' on https://github.com/Dr-Noob/cpufetch/issues\n");
+  #endif
+}
+
 void printWarn(const char *fmt, ...) {
   if(LOG_LEVEL == LOG_LEVEL_VERBOSE) {
     int buffer_size = 4096;
@@ -95,10 +103,40 @@ void printBug(const char *fmt, ...) {
   fprintf(stderr,RED "[ERROR]: "RESET "%s\n",buffer);
   fprintf(stderr,"[VERSION]: ");
   print_version(stderr);
-#if defined(ARCH_X86) || defined(ARCH_PPC)
-  fprintf(stderr, "Please, create a new issue with this error message, the output of 'cpufetch' and 'cpufetch --debug' on https://github.com/Dr-Noob/cpufetch/issues\n");
-#elif ARCH_ARM
-  fprintf(stderr, "Please, create a new issue with this error message, your smartphone/computer model, the output of 'cpufetch --verbose' and 'cpufetch --debug' on https://github.com/Dr-Noob/cpufetch/issues\n");
+  printBugMessage(stderr);
+}
+
+bool isReleaseVersion(char *git_full_version) {
+  return strstr(git_full_version, "-") == NULL;
+}
+
+/// The unknown uarch errors are by far the most common error a user will encounter.
+/// Rather than using the generic printBug function, which asks the user to report
+/// the problem on the issues webpage, this function will check if the program is
+/// the release version. In such case, support for this feature is most likely already
+/// in the last version, so just tell the user to compile that one and not report this
+/// in github.
+void printUnknownUarch(const char *fmt, ...) {
+  int buffer_size = 4096;
+  char buffer[buffer_size];
+  va_list args;
+  va_start(args, fmt);
+  vsnprintf(buffer,buffer_size, fmt, args);
+  va_end(args);
+
+  fprintf(stderr, RED "[ERROR]: "RESET "%s\n", buffer);
+  fprintf(stderr, "[VERSION]: ");
+  print_version(stderr);
+
+#ifdef GIT_FULL_VERSION
+  if (isReleaseVersion(GIT_FULL_VERSION)) {
+    fprintf(stderr, RED "[ERROR]: "RESET "You are using an outdated version of cpufetch. Please compile cpufetch from source (see https://github.com/Dr-Noob/cpufetch?tab=readme-ov-file#22-building-from-source)");
+  }
+  else {
+    printBugMessage(stderr);
+  }
+#else
+  printBugMessage(stderr);
 #endif
 }
 
