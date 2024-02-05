@@ -12,7 +12,7 @@ void set_log_level(bool verbose);
 void printWarn(const char *fmt, ...);
 void printErr(const char *fmt, ...);
 void printBug(const char *fmt, ...);
-void printUnknownUarch(const char *fmt, ...);
+void printBugCheckRelease(const char *fmt, ...);
 int min(int a, int b);
 int max(int a, int b);
 char *strremove(char *str, const char *sub);

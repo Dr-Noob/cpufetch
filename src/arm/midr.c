@@ -390,7 +390,7 @@ struct cpuInfo* get_cpu_info_mach(struct cpuInfo* cpu) {
     cpu->peak_performance = get_peak_performance(cpu);
   }
   else {
-    printBug("Found invalid cpu_family: 0x%.8X", cpu_family);
+    printBugCheckRelease("Found invalid cpu_family: 0x%.8X", cpu_family);
     return NULL;
   }
 

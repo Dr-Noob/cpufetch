@@ -878,7 +878,7 @@ struct system_on_chip* guess_soc_apple(struct system_on_chip* soc) {
       }
     }
     else {
-      printBug("Found invalid cpu_subfamily: 0x%.8X", cpu_subfamily);
+      printBugCheckRelease("Found invalid cpu_subfamily: 0x%.8X", cpu_subfamily);
       soc->soc_vendor = SOC_VENDOR_UNKNOWN;
     }
   }
@@ -905,7 +905,7 @@ struct system_on_chip* guess_soc_apple(struct system_on_chip* soc) {
       }
     }
     else {
-      printBug("Found invalid cpu_subfamily: 0x%.8X", cpu_subfamily);
+      printBugCheckRelease("Found invalid cpu_subfamily: 0x%.8X", cpu_subfamily);
       soc->soc_vendor = SOC_VENDOR_UNKNOWN;
     }
   }
@@ -923,12 +923,12 @@ struct system_on_chip* guess_soc_apple(struct system_on_chip* soc) {
       fill_soc(soc, "M3 Max", SOC_APPLE_M3_MAX, 3);
     }
     else {
-      printBug("Found invalid cpu_family: 0x%.8X", cpu_family);
+      printBugCheckRelease("Found invalid cpu_family: 0x%.8X", cpu_family);
       soc->soc_vendor = SOC_VENDOR_UNKNOWN;
     }
   }
   else {
-    printBug("Found invalid cpu_family: 0x%.8X", cpu_family);
+    printBugCheckRelease("Found invalid cpu_family: 0x%.8X", cpu_family);
     soc->soc_vendor = SOC_VENDOR_UNKNOWN;
   }
   return soc;

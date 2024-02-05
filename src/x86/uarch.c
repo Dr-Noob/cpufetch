@@ -125,7 +125,7 @@ struct uarch {
 #define UARCH_START if (false) {}
 #define CHECK_UARCH(arch, ef_, f_, em_, m_, s_, str, uarch, process) \
    else if (ef_ == ef && f_ == f && (em_ == NA || em_ == em) && (m_ == NA || m_ == m) && (s_ == NA || s_ == s)) fill_uarch(arch, str, uarch, process);
-#define UARCH_END else { printUnknownUarch("Unknown microarchitecture detected: M=0x%X EM=0x%X F=0x%X EF=0x%X S=0x%X", m, em, f, ef, s); \
+#define UARCH_END else { printBugCheckRelease("Unknown microarchitecture detected: M=0x%X EM=0x%X F=0x%X EF=0x%X S=0x%X", m, em, f, ef, s); \
 fill_uarch(arch, STRING_UNKNOWN, UARCH_UNKNOWN, UNK); }
 
 void fill_uarch(struct uarch* arch, char* str, MICROARCH u, uint32_t process) {

@@ -116,7 +116,7 @@ bool isReleaseVersion(char *git_full_version) {
 /// the release version. In such case, support for this feature is most likely already
 /// in the last version, so just tell the user to compile that one and not report this
 /// in github.
-void printUnknownUarch(const char *fmt, ...) {
+void printBugCheckRelease(const char *fmt, ...) {
   int buffer_size = 4096;
   char buffer[buffer_size];
   va_list args;
