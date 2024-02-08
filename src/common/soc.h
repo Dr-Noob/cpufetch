@@ -19,6 +19,7 @@ enum {
   SOC_VENDOR_MEDIATEK,
   SOC_VENDOR_EXYNOS,
   SOC_VENDOR_KIRIN,
+  SOC_VENDOR_KUNPENG,
   SOC_VENDOR_BROADCOM,
   SOC_VENDOR_APPLE,
   SOC_VENDOR_ROCKCHIP,
@@ -39,7 +40,7 @@ struct system_on_chip {
   char* raw_name;
 };
 
-struct system_on_chip* get_soc(void);
+struct system_on_chip* get_soc(struct cpuInfo* cpu);
 char* get_soc_name(struct system_on_chip* soc);
 VENDOR get_soc_vendor(struct system_on_chip* soc);
 bool match_soc(struct system_on_chip* soc, char* raw_name, char* expected_name, char* soc_name, SOC soc_model, int32_t process);

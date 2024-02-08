@@ -163,7 +163,7 @@ struct cpuInfo* get_cpu_info(void) {
   cpu->ext = get_extensions_from_str(ext_str);
   if(cpu->ext->str != NULL && cpu->ext->mask == 0) return NULL;
   cpu->arch = get_uarch_from_cpuinfo_str(cpuinfo_str, cpu);
-  cpu->soc = get_soc();
+  cpu->soc = get_soc(cpu);
   cpu->freq = get_frequency_info(0);
   cpu->peak_performance = get_peak_performance(cpu);
 

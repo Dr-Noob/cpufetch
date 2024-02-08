@@ -145,6 +145,25 @@ $C2     Exynos           \
 $C2                      \
 $C2                      "
 
+#define ASCII_KUNPENG \
+"$C1                                             . \
+$C1                                          ..   \
+$C1                                       .##     \
+$C1                                 .  .###.      \
+$C1                            ..   #####.        \
+$C1                       .##   .#######.         \
+$C1                 .####.   .#######.            \
+$C1           ..######*  .#######.   .            \
+$C1      .#########*  .#######*   .               \
+$C1      ######*  .#######.   .#.                 \
+$C1#########   .#######.   *##.                   \
+$C1   ##*  .#######.   #######                    \
+$C1          ###.   .##.    ...                   \
+$C1              *##########...                   \
+$C1                    *########                  \
+$C1                          #####.               \
+$C1                             *###.             "
+
 #define ASCII_KIRIN \
 "$C1                                #######              \
 $C1    #####             ####################           \
@@ -485,6 +504,7 @@ asciiL logo_snapd       = { ASCII_SNAPD,       39, 16, false, {C_FG_RED, C_FG_WH
 asciiL logo_mtk         = { ASCII_MTK,         59,  5, false, {C_FG_BLUE, C_FG_YELLOW},                       {C_FG_BLUE,    C_FG_YELLOW}  };
 asciiL logo_exynos      = { ASCII_EXYNOS,      22, 13, true,  {C_BG_BLUE, C_FG_WHITE},                        {C_FG_BLUE,    C_FG_WHITE}   };
 asciiL logo_kirin       = { ASCII_KIRIN,       53, 12, false, {C_FG_RED},                                     {C_FG_WHITE,   C_FG_RED}     };
+asciiL logo_kunpeng     = { ASCII_KUNPENG,     47, 17, false, {C_FG_RED},                                     {C_FG_WHITE,   C_FG_RED}     };
 asciiL logo_broadcom    = { ASCII_BROADCOM,    44, 19, false, {C_FG_WHITE, C_FG_RED},                         {C_FG_WHITE,   C_FG_RED}     };
 asciiL logo_arm         = { ASCII_ARM,         42,  5, false, {C_FG_CYAN},                                    {C_FG_WHITE,   C_FG_CYAN}    };
 asciiL logo_ibm         = { ASCII_IBM,         42,  9, false, {C_FG_CYAN, C_FG_WHITE},                        {C_FG_CYAN,    C_FG_WHITE}   };

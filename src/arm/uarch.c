@@ -10,7 +10,6 @@
 // Data not available
 #define NA                   -1
 
-typedef uint32_t MICROARCH;
 typedef uint32_t ISA;
 
 struct uarch {
@@ -35,89 +34,6 @@ enum {
   ISA_ARMv8_4_A,
   ISA_ARMv8_5_A,
   ISA_ARMv9_A
-};
-
-enum {
-  UARCH_UNKNOWN,
-  // ARM
-  UARCH_ARM7,
-  UARCH_ARM9,
-  UARCH_ARM1136,
-  UARCH_ARM1156,
-  UARCH_ARM1176,
-  UARCH_ARM11MPCORE,
-  UARCH_CORTEX_A5,
-  UARCH_CORTEX_A7,
-  UARCH_CORTEX_A8,
-  UARCH_CORTEX_A9,
-  UARCH_CORTEX_A12,
-  UARCH_CORTEX_A15,
-  UARCH_CORTEX_A17,
-  UARCH_CORTEX_A32,
-  UARCH_CORTEX_A35,
-  UARCH_CORTEX_A53,
-  UARCH_CORTEX_A55r0, // ARM Cortex-A55 revision 0 (restricted dual-issue capabilities compared to revision 1+).
-  UARCH_CORTEX_A55,
-  UARCH_CORTEX_A57,
-  UARCH_CORTEX_A65,
-  UARCH_CORTEX_A72,
-  UARCH_CORTEX_A73,
-  UARCH_CORTEX_A75,
-  UARCH_CORTEX_A76,
-  UARCH_CORTEX_A77,
-  UARCH_CORTEX_A78,
-  UARCH_CORTEX_A510,
-  UARCH_CORTEX_A710,
-  UARCH_CORTEX_A715,
-  UARCH_CORTEX_X1,
-  UARCH_CORTEX_X2,
-  UARCH_CORTEX_X3,
-  UARCH_NEOVERSE_N1,
-  UARCH_NEOVERSE_E1,
-  UARCH_NEOVERSE_V1,
-  UARCH_SCORPION,
-  UARCH_KRAIT,
-  UARCH_KYRO,
-  UARCH_FALKOR,
-  UARCH_SAPHIRA,
-  UARCH_DENVER,
-  UARCH_DENVER2,
-  UARCH_CARMEL,
-  // SAMSUNG
-  UARCH_EXYNOS_M1,  // Samsung Exynos M1 (Exynos 8890 big cores)
-  UARCH_EXYNOS_M2,  // Samsung Exynos M2 (Exynos 8895 big cores)
-  UARCH_EXYNOS_M3,  // Samsung Exynos M3 (Exynos 9810 big cores)
-  UARCH_EXYNOS_M4,  // Samsung Exynos M4 (Exynos 9820 big cores)
-  UARCH_EXYNOS_M5,  // Samsung Exynos M5 (Exynos 9830 big cores)
-  // APPLE
-  UARCH_SWIFT,      // Apple A6 and A6X processors.
-  UARCH_CYCLONE,    // Apple A7 processor.
-  UARCH_TYPHOON,    // Apple A8 and A8X processor
-  UARCH_TWISTER,    // Apple A9 and A9X processor.
-  UARCH_HURRICANE,  // Apple A10 and A10X processor.
-  UARCH_MONSOON,    // Apple A11 processor (big cores).
-  UARCH_MISTRAL,    // Apple A11 processor (little cores).
-  UARCH_VORTEX,     // Apple A12 processor (big cores).
-  UARCH_TEMPEST,    // Apple A12 processor (big cores).
-  UARCH_LIGHTNING,  // Apple A13 processor (big cores).
-  UARCH_THUNDER,    // Apple A13 processor (little cores).
-  UARCH_ICESTORM,   // Apple M1 processor (little cores).
-  UARCH_FIRESTORM,  // Apple M1 processor (big cores).
-  UARCH_BLIZZARD,   // Apple M2 processor (little cores).
-  UARCH_AVALANCHE,  // Apple M2 processor (big cores).
-  UARCH_SAWTOOTH,   // Apple M3 processor (little cores).
-  UARCH_EVEREST,    // Apple M3 processor (big cores).
-  // CAVIUM
-  UARCH_THUNDERX,   // Cavium ThunderX
-  UARCH_THUNDERX2,  // Cavium ThunderX2 (originally Broadcom Vulkan).
-  // MARVELL
-  UARCH_PJ4,
-  UARCH_BRAHMA_B15,
-  UARCH_BRAHMA_B53,
-  UARCH_XGENE,        // Applied Micro X-Gene.
-  UARCH_TAISHAN_V110, // HiSilicon TaiShan v110 (Huawei Kunpeng 920 series processors).
-  // PHYTIUM
-  UARCH_XIAOMI,       // Not to be confused with Xiaomi Inc
 };
 
 static const ISA isas_uarch[] = {
@@ -159,6 +75,7 @@ static const ISA isas_uarch[] = {
   [UARCH_THUNDERX]     = ISA_ARMv8_A,
   [UARCH_THUNDERX2]    = ISA_ARMv8_1_A,
   [UARCH_TAISHAN_V110] = ISA_ARMv8_2_A,
+  [UARCH_TAISHAN_V200] = ISA_ARMv8_2_A, // Not confirmed
   [UARCH_DENVER]       = ISA_ARMv8_A,
   [UARCH_DENVER2]      = ISA_ARMv8_A,
   [UARCH_CARMEL]       = ISA_ARMv8_A,
@@ -284,8 +201,9 @@ struct uarch* get_uarch_from_midr(uint32_t midr, struct cpuInfo* cpu) {
   CHECK_UARCH(arch, cpu, 'C', 0x0A3, NA, NA, "ThunderX 81XX",         UARCH_THUNDERX,     CPU_VENDOR_CAVIUM)
   CHECK_UARCH(arch, cpu, 'C', 0x0AF, NA, NA, "ThunderX2 99XX",        UARCH_THUNDERX2,    CPU_VENDOR_CAVIUM)
 
-  CHECK_UARCH(arch, cpu, 'H', 0xD01, NA, NA, "TaiShan v110",          UARCH_TAISHAN_V110, CPU_VENDOR_HUAWUEI) // Kunpeng 920 series
-  CHECK_UARCH(arch, cpu, 'H', 0xD40, NA, NA, "Cortex-A76",            UARCH_CORTEX_A76,   CPU_VENDOR_ARM)     // Kirin 980 Big/Medium cores -> Cortex-A76
+  CHECK_UARCH(arch, cpu, 'H', 0xD01, NA, NA, "TaiShan v110",          UARCH_TAISHAN_V110, CPU_VENDOR_HUAWEI) // Kunpeng 920 series
+  CHECK_UARCH(arch, cpu, 'H', 0xD02, NA, NA, "TaiShan v200",          UARCH_TAISHAN_V200, CPU_VENDOR_HUAWEI) // Kunpeng 930 series (found in openeuler: https://mailweb.openeuler.org/hyperkitty/list/kernel@openeuler.org/message/XQCV7NX2UKRIUWUFKRF4PO3QENCOUFR3)
+  CHECK_UARCH(arch, cpu, 'H', 0xD40, NA, NA, "Cortex-A76",            UARCH_CORTEX_A76,   CPU_VENDOR_ARM)    // Kirin 980 Big/Medium cores -> Cortex-A76
 
   CHECK_UARCH(arch, cpu, 'N', 0x000, NA, NA, "Denver",                UARCH_DENVER,       CPU_VENDOR_NVIDIA)
   CHECK_UARCH(arch, cpu, 'N', 0x003, NA, NA, "Denver2",               UARCH_DENVER2,      CPU_VENDOR_NVIDIA)
@@ -435,6 +353,10 @@ int get_number_of_vpus(struct cpuInfo* cpu) {
 
 char* get_str_uarch(struct cpuInfo* cpu) {
   return cpu->arch->uarch_str;
+}
+
+MICROARCH get_uarch(struct uarch* arch) {
+  return arch->uarch;
 }
 
 void free_uarch_struct(struct uarch* arch) {
