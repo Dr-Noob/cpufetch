@@ -364,6 +364,8 @@ void choose_ascii_art(struct ascii* art, struct color** cs, struct terminal* ter
     art->art = &logo_exynos;
   else if(art->vendor == SOC_VENDOR_KIRIN)
     art->art = &logo_kirin;
+  else if(art->vendor == SOC_VENDOR_KUNPENG)
+    art->art = &logo_kunpeng;
   else if(art->vendor == SOC_VENDOR_BROADCOM)
     art->art = &logo_broadcom;
   else if(art->vendor == SOC_VENDOR_APPLE)

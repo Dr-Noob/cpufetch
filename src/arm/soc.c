@@ -6,6 +6,7 @@
 #include "soc.h"
 #include "socs.h"
 #include "udev.h"
+#include "uarch.h"
 #include "../common/global.h"
 
 #if defined(__APPLE__) || defined(__MACH__)
@@ -801,6 +802,38 @@ struct system_on_chip* guess_soc_from_nvmem(struct system_on_chip* soc) {
   return soc;
 }
 
+struct system_on_chip* guess_soc_from_uarch(struct system_on_chip* soc, struct cpuInfo* cpu) {
+  // Currently we only support CPUs with only one uarch (in other words, one socket)
+  struct uarch* arch = cpu->arch;
+  if (arch == NULL) {
+    printWarn("guess_soc_from_uarch: uarch is NULL");
+    return soc;
+  }
+
+  typedef struct {
+    MICROARCH u;
+    struct system_on_chip soc;
+  } uarchToSoC;
+
+  uarchToSoC socFromUarch[] = {
+    {UARCH_TAISHAN_V110, {SOC_KUNPENG_920,  SOC_VENDOR_KUNPENG,  7, "920", NULL} },
+    {UARCH_TAISHAN_V200, {SOC_KUNPENG_930,  SOC_VENDOR_KUNPENG,  7, "930", NULL} }, // manufacturing process is not well-known
+    {UARCH_UNKNOWN,      {UNKNOWN,          SOC_VENDOR_UNKNOWN, -1,    "", NULL} }
+  };
+
+  int index = 0;
+  while(socFromUarch[index].u != UARCH_UNKNOWN) {
+    if(socFromUarch[index].u == get_uarch(arch)) {
+      fill_soc(soc, socFromUarch[index].soc.soc_name, socFromUarch[index].soc.soc_model, socFromUarch[index].soc.process);
+      return soc;
+    }
+    index++;
+  }
+
+  printWarn("guess_soc_from_uarch: No uarch matched the list");
+  return soc;
+}
+
 int hex2int(char c) {
   if (c >= '0' && c <= '9')
     return c - '0';
@@ -935,7 +968,7 @@ struct system_on_chip* guess_soc_apple(struct system_on_chip* soc) {
 }
 #endif
 
-struct system_on_chip* get_soc(void) {
+struct system_on_chip* get_soc(struct cpuInfo* cpu) {
   struct system_on_chip* soc = emalloc(sizeof(struct system_on_chip));
   soc->raw_name = NULL;
   soc->soc_vendor = SOC_VENDOR_UNKNOWN;
@@ -974,6 +1007,10 @@ struct system_on_chip* get_soc(void) {
     // If cpufinfo/Android (if available) detection fails, try with nvmem
     if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) {
       soc = guess_soc_from_nvmem(soc);
+    }
+    // If everything else failed, try infering it from the microarchitecture
+    if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) {
+      soc = guess_soc_from_uarch(soc, cpu);
     }
   }
 #elif defined __APPLE__ || __MACH__

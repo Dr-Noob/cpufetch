@@ -5,6 +5,6 @@
 #include "../common/cpu.h"
 #include <stdint.h>
 
-struct system_on_chip* get_soc(void);
+struct system_on_chip* get_soc(struct cpuInfo* cpu);
 
 #endif
