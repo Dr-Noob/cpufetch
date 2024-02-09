@@ -142,128 +142,128 @@ void fill_uarch(struct uarch* arch, char* str, MICROARCH u, uint32_t process) {
 struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, uint32_t m, int s) {
   struct uarch* arch = emalloc(sizeof(struct uarch));
 
-  // EF: Extended Family                                                            //
-  // F:  Family                                                                     //
-  // EM: Extended Model                                                             //
-  // M: Model                                                                       //
-  // S: Stepping                                                                    //
-  // ------------------------------------------------------------------------------ //
-  //                EF  F  EM   M   S                                               //
+  // EF: Extended Family                                                             //
+  // F:  Family                                                                      //
+  // EM: Extended Model                                                              //
+  // M: Model                                                                        //
+  // S: Stepping                                                                     //
+  // ------------------------------------------------------------------------------- //
+  //                EF  F  EM   M   S                                                //
   UARCH_START
-  CHECK_UARCH(arch, 0,  5,  0,  0, NA, "P5",               UARCH_P5,              800)
-  CHECK_UARCH(arch, 0,  5,  0,  1, NA, "P5",               UARCH_P5,              800)
-  CHECK_UARCH(arch, 0,  5,  0,  2, NA, "P5",               UARCH_P5,              UNK)
-  CHECK_UARCH(arch, 0,  5,  0,  3, NA, "P5",               UARCH_P5,              600)
-  CHECK_UARCH(arch, 0,  5,  0,  4, NA, "P5 (MMX)",         UARCH_P5_MMX,          UNK)
-  CHECK_UARCH(arch, 0,  5,  0,  7, NA, "P5 (MMX)",         UARCH_P5_MMX,          UNK)
-  CHECK_UARCH(arch, 0,  5,  0,  8, NA, "P5 (MMX)",         UARCH_P5_MMX,          250)
-  CHECK_UARCH(arch, 0,  5,  0,  9,  0, "Lakemont",         UARCH_LAKEMONT,         32)
-  CHECK_UARCH(arch, 0,  5,  0,  9, NA, "P5 (MMX)",         UARCH_P5_MMX,          UNK)
-  CHECK_UARCH(arch, 0,  5,  0, 10,  0, "Lakemont",         UARCH_LAKEMONT,         32)
-  CHECK_UARCH(arch, 0,  6,  0,  0, NA, "P6 (Pentium II)",  UARCH_P6_PENTIUM_II,   UNK)
-  CHECK_UARCH(arch, 0,  6,  0,  1, NA, "P6 (Pentium II)",  UARCH_P6_PENTIUM_II,   UNK) // process depends on core
-  CHECK_UARCH(arch, 0,  6,  0,  2, NA, "P6 (Pentium II)",  UARCH_P6_PENTIUM_II,   UNK)
-  CHECK_UARCH(arch, 0,  6,  0,  3, NA, "P6 (Pentium II)",  UARCH_P6_PENTIUM_II,   350)
-  CHECK_UARCH(arch, 0,  6,  0,  4, NA, "P6 (Pentium II)",  UARCH_P6_PENTIUM_II,   UNK)
-  CHECK_UARCH(arch, 0,  6,  0,  5, NA, "P6 (Pentium II)",  UARCH_P6_PENTIUM_II,   250)
-  CHECK_UARCH(arch, 0,  6,  0,  6, NA, "P6 (Pentium II)",  UARCH_P6_PENTIUM_III,  UNK)
-  CHECK_UARCH(arch, 0,  6,  0,  7, NA, "P6 (Pentium III)", UARCH_P6_PENTIUM_III,  250)
-  CHECK_UARCH(arch, 0,  6,  0,  8, NA, "P6 (Pentium III)", UARCH_P6_PENTIUM_III,  180)
-  CHECK_UARCH(arch, 0,  6,  0,  9, NA, "P6 (Pentium M)",   UARCH_P6_PENTIUM_III,  130)
-  CHECK_UARCH(arch, 0,  6,  0, 10, NA, "P6 (Pentium III)", UARCH_P6_PENTIUM_III,  180)
-  CHECK_UARCH(arch, 0,  6,  0, 11, NA, "P6 (Pentium III)", UARCH_P6_PENTIUM_III,  130)
-  CHECK_UARCH(arch, 0,  6,  0, 13, NA, "Dothan",           UARCH_DOTHAN,          UNK)  // process depends on core
-  CHECK_UARCH(arch, 0,  6,  0, 14, NA, "Yonah",            UARCH_YONAH,            65)
-  CHECK_UARCH(arch, 0,  6,  0, 15, NA, "Merom",            UARCH_MEROM,            65)
-  CHECK_UARCH(arch, 0,  6,  1,  5, NA, "Dothan",           UARCH_DOTHAN,           90)
-  CHECK_UARCH(arch, 0,  6,  1,  6, NA, "Merom",            UARCH_MEROM,            65)
-  CHECK_UARCH(arch, 0,  6,  1,  7, NA, "Penryn",           UARCH_PENYR,            45)
-  CHECK_UARCH(arch, 0,  6,  1, 10, NA, "Nehalem",          UARCH_NEHALEM,          45)
-  CHECK_UARCH(arch, 0,  6,  1, 12, NA, "Bonnell",          UARCH_BONNELL,          45)
-  CHECK_UARCH(arch, 0,  6,  1, 13, NA, "Penryn",           UARCH_PENYR,            45)
-  CHECK_UARCH(arch, 0,  6,  1, 14, NA, "Nehalem",          UARCH_NEHALEM,          45)
-  CHECK_UARCH(arch, 0,  6,  1, 15, NA, "Nehalem",          UARCH_NEHALEM,          45)
-  CHECK_UARCH(arch, 0,  6,  2,  5, NA, "Westmere",         UARCH_WESTMERE,         32)
-  CHECK_UARCH(arch, 0,  6,  2 , 6, NA, "Bonnell",          UARCH_BONNELL,          45)
-  CHECK_UARCH(arch, 0,  6,  2,  7, NA, "Saltwell",         UARCH_SALTWELL,         32)
-  CHECK_UARCH(arch, 0,  6,  2, 10, NA, "Sandy Bridge",     UARCH_SANDY_BRIDGE,     32)
-  CHECK_UARCH(arch, 0,  6,  2, 12, NA, "Westmere",         UARCH_WESTMERE,         32)
-  CHECK_UARCH(arch, 0,  6,  2, 13, NA, "Sandy Bridge",     UARCH_SANDY_BRIDGE,     32)
-  CHECK_UARCH(arch, 0,  6,  2, 14, NA, "Nehalem",          UARCH_NEHALEM,          45)
-  CHECK_UARCH(arch, 0,  6,  2, 15, NA, "Westmere",         UARCH_WESTMERE,         32)
-  CHECK_UARCH(arch, 0,  6,  3,  5, NA, "Saltwell",         UARCH_SALTWELL,         14)
-  CHECK_UARCH(arch, 0,  6,  3,  6, NA, "Saltwell",         UARCH_SALTWELL,         32)
-  CHECK_UARCH(arch, 0,  6,  3,  7, NA, "Silvermont",       UARCH_SILVERMONT,       22)
-  CHECK_UARCH(arch, 0,  6,  3, 10, NA, "Ivy Bridge",       UARCH_IVY_BRIDGE,       22)
-  CHECK_UARCH(arch, 0,  6,  3, 12, NA, "Haswell",          UARCH_HASWELL,          22)
-  CHECK_UARCH(arch, 0,  6,  3, 13, NA, "Broadwell",        UARCH_BROADWELL,        14)
-  CHECK_UARCH(arch, 0,  6,  3, 14, NA, "Ivy Bridge",       UARCH_IVY_BRIDGE,       22)
-  CHECK_UARCH(arch, 0,  6,  3, 15, NA, "Haswell",          UARCH_HASWELL,          22)
-  CHECK_UARCH(arch, 0,  6,  4,  5, NA, "Haswell",          UARCH_HASWELL,          22)
-  CHECK_UARCH(arch, 0,  6,  4,  6, NA, "Haswell",          UARCH_HASWELL,          22)
-  CHECK_UARCH(arch, 0,  6,  4,  7, NA, "Broadwell",        UARCH_BROADWELL,        14)
-  CHECK_UARCH(arch, 0,  6,  4, 10, NA, "Silvermont",       UARCH_SILVERMONT,       22) // no docs, but /proc/cpuinfo seen in wild
-  CHECK_UARCH(arch, 0,  6,  4, 12, NA, "Airmont",          UARCH_AIRMONT,          14)
-  CHECK_UARCH(arch, 0,  6,  4, 13, NA, "Silvermont",       UARCH_SILVERMONT,       22)
-  CHECK_UARCH(arch, 0,  6,  4, 14,  8, "Kaby Lake",        UARCH_KABY_LAKE,        14)
-  CHECK_UARCH(arch, 0,  6,  4, 14, NA, "Skylake",          UARCH_SKYLAKE,          14)
-  CHECK_UARCH(arch, 0,  6,  4, 15, NA, "Broadwell",        UARCH_BROADWELL,        14)
-  CHECK_UARCH(arch, 0,  6,  5,  5,  6, "Cascade Lake",     UARCH_CASCADE_LAKE,     14) // no docs, but example from Greg Stewart
-  CHECK_UARCH(arch, 0,  6,  5,  5,  7, "Cascade Lake",     UARCH_CASCADE_LAKE,     14)
-  CHECK_UARCH(arch, 0,  6,  5,  5, 10, "Cooper Lake",      UARCH_COOPER_LAKE,      14)
-  CHECK_UARCH(arch, 0,  6,  5,  5, NA, "Skylake",          UARCH_SKYLAKE,          14)
-  CHECK_UARCH(arch, 0,  6,  5,  6, NA, "Broadwell",        UARCH_BROADWELL,        14)
-  CHECK_UARCH(arch, 0,  6,  5,  7, NA, "Knights Landing",  UARCH_KNIGHTS_LANDING,  14)
-  CHECK_UARCH(arch, 0,  6,  5, 10, NA, "Silvermont",       UARCH_SILVERMONT,       22) // no spec update; only MSR_CPUID_table* so far
-  CHECK_UARCH(arch, 0,  6,  5, 12, NA, "Goldmont",         UARCH_GOLDMONT,         14)
-  CHECK_UARCH(arch, 0,  6,  5, 13, NA, "Silvermont",       UARCH_SILVERMONT,       22) // no spec update; only MSR_CPUID_table* so far
-  CHECK_UARCH(arch, 0,  6,  5, 14,  8, "Kaby Lake",        UARCH_KABY_LAKE,        14)
-  CHECK_UARCH(arch, 0,  6,  5, 14, NA, "Skylake",          UARCH_SKYLAKE,          14)
-  CHECK_UARCH(arch, 0,  6,  5, 15, NA, "Goldmont",         UARCH_GOLDMONT,         14)
-  CHECK_UARCH(arch, 0,  6,  6,  6, NA, "Palm Cove",        UARCH_PALM_COVE,        10) // no spec update; only MSR_CPUID_table* so far
-  CHECK_UARCH(arch, 0,  6,  6, 10, NA, "Sunny Cove",       UARCH_SUNNY_COVE,       10) // no spec update; only MSR_CPUID_table* so far
-  CHECK_UARCH(arch, 0,  6,  6, 12, NA, "Sunny Cove",       UARCH_SUNNY_COVE,       10) // no spec update; only MSR_CPUID_table* so far
-  CHECK_UARCH(arch, 0,  6,  7,  5, NA, "Airmont",          UARCH_AIRMONT,          14) // no spec update; whispers & rumors
-  CHECK_UARCH(arch, 0,  6,  7, 10, NA, "Goldmont Plus",    UARCH_GOLDMONT_PLUS,    14)
-  CHECK_UARCH(arch, 0,  6,  7, 13, NA, "Sunny Cove",       UARCH_SUNNY_COVE,       10) // no spec update; only MSR_CPUID_table* so far
-  CHECK_UARCH(arch, 0,  6,  7, 14, NA, "Ice Lake",         UARCH_ICE_LAKE,         10)
-  CHECK_UARCH(arch, 0,  6,  8,  5, NA, "Knights Mill",     UARCH_KNIGHTS_MILL,     14) // no spec update; only MSR_CPUID_table* so far
-  CHECK_UARCH(arch, 0,  6,  8,  6, NA, "Tremont",          UARCH_TREMONT,          10) // LX*
-  CHECK_UARCH(arch, 0,  6,  8, 10, NA, "Tremont",          UARCH_TREMONT,          10) // no spec update; only geekbench.com example
-  CHECK_UARCH(arch, 0,  6,  8, 12, NA, "Tiger Lake",       UARCH_TIGER_LAKE,       10) // instlatx64
-  CHECK_UARCH(arch, 0,  6,  8, 13, NA, "Tiger Lake",       UARCH_TIGER_LAKE,       10) // instlatx64
+  CHECK_UARCH(arch, 0,  5,  0,  0, NA, "P5",                UARCH_P5,              800)
+  CHECK_UARCH(arch, 0,  5,  0,  1, NA, "P5",                UARCH_P5,              800)
+  CHECK_UARCH(arch, 0,  5,  0,  2, NA, "P5",                UARCH_P5,              UNK)
+  CHECK_UARCH(arch, 0,  5,  0,  3, NA, "P5",                UARCH_P5,              600)
+  CHECK_UARCH(arch, 0,  5,  0,  4, NA, "P5 (MMX)",          UARCH_P5_MMX,          UNK)
+  CHECK_UARCH(arch, 0,  5,  0,  7, NA, "P5 (MMX)",          UARCH_P5_MMX,          UNK)
+  CHECK_UARCH(arch, 0,  5,  0,  8, NA, "P5 (MMX)",          UARCH_P5_MMX,          250)
+  CHECK_UARCH(arch, 0,  5,  0,  9,  0, "Lakemont",          UARCH_LAKEMONT,         32)
+  CHECK_UARCH(arch, 0,  5,  0,  9, NA, "P5 (MMX)",          UARCH_P5_MMX,          UNK)
+  CHECK_UARCH(arch, 0,  5,  0, 10,  0, "Lakemont",          UARCH_LAKEMONT,         32)
+  CHECK_UARCH(arch, 0,  6,  0,  0, NA, "P6 (Pentium II)",   UARCH_P6_PENTIUM_II,   UNK)
+  CHECK_UARCH(arch, 0,  6,  0,  1, NA, "P6 (Pentium II)",   UARCH_P6_PENTIUM_II,   UNK) // process depends on core
+  CHECK_UARCH(arch, 0,  6,  0,  2, NA, "P6 (Pentium II)",   UARCH_P6_PENTIUM_II,   UNK)
+  CHECK_UARCH(arch, 0,  6,  0,  3, NA, "P6 (Klamath)",      UARCH_P6_PENTIUM_II,   350) // http://instlatx64.atw.hu.
+  CHECK_UARCH(arch, 0,  6,  0,  4, NA, "P6 (Pentium II)",   UARCH_P6_PENTIUM_II,   UNK)
+  CHECK_UARCH(arch, 0,  6,  0,  5, NA, "P6 (Deschutes)",    UARCH_P6_PENTIUM_II,   250) // http://instlatx64.atw.hu.
+  CHECK_UARCH(arch, 0,  6,  0,  6, NA, "P6 (Dixon)",        UARCH_P6_PENTIUM_II,   UNK) // http://instlatx64.atw.hu.
+  CHECK_UARCH(arch, 0,  6,  0,  7, NA, "P6 (Katmai)",       UARCH_P6_PENTIUM_III,  250) // Core names from: https://en.wikichip.org/wiki/intel/cpuid. NOTE: Xeon core names are different! https://www.techpowerup.com/cpu-specs/?generation=Intel+Pentium+III+Xeon
+  CHECK_UARCH(arch, 0,  6,  0,  8, NA, "P6 (Coppermine)",   UARCH_P6_PENTIUM_III,  180) // Also: https://en.wikipedia.org/wiki/Pentium_III
+  CHECK_UARCH(arch, 0,  6,  0,  9, NA, "P6 (Pentium M)",    UARCH_P6_PENTIUM_III,  130)
+  CHECK_UARCH(arch, 0,  6,  0, 10, NA, "P6 (Coppermine T)", UARCH_P6_PENTIUM_III,  180)
+  CHECK_UARCH(arch, 0,  6,  0, 11, NA, "P6 (Tualatin)",     UARCH_P6_PENTIUM_III,  130)
+  CHECK_UARCH(arch, 0,  6,  0, 13, NA, "Dothan",            UARCH_DOTHAN,          UNK)  // process depends on core
+  CHECK_UARCH(arch, 0,  6,  0, 14, NA, "Yonah",             UARCH_YONAH,            65)
+  CHECK_UARCH(arch, 0,  6,  0, 15, NA, "Merom",             UARCH_MEROM,            65)
+  CHECK_UARCH(arch, 0,  6,  1,  5, NA, "Dothan",            UARCH_DOTHAN,           90)
+  CHECK_UARCH(arch, 0,  6,  1,  6, NA, "Merom",             UARCH_MEROM,            65)
+  CHECK_UARCH(arch, 0,  6,  1,  7, NA, "Penryn",            UARCH_PENYR,            45)
+  CHECK_UARCH(arch, 0,  6,  1, 10, NA, "Nehalem",           UARCH_NEHALEM,          45)
+  CHECK_UARCH(arch, 0,  6,  1, 12, NA, "Bonnell",           UARCH_BONNELL,          45)
+  CHECK_UARCH(arch, 0,  6,  1, 13, NA, "Penryn",            UARCH_PENYR,            45)
+  CHECK_UARCH(arch, 0,  6,  1, 14, NA, "Nehalem",           UARCH_NEHALEM,          45)
+  CHECK_UARCH(arch, 0,  6,  1, 15, NA, "Nehalem",           UARCH_NEHALEM,          45)
+  CHECK_UARCH(arch, 0,  6,  2,  5, NA, "Westmere",          UARCH_WESTMERE,         32)
+  CHECK_UARCH(arch, 0,  6,  2 , 6, NA, "Bonnell",           UARCH_BONNELL,          45)
+  CHECK_UARCH(arch, 0,  6,  2,  7, NA, "Saltwell",          UARCH_SALTWELL,         32)
+  CHECK_UARCH(arch, 0,  6,  2, 10, NA, "Sandy Bridge",      UARCH_SANDY_BRIDGE,     32)
+  CHECK_UARCH(arch, 0,  6,  2, 12, NA, "Westmere",          UARCH_WESTMERE,         32)
+  CHECK_UARCH(arch, 0,  6,  2, 13, NA, "Sandy Bridge",      UARCH_SANDY_BRIDGE,     32)
+  CHECK_UARCH(arch, 0,  6,  2, 14, NA, "Nehalem",           UARCH_NEHALEM,          45)
+  CHECK_UARCH(arch, 0,  6,  2, 15, NA, "Westmere",          UARCH_WESTMERE,         32)
+  CHECK_UARCH(arch, 0,  6,  3,  5, NA, "Saltwell",          UARCH_SALTWELL,         14)
+  CHECK_UARCH(arch, 0,  6,  3,  6, NA, "Saltwell",          UARCH_SALTWELL,         32)
+  CHECK_UARCH(arch, 0,  6,  3,  7, NA, "Silvermont",        UARCH_SILVERMONT,       22)
+  CHECK_UARCH(arch, 0,  6,  3, 10, NA, "Ivy Bridge",        UARCH_IVY_BRIDGE,       22)
+  CHECK_UARCH(arch, 0,  6,  3, 12, NA, "Haswell",           UARCH_HASWELL,          22)
+  CHECK_UARCH(arch, 0,  6,  3, 13, NA, "Broadwell",         UARCH_BROADWELL,        14)
+  CHECK_UARCH(arch, 0,  6,  3, 14, NA, "Ivy Bridge",        UARCH_IVY_BRIDGE,       22)
+  CHECK_UARCH(arch, 0,  6,  3, 15, NA, "Haswell",           UARCH_HASWELL,          22)
+  CHECK_UARCH(arch, 0,  6,  4,  5, NA, "Haswell",           UARCH_HASWELL,          22)
+  CHECK_UARCH(arch, 0,  6,  4,  6, NA, "Haswell",           UARCH_HASWELL,          22)
+  CHECK_UARCH(arch, 0,  6,  4,  7, NA, "Broadwell",         UARCH_BROADWELL,        14)
+  CHECK_UARCH(arch, 0,  6,  4, 10, NA, "Silvermont",        UARCH_SILVERMONT,       22) // no docs, but /proc/cpuinfo seen in wild
+  CHECK_UARCH(arch, 0,  6,  4, 12, NA, "Airmont",           UARCH_AIRMONT,          14)
+  CHECK_UARCH(arch, 0,  6,  4, 13, NA, "Silvermont",        UARCH_SILVERMONT,       22)
+  CHECK_UARCH(arch, 0,  6,  4, 14,  8, "Kaby Lake",         UARCH_KABY_LAKE,        14)
+  CHECK_UARCH(arch, 0,  6,  4, 14, NA, "Skylake",           UARCH_SKYLAKE,          14)
+  CHECK_UARCH(arch, 0,  6,  4, 15, NA, "Broadwell",         UARCH_BROADWELL,        14)
+  CHECK_UARCH(arch, 0,  6,  5,  5,  6, "Cascade Lake",      UARCH_CASCADE_LAKE,     14) // no docs, but example from Greg Stewart
+  CHECK_UARCH(arch, 0,  6,  5,  5,  7, "Cascade Lake",      UARCH_CASCADE_LAKE,     14)
+  CHECK_UARCH(arch, 0,  6,  5,  5, 10, "Cooper Lake",       UARCH_COOPER_LAKE,      14)
+  CHECK_UARCH(arch, 0,  6,  5,  5, NA, "Skylake",           UARCH_SKYLAKE,          14)
+  CHECK_UARCH(arch, 0,  6,  5,  6, NA, "Broadwell",         UARCH_BROADWELL,        14)
+  CHECK_UARCH(arch, 0,  6,  5,  7, NA, "Knights Landing",   UARCH_KNIGHTS_LANDING,  14)
+  CHECK_UARCH(arch, 0,  6,  5, 10, NA, "Silvermont",        UARCH_SILVERMONT,       22) // no spec update; only MSR_CPUID_table* so far
+  CHECK_UARCH(arch, 0,  6,  5, 12, NA, "Goldmont",          UARCH_GOLDMONT,         14)
+  CHECK_UARCH(arch, 0,  6,  5, 13, NA, "Silvermont",        UARCH_SILVERMONT,       22) // no spec update; only MSR_CPUID_table* so far
+  CHECK_UARCH(arch, 0,  6,  5, 14,  8, "Kaby Lake",         UARCH_KABY_LAKE,        14)
+  CHECK_UARCH(arch, 0,  6,  5, 14, NA, "Skylake",           UARCH_SKYLAKE,          14)
+  CHECK_UARCH(arch, 0,  6,  5, 15, NA, "Goldmont",          UARCH_GOLDMONT,         14)
+  CHECK_UARCH(arch, 0,  6,  6,  6, NA, "Palm Cove",         UARCH_PALM_COVE,        10) // no spec update; only MSR_CPUID_table* so far
+  CHECK_UARCH(arch, 0,  6,  6, 10, NA, "Sunny Cove",        UARCH_SUNNY_COVE,       10) // no spec update; only MSR_CPUID_table* so far
+  CHECK_UARCH(arch, 0,  6,  6, 12, NA, "Sunny Cove",        UARCH_SUNNY_COVE,       10) // no spec update; only MSR_CPUID_table* so far
+  CHECK_UARCH(arch, 0,  6,  7,  5, NA, "Airmont",           UARCH_AIRMONT,          14) // no spec update; whispers & rumors
+  CHECK_UARCH(arch, 0,  6,  7, 10, NA, "Goldmont Plus",     UARCH_GOLDMONT_PLUS,    14)
+  CHECK_UARCH(arch, 0,  6,  7, 13, NA, "Sunny Cove",        UARCH_SUNNY_COVE,       10) // no spec update; only MSR_CPUID_table* so far
+  CHECK_UARCH(arch, 0,  6,  7, 14, NA, "Ice Lake",          UARCH_ICE_LAKE,         10)
+  CHECK_UARCH(arch, 0,  6,  8,  5, NA, "Knights Mill",      UARCH_KNIGHTS_MILL,     14) // no spec update; only MSR_CPUID_table* so far
+  CHECK_UARCH(arch, 0,  6,  8,  6, NA, "Tremont",           UARCH_TREMONT,          10) // LX*
+  CHECK_UARCH(arch, 0,  6,  8, 10, NA, "Tremont",           UARCH_TREMONT,          10) // no spec update; only geekbench.com example
+  CHECK_UARCH(arch, 0,  6,  8, 12, NA, "Tiger Lake",        UARCH_TIGER_LAKE,       10) // instlatx64
+  CHECK_UARCH(arch, 0,  6,  8, 13, NA, "Tiger Lake",        UARCH_TIGER_LAKE,       10) // instlatx64
   // CHECK_UARCH(arch, 0,  6,  8, 14,  9, ...) It is not possible to determine uarch only from CPUID dump (can be Kaby Lake or Amber Lake)
   // CHECK_UARCH(arch, 0,  6,  8, 14, 10, ...) It is not possible to determine uarch only from CPUID dump (can be Kaby Lake R or Coffee Lake U)
-  CHECK_UARCH(arch, 0,  6,  8, 14, 11, "Whiskey Lake",     UARCH_WHISKEY_LAKE,     14) // wikichip
-  CHECK_UARCH(arch, 0,  6,  8, 14, 12, "Comet Lake",       UARCH_COMET_LAKE,       14) // wikichip
-  CHECK_UARCH(arch, 0,  6,  9,  6, NA, "Tremont",          UARCH_TREMONT,          10) // LX*
-  CHECK_UARCH(arch, 0,  6,  9,  7, NA, "Alder Lake",       UARCH_ALDER_LAKE,       10) // instlatx64 (Alder Lake-S)
-  CHECK_UARCH(arch, 0,  6,  9, 10, NA, "Alder Lake",       UARCH_ALDER_LAKE,       10) // instlatx64 (Alder Lake-P)
-  CHECK_UARCH(arch, 0,  6,  9, 12, NA, "Tremont",          UARCH_TREMONT,          10) // LX*
-  CHECK_UARCH(arch, 0,  6,  9, 13, NA, "Sunny Cove",       UARCH_SUNNY_COVE,       10) // LX*
-  CHECK_UARCH(arch, 0,  6,  9, 14,  9, "Kaby Lake",        UARCH_KABY_LAKE,        14)
-  CHECK_UARCH(arch, 0,  6,  9, 14, 10, "Coffee Lake",      UARCH_COFFEE_LAKE,      14)
-  CHECK_UARCH(arch, 0,  6,  9, 14, 11, "Coffee Lake",      UARCH_COFFEE_LAKE,      14)
-  CHECK_UARCH(arch, 0,  6,  9, 14, 12, "Coffee Lake",      UARCH_COFFEE_LAKE,      14)
-  CHECK_UARCH(arch, 0,  6,  9, 14, 13, "Coffee Lake",      UARCH_COFFEE_LAKE,      14)
-  CHECK_UARCH(arch, 0,  6, 10,  5, NA, "Comet Lake",       UARCH_COMET_LAKE,       14) // wikichip
-  CHECK_UARCH(arch, 0,  6, 10,  6, NA, "Comet Lake",       UARCH_COMET_LAKE,       14) // instlatx64.atw.hu (i7-10710U)
-  CHECK_UARCH(arch, 0,  6, 10,  7, NA, "Rocket Lake",      UARCH_ROCKET_LAKE,      14) // instlatx64.atw.hu (i7-11700K)
-  CHECK_UARCH(arch, 0,  6, 11,  7, NA, "Raptor Lake",      UARCH_RAPTOR_LAKE,      10) // instlatx64.atw.hu (i5-13600K)
-  CHECK_UARCH(arch, 0,  6, 11, 10, NA, "Raptor Lake",      UARCH_RAPTOR_LAKE,      10) // instlatx64.atw.hu (i7-1370P)
-  CHECK_UARCH(arch, 0,  6, 11, 14, NA, "Alder Lake",       UARCH_ALDER_LAKE,       10) // instlatx64.atw.hu (Alder Lake-N)
-  CHECK_UARCH(arch, 0,  6, 11, 15, NA, "Raptor Lake",      UARCH_RAPTOR_LAKE,      10) // instlatx64.atw.hu (i5-13500)
-  CHECK_UARCH(arch, 0, 11,  0,  0, NA, "Knights Ferry",    UARCH_KNIGHTS_FERRY,    45) // found only on en.wikichip.org
-  CHECK_UARCH(arch, 0, 11,  0,  1, NA, "Knights Corner",   UARCH_KNIGHTS_CORNER,   22)
-  CHECK_UARCH(arch, 0, 15,  0,  0, NA, "Willamette",       UARCH_WILLAMETTE,      180)
-  CHECK_UARCH(arch, 0, 15,  0,  1, NA, "Willamette",       UARCH_WILLAMETTE,      180)
-  CHECK_UARCH(arch, 0, 15,  0,  2, NA, "Northwood",        UARCH_NORTHWOOD,       130)
-  CHECK_UARCH(arch, 0, 15,  0,  3, NA, "Prescott",         UARCH_PRESCOTT,         90)
-  CHECK_UARCH(arch, 0, 15,  0,  4, NA, "Prescott",         UARCH_PRESCOTT,         90)
-  CHECK_UARCH(arch, 0, 15,  0,  6, NA, "Cedar Mill",       UARCH_CEDAR_MILL,       65)
-  CHECK_UARCH(arch, 1, 15,  0,  0, NA, "Itanium2",         UARCH_ITANIUM2,        180)
-  CHECK_UARCH(arch, 1, 15,  0,  1, NA, "Itanium2",         UARCH_ITANIUM2,        130)
-  CHECK_UARCH(arch, 1, 15,  0,  2, NA, "Itanium2",         UARCH_ITANIUM2,        130)
+  CHECK_UARCH(arch, 0,  6,  8, 14, 11, "Whiskey Lake",      UARCH_WHISKEY_LAKE,     14) // wikichip
+  CHECK_UARCH(arch, 0,  6,  8, 14, 12, "Comet Lake",        UARCH_COMET_LAKE,       14) // wikichip
+  CHECK_UARCH(arch, 0,  6,  9,  6, NA, "Tremont",           UARCH_TREMONT,          10) // LX*
+  CHECK_UARCH(arch, 0,  6,  9,  7, NA, "Alder Lake",        UARCH_ALDER_LAKE,       10) // instlatx64 (Alder Lake-S)
+  CHECK_UARCH(arch, 0,  6,  9, 10, NA, "Alder Lake",        UARCH_ALDER_LAKE,       10) // instlatx64 (Alder Lake-P)
+  CHECK_UARCH(arch, 0,  6,  9, 12, NA, "Tremont",           UARCH_TREMONT,          10) // LX*
+  CHECK_UARCH(arch, 0,  6,  9, 13, NA, "Sunny Cove",        UARCH_SUNNY_COVE,       10) // LX*
+  CHECK_UARCH(arch, 0,  6,  9, 14,  9, "Kaby Lake",         UARCH_KABY_LAKE,        14)
+  CHECK_UARCH(arch, 0,  6,  9, 14, 10, "Coffee Lake",       UARCH_COFFEE_LAKE,      14)
+  CHECK_UARCH(arch, 0,  6,  9, 14, 11, "Coffee Lake",       UARCH_COFFEE_LAKE,      14)
+  CHECK_UARCH(arch, 0,  6,  9, 14, 12, "Coffee Lake",       UARCH_COFFEE_LAKE,      14)
+  CHECK_UARCH(arch, 0,  6,  9, 14, 13, "Coffee Lake",       UARCH_COFFEE_LAKE,      14)
+  CHECK_UARCH(arch, 0,  6, 10,  5, NA, "Comet Lake",        UARCH_COMET_LAKE,       14) // wikichip
+  CHECK_UARCH(arch, 0,  6, 10,  6, NA, "Comet Lake",        UARCH_COMET_LAKE,       14) // instlatx64.atw.hu (i7-10710U)
+  CHECK_UARCH(arch, 0,  6, 10,  7, NA, "Rocket Lake",       UARCH_ROCKET_LAKE,      14) // instlatx64.atw.hu (i7-11700K)
+  CHECK_UARCH(arch, 0,  6, 11,  7, NA, "Raptor Lake",       UARCH_RAPTOR_LAKE,      10) // instlatx64.atw.hu (i5-13600K)
+  CHECK_UARCH(arch, 0,  6, 11, 10, NA, "Raptor Lake",       UARCH_RAPTOR_LAKE,      10) // instlatx64.atw.hu (i7-1370P)
+  CHECK_UARCH(arch, 0,  6, 11, 14, NA, "Alder Lake",        UARCH_ALDER_LAKE,       10) // instlatx64.atw.hu (Alder Lake-N)
+  CHECK_UARCH(arch, 0,  6, 11, 15, NA, "Raptor Lake",       UARCH_RAPTOR_LAKE,      10) // instlatx64.atw.hu (i5-13500)
+  CHECK_UARCH(arch, 0, 11,  0,  0, NA, "Knights Ferry",     UARCH_KNIGHTS_FERRY,    45) // found only on en.wikichip.org
+  CHECK_UARCH(arch, 0, 11,  0,  1, NA, "Knights Corner",    UARCH_KNIGHTS_CORNER,   22)
+  CHECK_UARCH(arch, 0, 15,  0,  0, NA, "Willamette",        UARCH_WILLAMETTE,      180)
+  CHECK_UARCH(arch, 0, 15,  0,  1, NA, "Willamette",        UARCH_WILLAMETTE,      180)
+  CHECK_UARCH(arch, 0, 15,  0,  2, NA, "Northwood",         UARCH_NORTHWOOD,       130)
+  CHECK_UARCH(arch, 0, 15,  0,  3, NA, "Prescott",          UARCH_PRESCOTT,         90)
+  CHECK_UARCH(arch, 0, 15,  0,  4, NA, "Prescott",          UARCH_PRESCOTT,         90)
+  CHECK_UARCH(arch, 0, 15,  0,  6, NA, "Cedar Mill",        UARCH_CEDAR_MILL,       65)
+  CHECK_UARCH(arch, 1, 15,  0,  0, NA, "Itanium2",          UARCH_ITANIUM2,        180)
+  CHECK_UARCH(arch, 1, 15,  0,  1, NA, "Itanium2",          UARCH_ITANIUM2,        130)
+  CHECK_UARCH(arch, 1, 15,  0,  2, NA, "Itanium2",          UARCH_ITANIUM2,        130)
   UARCH_END
   return arch;
 }
