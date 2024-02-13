@@ -336,6 +336,13 @@ struct ascii_logo* choose_ascii_art_aux(struct ascii_logo* logo_long, struct asc
   }
 }
 
+// https://no-color.org/
+bool is_color_enabled(void) {
+  const char *var_name = "NO_COLOR";
+  char *no_color = getenv(var_name);
+  return no_color == NULL || no_color[0] == '\0';
+}
+
 void choose_ascii_art(struct ascii* art, struct color** cs, struct terminal* term, int lf) {
   // 1. Choose logo
 #ifdef ARCH_X86
@@ -394,6 +401,9 @@ void choose_ascii_art(struct ascii* art, struct color** cs, struct terminal* ter
 
   // 2. Choose colors
   struct ascii_logo* logo = art->art;
+  bool color = is_color_enabled();
+  if (!color)
+    art->style = STYLE_LEGACY;
 
   switch(art->style) {
     case STYLE_LEGACY:
