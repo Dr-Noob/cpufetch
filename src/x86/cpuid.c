@@ -486,9 +486,8 @@ struct cpuInfo* get_cpu_info(void) {
     cpu->cpu_name = get_str_cpu_name_internal();
   }
   else {
-    cpu->cpu_name = emalloc(sizeof(char) * (strlen(STRING_UNKNOWN) + 1));
-    strcpy(cpu->cpu_name, STRING_UNKNOWN);
-    printWarn("Can't read cpu name from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x80000004, cpu->maxExtendedLevels);
+    cpu->cpu_name = NULL;
+    printWarn("Can't read CPU name from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x80000004, cpu->maxExtendedLevels);
   }
 
   cpu->topology_extensions = false;
@@ -538,12 +537,17 @@ struct cpuInfo* get_cpu_info(void) {
     ptr->first_core_id = first_core;
     ptr->feat = get_features_info(ptr);
 
-    // If any field of the struct is NULL,
-    // return inmideately, as further functions
-    // require valid fields (cach, topo, etc)
     ptr->arch = get_cpu_uarch(ptr);
     ptr->freq = get_frequency_info(ptr);
 
+    if (cpu->cpu_name == NULL && ptr == cpu) {
+      // If we couldnt read CPU name from cpuid, infer it now
+      cpu->cpu_name = infer_cpu_name_from_uarch(cpu->arch);
+    }
+
+    // If any field of the struct is NULL,
+    // return early, as next functions
+    // require non NULL fields in cach and topo
     ptr->cach = get_cache_info(ptr);
     if(ptr->cach == NULL) return cpu;
 
