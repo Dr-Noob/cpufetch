@@ -21,7 +21,7 @@
 #endif
 
 #ifdef ARCH_X86
-  static const char* ARCH_STR = "x86_64 build";
+  static const char* ARCH_STR = "x86 / x86_64 build";
   #include "../x86/cpuid.h"
 #elif ARCH_PPC
   static const char* ARCH_STR = "PowerPC build";
