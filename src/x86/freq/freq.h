@@ -9,5 +9,6 @@
 #define LOOP_ITERS           100000000
 
 int64_t measure_frequency(struct cpuInfo* cpu);
+void nop_function_x86(uint64_t iters);
 
 #endif

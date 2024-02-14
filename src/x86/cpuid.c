@@ -6,6 +6,10 @@
   #include <unistd.h>
 #endif
 
+#ifdef __linux__
+  #include "../common/freq.h"
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -959,6 +963,13 @@ struct frequency* get_frequency_info(struct cpuInfo* cpu) {
       #endif
     }
   }
+
+  #ifdef __linux__
+    if (freq->max == UNKNOWN_DATA) {
+      printWarn("All previous methods failed, measuring CPU frequency");
+      freq->max = measure_max_frequency();
+    }
+  #endif
 
   return freq;
 }
