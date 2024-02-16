@@ -46,7 +46,7 @@ int64_t measure_max_frequency(uint32_t core) {
   }
 
   const char* frequency_banner = "cpufetch is measuring the max frequency...";
-  printf(frequency_banner);
+  printf("%s", frequency_banner);
   fflush(stdout);
 
   clockid_t clock = CLOCK_PROCESS_CPUTIME_ID;
