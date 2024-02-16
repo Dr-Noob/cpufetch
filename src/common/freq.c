@@ -45,10 +45,6 @@ int64_t measure_max_frequency(uint32_t core) {
     return -1;
   }
 
-  const char* frequency_banner = "cpufetch is measuring the max frequency...";
-  printf("%s", frequency_banner);
-  fflush(stdout);
-
   clockid_t clock = CLOCK_PROCESS_CPUTIME_ID;
 
   struct perf_event_attr pe;
@@ -63,7 +59,7 @@ int64_t measure_max_frequency(uint32_t core) {
 #elif ARCH_ARM
   // TODO
   nop_function = nop_function_arm;
-#endif  
+#endif
 
   memset(&pe, 0, sizeof(struct perf_event_attr));
   pe.type = PERF_TYPE_HARDWARE;
@@ -76,8 +72,16 @@ int64_t measure_max_frequency(uint32_t core) {
   fd = perf_event_open(&pe, pid, core, -1, 0);
   if (fd == -1) {
     perror("perf_event_open");
+    if (errno == EPERM || errno == EACCES) {
+      printf("You may not have permission to collect stats.\n");
+      printf("Consider tweaking /proc/sys/kernel/perf_event_paranoid or running as root.\n");
+    }
     return -1;
   }
+
+  const char* frequency_banner = "cpufetch is measuring the max frequency...";
+  printf("%s", frequency_banner);
+  fflush(stdout);
 
   uint64_t iters = 10000000;
   struct timespec start, end;
