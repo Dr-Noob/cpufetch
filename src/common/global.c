@@ -1,3 +1,14 @@
+#ifdef _WIN32
+  #define NOMINMAX
+  #include <windows.h>
+#elif defined __linux__
+  #define _GNU_SOURCE
+  #include <sched.h>
+#elif defined __FreeBSD__
+  #include <sys/param.h>
+  #include <sys/cpuset.h>
+#endif
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -198,6 +209,34 @@ void* erealloc(void *ptr, size_t size) {
 
   return newptr;
 }
+
+#ifndef __APPLE__
+bool bind_to_cpu(int cpu_id) {
+  #ifdef _WIN32
+    HANDLE process = GetCurrentProcess();
+    DWORD_PTR processAffinityMask = 1 << cpu_id;
+    return SetProcessAffinityMask(process, processAffinityMask);
+  #elif defined __linux__
+    cpu_set_t currentCPU;
+    CPU_ZERO(&currentCPU);
+    CPU_SET(cpu_id, &currentCPU);
+    if (sched_setaffinity (0, sizeof(currentCPU), &currentCPU) == -1) {
+      printWarn("sched_setaffinity: %s", strerror(errno));
+      return false;
+    }
+    return true;
+  #elif defined __FreeBSD__
+    cpuset_t currentCPU;
+    CPU_ZERO(&currentCPU);
+    CPU_SET(cpu_id, &currentCPU);
+    if(cpuset_setaffinity(CPU_LEVEL_WHICH, CPU_WHICH_TID, -1, sizeof(cpuset_t), &currentCPU) == -1) {
+      printWarn("cpuset_setaffinity: %s", strerror(errno));
+      return false;
+    }
+    return true;
+  #endif
+}
+#endif
 
 void print_version(FILE *restrict stream) {
 #ifdef GIT_FULL_VERSION

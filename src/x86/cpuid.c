@@ -967,7 +967,8 @@ struct frequency* get_frequency_info(struct cpuInfo* cpu) {
   #ifdef __linux__
     if (freq->max == UNKNOWN_DATA) {
       printWarn("All previous methods failed, measuring CPU frequency");
-      freq->max = measure_max_frequency();
+      // TODO: Support hybrid architectures
+      freq->max = measure_max_frequency(0);
     }
   #endif
 

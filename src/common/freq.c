@@ -2,11 +2,6 @@
 
 #define _GNU_SOURCE
 
-// TODO: This should be under common/
-#include "../x86/apic.h"
-#include "../x86/freq/freq.h"
-#include "global.h"
-
 #include <time.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -16,6 +11,14 @@
 #include <asm/unistd.h>
 #include <sys/ioctl.h>
 #include <linux/perf_event.h>
+
+#ifdef ARCH_X86
+  #include "../x86/freq/freq.h"
+#elif ARCH_ARM
+  #include "../arm/freq.h"
+#endif
+
+#include "global.h"
 
 static long
 perf_event_open(struct perf_event_attr *hw_event, pid_t pid,
@@ -36,10 +39,7 @@ perf_event_open(struct perf_event_attr *hw_event, pid_t pid,
 // - measure_frequency uses actual computation while measuring the frequency
 //   whereas measure_max_frequency uses nop instructions. This makes the former
 //   x86 dependant whereas the latter is architecture independant.
-int64_t measure_max_frequency(void) {
-  // TODO: Support binding on all cores inside a SoC (x86
-  // hybrid topologies and ARM SoCs)
-  int core = 0;
+int64_t measure_max_frequency(uint32_t core) {
   if (!bind_to_cpu(core)) {
     printErr("Failed binding the process to CPU %d", core);
     return -1;

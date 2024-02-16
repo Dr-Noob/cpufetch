@@ -19,6 +19,9 @@ char *strremove(char *str, const char *sub);
 void* emalloc(size_t size);
 void* ecalloc(size_t nmemb, size_t size);
 void* erealloc(void *ptr, size_t size);
+#ifndef __APPLE__
+bool bind_to_cpu(int cpu_id);
+#endif
 void print_version(FILE *restrict stream);
 
 #endif
