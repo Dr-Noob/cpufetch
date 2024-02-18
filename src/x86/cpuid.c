@@ -549,11 +549,7 @@ struct cpuInfo* get_cpu_info(void) {
       cpu->cpu_name = infer_cpu_name_from_uarch(cpu->arch);
     }
 
-    // If cach is NULL continue,
-    // as get_topology_info
-    // requires non-NULL cache
     ptr->cach = get_cache_info(ptr);
-    if(ptr->cach == NULL) continue;
 
     if(cpu->hybrid_flag) {
       ptr->topo = get_topology_info(ptr, ptr->cach, i);
@@ -573,6 +569,11 @@ struct cpuInfo* get_cpu_info(void) {
 }
 
 bool get_cache_topology_amd(struct cpuInfo* cpu, struct topology* topo) {
+  if (topo->cach == NULL) {
+    printWarn("get_cache_topology_amd: cach is NULL");
+    return false;
+  }
+
   if(cpu->maxExtendedLevels >= 0x8000001D && cpu->topology_extensions) {
     uint32_t i, eax, ebx, ecx, edx, num_sharing_cache, cache_type, cache_level;
 
