@@ -1,3 +1,14 @@
+#ifdef _WIN32
+  #define NOMINMAX
+  #include <windows.h>
+#elif defined __linux__
+  #define _GNU_SOURCE
+  #include <sched.h>
+#elif defined __FreeBSD__
+  #include <sys/param.h>
+  #include <sys/cpuset.h>
+#endif
+
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
