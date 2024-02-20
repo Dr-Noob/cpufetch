@@ -324,6 +324,8 @@ int get_number_of_vpus(struct cpuInfo* cpu) {
       return 3;
     case UARCH_ICESTORM:    // [https://dougallj.github.io/applecpu/icestorm-simd.html]
     case UARCH_BLIZZARD:    // [https://en.wikipedia.org/wiki/Comparison_of_ARM_processors]
+    case UARCH_TAISHAN_V110:// [https://www-file.huawei.com/-/media/corp2020/pdf/publications/huawei-research/2022/huawei-research-issue1-en.pdf]: "128-bit x 2 for single precision"
+    case UARCH_TAISHAN_V200:// Not confirmed, asssuming same as v110
     case UARCH_CORTEX_A57:  // [https://www.anandtech.com/show/8718/the-samsung-galaxy-note-4-exynos-review/5]
     case UARCH_CORTEX_A72:  // [https://www.anandtech.com/show/10347/arm-cortex-a73-artemis-unveiled/2]
     case UARCH_CORTEX_A73:  // [https://www.anandtech.com/show/10347/arm-cortex-a73-artemis-unveiled/2]
