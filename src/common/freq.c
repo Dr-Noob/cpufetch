@@ -115,13 +115,9 @@ int64_t measure_max_frequency(uint32_t core) {
   double frequency = instructions/((double)usecs);
 
   printf("\r%*c\r", (int) strlen(frequency_banner), ' ');
-
-  printf("%ld %ld\n", instructions, usecs);
-  printf("%f\n", frequency);
-
   
-  // Discard last digit in the frequency which should help providing more reliable
-  // values.
+  // Discard last digit in the frequency, which should help providing
+  // more reliable and predictable values.
   return (((int) frequency + 5)/10) * 10;
 }
 
