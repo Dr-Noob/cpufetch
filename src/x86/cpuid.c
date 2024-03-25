@@ -5,6 +5,14 @@
   #include "../common/udev.h"
   #include <unistd.h>
 #endif
+#if defined (__FreeBSD__) || defined (__APPLE__)
+  #include <sys/sysctl.h>
+  #ifdef __APPLE__
+    #define CPUFREQ_SYSCTL "hw.cpufrequency_max"
+  #else
+    #define CPUFREQ_SYSCTL "dev.cpu.0.freq"
+  #endif
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -914,10 +922,22 @@ struct frequency* get_frequency_info(struct cpuInfo* cpu) {
   struct frequency* freq = emalloc(sizeof(struct frequency));
 
   if(cpu->maxLevels < 0x00000016) {
-    #if defined (_WIN32) || defined (__APPLE__)
+    #if defined (_WIN32)
       printWarn("Can't read frequency information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000016, cpu->maxLevels);
       freq->base = UNKNOWN_DATA;
       freq->max = UNKNOWN_DATA;
+    #elif defined (__FreeBSD__) || defined (__APPLE__)
+      printWarn("Can't read frequency information from cpuid (needed level is 0x%.8X, max is 0x%.8X). Using sysctl", 0x00000016, cpu->maxLevels);
+      uint64_t freq_hz = 0;
+      size_t freq_size = sizeof(freq_hz);
+      int retval = sysctlbyname(CPUFREQ_SYSCTL, &freq_hz, &freq_size, NULL, 0);
+      if (retval != 0 || freq_hz == 0) {
+        printWarn("Read max CPU frequency from udev and got 0 MHz");
+        freq->max = UNKNOWN_DATA;
+      }
+
+      freq->base = UNKNOWN_DATA;
+      freq->max = freq_hz;
     #else
       printWarn("Can't read frequency information from cpuid (needed level is 0x%.8X, max is 0x%.8X). Using udev", 0x00000016, cpu->maxLevels);
       freq->base = UNKNOWN_DATA;
