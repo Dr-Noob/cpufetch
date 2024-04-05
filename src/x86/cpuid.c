@@ -20,8 +20,9 @@
 #include "uarch.h"
 #include "freq/freq.h"
 
-#define CPU_VENDOR_INTEL_STRING "GenuineIntel"
-#define CPU_VENDOR_AMD_STRING   "AuthenticAMD"
+#define CPU_VENDOR_INTEL_STRING         "GenuineIntel"
+#define CPU_VENDOR_AMD_STRING           "AuthenticAMD"
+#define CPU_VENDOR_TRANSMETA_STRING     "GenuineTMx86"
 
 static const char *hv_vendors_string[] = {
   [HV_VENDOR_KVM]       = "KVMKVMKVM",
@@ -468,6 +469,8 @@ struct cpuInfo* get_cpu_info(void) {
     cpu->cpu_vendor = CPU_VENDOR_INTEL;
   else if (strcmp(CPU_VENDOR_AMD_STRING,name) == 0)
     cpu->cpu_vendor = CPU_VENDOR_AMD;
+  else if (strcmp(CPU_VENDOR_TRANSMETA_STRING,name) == 0)
+    cpu->cpu_vendor = CPU_VENDOR_TRANSMETA;
   else {
     cpu->cpu_vendor = CPU_VENDOR_INVALID;
     printErr("Unknown CPU vendor: %s", name);
@@ -692,6 +695,7 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach, int 
 
   switch(cpu->cpu_vendor) {
     case CPU_VENDOR_INTEL:
+    case CPU_VENDOR_TRANSMETA:
       if (cpu->maxLevels >= 0x00000004) {
         bool toporet = get_topology_from_apic(cpu, topo);
         if(!toporet) {
@@ -765,6 +769,32 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach, int 
   }
 
   return topo;
+}
+
+struct cache* get_cache_info_transmeta(struct cache* cach) {
+  uint32_t eax = 0x80000005;
+  uint32_t ebx = 0;
+  uint32_t ecx = 0;
+  uint32_t edx = 0;
+  cpuid(&eax, &ebx, &ecx, &edx);
+
+  cach->L1d->size = (ecx >> 24) * 1024;
+  cach->L1i->size = (edx >> 24) * 1024;
+
+  eax = 0x80000006;
+  cpuid(&eax, &ebx, &ecx, &edx);
+
+  cach->L2->size = (ecx >> 16) * 1024;
+  cach->L3->size = (edx >> 18) * 512 * 1024;
+
+  cach->L1i->exists = cach->L1i->size > 0;
+  cach->L1d->exists = cach->L1d->size > 0;
+  cach->L2->exists = cach->L2->size > 0;
+  cach->L3->exists = 0;
+
+  cach->max_cache_level = 3;
+
+  return cach;
 }
 
 struct cache* get_cache_info_amd_fallback(struct cache* cach) {
@@ -889,6 +919,10 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
     else {
       cach = get_cache_info_general(cach, level);
     }
+  }
+  else if (cpu->cpu_vendor == CPU_VENDOR_TRANSMETA) {
+    level = 0x00000001;
+    cach = get_cache_info_transmeta(cach);
   }
   else {
     level = 0x8000001D;

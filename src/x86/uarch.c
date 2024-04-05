@@ -94,6 +94,8 @@ enum {
   UARCH_TIGER_LAKE,
   UARCH_ALDER_LAKE,
   UARCH_RAPTOR_LAKE,
+  // TRANSMETA //
+  UARCH_CRUSOE,
   // AMD //
   UARCH_AM486,
   UARCH_AM5X86,
@@ -267,6 +269,21 @@ struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, u
   return arch;
 }
 
+struct uarch* get_uarch_from_cpuid_transmeta(uint32_t ef, uint32_t f, uint32_t em, uint32_t m, int s) {
+  struct uarch* arch = emalloc(sizeof(struct uarch));
+  // EF: Extended Family                                                             //
+  // F:  Family                                                                      //
+  // EM: Extended Model                                                              //
+  // M: Model                                                                        //
+  // S: Stepping                                                                     //
+  // ------------------------------------------------------------------------------- //
+  //                EF  F  EM   M   S                                                //
+  UARCH_START
+  CHECK_UARCH(arch, 0,  5,  0,  4,  3, "CRUSOE",            UARCH_CRUSOE, 	   130)
+  UARCH_END
+  return arch;
+}
+
 // Inspired in Todd Allen's decode_uarch_amd
 struct uarch* get_uarch_from_cpuid_amd(uint32_t ef, uint32_t f, uint32_t em, uint32_t m, int s) {
   struct uarch* arch = emalloc(sizeof(struct uarch));
@@ -435,6 +452,9 @@ struct uarch* get_uarch_from_cpuid(struct cpuInfo* cpu, uint32_t dump, uint32_t 
     }
     return get_uarch_from_cpuid_intel(ef, f, em, m, s);
   }
+  else if (cpu->cpu_vendor == CPU_VENDOR_TRANSMETA) {
+    return get_uarch_from_cpuid_transmeta(ef, f, em, m, s);
+  }
   else
     return get_uarch_from_cpuid_amd(ef, f, em, m, s);
 }
@@ -453,6 +473,8 @@ char* infer_cpu_name_from_uarch(struct uarch* arch) {
 
   if (arch->uarch == UARCH_P5)
     str = "Intel Pentium";
+  else if (arch->uarch == UARCH_CRUSOE)
+    str = "Transmeta Crusoe";
   else if (arch->uarch == UARCH_P5_MMX)
     str = "Intel Pentium MMX";
   else if (arch->uarch == UARCH_P6_PENTIUM_II)
@@ -531,6 +553,13 @@ bool choose_new_intel_logo_uarch(struct cpuInfo* cpu) {
     default:
       return false;
   }
+}
+
+bool choose_transmeta_crusoe_logo_uarch(struct cpuInfo* cpu) {
+  if (cpu->arch->uarch == UARCH_CRUSOE)
+      return true;
+  else
+      return false;
 }
 
 char* get_str_uarch(struct cpuInfo* cpu) {

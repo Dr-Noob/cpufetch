@@ -8,6 +8,7 @@ enum {
 // ARCH_X86
   CPU_VENDOR_INTEL,
   CPU_VENDOR_AMD,
+  CPU_VENDOR_TRANSMETA,
 // ARCH_ARM
   CPU_VENDOR_ARM,
   CPU_VENDOR_APPLE,
@@ -82,7 +83,7 @@ struct cache {
 };
 
 struct topology {
-  int32_t total_cores;  
+  int32_t total_cores;
   struct cache* cach;
 #if defined(ARCH_X86) || defined(ARCH_PPC)
   int32_t physical_cores;
@@ -98,7 +99,7 @@ struct topology {
 };
 
 struct features {
-  bool AES; // Must be the first field of features struct!  
+  bool AES; // Must be the first field of features struct!
 #ifdef ARCH_X86
   bool AVX;
   bool AVX2;
@@ -116,11 +117,11 @@ struct features {
 #elif ARCH_PPC
   bool altivec;
 #elif ARCH_ARM
-  bool NEON;  
+  bool NEON;
   bool SHA1;
   bool SHA2;
   bool CRC32;
-#endif  
+#endif
 };
 
 struct extensions {
