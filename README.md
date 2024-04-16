@@ -35,7 +35,6 @@ cpufetch is a command-line tool written in C that displays the CPU information i
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-
 - [1. Support](#1-support)
 - [2. Installation](#2-installation)
   - [2.1 Installing from a package](#21-installing-from-a-package)
@@ -45,6 +44,7 @@ cpufetch is a command-line tool written in C that displays the CPU information i
   - [3.1 x86_64](#31-x86_64)
   - [3.2 ARM](#32-arm)
   - [3.3 PowerPC](#33-powerpc)
+  - [3.4 RISC-V](#34-risc-v)
 - [4. Colors](#4-colors)
   - [4.1 Specifying a name](#41-specifying-a-name)
   - [4.2 Specifying the colors in RGB format](#42-specifying-the-colors-in-rgb-format)
@@ -119,6 +119,11 @@ make
 
 <p align="center"><img width=90% src="pictures/ibm.png"></p>
 <p align="center">Talos II</p>
+
+### 3.4 RISC-V
+
+<p align="center"><img width=90% src="pictures/visionfive2.png"></p>
+<p align="center">StarFive VisionFive 2</p>
 
 ## 4. Colors
 By default, `cpufetch` will print the CPU logo with the system colorscheme. However, you can set a custom color scheme in two different ways:
