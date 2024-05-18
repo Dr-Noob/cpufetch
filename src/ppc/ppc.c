@@ -14,6 +14,7 @@
 static char *hv_vendors_name[] = {
   [HV_VENDOR_KVM]       = "KVM",
   [HV_VENDOR_QEMU]      = "QEMU",
+  [HV_VENDOR_VBOX]      = "VirtualBox",
   [HV_VENDOR_HYPERV]    = "Microsoft Hyper-V",
   [HV_VENDOR_VMWARE]    = "VMware",
   [HV_VENDOR_XEN]       = "Xen",

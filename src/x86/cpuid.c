@@ -26,6 +26,7 @@
 static const char *hv_vendors_string[] = {
   [HV_VENDOR_KVM]       = "KVMKVMKVM",
   [HV_VENDOR_QEMU]      = "TCGTCGTCGTCG",
+  [HV_VENDOR_VBOX]      = "VBoxVBoxVBox",
   [HV_VENDOR_HYPERV]    = "Microsoft Hv",
   [HV_VENDOR_VMWARE]    = "VMwareVMware",
   [HV_VENDOR_XEN]       = "XenVMMXenVMM",
@@ -38,6 +39,7 @@ static const char *hv_vendors_string[] = {
 static char *hv_vendors_name[] = {
   [HV_VENDOR_KVM]       = "KVM",
   [HV_VENDOR_QEMU]      = "QEMU",
+  [HV_VENDOR_VBOX]      = "VirtualBox",
   [HV_VENDOR_HYPERV]    = "Microsoft Hyper-V",
   [HV_VENDOR_VMWARE]    = "VMware",
   [HV_VENDOR_XEN]       = "Xen",
