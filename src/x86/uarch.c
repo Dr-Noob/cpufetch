@@ -382,6 +382,7 @@ struct uarch* get_uarch_from_cpuid_amd(uint32_t ef, uint32_t f, uint32_t em, uin
   CHECK_UARCH(arch, 10, 15,  5,  0, NA, "Zen 3",       UARCH_ZEN3,         7) // instlatx64
   CHECK_UARCH(arch, 10, 15,  6,  1,  2, "Zen 4",       UARCH_ZEN4,         5) // instlatx64
   CHECK_UARCH(arch, 10, 15,  7,  4,  1, "Zen 4",       UARCH_ZEN4,         4) // instlatx64
+  CHECK_UARCH(arch, 10, 15,  7,  5,  2, "Zen 4",       UARCH_ZEN4,         4) // instlatx64
   CHECK_UARCH(arch, 10, 15,  7,  8,  0, "Zen 4",       UARCH_ZEN4,         4) // instlatx64
   CHECK_UARCH(arch, 10, 15,  8, NA, NA, "Zen 4",       UARCH_ZEN4,         5) // instlatx64 (AMD MI300C)
   CHECK_UARCH(arch, 10, 15,  9, NA, NA, "Zen 4",       UARCH_ZEN4,         5) // instlatx64 (AMD MI300A)
