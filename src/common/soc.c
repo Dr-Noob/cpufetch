@@ -20,6 +20,7 @@ static char* soc_trademark_string[] = {
   [SOC_VENDOR_APPLE]      = "Apple ",
   [SOC_VENDOR_ROCKCHIP]   = "Rockchip ",
   [SOC_VENDOR_GOOGLE]     = "Google ",
+  [SOC_VENDOR_NVIDIA]     = "NVIDIA ",
   // RISC-V
   [SOC_VENDOR_SIFIVE]     = "SiFive ",
   [SOC_VENDOR_STARFIVE]   = "StarFive ",

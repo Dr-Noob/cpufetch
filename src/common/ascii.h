@@ -360,6 +360,27 @@ $C1##########@@@@@@@@@@@@@@@@############## \
 $C1######################################## \
 $C1  ####################################   "
 
+#define ASCII_NVIDIA \
+"$C1               'cccccccccccccccccccccccccc   \
+$C1               ;oooooooooooooooooooooooool   \
+$C1           .:::.     .oooooooooooooooooool   \
+$C1      .:cll;   ,c:::.     cooooooooooooool   \
+$C1   ,clo'      ;.   oolc:     ooooooooooool   \
+$C1.cloo    ;cclo .      .olc.    coooooooool   \
+$C1oooo   :lo,    ;ll;    looc    :oooooooool   \
+$C1 oooc   ool.   ;oooc;clol    :looooooooool   \
+$C1  :ooc   ,ol;  ;oooooo.   .cloo;     loool   \
+$C1    ool;   .olc.       ,:lool        .lool   \
+$C1      ool:.    ,::::ccloo.        :clooool   \
+$C1         oolc::.            ':cclooooooool   \
+$C1               ;oooooooooooooooooooooooool   \
+$C1                                             \
+$C1                                             \
+$C2######.  ##   ##  ##  ######   ##    ###     \
+$C2##   ##  ##   ##  ##  ##   ##  ##   #: :#    \
+$C2##   ##   ## ##   ##  ##   ##  ##  #######   \
+$C2##   ##    ###    ##  ######   ## ##     ##  "
+
 // --------------------- LONG LOGOS ------------------------- //
 #define ASCII_AMD_L \
 "$C1                                                              \
@@ -492,6 +513,23 @@ $C1        ###########. ############                 \
 $C1            ################                      \
 $C1                 #######                          "
 
+#define ASCII_NVIDIA_L \
+"$C1                  MMMMMMMMMMMMMMMMMMMMMMMMMMMMMM  \
+$C1                  MMMMMMMMMMMMMMMMMMMMMMMMMMMMMM  \
+$C1                .::   'MMMMMMMMMMMMMMMMMMMMMMMMM  \
+$C1           ccllooo;:;.       ;MMMMMMMMMMMMMMMMMM  \
+$C1       cloc       :ooollcc:     :MMMMMMMMMMMMMMM  \
+$C1    cloc      :ccl;      lolc,     ;MMMMMMMMMMMM  \
+$C1.cloo:    :clo    ;c:      .ool;     MMMMMMMMMMM  \
+$C1  ooo:    ooo     :ool,  .cloo.    ;lMMMMMMMMMMM  \
+$C1   ooo:    ooc    :ooooccooo.    :MMMM  lMMMMMMM  \
+$C1     ooc.   ool:  :oooooo'    ,cloo.        MMMM  \
+$C1      ool:.    olc:       .:cloo.          :MMMM  \
+$C1         olc,     ;:::cccloo.          :MMMMMMMM  \
+$C1            olcc::;              ,:ccloMMMMMMMMM  \
+$C1                  :......oMMMMMMMMMMMMMMMMMMMMMM  \
+$C1                  :lllMMMMMMMMMMMMMMMMMMMMMMMMMM  "
+
 typedef struct ascii_logo asciiL;
 
 //                        +-----------------------------------------------------------------------------------------------------------------+
@@ -516,6 +554,7 @@ asciiL logo_riscv       = { ASCII_RISCV,       63, 18, false, {C_FG_CYAN, C_FG_Y
 asciiL logo_sifive      = { ASCII_SIFIVE,      48, 19, true,  {C_BG_WHITE, C_BG_BLACK},                       {C_FG_WHITE,   C_FG_BLUE}    };
 asciiL logo_starfive    = { ASCII_STARFIVE,    33, 17, false, {C_FG_WHITE},                                   {C_FG_WHITE,   C_FG_BLUE}    };
 asciiL logo_sipeed      = { ASCII_SIPEED,      41, 16, true,  {C_BG_RED, C_BG_WHITE},                         {C_FG_RED,     C_FG_WHITE}   };
+asciiL logo_nvidia      = { ASCII_NVIDIA,      45, 19, false, {C_FG_GREEN, C_FG_WHITE},                       {C_FG_WHITE,   C_FG_GREEN}   };
 
 // Long variants          | ----------------------------------------------------------------------------------------------------------------|
 asciiL logo_amd_l       = { ASCII_AMD_L,       62, 19, true,  {C_BG_WHITE, C_BG_GREEN},                       {C_FG_WHITE, C_FG_GREEN}     };
@@ -525,6 +564,7 @@ asciiL logo_arm_l       = { ASCII_ARM_L,       60,  8, true,  {C_BG_CYAN},      
 asciiL logo_ibm_l       = { ASCII_IBM_L,       62, 13, true,  {C_BG_CYAN, C_FG_WHITE},                        {C_FG_CYAN,  C_FG_WHITE}     };
 asciiL logo_starfive_l  = { ASCII_STARFIVE_L,  50, 22, false, {C_FG_WHITE},                                   {C_FG_WHITE, C_FG_BLUE}      };
 asciiL logo_sifive_l    = { ASCII_SIFIVE_L,    53, 21, true,  {C_BG_WHITE, C_BG_BLACK},                       {C_FG_WHITE, C_FG_CYAN}      };
+asciiL logo_nvidia_l    = { ASCII_NVIDIA_L,    50, 15, false, {C_FG_GREEN, C_FG_WHITE},                       {C_FG_WHITE, C_FG_GREEN}     };
 asciiL logo_unknown     = { NULL,               0,  0, false, {COLOR_NONE},                                   {COLOR_NONE, COLOR_NONE}     };
 
 #endif
