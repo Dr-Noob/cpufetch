@@ -8,6 +8,7 @@
 #include "udev.h"
 #include "uarch.h"
 #include "../common/global.h"
+#include "../common/pci.h"
 
 #if defined(__APPLE__) || defined(__MACH__)
   #include "sysctl.h"
@@ -834,6 +835,43 @@ struct system_on_chip* guess_soc_from_uarch(struct system_on_chip* soc, struct c
   return soc;
 }
 
+struct system_on_chip* guess_soc_from_pci(struct system_on_chip* soc, struct cpuInfo* cpu) {
+  struct pci_devices * pci = get_pci_devices();
+  if (pci == NULL) {
+    printWarn("guess_soc_from_pci: Unable to find suitable PCI devices");
+    return soc;
+  }
+
+  typedef struct {
+    uint16_t vendor_id;
+    uint16_t device_id;
+    struct system_on_chip soc;
+  } pciToSoC;
+
+  pciToSoC socFromPCI[] = {
+    {PCI_VENDOR_NVIDIA, PCI_DEVICE_TEGRA_X1, {SOC_TEGRA_X1, SOC_VENDOR_NVIDIA,  20, "Tegra X1", NULL} },
+    // {PCI_VENDOR_NVIDIA, PCI_DEVICE_GH_200,{SOC_GH_200,   SOC_VENDOR_NVIDIA,  ?, "Grace Hopper", NULL} },
+    {0x0000,            0x0000,              {UNKNOWN,      SOC_VENDOR_UNKNOWN, -1,          "", NULL} }
+  };
+
+  int index = 0;
+  while (socFromPCI[index].vendor_id != 0x0) {
+    for (int i=0; i < pci->num_devices; i++) {
+      struct pci_device * dev = pci->devices[i];
+
+      if (socFromPCI[index].vendor_id == dev->vendor_id &&
+          socFromPCI[index].device_id == dev->device_id) {
+        fill_soc(soc, socFromPCI[index].soc.soc_name, socFromPCI[index].soc.soc_model, socFromPCI[index].soc.process);
+        return soc;
+      }
+    }
+    index++;
+  }
+
+  printWarn("guess_soc_from_pci: No PCI device matched the list");
+  return soc;
+}
+
 int hex2int(char c) {
   if (c >= '0' && c <= '9')
     return c - '0';
@@ -1004,13 +1042,17 @@ struct system_on_chip* get_soc(struct cpuInfo* cpu) {
       printWarn("SoC detection failed using Android: Found '%s' string", soc->raw_name);
     }
 #endif // ifdef __ANDROID__
-    // If cpufinfo/Android (if available) detection fails, try with nvmem
+    // If previous steps failed, try with nvmem
     if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) {
       soc = guess_soc_from_nvmem(soc);
     }
-    // If everything else failed, try infering it from the microarchitecture
+    // If previous steps failed, try infering it from the microarchitecture
     if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) {
       soc = guess_soc_from_uarch(soc, cpu);
+    }
+    // If previous steps failed, try infering it from the pci device id
+    if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) {
+      soc = guess_soc_from_pci(soc, cpu);
     }
   }
 #elif defined __APPLE__ || __MACH__
