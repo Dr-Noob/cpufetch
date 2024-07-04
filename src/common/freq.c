@@ -29,6 +29,51 @@ perf_event_open(struct perf_event_attr *hw_event, pid_t pid,
     return ret;
 }
 
+#define INSERT_ASM_ONCE __asm volatile("nop");
+#define INSERT_ASM_10_TIMES \
+    INSERT_ASM_ONCE         \
+    INSERT_ASM_ONCE         \
+    INSERT_ASM_ONCE         \
+    INSERT_ASM_ONCE         \
+    INSERT_ASM_ONCE         \
+    INSERT_ASM_ONCE         \
+    INSERT_ASM_ONCE         \
+    INSERT_ASM_ONCE         \
+    INSERT_ASM_ONCE         \
+    INSERT_ASM_ONCE         \
+
+#define INSERT_ASM_100_TIMES \
+    INSERT_ASM_10_TIMES      \
+    INSERT_ASM_10_TIMES      \
+    INSERT_ASM_10_TIMES      \
+    INSERT_ASM_10_TIMES      \
+    INSERT_ASM_10_TIMES      \
+    INSERT_ASM_10_TIMES      \
+    INSERT_ASM_10_TIMES      \
+    INSERT_ASM_10_TIMES      \
+    INSERT_ASM_10_TIMES      \
+    INSERT_ASM_10_TIMES
+
+#define INSERT_ASM_1000_TIMES \
+    INSERT_ASM_100_TIMES     \
+    INSERT_ASM_100_TIMES     \
+    INSERT_ASM_100_TIMES     \
+    INSERT_ASM_100_TIMES     \
+    INSERT_ASM_100_TIMES     \
+    INSERT_ASM_100_TIMES     \
+    INSERT_ASM_100_TIMES     \
+    INSERT_ASM_100_TIMES     \
+    INSERT_ASM_100_TIMES     \
+    INSERT_ASM_100_TIMES     \
+
+void nop_function(uint64_t iters) {
+  for (uint64_t i = 0; i < iters; i++) {
+    INSERT_ASM_1000_TIMES
+    INSERT_ASM_1000_TIMES
+    INSERT_ASM_1000_TIMES
+    INSERT_ASM_1000_TIMES
+  }
+}
 
 // Differences between x86 measure_frequency this measure_max_frequency:
 // - measure_frequency employs all cores simultaneously wherease 
@@ -51,15 +96,6 @@ int64_t measure_max_frequency(uint32_t core) {
   uint64_t instructions;
   int fd;
   int pid = 0;
-
-  void (*nop_function)(uint64_t);
-
-#ifdef ARCH_X86
-  nop_function = nop_function_x86;
-#elif ARCH_ARM
-  // TODO
-  nop_function = nop_function_arm;
-#endif
 
   memset(&pe, 0, sizeof(struct perf_event_attr));
   pe.type = PERF_TYPE_HARDWARE;
