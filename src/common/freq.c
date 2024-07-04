@@ -12,12 +12,6 @@
 #include <sys/ioctl.h>
 #include <linux/perf_event.h>
 
-#ifdef ARCH_X86
-  #include "../x86/freq/freq.h"
-#elif ARCH_ARM
-  #include "../arm/freq.h"
-#endif
-
 #include "global.h"
 
 static long
