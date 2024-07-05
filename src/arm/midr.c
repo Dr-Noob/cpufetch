@@ -8,6 +8,7 @@
 #ifdef __linux__
   #include <sys/auxv.h>
   #include <asm/hwcap.h>
+  #include "../common/freq.h"
 #elif defined __APPLE__ || __MACH__
   #include "sysctl.h"
 #endif
@@ -41,6 +42,12 @@ struct frequency* get_frequency_info(uint32_t core) {
 
   freq->base = UNKNOWN_DATA;
   freq->max = get_max_freq_from_file(core);
+  #ifdef __linux__
+    if (freq->max == UNKNOWN_DATA) {
+      printWarn("Unable to find max frequency from udev, measuring CPU frequency");
+      freq->max = measure_max_frequency(core);
+    }
+  #endif
 
   return freq;
 }
