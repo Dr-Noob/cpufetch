@@ -175,11 +175,11 @@ char* get_str_peak_performance(int64_t flops) {
   str = ecalloc(max_size, sizeof(char));
 
   if(flopsd >= (double)1000000000000.0)
-    snprintf(str, max_size, "%.2f TFLOP/s", (float)flopsd/1000000000000);
+    snprintf(str, max_size, "%.2f TFLOP/s", flopsd/1000000000000);
   else if(flopsd >= 1000000000.0)
-    snprintf(str, max_size, "%.2f GFLOP/s", (float)flopsd/1000000000);
+    snprintf(str, max_size, "%.2f GFLOP/s", flopsd/1000000000);
   else
-    snprintf(str, max_size, "%.2f MFLOP/s", (float)flopsd/1000000);
+    snprintf(str, max_size, "%.2f MFLOP/s", flopsd/1000000);
 
   return str;
 }

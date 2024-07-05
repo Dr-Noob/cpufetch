@@ -555,13 +555,6 @@ bool choose_new_intel_logo_uarch(struct cpuInfo* cpu) {
   }
 }
 
-bool choose_transmeta_crusoe_logo_uarch(struct cpuInfo* cpu) {
-  if (cpu->arch->uarch == UARCH_CRUSOE)
-      return true;
-  else
-      return false;
-}
-
 char* get_str_uarch(struct cpuInfo* cpu) {
   return cpu->arch->uarch_str;
 }

@@ -20,9 +20,9 @@
 #include "uarch.h"
 #include "freq/freq.h"
 
-#define CPU_VENDOR_INTEL_STRING         "GenuineIntel"
-#define CPU_VENDOR_AMD_STRING           "AuthenticAMD"
-#define CPU_VENDOR_TRANSMETA_STRING     "GenuineTMx86"
+#define CPU_VENDOR_INTEL_STRING     "GenuineIntel"
+#define CPU_VENDOR_AMD_STRING       "AuthenticAMD"
+#define CPU_VENDOR_TRANSMETA_STRING "GenuineTMx86"
 
 static const char *hv_vendors_string[] = {
   [HV_VENDOR_KVM]       = "KVMKVMKVM",
