@@ -61,6 +61,7 @@ enum {
   ATTRIBUTE_NCORES,
   ATTRIBUTE_NCORES_DUAL,
 #ifdef ARCH_X86
+  ATTRIBUTE_SSE,
   ATTRIBUTE_AVX,
   ATTRIBUTE_FMA,
 #elif ARCH_PPC
@@ -96,6 +97,7 @@ static const char* ATTRIBUTE_FIELDS [] = {
   "Cores:",
   "Cores (Total):",
 #ifdef ARCH_X86
+  "SSE:",
   "AVX:",
   "FMA:",
 #elif ARCH_PPC
@@ -131,6 +133,7 @@ static const char* ATTRIBUTE_FIELDS_SHORT [] = {
   "Cores:",
   "Cores (Total):",
 #ifdef ARCH_X86
+  "SSE:",
   "AVX:",
   "FMA:",
 #elif ARCH_PPC
@@ -591,6 +594,7 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
   for(int i = 0; i < cpu->num_cpus; ptr = ptr->next_cpu, i++) {
     char* max_frequency = get_str_freq(ptr->freq);
     char* avx = get_str_avx(ptr);
+    char* sse = get_str_sse(ptr);
     char* fma = get_str_fma(ptr);
     char* cpu_num = emalloc(sizeof(char) * 9);
 
@@ -625,8 +629,17 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
         setAttribute(art, ATTRIBUTE_NCORES, n_cores);
       }
     }
-    setAttribute(art, ATTRIBUTE_AVX, avx);
-    setAttribute(art, ATTRIBUTE_FMA, fma);
+
+    // Show the most modern vector instructions.
+    // If AVX is supported show it, otherwise show SSE
+    if (strcmp(avx, "No") == 0) {
+      setAttribute(art, ATTRIBUTE_SSE, sse);
+    }
+    else {
+      setAttribute(art, ATTRIBUTE_AVX, avx);
+      setAttribute(art, ATTRIBUTE_FMA, fma);
+    }
+
     if(l1i != NULL) setAttribute(art, ATTRIBUTE_L1i, l1i);
     if(l1d != NULL) setAttribute(art, ATTRIBUTE_L1d, l1d);
     if(l2 != NULL) setAttribute(art, ATTRIBUTE_L2, l2);

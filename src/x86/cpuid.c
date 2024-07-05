@@ -218,7 +218,7 @@ int64_t get_peak_performance(struct cpuInfo* cpu, bool accurate_pp) {
   #endif
 
     //First, check we have consistent data
-    if(freq == UNKNOWN_DATA || topo->logical_cores == UNKNOWN_DATA) {
+    if(freq == UNKNOWN_DATA || topo == NULL || topo->logical_cores == UNKNOWN_DATA) {
       return -1;
     }
 
@@ -451,7 +451,7 @@ struct cpuInfo* get_cpu_info(void) {
   cpu->cach = NULL;
   cpu->feat = NULL;
 
-  uint32_t modules = 1;
+  cpu->num_cpus = 1;
   uint32_t eax = 0;
   uint32_t ebx = 0;
   uint32_t ecx = 0;
@@ -507,12 +507,12 @@ struct cpuInfo* get_cpu_info(void) {
     cpu->hybrid_flag = (edx >> 15) & 0x1;
   }
 
-  if(cpu->hybrid_flag) modules = 2;
+  if(cpu->hybrid_flag) cpu->num_cpus = 2;
 
   struct cpuInfo* ptr = cpu;
-  for(uint32_t i=0; i < modules; i++) {
+  for(uint32_t i=0; i < cpu->num_cpus; i++) {
     int32_t first_core;
-    set_cpu_module(i, modules, &first_core);
+    set_cpu_module(i, cpu->num_cpus, &first_core);
 
     if(i > 0) {
       ptr->next_cpu = emalloc(sizeof(struct cpuInfo));
@@ -547,11 +547,7 @@ struct cpuInfo* get_cpu_info(void) {
       cpu->cpu_name = infer_cpu_name_from_uarch(cpu->arch);
     }
 
-    // If any field of the struct is NULL,
-    // return early, as next functions
-    // require non NULL fields in cach and topo
     ptr->cach = get_cache_info(ptr);
-    if(ptr->cach == NULL) return cpu;
 
     if(cpu->hybrid_flag) {
       ptr->topo = get_topology_info(ptr, ptr->cach, i);
@@ -559,16 +555,23 @@ struct cpuInfo* get_cpu_info(void) {
     else {
       ptr->topo = get_topology_info(ptr, ptr->cach, -1);
     }
-    if(cpu->topo == NULL) return cpu;
+
+    // If topo is NULL, return early, as get_peak_performance
+    // requries non-NULL topology.
+    if(ptr->topo == NULL) return cpu;
   }
 
-  cpu->num_cpus = modules;
   cpu->peak_performance = get_peak_performance(cpu, accurate_pp());
 
   return cpu;
 }
 
 bool get_cache_topology_amd(struct cpuInfo* cpu, struct topology* topo) {
+  if (topo->cach == NULL) {
+    printWarn("get_cache_topology_amd: cach is NULL");
+    return false;
+  }
+
   if(cpu->maxExtendedLevels >= 0x8000001D && cpu->topology_extensions) {
     uint32_t i, eax, ebx, ecx, edx, num_sharing_cache, cache_type, cache_level;
 
@@ -644,10 +647,12 @@ bool get_cache_topology_amd(struct cpuInfo* cpu, struct topology* topo) {
 
 #ifdef __linux__
 void get_topology_from_udev(struct topology* topo) {
-  // TODO: To be improved in the future
   topo->total_cores = get_ncores_from_cpuinfo();
-  topo->logical_cores = topo->total_cores;
-  topo->physical_cores = topo->total_cores;
+  // TODO: To be improved in the future
+  // Conservative setting as we only know the total
+  // number of cores.
+  topo->logical_cores = UNKNOWN_DATA;
+  topo->physical_cores = UNKNOWN_DATA;
   topo->smt_available = 1;
   topo->smt_supported = 1;
   topo->sockets = 1;
@@ -711,8 +716,8 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach, int 
       }
       else {
         printWarn("Can't read topology information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000001, cpu->maxLevels);
-        topo->physical_cores = 1;
-        topo->logical_cores = 1;
+        topo->physical_cores = UNKNOWN_DATA;
+        topo->logical_cores = UNKNOWN_DATA;
         topo->smt_available = 1;
         topo->smt_supported = 1;
       }

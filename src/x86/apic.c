@@ -369,6 +369,11 @@ bool fill_apic_ids(uint32_t* apic_ids, int first_core, int n, bool x2apic_id) {
 }
 
 bool get_topology_from_apic(struct cpuInfo* cpu, struct topology* topo) {
+  if (topo->cach == NULL) {
+    printWarn("get_topology_from_apic: cach is NULL");
+    return false;
+  }
+
   uint32_t apic_id;
   uint32_t* apic_ids = emalloc(sizeof(uint32_t) * topo->total_cores_module);
   uint32_t* apic_pkg = emalloc(sizeof(uint32_t) * topo->total_cores_module);
