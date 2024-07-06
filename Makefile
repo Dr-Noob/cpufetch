@@ -7,18 +7,24 @@ PREFIX ?= /usr
 
 SRC_COMMON=src/common/
 
-COMMON_SRC = $(SRC_COMMON)main.c $(SRC_COMMON)cpu.c $(SRC_COMMON)udev.c $(SRC_COMMON)printer.c $(SRC_COMMON)args.c $(SRC_COMMON)global.c $(SRC_COMMON)freq.c
-COMMON_HDR = $(SRC_COMMON)ascii.h $(SRC_COMMON)cpu.h $(SRC_COMMON)udev.h $(SRC_COMMON)printer.h $(SRC_COMMON)args.h $(SRC_COMMON)global.h $(SRC_COMMON)freq.h
+COMMON_SRC = $(SRC_COMMON)main.c $(SRC_COMMON)cpu.c $(SRC_COMMON)udev.c $(SRC_COMMON)printer.c $(SRC_COMMON)args.c $(SRC_COMMON)global.c
+COMMON_HDR = $(SRC_COMMON)ascii.h $(SRC_COMMON)cpu.h $(SRC_COMMON)udev.h $(SRC_COMMON)printer.h $(SRC_COMMON)args.h $(SRC_COMMON)global.h
 
 ifneq ($(OS),Windows_NT)
 	GIT_VERSION := "$(shell git describe --abbrev=4 --dirty --always --tags)"
 	arch := $(shell uname -m)
+	os := $(shell uname -s)
+
+	ifeq ($(os), Linux)
+		COMMON_SRC += $(SRC_COMMON)freq.c
+		COMMON_HDR += $(SRC_COMMON)freq.h
+	endif
+
 	ifeq ($(arch), $(filter $(arch), x86_64 amd64 i386 i486 i586 i686))
 		SRC_DIR=src/x86/
 		SOURCE += $(COMMON_SRC) $(SRC_DIR)cpuid.c $(SRC_DIR)apic.c $(SRC_DIR)cpuid_asm.c $(SRC_DIR)uarch.c
 		HEADERS += $(COMMON_HDR) $(SRC_DIR)cpuid.h $(SRC_DIR)apic.h $(SRC_DIR)cpuid_asm.h $(SRC_DIR)uarch.h $(SRC_DIR)freq/freq.h
 
-                os := $(shell uname -s)
                 ifeq ($(os), Linux)
 			SOURCE += $(SRC_DIR)freq/freq.c freq_nov.o freq_avx.o freq_avx512.o
 			HEADERS += $(SRC_DIR)freq/freq.h
@@ -36,7 +42,6 @@ ifneq ($(OS),Windows_NT)
 		HEADERS += $(COMMON_HDR) $(SRC_DIR)midr.h $(SRC_DIR)uarch.h  $(SRC_COMMON)soc.h $(SRC_DIR)soc.h $(SRC_COMMON)pci.h $(SRC_DIR)udev.c $(SRC_DIR)socs.h
 		CFLAGS += -DARCH_ARM -Wno-unused-parameter -std=c99 -fstack-protector-all
 
-		os := $(shell uname -s)
 		ifeq ($(os), Darwin)
 			SOURCE += $(SRC_DIR)sysctl.c
 			HEADERS += $(SRC_DIR)sysctl.h
