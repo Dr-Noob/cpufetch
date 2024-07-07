@@ -4,8 +4,8 @@
 #include <string.h>
 #include <errno.h>
 
-#include "../common/global.h"
-#include "../common/cpu.h"
+#include "global.h"
+#include "cpu.h"
 
 uint32_t get_sys_info_by_name(char* name) {
   size_t size = 0;

@@ -10,7 +10,7 @@
   #include <asm/hwcap.h>
   #include "../common/freq.h"
 #elif defined __APPLE__ || __MACH__
-  #include "sysctl.h"
+  #include "../common/sysctl.h"
 #endif
 
 #include "../common/global.h"
