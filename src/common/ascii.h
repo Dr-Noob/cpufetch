@@ -105,22 +105,18 @@ $C1  MMM  :MMM      NMM  dMMK   dMMX            MMN   \
 $C1  MMM  :MMM      NMM  dMMMoo  OMM0....:Nx.   MMN   \
 $C1  MMM  :WWW      XWW   lONMM   'xXMMMMNOc    MMN   "
 
-// TODO real logo
 #define ASCII_HYGON \
-"$C1                   .#################.          \
-$C1              .####                   ####.     \
-$C1          .##                             ###   \
-$C1       ##                          :##     ###  \
-$C1    #                ##            :##      ##  \
-$C1  ##   ##  ######.   ####  ######  :##      ##  \
-$C1 ##    ##  ##:  ##:  ##   ##   ### :##     ###  \
-$C1##     ##  ##:  ##:  ##  :######## :##    ##    \
-$C1##     ##  ##:  ##:  ##   ##.   .  :## ####     \
-$C1##      #  ##:  ##:  ####  #####:   ##          \
-$C1 ##                                             \
-$C1  ###.                         ..o####.         \
-$C1   ######oo...         ..oo#######              \
-$C1          o###############o                     "
+"$C1                                                   \
+$C1                                                   \
+$C1                                                   \
+$C1 ##    ##  ##    ##  ######     ######    ##    #  \
+$C1 ##....##   ##  ##  ##        ##      ##  ####  #  \
+$C1 ########     ##    ##    ##. ##      ##  #  ####  \
+$C1 ##    ##     ##    *######.    ######    #    ##  \
+$C1                                                   \
+$C1                                                   \
+$C1                                                   \
+$C1                                                   "
 
 #define ASCII_SNAPD \
 "              $C1@@$C2########               \
@@ -555,7 +551,7 @@ typedef struct ascii_logo asciiL;
 asciiL logo_amd         = { ASCII_AMD,         39, 15, false, {C_FG_WHITE, C_FG_GREEN},                       {C_FG_WHITE,   C_FG_GREEN}   };
 asciiL logo_intel       = { ASCII_INTEL,       48, 14, false, {C_FG_CYAN},                                    {C_FG_CYAN,    C_FG_WHITE}   };
 asciiL logo_intel_new   = { ASCII_INTEL_NEW,   51,  9, false, {C_FG_CYAN},                                    {C_FG_CYAN,    C_FG_WHITE}   };
-asciiL logo_hygon       = { ASCII_HYGON,       48, 14, false, {C_FG_CYAN},                                    {C_FG_CYAN,    C_FG_WHITE}   };
+asciiL logo_hygon       = { ASCII_HYGON,       51, 11, false, {C_FG_RED},                                     {C_FG_RED,     C_FG_WHITE}   };
 asciiL logo_snapd       = { ASCII_SNAPD,       39, 16, false, {C_FG_RED, C_FG_WHITE},                         {C_FG_RED,     C_FG_WHITE}   };
 asciiL logo_mtk         = { ASCII_MTK,         59,  5, false, {C_FG_BLUE, C_FG_YELLOW},                       {C_FG_BLUE,    C_FG_YELLOW}  };
 asciiL logo_exynos      = { ASCII_EXYNOS,      22, 13, true,  {C_BG_BLUE, C_FG_WHITE},                        {C_FG_BLUE,    C_FG_WHITE}   };
