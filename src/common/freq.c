@@ -103,8 +103,8 @@ int64_t measure_max_frequency(uint32_t core) {
   if (fd == -1) {
     perror("perf_event_open");
     if (errno == EPERM || errno == EACCES) {
-      printf("You may not have permission to collect stats.\n");
-      printf("Consider tweaking /proc/sys/kernel/perf_event_paranoid or running as root.\n");
+      printErr("You may not have permission to collect stats.\n"\
+      "Consider tweaking /proc/sys/kernel/perf_event_paranoid or running as root");
     }
     return -1;
   }
