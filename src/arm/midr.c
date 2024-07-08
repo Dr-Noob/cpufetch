@@ -40,12 +40,14 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
 struct frequency* get_frequency_info(uint32_t core) {
   struct frequency* freq = emalloc(sizeof(struct frequency));
 
+  freq->measured = false;
   freq->base = UNKNOWN_DATA;
   freq->max = get_max_freq_from_file(core);
   #ifdef __linux__
     if (freq->max == UNKNOWN_DATA) {
       printWarn("Unable to find max frequency from udev, measuring CPU frequency");
       freq->max = measure_max_frequency(core);
+      freq->measured = true;
     }
   #endif
 

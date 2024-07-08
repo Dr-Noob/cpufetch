@@ -923,6 +923,7 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
 
 struct frequency* get_frequency_info(struct cpuInfo* cpu) {
   struct frequency* freq = emalloc(sizeof(struct frequency));
+  freq->measured = false;
 
   if(cpu->maxLevels < 0x00000016) {
     #if defined (_WIN32) || defined (__APPLE__)
@@ -976,6 +977,7 @@ struct frequency* get_frequency_info(struct cpuInfo* cpu) {
       printWarn("All previous methods failed, measuring CPU frequency");
       // TODO: Support hybrid architectures
       freq->max = measure_max_frequency(0);
+      freq->measured = true;
     }
   #endif
 

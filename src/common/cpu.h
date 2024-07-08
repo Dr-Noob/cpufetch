@@ -57,6 +57,8 @@ typedef int32_t VENDOR;
 struct frequency {
   int32_t base;
   int32_t max;
+  // Indicates if max frequency was measured
+  bool measured;
 };
 
 struct hypervisor {

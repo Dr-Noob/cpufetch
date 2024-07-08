@@ -19,6 +19,7 @@
 struct frequency* get_frequency_info(uint32_t core) {
   struct frequency* freq = emalloc(sizeof(struct frequency));
 
+  freq->measured = false;
   freq->base = UNKNOWN_DATA;
   freq->max = get_max_freq_from_file(core);
 
