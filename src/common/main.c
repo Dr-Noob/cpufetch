@@ -45,7 +45,7 @@ void print_help(char *argv[]) {
   printf("  * \"amd\":       Use AMD color scheme \n");
   printf("  * \"ibm\",       Use IBM color scheme \n");
   printf("  * \"arm\":       Use ARM color scheme \n");
-  printf("  * \"rockchip\":  Use ARM color scheme \n");
+  printf("  * \"rockchip\":  Use Rockchip color scheme \n");
   printf("  * \"sifive\":    Use SiFive color scheme \n");
   printf("  * custom:      If the argument of --color does not match any of the previous strings, a custom scheme can be specified.\n");
   printf("                 5 colors must be given in RGB with the format: R,G,B:R,G,B:...\n");
