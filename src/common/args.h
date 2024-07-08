@@ -29,6 +29,7 @@ enum {
   ARG_LOGO_INTEL_NEW,
   ARG_LOGO_INTEL_OLD,
   ARG_ACCURATE_PP,
+  ARG_MEASURE_MAX_FREQ,
   ARG_DEBUG,
   ARG_VERBOSE,
   ARG_VERSION
@@ -43,6 +44,7 @@ int max_arg_str_length(void);
 bool parse_args(int argc, char* argv[]);
 bool show_help(void);
 bool accurate_pp(void);
+bool measure_max_frequency_flag(void);
 bool show_full_cpu_name(void);
 bool show_logo_long(void);
 bool show_logo_short(void);

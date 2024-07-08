@@ -15,6 +15,7 @@
 
 #include "../common/global.h"
 #include "../common/soc.h"
+#include "../common/args.h"
 #include "udev.h"
 #include "midr.h"
 #include "uarch.h"
@@ -44,8 +45,9 @@ struct frequency* get_frequency_info(uint32_t core) {
   freq->base = UNKNOWN_DATA;
   freq->max = get_max_freq_from_file(core);
   #ifdef __linux__
-    if (freq->max == UNKNOWN_DATA) {
-      printWarn("Unable to find max frequency from udev, measuring CPU frequency");
+    if (freq->max == UNKNOWN_DATA || measure_max_frequency_flag()) {
+      if (freq->max == UNKNOWN_DATA)
+        printWarn("Unable to find max frequency from udev, measuring CPU frequency");
       freq->max = measure_max_frequency(core);
       freq->measured = true;
     }

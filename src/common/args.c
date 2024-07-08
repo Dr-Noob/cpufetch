@@ -28,6 +28,7 @@ struct args_struct {
   bool help_flag;
   bool raw_flag;
   bool accurate_pp;
+  bool measure_max_frequency_flag;
   bool full_cpu_name_flag;
   bool logo_long;
   bool logo_short;
@@ -40,35 +41,37 @@ struct args_struct {
 };
 
 const char args_chr[] = {
-  /* [ARG_STYLE]          = */ 's',
-  /* [ARG_COLOR]          = */ 'c',
-  /* [ARG_HELP]           = */ 'h',
-  /* [ARG_RAW]            = */ 'r',
-  /* [ARG_FULLCPUNAME]    = */ 'F',
-  /* [ARG_LOGO_LONG]      = */ 1,
-  /* [ARG_LOGO_SHORT]     = */ 2,
-  /* [ARG_LOGO_INTEL_NEW] = */ 3,
-  /* [ARG_LOGO_INTEL_OLD] = */ 4,
-  /* [ARG_ACCURATE_PP]    = */ 5,
-  /* [ARG_DEBUG]          = */ 'd',
-  /* [ARG_VERBOSE]        = */ 'v',
-  /* [ARG_VERSION]        = */ 'V',
+  /* [ARG_STYLE]            = */ 's',
+  /* [ARG_COLOR]            = */ 'c',
+  /* [ARG_HELP]             = */ 'h',
+  /* [ARG_RAW]              = */ 'r',
+  /* [ARG_FULLCPUNAME]      = */ 'F',
+  /* [ARG_LOGO_LONG]        = */ 1,
+  /* [ARG_LOGO_SHORT]       = */ 2,
+  /* [ARG_LOGO_INTEL_NEW]   = */ 3,
+  /* [ARG_LOGO_INTEL_OLD]   = */ 4,
+  /* [ARG_ACCURATE_PP]      = */ 5,
+  /* [ARG_MEASURE_MAX_FREQ] = */ 6,
+  /* [ARG_DEBUG]            = */ 'd',
+  /* [ARG_VERBOSE]          = */ 'v',
+  /* [ARG_VERSION]          = */ 'V',
 };
 
 const char *args_str[] = {
-  /* [ARG_STYLE]          = */ "style",
-  /* [ARG_COLOR]          = */ "color",
-  /* [ARG_HELP]           = */ "help",
-  /* [ARG_RAW]            = */ "raw",
-  /* [ARG_FULLCPUNAME]    = */ "full-cpu-name",
-  /* [ARG_LOGO_LONG]      = */ "logo-long",
-  /* [ARG_LOGO_SHORT]     = */ "logo-short",
-  /* [ARG_LOGO_INTEL_NEW] = */ "logo-intel-new",
-  /* [ARG_LOGO_INTEL_OLD] = */ "logo-intel-old",
-  /* [ARG_ACCURATE_PP]    = */ "accurate-pp",
-  /* [ARG_DEBUG]          = */ "debug",
-  /* [ARG_VERBOSE]        = */ "verbose",
-  /* [ARG_VERSION]        = */ "version",
+  /* [ARG_STYLE]            = */ "style",
+  /* [ARG_COLOR]            = */ "color",
+  /* [ARG_HELP]             = */ "help",
+  /* [ARG_RAW]              = */ "raw",
+  /* [ARG_FULLCPUNAME]      = */ "full-cpu-name",
+  /* [ARG_LOGO_LONG]        = */ "logo-long",
+  /* [ARG_LOGO_SHORT]       = */ "logo-short",
+  /* [ARG_LOGO_INTEL_NEW]   = */ "logo-intel-new",
+  /* [ARG_LOGO_INTEL_OLD]   = */ "logo-intel-old",
+  /* [ARG_ACCURATE_PP]      = */ "accurate-pp",
+  /* [ARG_MEASURE_MAX_FREQ] = */ "measure-max-freq",
+  /* [ARG_DEBUG]            = */ "debug",
+  /* [ARG_VERBOSE]          = */ "verbose",
+  /* [ARG_VERSION]          = */ "version",
 };
 
 static struct args_struct args;
@@ -99,6 +102,10 @@ bool show_raw(void) {
 
 bool accurate_pp(void) {
   return args.accurate_pp;
+}
+
+bool measure_max_frequency_flag(void) {
+  return args.measure_max_frequency_flag;
 }
 
 bool show_full_cpu_name(void) {
@@ -222,12 +229,20 @@ char* build_short_options(void) {
   memset(str, 0, sizeof(char) * (len*2 + 1));
 
 #ifdef ARCH_X86
-  sprintf(str, "%c:%c:%c%c%c%c%c%c%c%c%c%c%c",
+  sprintf(str, "%c:%c:%c%c%c%c%c%c%c%c%c%c%c%c",
   c[ARG_STYLE], c[ARG_COLOR], c[ARG_HELP],
   c[ARG_RAW], c[ARG_FULLCPUNAME],
   c[ARG_LOGO_SHORT], c[ARG_LOGO_LONG],
   c[ARG_LOGO_INTEL_NEW], c[ARG_LOGO_INTEL_OLD],
-  c[ARG_ACCURATE_PP], c[ARG_DEBUG], c[ARG_VERBOSE],
+  c[ARG_ACCURATE_PP], c[ARG_MEASURE_MAX_FREQ],
+  c[ARG_DEBUG], c[ARG_VERBOSE],
+  c[ARG_VERSION]);
+#elif ARCH_ARM
+  sprintf(str, "%c:%c:%c%c%c%c%c%c%c",
+  c[ARG_STYLE], c[ARG_COLOR], c[ARG_HELP],
+  c[ARG_LOGO_SHORT], c[ARG_LOGO_LONG],
+  c[ARG_MEASURE_MAX_FREQ],
+  c[ARG_DEBUG], c[ARG_VERBOSE],
   c[ARG_VERSION]);
 #else
   sprintf(str, "%c:%c:%c%c%c%c%c%c",
@@ -263,21 +278,24 @@ bool parse_args(int argc, char* argv[]) {
   set_log_level(true);
 
   const struct option long_options[] = {
-    {args_str[ARG_STYLE],          required_argument, 0, args_chr[ARG_STYLE]          },
-    {args_str[ARG_COLOR],          required_argument, 0, args_chr[ARG_COLOR]          },
-    {args_str[ARG_HELP],           no_argument,       0, args_chr[ARG_HELP]           },
+    {args_str[ARG_STYLE],            required_argument, 0, args_chr[ARG_STYLE]            },
+    {args_str[ARG_COLOR],            required_argument, 0, args_chr[ARG_COLOR]            },
+    {args_str[ARG_HELP],             no_argument,       0, args_chr[ARG_HELP]             },
 #ifdef ARCH_X86
-    {args_str[ARG_LOGO_INTEL_NEW], no_argument,       0, args_chr[ARG_LOGO_INTEL_NEW] },
-    {args_str[ARG_LOGO_INTEL_OLD], no_argument,       0, args_chr[ARG_LOGO_INTEL_OLD] },
-    {args_str[ARG_ACCURATE_PP],    no_argument,       0, args_chr[ARG_ACCURATE_PP]    },
-    {args_str[ARG_FULLCPUNAME],    no_argument,       0, args_chr[ARG_FULLCPUNAME]    },
-    {args_str[ARG_RAW],            no_argument,       0, args_chr[ARG_RAW]            },
+    {args_str[ARG_LOGO_INTEL_NEW],   no_argument,       0, args_chr[ARG_LOGO_INTEL_NEW]   },
+    {args_str[ARG_LOGO_INTEL_OLD],   no_argument,       0, args_chr[ARG_LOGO_INTEL_OLD]   },
+    {args_str[ARG_ACCURATE_PP],      no_argument,       0, args_chr[ARG_ACCURATE_PP]      },
+    {args_str[ARG_MEASURE_MAX_FREQ], no_argument,       0, args_chr[ARG_MEASURE_MAX_FREQ] },
+    {args_str[ARG_FULLCPUNAME],      no_argument,       0, args_chr[ARG_FULLCPUNAME]      },
+    {args_str[ARG_RAW],              no_argument,       0, args_chr[ARG_RAW]              },
+#elif ARCH_ARM
+    {args_str[ARG_MEASURE_MAX_FREQ], no_argument,       0, args_chr[ARG_MEASURE_MAX_FREQ] },
 #endif
-    {args_str[ARG_LOGO_SHORT],     no_argument,       0, args_chr[ARG_LOGO_SHORT]     },
-    {args_str[ARG_LOGO_LONG],      no_argument,       0, args_chr[ARG_LOGO_LONG]      },
-    {args_str[ARG_DEBUG],          no_argument,       0, args_chr[ARG_DEBUG]          },
-    {args_str[ARG_VERBOSE],        no_argument,       0, args_chr[ARG_VERBOSE]        },
-    {args_str[ARG_VERSION],        no_argument,       0, args_chr[ARG_VERSION]        },
+    {args_str[ARG_LOGO_SHORT],       no_argument,       0, args_chr[ARG_LOGO_SHORT]       },
+    {args_str[ARG_LOGO_LONG],        no_argument,       0, args_chr[ARG_LOGO_LONG]        },
+    {args_str[ARG_DEBUG],            no_argument,       0, args_chr[ARG_DEBUG]            },
+    {args_str[ARG_VERBOSE],          no_argument,       0, args_chr[ARG_VERBOSE]          },
+    {args_str[ARG_VERSION],          no_argument,       0, args_chr[ARG_VERSION]          },
     {0, 0, 0, 0}
   };
 
@@ -312,6 +330,9 @@ bool parse_args(int argc, char* argv[]) {
     }
     else if(opt == args_chr[ARG_ACCURATE_PP]) {
        args.accurate_pp = true;
+    }
+    else if(opt == args_chr[ARG_MEASURE_MAX_FREQ]) {
+       args.measure_max_frequency_flag = true;
     }
     else if(opt == args_chr[ARG_FULLCPUNAME]) {
        args.full_cpu_name_flag = true;
