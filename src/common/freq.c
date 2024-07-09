@@ -130,7 +130,18 @@ int64_t measure_max_frequency(uint32_t core) {
 
   nop_function(iters);
 
-  read(fd, &instructions, sizeof(uint64_t));
+  // Clean screen once measurement is finished
+  printf("\r%*c\r", (int) strlen(frequency_banner), ' ');
+
+  ssize_t ret = read(fd, &instructions, sizeof(uint64_t));
+  if (ret == -1) {
+    perror("read");
+    return -1;
+  }
+  if (ret != sizeof(uint64_t)) {
+    printErr("Read returned %d, expected %d", ret, sizeof(uint64_t));
+    return -1;
+  }
   if(ioctl(fd, PERF_EVENT_IOC_DISABLE, 0) == -1) {
     perror("ioctl");
     return -1;
@@ -143,8 +154,6 @@ int64_t measure_max_frequency(uint32_t core) {
   uint64_t nsecs = (end.tv_sec*1e9 + end.tv_nsec) - (start.tv_sec*1e9 + start.tv_nsec);
   uint64_t usecs = nsecs/1000;  
   double frequency = instructions/((double)usecs);
-
-  printf("\r%*c\r", (int) strlen(frequency_banner), ' ');
   
   // Discard last digit in the frequency, which should help providing
   // more reliable and predictable values.
