@@ -13,6 +13,7 @@
 #include <linux/perf_event.h>
 
 #include "global.h"
+#include "cpu.h"
 
 static long
 perf_event_open(struct perf_event_attr *hw_event, pid_t pid,
@@ -158,7 +159,7 @@ uint64_t get_num_iters_from_freq(double frequency) {
 int64_t measure_max_frequency(uint32_t core) {
   if (!bind_to_cpu(core)) {
     printErr("Failed binding the process to CPU %d", core);
-    return -1;
+    return UNKNOWN_DATA;
   }
 
   // First, get very rough estimation of clock cycle to
@@ -166,11 +167,11 @@ int64_t measure_max_frequency(uint32_t core) {
   double estimation_freq, frequency;
   uint64_t iters = 100000;
   if (measure_freq_iters(iters, core, &estimation_freq) == -1)
-    return -1;
+    return UNKNOWN_DATA;
 
   if (estimation_freq <= 0.0) {
     printErr("First frequency measurement yielded an invalid value: %f", estimation_freq);
-    return -1;
+    return UNKNOWN_DATA;
   }
   iters = get_num_iters_from_freq(estimation_freq);
   printWarn("Running frequency measurement with %ld iterations on core %d...", iters, core);
@@ -181,7 +182,7 @@ int64_t measure_max_frequency(uint32_t core) {
   fflush(stdout);
 
   if (measure_freq_iters(iters, core, &frequency) == -1)
-    return -1; 
+    return UNKNOWN_DATA;
   
   // Clean screen once measurement is finished
   printf("\r%*c\r", (int) strlen(frequency_banner), ' ');
