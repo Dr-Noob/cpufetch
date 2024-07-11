@@ -69,28 +69,15 @@ void nop_function(uint64_t iters) {
   }
 }
 
-// Differences between x86 measure_frequency this measure_max_frequency:
-// - measure_frequency employs all cores simultaneously wherease 
-//   measure_max_frequency only employs 1.
-// - measure_frequency runs the computation and checks /proc/cpuinfo whereas
-//   measure_max_frequency does not rely on /proc/cpuinfo and simply
-//   counts cpu cycles to measure frequency.
-// - measure_frequency uses actual computation while measuring the frequency
-//   whereas measure_max_frequency uses nop instructions. This makes the former
-//   x86 dependant whereas the latter is architecture independant.
-int64_t measure_max_frequency(uint32_t core) {
-  if (!bind_to_cpu(core)) {
-    printErr("Failed binding the process to CPU %d", core);
-    return -1;
-  }
-
+// Run the nop_function with the number of iterations specified and
+// measure both the time and number of cycles
+int measure_freq_iters(uint64_t iters, uint32_t core, double* freq) {
   clockid_t clock = CLOCK_PROCESS_CPUTIME_ID;
-
+  struct timespec start, end;
   struct perf_event_attr pe;
-  uint64_t instructions;
+  uint64_t cycles;
   int fd;
   int pid = 0;
-
   memset(&pe, 0, sizeof(struct perf_event_attr));
   pe.type = PERF_TYPE_HARDWARE;
   pe.size = sizeof(struct perf_event_attr);
@@ -109,12 +96,6 @@ int64_t measure_max_frequency(uint32_t core) {
     return -1;
   }
 
-  const char* frequency_banner = "cpufetch is measuring the max frequency...";
-  printf("%s", frequency_banner);
-  fflush(stdout);
-
-  uint64_t iters = 10000000;
-  struct timespec start, end;
   if (clock_gettime(clock, &start) == -1) {
     perror("clock_gettime");
     return -1;
@@ -130,10 +111,7 @@ int64_t measure_max_frequency(uint32_t core) {
 
   nop_function(iters);
 
-  // Clean screen once measurement is finished
-  printf("\r%*c\r", (int) strlen(frequency_banner), ' ');
-
-  ssize_t ret = read(fd, &instructions, sizeof(uint64_t));
+  ssize_t ret = read(fd, &cycles, sizeof(uint64_t));
   if (ret == -1) {
     perror("read");
     return -1;
@@ -153,7 +131,60 @@ int64_t measure_max_frequency(uint32_t core) {
 
   uint64_t nsecs = (end.tv_sec*1e9 + end.tv_nsec) - (start.tv_sec*1e9 + start.tv_nsec);
   uint64_t usecs = nsecs/1000;  
-  double frequency = instructions/((double)usecs);
+  *freq = cycles/((double)usecs);
+  return 0;
+}
+
+// Return a good number of iterations to run the nop_function in
+// order to get a precise measurement of the frequency without taking
+// too much time.
+uint64_t get_num_iters_from_freq(double frequency) {
+  // Truncate to reduce variability
+  uint64_t freq_trunc = ((uint64_t) frequency / 100) * 100;
+  uint64_t osp_per_iter = 4 * 1000;
+
+  return freq_trunc * 1e7 * 1/osp_per_iter;
+}
+
+// Differences between x86 measure_frequency and this measure_max_frequency:
+// - measure_frequency employs all cores simultaneously whereas
+//   measure_max_frequency only employs 1.
+// - measure_frequency runs the computation and checks /proc/cpuinfo whereas
+//   measure_max_frequency does not rely on /proc/cpuinfo and simply
+//   counts cpu cycles to measure frequency.
+// - measure_frequency uses actual computation while measuring the frequency
+//   whereas measure_max_frequency uses nop instructions. This makes the former
+//   x86 dependant whereas the latter is architecture independant.
+int64_t measure_max_frequency(uint32_t core) {
+  if (!bind_to_cpu(core)) {
+    printErr("Failed binding the process to CPU %d", core);
+    return -1;
+  }
+
+  // First, get very rough estimation of clock cycle to
+  // compute a reasonable value for the iterations
+  double estimation_freq, frequency;
+  uint64_t iters = 100000;
+  if (measure_freq_iters(iters, core, &estimation_freq) == -1)
+    return -1;
+
+  if (estimation_freq <= 0.0) {
+    printErr("First frequency measurement yielded an invalid value: %f", estimation_freq);
+    return -1;
+  }
+  iters = get_num_iters_from_freq(estimation_freq);
+  printWarn("Running frequency measurement with %ld iterations on core %d...", iters, core);
+
+  // Now perform actual measurement
+  const char* frequency_banner = "cpufetch is measuring the max frequency...";
+  printf("%s", frequency_banner);
+  fflush(stdout);
+
+  if (measure_freq_iters(iters, core, &frequency) == -1)
+    return -1; 
+  
+  // Clean screen once measurement is finished
+  printf("\r%*c\r", (int) strlen(frequency_banner), ' ');
   
   // Discard last digit in the frequency, which should help providing
   // more reliable and predictable values.
