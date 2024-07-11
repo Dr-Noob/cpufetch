@@ -43,8 +43,8 @@ ifneq ($(OS),Windows_NT)
 		CFLAGS += -DARCH_ARM -Wno-unused-parameter -std=c99 -fstack-protector-all
 
 		ifeq ($(os), Darwin)
-			SOURCE += $(COMMON_SRC)sysctl.c
-			HEADERS += $(COMMON_SRC)sysctl.h
+			SOURCE += $(SRC_COMMON)sysctl.c
+			HEADERS += $(SRC_COMMON)sysctl.h
 		endif
 	else ifeq ($(arch), $(filter $(arch), riscv64 riscv32))
 		SRC_DIR=src/riscv/
