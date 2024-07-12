@@ -706,27 +706,25 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach, int 
 
   switch(cpu->cpu_vendor) {
     case CPU_VENDOR_INTEL:
+      bool toporet = false;
       if (cpu->maxLevels >= 0x00000004) {
-        bool toporet = get_topology_from_apic(cpu, topo);
-        if(!toporet) {
-          #ifdef __linux__
-            printWarn("Failed to retrieve topology from APIC, using udev...\n");
-            get_topology_from_udev(topo);
-          #else
-            printErr("Failed to retrieve topology from APIC, assumming default values...\n");
-            topo->logical_cores = UNKNOWN_DATA;
-            topo->physical_cores = UNKNOWN_DATA;
-            topo->smt_available = 1;
-            topo->smt_supported = 1;
-          #endif
-        }
+        toporet = get_topology_from_apic(cpu, topo);
       }
       else {
-        printWarn("Can't read topology information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000001, cpu->maxLevels);
-        topo->physical_cores = UNKNOWN_DATA;
-        topo->logical_cores = UNKNOWN_DATA;
-        topo->smt_available = 1;
-        topo->smt_supported = 1;
+        printWarn("Can't read topology information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000004, cpu->maxLevels);
+      }
+      if(!toporet) {
+        #ifdef __linux__
+          printWarn("Failed to retrieve topology from APIC, using udev...\n");
+          get_topology_from_udev(topo);
+        #else
+          if (cpu->maxLevels >= 0x00000004)
+            printErr("Failed to retrieve topology from APIC, assumming default values...\n");
+          topo->logical_cores = UNKNOWN_DATA;
+          topo->physical_cores = UNKNOWN_DATA;
+          topo->smt_available = 1;
+          topo->smt_supported = 1;
+        #endif
       }
       break;
     case CPU_VENDOR_AMD:
