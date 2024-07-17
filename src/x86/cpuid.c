@@ -720,11 +720,11 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach, int 
       }
       if(!toporet) {
         #ifdef __linux__
-          printWarn("Failed to retrieve topology from APIC, using udev...\n");
+          printWarn("Failed to retrieve topology from APIC, using udev...");
           get_topology_from_udev(topo);
         #else
           if (cpu->maxLevels >= 0x00000004)
-            printErr("Failed to retrieve topology from APIC, assumming default values...\n");
+            printErr("Failed to retrieve topology from APIC, assumming default values...");
           topo->logical_cores = UNKNOWN_DATA;
           topo->physical_cores = UNKNOWN_DATA;
           topo->smt_available = 1;
