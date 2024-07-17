@@ -656,10 +656,15 @@ bool get_cache_topology_amd(struct cpuInfo* cpu, struct topology* topo) {
 void get_topology_from_udev(struct topology* topo) {
   topo->total_cores = get_ncores_from_cpuinfo();
   // TODO: To be improved in the future
-  // Conservative setting as we only know the total
-  // number of cores.
-  topo->logical_cores = UNKNOWN_DATA;
-  topo->physical_cores = UNKNOWN_DATA;
+  if (topo->total_cores != -1) {
+    // Assuming this for now
+    topo->logical_cores = topo->total_cores;
+    topo->physical_cores = topo->total_cores;
+  }
+  else {
+    topo->logical_cores = UNKNOWN_DATA;
+    topo->physical_cores = UNKNOWN_DATA;
+  }
   topo->smt_available = 1;
   topo->smt_supported = 1;
   topo->sockets = 1;
