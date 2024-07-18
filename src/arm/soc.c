@@ -624,9 +624,34 @@ bool match_special(char* soc_name, struct system_on_chip* soc) {
     return true;
   }
 
-  // Snapdragon 8 Gen 1 reported as "taro"
+  // New Snapdragon SoCs codenames
+  // https://github.com/sm8450-mainline/fdt?tab=readme-ov-file#chipsets
+  // https://github.com/Dr-Noob/cpufetch/issues/253
+  if (strcmp(soc_name, "cape") == 0) {
+    fill_soc(soc, "8+ Gen 1", SOC_SNAPD_SM8475, 4);
+    return true;
+  }
+
   if(strcmp(soc_name, "taro") == 0) {
     fill_soc(soc, "8 Gen 1", SOC_SNAPD_SM8450, 4);
+    return true;
+  }
+
+  if(strcmp(soc_name, "ukee") == 0) {
+    fill_soc(soc, "7+ Gen 2", SOC_SNAPD_SM7475, 4);
+    return true;
+  }
+
+  if(strcmp(soc_name, "diwali") == 0) {
+    fill_soc(soc, "7 Gen 1", SOC_SNAPD_SM7450, 4);
+    return true;
+  }
+
+  // parrot can be either SM7435 or SM6450, we need more data
+  // to distingish between those two
+
+  if(strcmp(soc_name, "ravelin") == 0) {
+    fill_soc(soc, "4 Gen 2", SOC_SNAPD_SM4450, 4);
     return true;
   }
 
