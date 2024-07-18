@@ -727,6 +727,16 @@ struct system_on_chip* guess_soc_from_android(struct system_on_chip* soc) {
     else return soc;
   }
 
+  // https://github.com/Dr-Noob/cpufetch/issues/253
+  // ro.soc.model might be more reliable than ro.product.board or
+  // ro.board.platform, so try with it first
+  property_len = android_property_get("ro.soc.model", (char *) &tmp);
+  if(property_len > 0) {
+    try_parse_soc_from_string(soc, property_len, tmp);
+    if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) printWarn("SoC detection failed using Android property ro.soc.model: %s", tmp);
+    else return soc;
+  }
+
   property_len = android_property_get("ro.product.board", (char *) &tmp);
   if(property_len > 0) {
     try_parse_soc_from_string(soc, property_len, tmp);
