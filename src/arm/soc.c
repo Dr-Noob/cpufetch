@@ -578,6 +578,14 @@ bool match_qualcomm(char* soc_name, struct system_on_chip* soc) {
   SOC_EQ(tmp, "SM8250-AB",      "865+",      SOC_SNAPD_SM8250_AB,      soc,  7)
   SOC_EQ(tmp, "SM8350",         "888",       SOC_SNAPD_SM8350,         soc,  5)
   SOC_EQ(tmp, "SM8350-AC",      "888+",      SOC_SNAPD_SM8350,         soc,  5)
+  // Snapdragon Gen //
+  SOC_EQ(tmp, "SM4450",         "4 Gen 2",   SOC_SNAPD_SM4450,         soc,  4)
+  SOC_EQ(tmp, "SM6450",         "6 Gen 1",   SOC_SNAPD_SM6450,         soc,  4)
+  SOC_EQ(tmp, "SM7435-AB",      "7s Gen 2",  SOC_SNAPD_SM7435_AB,      soc,  4)
+  SOC_EQ(tmp, "SM7450",         "7 Gen 1",   SOC_SNAPD_SM7450,         soc,  4)
+  SOC_EQ(tmp, "SM7475",         "7+ Gen 2",  SOC_SNAPD_SM7475,         soc,  4)
+  SOC_EQ(tmp, "SM8450",         "8 Gen 1",   SOC_SNAPD_SM8450,         soc,  4)
+  SOC_EQ(tmp, "SM8475",         "8+ Gen 1",  SOC_SNAPD_SM8475,         soc,  4)
   SOC_END
 }
 
@@ -624,9 +632,34 @@ bool match_special(char* soc_name, struct system_on_chip* soc) {
     return true;
   }
 
-  // Snapdragon 8 Gen 1 reported as "taro"
+  // New Snapdragon SoCs codenames
+  // https://github.com/sm8450-mainline/fdt?tab=readme-ov-file#chipsets
+  // https://github.com/Dr-Noob/cpufetch/issues/253
+  if (strcmp(soc_name, "cape") == 0) {
+    fill_soc(soc, "8+ Gen 1", SOC_SNAPD_SM8475, 4);
+    return true;
+  }
+
   if(strcmp(soc_name, "taro") == 0) {
     fill_soc(soc, "8 Gen 1", SOC_SNAPD_SM8450, 4);
+    return true;
+  }
+
+  if(strcmp(soc_name, "ukee") == 0) {
+    fill_soc(soc, "7+ Gen 2", SOC_SNAPD_SM7475, 4);
+    return true;
+  }
+
+  if(strcmp(soc_name, "diwali") == 0) {
+    fill_soc(soc, "7 Gen 1", SOC_SNAPD_SM7450, 4);
+    return true;
+  }
+
+  // parrot can be either SM7435 or SM6450, we need more data
+  // to distingish between those two
+
+  if(strcmp(soc_name, "ravelin") == 0) {
+    fill_soc(soc, "4 Gen 2", SOC_SNAPD_SM4450, 4);
     return true;
   }
 
@@ -699,6 +732,16 @@ struct system_on_chip* guess_soc_from_android(struct system_on_chip* soc) {
   if(property_len > 0) {
     try_parse_soc_from_string(soc, property_len, tmp);
     if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) printWarn("SoC detection failed using Android property ro.mediatek.platform: %s", tmp);
+    else return soc;
+  }
+
+  // https://github.com/Dr-Noob/cpufetch/issues/253
+  // ro.soc.model might be more reliable than ro.product.board or
+  // ro.board.platform, so try with it first
+  property_len = android_property_get("ro.soc.model", (char *) &tmp);
+  if(property_len > 0) {
+    try_parse_soc_from_string(soc, property_len, tmp);
+    if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) printWarn("SoC detection failed using Android property ro.soc.model: %s", tmp);
     else return soc;
   }
 
