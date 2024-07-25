@@ -656,10 +656,15 @@ bool get_cache_topology_amd(struct cpuInfo* cpu, struct topology* topo) {
 void get_topology_from_udev(struct topology* topo) {
   topo->total_cores = get_ncores_from_cpuinfo();
   // TODO: To be improved in the future
-  // Conservative setting as we only know the total
-  // number of cores.
-  topo->logical_cores = UNKNOWN_DATA;
-  topo->physical_cores = UNKNOWN_DATA;
+  if (topo->total_cores == 1) {
+    // We can assume it's a single core CPU
+    topo->logical_cores = topo->total_cores;
+    topo->physical_cores = topo->total_cores;
+  }
+  else {
+    topo->logical_cores = UNKNOWN_DATA;
+    topo->physical_cores = UNKNOWN_DATA;
+  }
   topo->smt_available = 1;
   topo->smt_supported = 1;
   topo->sockets = 1;
@@ -706,27 +711,25 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach, int 
 
   switch(cpu->cpu_vendor) {
     case CPU_VENDOR_INTEL:
+      bool toporet = false;
       if (cpu->maxLevels >= 0x00000004) {
-        bool toporet = get_topology_from_apic(cpu, topo);
-        if(!toporet) {
-          #ifdef __linux__
-            printWarn("Failed to retrieve topology from APIC, using udev...\n");
-            get_topology_from_udev(topo);
-          #else
-            printErr("Failed to retrieve topology from APIC, assumming default values...\n");
-            topo->logical_cores = UNKNOWN_DATA;
-            topo->physical_cores = UNKNOWN_DATA;
-            topo->smt_available = 1;
-            topo->smt_supported = 1;
-          #endif
-        }
+        toporet = get_topology_from_apic(cpu, topo);
       }
       else {
-        printWarn("Can't read topology information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000001, cpu->maxLevels);
-        topo->physical_cores = UNKNOWN_DATA;
-        topo->logical_cores = UNKNOWN_DATA;
-        topo->smt_available = 1;
-        topo->smt_supported = 1;
+        printWarn("Can't read topology information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000004, cpu->maxLevels);
+      }
+      if(!toporet) {
+        #ifdef __linux__
+          printWarn("Failed to retrieve topology from APIC, using udev...");
+          get_topology_from_udev(topo);
+        #else
+          if (cpu->maxLevels >= 0x00000004)
+            printErr("Failed to retrieve topology from APIC, assumming default values...");
+          topo->logical_cores = UNKNOWN_DATA;
+          topo->physical_cores = UNKNOWN_DATA;
+          topo->smt_available = 1;
+          topo->smt_supported = 1;
+        #endif
       }
       break;
     case CPU_VENDOR_AMD:
@@ -1006,24 +1009,33 @@ char* get_str_topology(struct cpuInfo* cpu, struct topology* topo, bool dual_soc
     string = emalloc(sizeof(char) * (strlen(STRING_UNKNOWN) + 1));
     strcpy(string, STRING_UNKNOWN);
   }
-  else if(topo->smt_supported > 1) {
-    // 4 for digits, 21 for ' cores (SMT disabled)' which is the longest possible output
-    uint32_t max_size = 4+21+1;
-    string = emalloc(sizeof(char) * max_size);
-
-    if(topo->smt_available > 1)
-      snprintf(string, max_size, "%d cores (%d threads)", topo->physical_cores * topo_sockets, topo->logical_cores * topo_sockets);
-    else {
-      if(cpu->cpu_vendor == CPU_VENDOR_AMD)
-        snprintf(string, max_size, "%d cores (SMT disabled)", topo->physical_cores * topo_sockets);
-      else
-        snprintf(string, max_size, "%d cores (HT disabled)", topo->physical_cores * topo_sockets);
-    }
-  }
   else {
-    uint32_t max_size = 4+7+1;
-    string = emalloc(sizeof(char) * max_size);
-    snprintf(string, max_size, "%d cores",topo->physical_cores * topo_sockets);
+    char cores_str[6];
+    memset(cores_str, 0, sizeof(char) * 6);
+    if (topo->physical_cores * topo_sockets > 1)
+      strcpy(cores_str, "cores");
+    else
+      strcpy(cores_str, "core");
+
+    if(topo->smt_supported > 1) {
+      // 4 for digits, 21 for ' cores (SMT disabled)' which is the longest possible output
+      uint32_t max_size = 4+21+1;
+      string = emalloc(sizeof(char) * max_size);
+
+      if(topo->smt_available > 1)
+        snprintf(string, max_size, "%d %s (%d threads)", topo->physical_cores * topo_sockets, cores_str, topo->logical_cores * topo_sockets);
+      else {
+        if(cpu->cpu_vendor == CPU_VENDOR_AMD)
+          snprintf(string, max_size, "%d %s (SMT disabled)", topo->physical_cores * topo_sockets, cores_str);
+        else
+          snprintf(string, max_size, "%d %s (HT disabled)", topo->physical_cores * topo_sockets, cores_str);
+      }
+    }
+    else {
+      uint32_t max_size = 4+7+1;
+      string = emalloc(sizeof(char) * max_size);
+      snprintf(string, max_size, "%d %s",topo->physical_cores * topo_sockets, cores_str);
+    }
   }
 
   return string;
