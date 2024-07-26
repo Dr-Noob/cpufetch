@@ -502,16 +502,42 @@ char* infer_cpu_name_from_uarch(struct uarch* arch) {
 
   char *str = NULL;
 
-  if (arch->uarch == UARCH_P5)
-    str = "Intel Pentium";
-  else if (arch->uarch == UARCH_P5_MMX)
-    str = "Intel Pentium MMX";
-  else if (arch->uarch == UARCH_P6_PENTIUM_II)
-    str = "Intel Pentium II";
-  else if (arch->uarch == UARCH_P6_PENTIUM_III)
-    str = "Intel Pentium III";
-  else
-    printErr("Unable to find name from uarch: %d", arch->uarch);
+  switch (arch->uarch) {
+    // Intel
+    case UARCH_I486:
+      str = "Intel 486";
+      break;
+    case UARCH_P5:
+      str = "Intel Pentium";
+      break;
+    case UARCH_P5_MMX:
+      str = "Intel Pentium MMX";
+      break;
+    case UARCH_P6_PRO:
+      str = "Intel Pentium Pro";
+      break;
+    case UARCH_P6_PENTIUM_II:
+      str = "Intel Pentium II";
+      break;
+    case UARCH_P6_PENTIUM_III:
+      str = "Intel Pentium III";
+      break;
+
+    // AMD
+    case UARCH_AM486:
+      str = "AMD 486";
+      break;
+    case UARCH_AM5X86:
+      str = "AMD 5x86";
+      break;
+    case UARCH_SSA5:
+      str = "AMD 5k86";
+      break;
+
+    default:
+      printErr("Unable to find name from uarch: %d", arch->uarch);
+      break;
+  }
 
   if (str == NULL) {
     cpu_name = ecalloc(strlen(STRING_UNKNOWN) + 1, sizeof(char));
