@@ -167,6 +167,7 @@ bool match_google(char* soc_name, struct system_on_chip* soc) {
 
 // https://www.techinsights.com/
 // https://datasheetspdf.com/pdf-file/1316605/HiSilicon/Hi3660/1
+// https://github.com/Dr-Noob/cpufetch/issues/259
 bool match_hisilicon(char* soc_name, struct system_on_chip* soc) {
   char* tmp;
 
@@ -204,6 +205,7 @@ bool match_hisilicon(char* soc_name, struct system_on_chip* soc) {
   SOC_EQ(tmp, "hi3680",     "980",   SOC_HISILICON_3680, soc,  7)
   //SOC_EQ(tmp, "?",        "985",   SOC_KIRIN, soc,  7)
   SOC_EQ(tmp, "hi3690",     "990",   SOC_HISILICON_3690, soc,  7)
+  SOC_EQ(tmp, "kirin9000s", "9000s", SOC_HISILICON_9000S,soc,  7)
   SOC_END
 }
 

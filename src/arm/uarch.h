@@ -83,7 +83,9 @@ enum {
   UARCH_BRAHMA_B15,
   UARCH_BRAHMA_B53,
   UARCH_XGENE,        // Applied Micro X-Gene.
+  // HUAWEI
   UARCH_TAISHAN_V110, // HiSilicon TaiShan v110
+  UARCH_TAISHAN_V120, // HiSilicon TaiShan v120
   UARCH_TAISHAN_V200, // HiSilicon TaiShan v200
   // PHYTIUM
   UARCH_XIAOMI,       // Not to be confused with Xiaomi Inc
