@@ -12,6 +12,7 @@ char* infer_cpu_name_from_uarch(struct uarch* arch);
 bool vpus_are_AVX512(struct cpuInfo* cpu);
 bool is_knights_landing(struct cpuInfo* cpu);
 int get_number_of_vpus(struct cpuInfo* cpu);
+uint32_t get_hybrid_num_cpus(struct uarch* arch);
 bool choose_new_intel_logo_uarch(struct cpuInfo* cpu);
 char* get_str_uarch(struct cpuInfo* cpu);
 char* get_str_process(struct cpuInfo* cpu);

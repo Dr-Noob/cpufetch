@@ -614,8 +614,9 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
     }
 
     if(hybrid_architecture) {
-      if(ptr->core_type == CORE_TYPE_EFFICIENCY) sprintf(cpu_num, "E-cores:");
-      else if(ptr->core_type == CORE_TYPE_PERFORMANCE) sprintf(cpu_num, "P-cores:");
+      if (ptr->core_type == CORE_TYPE_PERFORMANCE) sprintf(cpu_num, "P-cores:");
+      else if (ptr->core_type == CORE_TYPE_EFFICIENCY) sprintf(cpu_num, "E-cores:");
+      else if (ptr->core_type == CORE_TYPE_LP_EFFICIENCY) sprintf(cpu_num, "LP-E-cores:");
       else printBug("Found invalid core type!\n");
 
       setAttribute(art, ATTRIBUTE_CPU_NUM, cpu_num);

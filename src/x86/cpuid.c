@@ -397,6 +397,17 @@ bool set_cpu_module(int m, int total_modules, int32_t* first_core) {
       uint32_t edx = 0;
       cpuid(&eax, &ebx, &ecx, &edx);
       int32_t core_type = eax >> 24 & 0xFF;
+
+      // Here we artificially create a new core type for
+      // LP-E cores. In case the core has no L3 (on a hybrid)
+      // architecture, then we now it's an LP-E core.
+      eax = 0x4;
+      ebx = 0;
+      ecx = 0x3;
+      edx = 0;
+      cpuid(&eax, &ebx, &ecx, &edx);
+      core_type += eax == 0;
+
       bool found = false;
 
       for(int j=0; j < total_modules && !found; j++) {
@@ -423,13 +434,19 @@ bool set_cpu_module(int m, int total_modules, int32_t* first_core) {
     #endif
   }
   else {
-    // This is a normal architecture
+    // This is a non-hybrid architecture
     *first_core = 0;
   }
 
   return true;
 }
 
+// Difference between E and LP-E cores:
+// According to Intel Core Ultra Processor Datasheet Volume 1 of 2
+// (https://www.intel.com/content/www/us/en/content-details/792044/intel-core-ultra-processor-datasheet-volume-1-of-2.html),
+// LP-E cores do not have L3 cache. This seems to be the only way of differentiating them.
+// - https://community.intel.com/t5/Processors/Detecting-LP-E-Cores-on-Meteor-Lake-in-software/m-p/1584555/highlight/true#M70732
+// - https://x.com/InstLatX64/status/1741416428538941718
 int32_t get_core_type(void) {
   uint32_t eax = 0x0000001A;
   uint32_t ebx = 0;
@@ -440,8 +457,26 @@ int32_t get_core_type(void) {
   cpuid(&eax, &ebx, &ecx, &edx);
 
   int32_t type = eax >> 24 & 0xFF;
-  if(type == 0x20) return CORE_TYPE_EFFICIENCY;
-  else if(type == 0x40) return CORE_TYPE_PERFORMANCE;
+  if (type == 0x40) return CORE_TYPE_PERFORMANCE;
+  else if (type == 0x20) {
+    // get_core_type is only called iff hybrid_flag is true, which can only
+    // happen if CPUID maxLevel >= 0x7 so we can assume the CPU supports
+    // CPUID leaf 0x4
+    eax = 0x4;
+    ebx = 0;
+    ecx = 0x3;
+    edx = 0;
+
+    cpuid(&eax, &ebx, &ecx, &edx);
+
+    if (eax == 0) {
+      // No L3 access, this is LP-E
+      return CORE_TYPE_LP_EFFICIENCY;
+    }
+    else {
+      return CORE_TYPE_EFFICIENCY;
+    }
+  }
   else {
     printErr("Found invalid core type: 0x%.8X\n", type);
     return CORE_TYPE_UNKNOWN;
@@ -456,7 +491,6 @@ struct cpuInfo* get_cpu_info(void) {
   cpu->cach = NULL;
   cpu->feat = NULL;
 
-  cpu->num_cpus = 1;
   uint32_t eax = 0;
   uint32_t ebx = 0;
   uint32_t ecx = 0;
@@ -514,7 +548,13 @@ struct cpuInfo* get_cpu_info(void) {
     cpu->hybrid_flag = (edx >> 15) & 0x1;
   }
 
-  if(cpu->hybrid_flag) cpu->num_cpus = 2;
+  if(cpu->hybrid_flag) {
+    struct uarch* tmp = get_cpu_uarch(cpu);
+    cpu->num_cpus = get_hybrid_num_cpus(tmp);
+  }
+  else {
+    cpu->num_cpus = 1;
+  }
 
   struct cpuInfo* ptr = cpu;
   for(uint32_t i=0; i < cpu->num_cpus; i++) {
@@ -529,8 +569,9 @@ struct cpuInfo* get_cpu_info(void) {
       ptr->topo = NULL;
       ptr->cach = NULL;
       ptr->feat = NULL;
-      // We assume that this cores have the
-      // same cpuid capabilities
+      // We assume that this core has the
+      // same cpuid capabilities as the core in the
+      // first module
       ptr->cpu_vendor = cpu->cpu_vendor;
       ptr->maxLevels = cpu->maxLevels;
       ptr->maxExtendedLevels = cpu->maxExtendedLevels;
