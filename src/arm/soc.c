@@ -171,9 +171,6 @@ bool match_google(char* soc_name, struct system_on_chip* soc) {
 bool match_hisilicon(char* soc_name, struct system_on_chip* soc) {
   char* tmp;
 
-  if((tmp = strstr(soc_name, "hi")) == NULL)
-    return false;
-
   soc->soc_vendor = SOC_VENDOR_KIRIN;
 
   SOC_START
