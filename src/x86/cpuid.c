@@ -137,39 +137,31 @@ bool abbreviate_intel_cpu_name(char** name) {
   char* new_name_ptr = new_name;
   char* aux_ptr = NULL;
 
-  // 1. Remove "(R)"
+  // 1. Find "Intel(R)"
   old_name_ptr = strstr(old_name_ptr, "Intel(R)");
   if(old_name_ptr == NULL) return false;
-  strcpy(new_name_ptr, "Intel");
-  new_name_ptr += strlen("Intel");
-  old_name_ptr += strlen("Intel(R)");
 
-  // 2. Remove "(R)" or "(TM)"
-  aux_ptr = strstr(old_name_ptr, "(");
-  if(aux_ptr == NULL) return false;
-  strncpy(new_name_ptr, old_name_ptr, aux_ptr-old_name_ptr);
-
-  new_name_ptr += aux_ptr-old_name_ptr;
-  strcpy(new_name_ptr, " ");
-  new_name_ptr++;
-  old_name_ptr = strstr(aux_ptr, ")");
-  if(old_name_ptr == NULL) return false;
-  old_name_ptr++;
-  while(*old_name_ptr == ' ') old_name_ptr++;
-
-  // 3. Copy the CPU name
+  // 2. Search for "@"
   aux_ptr = strstr(old_name_ptr, "@");
-  if(aux_ptr == NULL) return false;
-  strncpy(new_name_ptr, old_name_ptr, (aux_ptr-1)-old_name_ptr);
+  if(aux_ptr == NULL) {
+    // New CPUs, copy end ptr is end of string
+    aux_ptr = old_name + strlen(old_name);
+    strncpy(new_name_ptr, old_name_ptr, (aux_ptr)-old_name_ptr);
+  }
+  else {
+    // Copy end ptr is "@"
+    strncpy(new_name_ptr, old_name_ptr, (aux_ptr-1)-old_name_ptr);
+  }
 
-  // 4. Remove dummy strings in Intel CPU names
+  // 3. Remove dummy strings in Intel CPU names
+  strremove(new_name, "(R)");
+  strremove(new_name, "(TM)");
   strremove(new_name, " CPU");
   strremove(new_name, " Dual");
   strremove(new_name, " 0");
 
   free(old_name);
   *name = new_name;
-
   return true;
 }
 
