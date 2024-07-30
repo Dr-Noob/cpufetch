@@ -91,6 +91,7 @@ int get_total_cores_module(int total_cores, int module) {
 
   while(!end) {
     if(!bind_to_cpu(i)) {
+      printBug("get_total_cores_module: Cannot bind to core %d", i);
       return -1;
     }
     uint32_t eax = 0x0000001A;
@@ -99,6 +100,17 @@ int get_total_cores_module(int total_cores, int module) {
     uint32_t edx = 0;
     cpuid(&eax, &ebx, &ecx, &edx);
     int32_t core_type = eax >> 24 & 0xFF;
+
+    // Here we artificially create a new core type for
+    // LP-E cores. In case the core has no L3 (on a hybrid)
+    // architecture, then we now it's an LP-E core.
+    eax = 0x4;
+    ebx = 0;
+    ecx = 0x3;
+    edx = 0;
+    cpuid(&eax, &ebx, &ecx, &edx);
+    core_type += eax == 0;
+
     bool found = false;
 
     for(int j=0; j < total_modules && !found; j++) {

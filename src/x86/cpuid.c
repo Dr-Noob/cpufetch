@@ -733,6 +733,8 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach, int 
   if(cpu->hybrid_flag) {
     #ifdef __linux__
       topo->total_cores_module = get_total_cores_module(topo->total_cores, module);
+      printBug("get_total_cores_module: Failed to get number of cores in module");
+      return NULL;
     #else
       UNUSED(module);
       topo->total_cores_module = topo->total_cores;
