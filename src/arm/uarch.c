@@ -75,6 +75,7 @@ static const ISA isas_uarch[] = {
   [UARCH_THUNDERX]     = ISA_ARMv8_A,
   [UARCH_THUNDERX2]    = ISA_ARMv8_1_A,
   [UARCH_TAISHAN_V110] = ISA_ARMv8_2_A,
+  [UARCH_TAISHAN_V120] = ISA_ARMv8_2_A, // Not confirmed
   [UARCH_TAISHAN_V200] = ISA_ARMv8_2_A, // Not confirmed
   [UARCH_DENVER]       = ISA_ARMv8_A,
   [UARCH_DENVER2]      = ISA_ARMv8_A,
