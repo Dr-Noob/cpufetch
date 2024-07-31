@@ -132,6 +132,7 @@ int main(int argc, char* argv[]) {
   }
 
   if(print_cpufetch(cpu, get_style(), get_colors(), show_full_cpu_name())) {
+    SVE_exp(cpu);
     return EXIT_SUCCESS;
   }
   else {
