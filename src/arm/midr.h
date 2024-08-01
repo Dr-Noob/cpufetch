@@ -11,7 +11,6 @@ char* get_str_features(struct cpuInfo* cpu);
 
 void print_debug(struct cpuInfo* cpu);
 void free_topo_struct(struct topology* topo);
-void SVE_exp(struct cpuInfo* cpu);
 
 // Code taken from cpuinfo (https://github.com/pytorch/cpuinfo/blob/master/src/arm/midr.h)
 #define CPUINFO_ARM_MIDR_IMPLEMENTER_MASK  UINT32_C(0xFF000000)

@@ -46,8 +46,6 @@ ifneq ($(OS),Windows_NT)
 			SOURCE += $(SRC_COMMON)sysctl.c
 			HEADERS += $(SRC_COMMON)sysctl.h
 		endif
-
-		SOURCE += $(SRC_DIR)sve_test.o
 	else ifeq ($(arch), $(filter $(arch), riscv64 riscv32))
 		SRC_DIR=src/riscv/
 		SOURCE += $(COMMON_SRC) $(SRC_DIR)riscv.c $(SRC_DIR)uarch.c $(SRC_COMMON)soc.c $(SRC_DIR)soc.c $(SRC_DIR)udev.c
@@ -92,9 +90,6 @@ freq_avx.o: Makefile $(SRC_DIR)freq/freq_avx.c $(SRC_DIR)freq/freq_avx.h $(SRC_D
 
 freq_avx512.o: Makefile $(SRC_DIR)freq/freq_avx512.c $(SRC_DIR)freq/freq_avx512.h $(SRC_DIR)freq/freq.h
 	$(CC) $(CFLAGS) $(SANITY_FLAGS) -c -mavx512f -pthread $(SRC_DIR)freq/freq_avx512.c -o $@
-
-$(SRC_DIR)sve_test.o: Makefile $(SRC_DIR)sve_test.c
-	$(CC) $(CFLAGS) $(SANITY_FLAGS) -c -march=armv8-a+sve $(SRC_DIR)sve_test.c -o $@	
 
 $(OUTPUT): Makefile $(SOURCE) $(HEADERS)
 ifeq ($(GIT_VERSION),"")

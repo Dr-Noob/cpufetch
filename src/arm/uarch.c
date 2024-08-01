@@ -294,7 +294,10 @@ int get_vpus_width(struct cpuInfo* cpu) {
     case UARCH_NEOVERSE_V1:
       return 256;
     default:
-      if(cpu->feat->NEON) {
+      if (cpu->feat->SVE) {
+        return cpu->feat->cntb * 8;
+      }
+      else if (cpu->feat->NEON) {
         if(is_ARMv8_or_newer(cpu)) {
           return 128;
         }
