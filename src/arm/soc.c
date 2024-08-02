@@ -421,6 +421,9 @@ bool match_mediatek(char* soc_name, struct system_on_chip* soc) {
 }
 
 /*
+ * Good sources:
+ * https://www.geektopia.es/es/products/company/qualcomm/socs/
+ *
  * APQ: Application Processor Qualcomm
  * MSM: Mobile Station Modem
  * In a APQXXXX or MSMXXXX, the second digit represents:
@@ -578,14 +581,25 @@ bool match_qualcomm(char* soc_name, struct system_on_chip* soc) {
   SOC_EQ(tmp, "SM8250-AB",      "865+",      SOC_SNAPD_SM8250_AB,      soc,  7)
   SOC_EQ(tmp, "SM8350",         "888",       SOC_SNAPD_SM8350,         soc,  5)
   SOC_EQ(tmp, "SM8350-AC",      "888+",      SOC_SNAPD_SM8350,         soc,  5)
-  // Snapdragon Gen //
+  // Snapdragon Gen 4 //
+  SOC_EQ(tmp, "SM4375",         "4 Gen 1",   SOC_SNAPD_SM4375,         soc,  6)
   SOC_EQ(tmp, "SM4450",         "4 Gen 2",   SOC_SNAPD_SM4450,         soc,  4)
+  SOC_EQ(tmp, "SM4635",         "4s Gen 2",  SOC_SNAPD_SM4635,         soc,  4)
+  // Snapdragon Gen 6 //
+  SOC_EQ(tmp, "SM6375-AC",      "6s Gen 3",  SOC_SNAPD_SM6375_AC,      soc,  6)
   SOC_EQ(tmp, "SM6450",         "6 Gen 1",   SOC_SNAPD_SM6450,         soc,  4)
+  // Snapdragon Gen 7 //
   SOC_EQ(tmp, "SM7435-AB",      "7s Gen 2",  SOC_SNAPD_SM7435_AB,      soc,  4)
   SOC_EQ(tmp, "SM7450",         "7 Gen 1",   SOC_SNAPD_SM7450,         soc,  4)
   SOC_EQ(tmp, "SM7475",         "7+ Gen 2",  SOC_SNAPD_SM7475,         soc,  4)
+  SOC_EQ(tmp, "SM7550-AB",      "7 Gen 3",   SOC_SNAPD_SM7550_AB,      soc,  4)
+  SOC_EQ(tmp, "SM7675-AB",      "7+ Gen 3",  SOC_SNAPD_SM7675_AB,      soc,  4)
+  // Snapdragon Gen 8 //
   SOC_EQ(tmp, "SM8450",         "8 Gen 1",   SOC_SNAPD_SM8450,         soc,  4)
   SOC_EQ(tmp, "SM8475",         "8+ Gen 1",  SOC_SNAPD_SM8475,         soc,  4)
+  SOC_EQ(tmp, "SM8550-AB",      "8 Gen 2",   SOC_SNAPD_SM8550_AB,      soc,  4)
+  SOC_EQ(tmp, "SM8635",         "8s Gen 3",  SOC_SNAPD_SM8635,         soc,  4)
+  SOC_EQ(tmp, "SM8650-AB",      "8 Gen 3",   SOC_SNAPD_SM8650_AB,      soc,  4)
   SOC_END
 }
 

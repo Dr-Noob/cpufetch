@@ -1096,8 +1096,14 @@ char* get_str_sse(struct cpuInfo* cpu) {
       last+=SSE4_2_sl;
   }
 
-  //Purge last comma
-  string[last-1] = '\0';
+  if (last == 0) {
+    snprintf(string, 2+1, "No");
+  }
+  else {
+    //Purge last comma
+    string[last-1] = '\0';
+  }
+
   return string;
 }
 
