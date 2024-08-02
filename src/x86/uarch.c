@@ -297,16 +297,16 @@ struct uarch* get_uarch_from_cpuid_amd(uint32_t ef, uint32_t f, uint32_t em, uin
   // ----------------------------------------------------------------------------- //
   //                 EF  F  EM   M   S                                             //
   UARCH_START
-  CHECK_UARCH(arch,  0,  4,  0,  3, NA, "Am486DX2",    UARCH_AM486,      UNK) // sandpile.org
-  CHECK_UARCH(arch,  0,  4,  0,  7, NA, "Am486DX2WB",  UARCH_AM486,      UNK)
-  CHECK_UARCH(arch,  0,  4,  0,  8, NA, "Am486DX4",    UARCH_AM486,      UNK)
-  CHECK_UARCH(arch,  0,  4,  0,  9, NA, "Am486DX4WB",  UARCH_AM486,      UNK)
-  CHECK_UARCH(arch,  0,  4,  0, 14, NA, "Am5x86",      UARCH_AM5X86,     350)
-  CHECK_UARCH(arch,  0,  4,  0, 15, NA, "Am5x86WB",    UARCH_AM5X86,     350)
-  CHECK_UARCH(arch,  0,  5,  0,  0, NA, "SSA5 (K5)",   UARCH_SSA5,       350) // sandpile.org
-  CHECK_UARCH(arch,  0,  5,  0,  1, NA, "K5",          UARCH_K5,         350) // sandpile.org
-  CHECK_UARCH(arch,  0,  5,  0,  2, NA, "K5",          UARCH_K5,         350) // sandpile.org
-  CHECK_UARCH(arch,  0,  5,  0,  3, NA, "K5",          UARCH_K5,         350) // sandpile.org
+  CHECK_UARCH(arch,  0,  4,  0,  3, NA, "Am486DX2",    UARCH_AM486,      UNK) // https://sandpile.org/x86/cpuid.htm#level_0000_0001h
+  CHECK_UARCH(arch,  0,  4,  0,  7, NA, "Am486DX2WB",  UARCH_AM486,      UNK) // https://sandpile.org/x86/cpuid.htm#level_0000_0001h
+  CHECK_UARCH(arch,  0,  4,  0,  8, NA, "Am486DX4",    UARCH_AM486,      UNK) // https://sandpile.org/x86/cpuid.htm#level_0000_0001h
+  CHECK_UARCH(arch,  0,  4,  0,  9, NA, "Am486DX4WB",  UARCH_AM486,      UNK) // https://sandpile.org/x86/cpuid.htm#level_0000_0001h
+  CHECK_UARCH(arch,  0,  4,  0, 14, NA, "Am5x86",      UARCH_AM5X86,     350) // https://sandpile.org/x86/cpuid.htm#level_0000_0001h
+  CHECK_UARCH(arch,  0,  4,  0, 15, NA, "Am5x86WB",    UARCH_AM5X86,     350) // https://sandpile.org/x86/cpuid.htm#level_0000_0001h
+  CHECK_UARCH(arch,  0,  5,  0,  0, NA, "SSA5 (K5)",   UARCH_SSA5,       350) // https://sandpile.org/x86/cpuid.htm#level_0000_0001h
+  CHECK_UARCH(arch,  0,  5,  0,  1, NA, "K5",          UARCH_K5,         350) // https://sandpile.org/x86/cpuid.htm#level_0000_0001h
+  CHECK_UARCH(arch,  0,  5,  0,  2, NA, "K5",          UARCH_K5,         350) // https://sandpile.org/x86/cpuid.htm#level_0000_0001h
+  CHECK_UARCH(arch,  0,  5,  0,  3, NA, "K5",          UARCH_K5,         350) // https://sandpile.org/x86/cpuid.htm#level_0000_0001h
   CHECK_UARCH(arch,  0,  5,  0,  6, NA, "K6",          UARCH_K6,         300)
   CHECK_UARCH(arch,  0,  5,  0,  7, NA, "K6",          UARCH_K6,         250) // *p from sandpile.org
   CHECK_UARCH(arch,  0,  5,  0, 10, NA, "K7",          UARCH_K7,         130) // Geode NX
