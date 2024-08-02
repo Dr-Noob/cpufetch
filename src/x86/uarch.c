@@ -153,21 +153,21 @@ struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, u
   // ------------------------------------------------------------------------------- //
   //                EF  F  EM   M   S                                                //
   UARCH_START
-  CHECK_UARCH(arch, 0,  4,  0,  0, NA, "i80486DX",          UARCH_I486,            UNK) // sandpile.org
-  CHECK_UARCH(arch, 0,  4,  0,  1, NA, "i80486DX-50",       UARCH_I486,            UNK)
-  CHECK_UARCH(arch, 0,  4,  0,  2, NA, "i80486SX",          UARCH_I486,            UNK)
-  CHECK_UARCH(arch, 0,  4,  0,  3, NA, "i80486DX2",         UARCH_I486,            UNK)
-  CHECK_UARCH(arch, 0,  4,  0,  4, NA, "i80486SL",          UARCH_I486,            UNK)
-  CHECK_UARCH(arch, 0,  4,  0,  5, NA, "i80486SX2",         UARCH_I486,            UNK)
-  CHECK_UARCH(arch, 0,  4,  0,  7, NA, "i80486DX2WB",       UARCH_I486,            UNK)
-  CHECK_UARCH(arch, 0,  4,  0,  8, NA, "i80486DX4",         UARCH_I486,            UNK)
-  CHECK_UARCH(arch, 0,  4,  0,  9, NA, "i80486DX4WB",       UARCH_I486,            UNK)
+  CHECK_UARCH(arch, 0,  4,  0,  0, NA, "i80486DX",          UARCH_I486,            UNK) // https://sandpile.org/x86/cpuid.htm#level_0000_0001h
+  CHECK_UARCH(arch, 0,  4,  0,  1, NA, "i80486DX-50",       UARCH_I486,            UNK) // https://sandpile.org/x86/cpuid.htm#level_0000_0001h
+  CHECK_UARCH(arch, 0,  4,  0,  2, NA, "i80486SX",          UARCH_I486,            UNK) // https://sandpile.org/x86/cpuid.htm#level_0000_0001h
+  CHECK_UARCH(arch, 0,  4,  0,  3, NA, "i80486DX2",         UARCH_I486,            UNK) // https://sandpile.org/x86/cpuid.htm#level_0000_0001h
+  CHECK_UARCH(arch, 0,  4,  0,  4, NA, "i80486SL",          UARCH_I486,            UNK) // https://sandpile.org/x86/cpuid.htm#level_0000_0001h
+  CHECK_UARCH(arch, 0,  4,  0,  5, NA, "i80486SX2",         UARCH_I486,            UNK) // https://sandpile.org/x86/cpuid.htm#level_0000_0001h
+  CHECK_UARCH(arch, 0,  4,  0,  7, NA, "i80486DX2WB",       UARCH_I486,            UNK) // https://sandpile.org/x86/cpuid.htm#level_0000_0001h
+  CHECK_UARCH(arch, 0,  4,  0,  8, NA, "i80486DX4",         UARCH_I486,            UNK) // https://sandpile.org/x86/cpuid.htm#level_0000_0001h
+  CHECK_UARCH(arch, 0,  4,  0,  9, NA, "i80486DX4WB",       UARCH_I486,            UNK) // https://sandpile.org/x86/cpuid.htm#level_0000_0001h
   CHECK_UARCH(arch, 0,  5,  0,  0, NA, "P5",                UARCH_P5,              800)
   CHECK_UARCH(arch, 0,  5,  0,  1, NA, "P5",                UARCH_P5,              800)
-  CHECK_UARCH(arch, 0,  5,  0,  2, NA, "P54C",              UARCH_P5,              UNK)
-  CHECK_UARCH(arch, 0,  5,  0,  3, NA, "P24T (Overdrive)",  UARCH_P5,              600) // sandpile.org
+  CHECK_UARCH(arch, 0,  5,  0,  2, NA, "P54C",              UARCH_P5,              UNK) // https://sandpile.org/x86/cpuid.htm#level_0000_0001h
+  CHECK_UARCH(arch, 0,  5,  0,  3, NA, "P24T (Overdrive)",  UARCH_P5,              600) // https://sandpile.org/x86/cpuid.htm#level_0000_0001h
   CHECK_UARCH(arch, 0,  5,  0,  4, NA, "P55C (MMX)",        UARCH_P5_MMX,          350) // https://www.cpu-world.com/CPUs/Pentium/TYPE-Pentium%20MMX.html
-  CHECK_UARCH(arch, 0,  5,  0,  7, NA, "P54C",              UARCH_P5,              350) // sandpile.org
+  CHECK_UARCH(arch, 0,  5,  0,  7, NA, "P54C",              UARCH_P5,              350) // https://sandpile.org/x86/cpuid.htm#level_0000_0001h
   CHECK_UARCH(arch, 0,  5,  0,  8, NA, "Tillamook",         UARCH_P5_MMX,          250) // http://instlatx64.atw.hu./
   CHECK_UARCH(arch, 0,  5,  0,  9,  0, "Lakemont",          UARCH_LAKEMONT,         32)
   CHECK_UARCH(arch, 0,  5,  0,  9, NA, "P5 (MMX)",          UARCH_P5_MMX,          UNK)
