@@ -166,14 +166,14 @@ struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, u
   CHECK_UARCH(arch, 0,  5,  0,  1, NA, "P5",                UARCH_P5,              800)
   CHECK_UARCH(arch, 0,  5,  0,  2, NA, "P54C",              UARCH_P5,              UNK)
   CHECK_UARCH(arch, 0,  5,  0,  3, NA, "P24T (Overdrive)",  UARCH_P5,              600) // sandpile.org
-  CHECK_UARCH(arch, 0,  5,  0,  4, NA, "P55C (MMX)",        UARCH_P5_MMX,          350)
-  CHECK_UARCH(arch, 0,  5,  0,  7, NA, "P55C (MMX)",        UARCH_P5_MMX,          350)
-  CHECK_UARCH(arch, 0,  5,  0,  8, NA, "P55C (MMX)",        UARCH_P5_MMX,          250)
+  CHECK_UARCH(arch, 0,  5,  0,  4, NA, "P55C (MMX)",        UARCH_P5_MMX,          350) // https://www.cpu-world.com/CPUs/Pentium/TYPE-Pentium%20MMX.html
+  CHECK_UARCH(arch, 0,  5,  0,  7, NA, "P54C",              UARCH_P5,              350) // sandpile.org
+  CHECK_UARCH(arch, 0,  5,  0,  8, NA, "P55C (MMX)",        UARCH_P5_MMX,          250) // sandpile.org
   CHECK_UARCH(arch, 0,  5,  0,  9,  0, "Lakemont",          UARCH_LAKEMONT,         32)
   CHECK_UARCH(arch, 0,  5,  0,  9, NA, "P5 (MMX)",          UARCH_P5_MMX,          UNK)
   CHECK_UARCH(arch, 0,  5,  0, 10,  0, "Lakemont",          UARCH_LAKEMONT,         32)
   CHECK_UARCH(arch, 0,  6,  0,  1,  1, "P6",                UARCH_P6_PRO,          UNK)
-  CHECK_UARCH(arch, 0,  6,  0,  1,  2, "P6",                UARCH_P6_PRO,          600)
+  CHECK_UARCH(arch, 0,  6,  0,  1,  2, "P6",                UARCH_P6_PRO,          UNK)
   CHECK_UARCH(arch, 0,  6,  0,  1,  6, "P6",                UARCH_P6_PRO,          350)
   CHECK_UARCH(arch, 0,  6,  0,  1,  7, "P6",                UARCH_P6_PRO,          350)
   CHECK_UARCH(arch, 0,  6,  0,  1,  9, "P6",                UARCH_P6_PRO,          350)
