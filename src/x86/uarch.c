@@ -168,7 +168,7 @@ struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, u
   CHECK_UARCH(arch, 0,  5,  0,  3, NA, "P24T (Overdrive)",  UARCH_P5,              600) // sandpile.org
   CHECK_UARCH(arch, 0,  5,  0,  4, NA, "P55C (MMX)",        UARCH_P5_MMX,          350) // https://www.cpu-world.com/CPUs/Pentium/TYPE-Pentium%20MMX.html
   CHECK_UARCH(arch, 0,  5,  0,  7, NA, "P54C",              UARCH_P5,              350) // sandpile.org
-  CHECK_UARCH(arch, 0,  5,  0,  8, NA, "P55C (MMX)",        UARCH_P5_MMX,          250) // sandpile.org
+  CHECK_UARCH(arch, 0,  5,  0,  8, NA, "Tillamook",         UARCH_P5_MMX,          250) // http://instlatx64.atw.hu./
   CHECK_UARCH(arch, 0,  5,  0,  9,  0, "Lakemont",          UARCH_LAKEMONT,         32)
   CHECK_UARCH(arch, 0,  5,  0,  9, NA, "P5 (MMX)",          UARCH_P5_MMX,          UNK)
   CHECK_UARCH(arch, 0,  5,  0, 10,  0, "Lakemont",          UARCH_LAKEMONT,         32)
