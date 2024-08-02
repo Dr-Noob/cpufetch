@@ -634,9 +634,10 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
     }
 
     // Show the most modern vector instructions.
-    // If AVX is supported show it, otherwise show SSE
     if (strcmp(avx, "No") == 0) {
-      setAttribute(art, ATTRIBUTE_SSE, sse);
+      if (strcmp(sse, "No") != 0) {
+        setAttribute(art, ATTRIBUTE_SSE, sse);
+      }
     }
     else {
       setAttribute(art, ATTRIBUTE_AVX, avx);
