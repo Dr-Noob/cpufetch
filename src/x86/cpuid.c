@@ -709,9 +709,9 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach, int 
     topo->total_cores_module = topo->total_cores;
   }
 
+  bool toporet = false;
   switch(cpu->cpu_vendor) {
     case CPU_VENDOR_INTEL:
-      bool toporet = false;
       if (cpu->maxLevels >= 0x00000004) {
         toporet = get_topology_from_apic(cpu, topo);
       }
@@ -750,10 +750,15 @@ struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach, int 
         }
       }
       else {
-        printWarn("Can't read topology information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x80000008, cpu->maxExtendedLevels);
-        topo->physical_cores = 1;
-        topo->logical_cores = 1;
-        topo->smt_supported = 1;
+        #ifdef __linux__
+          printWarn("Can't read topology information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X), using udev...", 0x80000008, cpu->maxExtendedLevels);
+          get_topology_from_udev(topo);
+        #else
+          printWarn("Can't read topology information from cpuid (needed extended level is 0x%.8X, max is 0x%.8X)", 0x80000008, cpu->maxExtendedLevels);
+          topo->physical_cores = 1;
+          topo->logical_cores = 1;
+          topo->smt_supported = 1;
+        #endif
       }
 
       if (cpu->maxLevels >= 0x00000001) {
