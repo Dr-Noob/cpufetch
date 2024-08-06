@@ -294,7 +294,7 @@ int get_vpus_width(struct cpuInfo* cpu) {
     case UARCH_NEOVERSE_V1:
       return 256;
     default:
-      if (cpu->feat->SVE) {
+      if (cpu->feat->SVE && cpu->feat->cntb > 0) {
         return cpu->feat->cntb * 8;
       }
       else if (cpu->feat->NEON) {

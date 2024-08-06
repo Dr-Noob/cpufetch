@@ -144,15 +144,16 @@ void init_cpu_info(struct cpuInfo* cpu) {
 
 // https://learn.arm.com/learning-paths/servers-and-cloud-computing/sve/sve_basics/#:~:text=Using%20a%20text%20editor%20of%20your%20choice%2C%20copy,svcntb%28%29%29%3B%20%7D%20This%20program%20prints%20the%20vector%20length
 static inline uint32_t sve_cntb(void) {
+  #ifdef __ARM_FEATURE_SVE
     uint32_t x0 = 0;
-
-#ifdef __ARM_FEATURE_SVE
     __asm volatile("cntb %0"
          : "=r"(x0));
     printf("cntb=%d\n", x0);
-#endif
-
     return x0;
+  #else
+    printBug("sve_cntb: SVE not enabled by the compiler");
+    return 0;
+  #endif
 }
 
 
@@ -221,8 +222,14 @@ struct features* get_features_info(void) {
   feat->SVE2 = false;
 #endif  // ifdef __linux__
 
-  if (feat->SVE || feat->SVE2)
-    feat->cntb = sve_cntb();
+  if (feat->SVE || feat->SVE2) {
+    #ifdef __ARM_FEATURE_SVE
+      feat->cntb = sve_cntb();
+    #else
+      printWarn("Hardware supports SVE, but not the compiler");
+      feat->cntb = 0;
+    #endif
+  }
 
   return feat;
 }

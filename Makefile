@@ -42,6 +42,11 @@ ifneq ($(OS),Windows_NT)
 		HEADERS += $(COMMON_HDR) $(SRC_DIR)midr.h $(SRC_DIR)uarch.h  $(SRC_COMMON)soc.h $(SRC_DIR)soc.h $(SRC_COMMON)pci.h $(SRC_DIR)udev.c $(SRC_DIR)socs.h
 		CFLAGS += -DARCH_ARM -Wno-unused-parameter -std=c99 -fstack-protector-all
 
+		is_sve_flag_supported := $(shell touch foo.c && $(CC) -march=armv8-a+sve -c foo.c -o foo.o &> /dev/null && echo 'yes'; rm -f foo.c foo.o)
+		ifeq ($(is_sve_flag_supported), yes)
+			CFLAGS += -march=armv8-a+sve
+		endif
+
 		ifeq ($(os), Darwin)
 			SOURCE += $(SRC_COMMON)sysctl.c
 			HEADERS += $(SRC_COMMON)sysctl.h
