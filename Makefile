@@ -30,6 +30,10 @@ ifneq ($(OS),Windows_NT)
 			HEADERS += $(SRC_DIR)freq/freq.h
 			CFLAGS += -pthread
 		endif
+		ifeq ($(os), FreeBSD)
+			SOURCE += $(SRC_COMMON)sysctl.c
+			HEADERS += $(SRC_COMMON)sysctl.h
+		endif
 		CFLAGS += -DARCH_X86 -std=c99 -fstack-protector-all
 	else ifeq ($(arch), $(filter $(arch), ppc64le ppc64 ppcle ppc))
 		SRC_DIR=src/ppc/

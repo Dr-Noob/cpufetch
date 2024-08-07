@@ -40,6 +40,14 @@
   #define CPUSUBFAMILY_ARM_HC_HD 5
 #endif
 
+// For alternative way to get CPU frequency on macOS and *BSD
+#ifdef __APPLE__
+  #define CPUFREQUENCY_SYSCTL "hw.cpufrequency_max"
+#else
+  // For FreeBSD, not sure about other *BSD
+  #define CPUFREQUENCY_SYSCTL "dev.cpu.0.freq"
+#endif
+
 uint32_t get_sys_info_by_name(char* name);
 
 #endif
