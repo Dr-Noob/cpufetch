@@ -19,6 +19,7 @@
 #include "udev.h"
 #include "midr.h"
 #include "uarch.h"
+#include "sve.h"
 
 bool cores_are_equal(int c1pos, int c2pos, uint32_t* midr_array, int32_t* freq_array) {
   return midr_array[c1pos] == midr_array[c2pos] && freq_array[c1pos] == freq_array[c2pos];
@@ -141,21 +142,6 @@ uint32_t fill_ids_from_midr(uint32_t* midr_array, int32_t* freq_array, uint32_t*
 void init_cpu_info(struct cpuInfo* cpu) {
   cpu->next_cpu = NULL;
 }
-
-// https://learn.arm.com/learning-paths/servers-and-cloud-computing/sve/sve_basics/#:~:text=Using%20a%20text%20editor%20of%20your%20choice%2C%20copy,svcntb%28%29%29%3B%20%7D%20This%20program%20prints%20the%20vector%20length
-static inline uint32_t sve_cntb(void) {
-  #ifdef __ARM_FEATURE_SVE
-    uint32_t x0 = 0;
-    __asm volatile("cntb %0"
-         : "=r"(x0));
-    printf("cntb=%d\n", x0);
-    return x0;
-  #else
-    printBug("sve_cntb: SVE not enabled by the compiler");
-    return 0;
-  #endif
-}
-
 
 // We assume all cpus share the same hardware
 // capabilities but I'm not sure it is always
