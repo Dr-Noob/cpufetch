@@ -10,7 +10,7 @@ uint64_t sve_cntb(void) {
     printf("cntb=%ld\n", x0);
     return x0;
   #else
-    printBug("sve_cntb: SVE not enabled by the compiler");
+    printWarn("sve_cntb: SVE not enabled by the compiler");
     return 0;
   #endif
 }

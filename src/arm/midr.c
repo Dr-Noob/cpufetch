@@ -209,12 +209,7 @@ struct features* get_features_info(void) {
 #endif  // ifdef __linux__
 
   if (feat->SVE || feat->SVE2) {
-    #ifdef __ARM_FEATURE_SVE
-      feat->cntb = sve_cntb();
-    #else
-      printWarn("Hardware supports SVE, but not the compiler");
-      feat->cntb = 0;
-    #endif
+    feat->cntb = sve_cntb();
   }
 
   return feat;
