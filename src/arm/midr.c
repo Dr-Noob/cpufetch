@@ -513,6 +513,10 @@ void print_debug(struct cpuInfo* cpu) {
     }
   }
 
+  if (cpu->feat->SVE || cpu->feat->SVE2) {
+    printf("- cntb: %ld\n", cpu->feat->cntb);
+  }
+
   #if defined(__APPLE__) || defined(__MACH__)
     printf("hw.cpufamily: 0x%.8X\n", get_sys_info_by_name("hw.cpufamily"));
     printf("hw.cpusubfamily: 0x%.8X\n", get_sys_info_by_name("hw.cpusubfamily"));
