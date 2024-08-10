@@ -126,7 +126,7 @@ struct features {
   bool CRC32;
   bool SVE;
   bool SVE2;
-  uint32_t cntb;
+  uint64_t cntb;
 #endif  
 };
 

@@ -514,7 +514,7 @@ void print_debug(struct cpuInfo* cpu) {
   }
 
   if (cpu->feat->SVE || cpu->feat->SVE2) {
-    printf("- cntb: %ld\n", cpu->feat->cntb);
+    printf("- cntb: %lld\n", cpu->feat->cntb);
   }
 
   #if defined(__APPLE__) || defined(__MACH__)
