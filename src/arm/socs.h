@@ -29,6 +29,7 @@ enum {
   SOC_HISILICON_3670,
   SOC_HISILICON_3680,
   SOC_HISILICON_3690,
+  SOC_HISILICON_9000S,
   // Kunpeng //
   SOC_KUNPENG_920,
   SOC_KUNPENG_930,
@@ -385,7 +386,7 @@ enum {
 
 inline static VENDOR get_soc_vendor_from_soc(SOC soc) {
   if(soc >= SOC_BCM_2835 && soc <= SOC_BCM_2712) return SOC_VENDOR_BROADCOM;
-  else if(soc >= SOC_HISILICON_3620 && soc <= SOC_HISILICON_3690) return SOC_VENDOR_KIRIN;
+  else if(soc >= SOC_HISILICON_3620 && soc <= SOC_HISILICON_9000S) return SOC_VENDOR_KIRIN;
   else if(soc >= SOC_KUNPENG_920 && soc <= SOC_KUNPENG_930) return SOC_VENDOR_KUNPENG;
   else if(soc >= SOC_EXYNOS_3475 && soc <= SOC_EXYNOS_880) return SOC_VENDOR_EXYNOS;
   else if(soc >= SOC_MTK_MT6893 && soc <= SOC_MTK_MT8783) return SOC_VENDOR_MEDIATEK;

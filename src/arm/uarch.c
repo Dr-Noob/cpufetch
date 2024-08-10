@@ -75,6 +75,7 @@ static const ISA isas_uarch[] = {
   [UARCH_THUNDERX]     = ISA_ARMv8_A,
   [UARCH_THUNDERX2]    = ISA_ARMv8_1_A,
   [UARCH_TAISHAN_V110] = ISA_ARMv8_2_A,
+  [UARCH_TAISHAN_V120] = ISA_ARMv8_2_A, // Not confirmed
   [UARCH_TAISHAN_V200] = ISA_ARMv8_2_A, // Not confirmed
   [UARCH_DENVER]       = ISA_ARMv8_A,
   [UARCH_DENVER2]      = ISA_ARMv8_A,
@@ -202,8 +203,10 @@ struct uarch* get_uarch_from_midr(uint32_t midr, struct cpuInfo* cpu) {
   CHECK_UARCH(arch, cpu, 'C', 0x0AF, NA, NA, "ThunderX2 99XX",        UARCH_THUNDERX2,    CPU_VENDOR_CAVIUM)
 
   CHECK_UARCH(arch, cpu, 'H', 0xD01, NA, NA, "TaiShan v110",          UARCH_TAISHAN_V110, CPU_VENDOR_HUAWEI) // Kunpeng 920 series
+  CHECK_UARCH(arch, cpu, 'H', 0xD02,  2,  2, "TaiShan v120",          UARCH_TAISHAN_V120, CPU_VENDOR_HUAWEI) // Kiring 9000S Big cores (https://github.com/Dr-Noob/cpufetch/issues/259)
   CHECK_UARCH(arch, cpu, 'H', 0xD02, NA, NA, "TaiShan v200",          UARCH_TAISHAN_V200, CPU_VENDOR_HUAWEI) // Kunpeng 930 series (found in openeuler: https://mailweb.openeuler.org/hyperkitty/list/kernel@openeuler.org/message/XQCV7NX2UKRIUWUFKRF4PO3QENCOUFR3)
   CHECK_UARCH(arch, cpu, 'H', 0xD40, NA, NA, "Cortex-A76",            UARCH_CORTEX_A76,   CPU_VENDOR_ARM)    // Kirin 980 Big/Medium cores -> Cortex-A76
+  CHECK_UARCH(arch, cpu, 'H', 0xD42, NA, NA, "TaiShan v120",          UARCH_TAISHAN_V120, CPU_VENDOR_HUAWEI) // Kiring 9000S Small Cores (https://github.com/Dr-Noob/cpufetch/issues/259)
 
   CHECK_UARCH(arch, cpu, 'N', 0x000, NA, NA, "Denver",                UARCH_DENVER,       CPU_VENDOR_NVIDIA)
   CHECK_UARCH(arch, cpu, 'N', 0x003, NA, NA, "Denver2",               UARCH_DENVER2,      CPU_VENDOR_NVIDIA)
@@ -325,6 +328,7 @@ int get_number_of_vpus(struct cpuInfo* cpu) {
     case UARCH_ICESTORM:    // [https://dougallj.github.io/applecpu/icestorm-simd.html]
     case UARCH_BLIZZARD:    // [https://en.wikipedia.org/wiki/Comparison_of_ARM_processors]
     case UARCH_TAISHAN_V110:// [https://www-file.huawei.com/-/media/corp2020/pdf/publications/huawei-research/2022/huawei-research-issue1-en.pdf]: "128-bit x 2 for single precision"
+    case UARCH_TAISHAN_V120:// Not confirmed, asssuming same as v110
     case UARCH_TAISHAN_V200:// Not confirmed, asssuming same as v110
     case UARCH_CORTEX_A57:  // [https://www.anandtech.com/show/8718/the-samsung-galaxy-note-4-exynos-review/5]
     case UARCH_CORTEX_A72:  // [https://www.anandtech.com/show/10347/arm-cortex-a73-artemis-unveiled/2]
