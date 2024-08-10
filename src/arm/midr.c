@@ -19,6 +19,7 @@
 #include "udev.h"
 #include "midr.h"
 #include "uarch.h"
+#include "sve.h"
 
 bool cores_are_equal(int c1pos, int c2pos, uint32_t* midr_array, int32_t* freq_array) {
   return midr_array[c1pos] == midr_array[c2pos] && freq_array[c1pos] == freq_array[c2pos];
@@ -168,6 +169,15 @@ struct features* get_features_info(void) {
     feat->SHA1 = hwcaps & HWCAP_SHA1;
     feat->SHA2 = hwcaps & HWCAP_SHA2;
     feat->NEON = hwcaps & HWCAP_ASIMD;
+    feat->SVE = hwcaps & HWCAP_SVE;
+
+    hwcaps = getauxval(AT_HWCAP2);
+    if (errno == ENOENT) {
+      printWarn("Unable to retrieve AT_HWCAP2 using getauxval");
+    }
+    else {
+      feat->SVE2 = hwcaps & HWCAP2_SVE2;
+    }
   }
 #else
   else {
@@ -183,6 +193,8 @@ struct features* get_features_info(void) {
     feat->CRC32 = hwcaps & HWCAP2_CRC32;
     feat->SHA1 = hwcaps & HWCAP2_SHA1;
     feat->SHA2 = hwcaps & HWCAP2_SHA2;
+    feat->SVE = false;
+    feat->SVE2 = false;
   }
 #endif // ifdef __aarch64__
 #elif defined __APPLE__ || __MACH__
@@ -192,7 +204,13 @@ struct features* get_features_info(void) {
   feat->SHA1 = true;
   feat->SHA2 = true;
   feat->NEON = true;
+  feat->SVE = false;
+  feat->SVE2 = false;
 #endif  // ifdef __linux__
+
+  if (feat->SVE || feat->SVE2) {
+    feat->cntb = sve_cntb();
+  }
 
   return feat;
 }
@@ -430,12 +448,20 @@ char* get_str_topology(struct cpuInfo* cpu, struct topology* topo, bool dual_soc
 
 char* get_str_features(struct cpuInfo* cpu) {
   struct features* feat = cpu->feat;
-  uint32_t max_len = strlen("NEON,SHA1,SHA2,AES,CRC32,") + 1;
+  uint32_t max_len = strlen("NEON,SHA1,SHA2,AES,CRC32,SVE,SVE2") + 1;
   uint32_t len = 0;
   char* string = ecalloc(max_len, sizeof(char));
 
   if(feat->NEON) {
     strcat(string, "NEON,");
+    len += 5;
+  }
+  if(feat->SVE) {
+    strcat(string, "SVE,");
+    len += 4;
+  }
+  if(feat->SVE2) {
+    strcat(string, "SVE2,");
     len += 5;
   }
   if(feat->SHA1) {

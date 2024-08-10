@@ -38,9 +38,15 @@ ifneq ($(OS),Windows_NT)
 		CFLAGS += -DARCH_PPC -std=gnu99 -fstack-protector-all -Wno-language-extension-token
 	else ifeq ($(arch), $(filter $(arch), arm aarch64_be aarch64 arm64 armv8b armv8l armv7l armv6l))
 		SRC_DIR=src/arm/
-		SOURCE += $(COMMON_SRC) $(SRC_DIR)midr.c $(SRC_DIR)uarch.c $(SRC_COMMON)soc.c $(SRC_DIR)soc.c $(SRC_COMMON)pci.c $(SRC_DIR)udev.c
+		SOURCE += $(COMMON_SRC) $(SRC_DIR)midr.c $(SRC_DIR)uarch.c $(SRC_COMMON)soc.c $(SRC_DIR)soc.c $(SRC_COMMON)pci.c $(SRC_DIR)udev.c sve.o
 		HEADERS += $(COMMON_HDR) $(SRC_DIR)midr.h $(SRC_DIR)uarch.h  $(SRC_COMMON)soc.h $(SRC_DIR)soc.h $(SRC_COMMON)pci.h $(SRC_DIR)udev.c $(SRC_DIR)socs.h
 		CFLAGS += -DARCH_ARM -Wno-unused-parameter -std=c99 -fstack-protector-all
+
+		# Check if the compiler supports -march=armv8-a+sve. We will use it (if supported) to compile SVE detection code later
+		is_sve_flag_supported := $(shell $(CC) -march=armv8-a+sve -c $(SRC_DIR)sve.c -o sve_test.o 2> /dev/null && echo 'yes'; rm -f sve_test.o)
+		ifeq ($(is_sve_flag_supported), yes)
+			SVE_FLAGS += -march=armv8-a+sve
+		endif
 
 		ifeq ($(os), Darwin)
 			SOURCE += $(SRC_COMMON)sysctl.c
@@ -90,6 +96,9 @@ freq_avx.o: Makefile $(SRC_DIR)freq/freq_avx.c $(SRC_DIR)freq/freq_avx.h $(SRC_D
 
 freq_avx512.o: Makefile $(SRC_DIR)freq/freq_avx512.c $(SRC_DIR)freq/freq_avx512.h $(SRC_DIR)freq/freq.h
 	$(CC) $(CFLAGS) $(SANITY_FLAGS) -c -mavx512f -pthread $(SRC_DIR)freq/freq_avx512.c -o $@
+
+sve.o: Makefile $(SRC_DIR)sve.c $(SRC_DIR)sve.h
+	$(CC) $(CFLAGS) $(SANITY_FLAGS) $(SVE_FLAGS) -c $(SRC_DIR)sve.c -o $@
 
 $(OUTPUT): Makefile $(SOURCE) $(HEADERS)
 ifeq ($(GIT_VERSION),"")
