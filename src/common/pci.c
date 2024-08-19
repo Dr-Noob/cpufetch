@@ -14,14 +14,6 @@
 #define PCI_PATH "/sys/bus/pci/devices/"
 #define MAX_LENGTH_PCI_DIR_NAME 1024
 
-/*
- * doc: https://wiki.osdev.org/PCI#Class_Codes
- *      https://pci-ids.ucw.cz/read/PC
- */
-#define PCI_VENDOR_ID_AMD    0x1002
-#define CLASS_VGA_CONTROLLER 0x0300
-#define CLASS_3D_CONTROLLER  0x0302
-
 // Return a list of PCI devices containing only
 // the sysfs path
 struct pci_devices * get_pci_paths(void) {
@@ -126,43 +118,6 @@ void populate_pci_devices(struct pci_devices * pci) {
   }
 }
 
-// Right now, we are interested in PCI devices which
-// vendor is NVIDIA (to be extended in the future).
-// Should we also restrict to VGA controllers only?
-bool pci_device_is_useful(struct pci_device* dev) {
-  return dev->vendor_id == PCI_VENDOR_NVIDIA;
-}
-
-// Filter the input list in order to get only those PCI devices which 
-// we are interested in (decided by pci_device_is_useful)
-// and return the filtered result.
-struct pci_devices * filter_pci_devices(struct pci_devices * pci) {
-  int * devices_to_get = emalloc(sizeof(int) * pci->num_devices);
-  int dev_ptr = 0;
-
-  for (int i=0; i < pci->num_devices; i++) {
-    if (pci_device_is_useful(pci->devices[i])) {
-      devices_to_get[dev_ptr] = i;
-      dev_ptr++;
-    }
-  }
-
-  struct pci_devices * pci_filtered = emalloc(sizeof(struct pci_devices));
-  pci_filtered->num_devices = dev_ptr;
-
-  if (pci_filtered->num_devices == 0) {
-    pci_filtered->devices = NULL;
-  }
-  else {
-    pci_filtered->devices = emalloc(sizeof(struct pci_device) * pci_filtered->num_devices);  
-
-    for (int i=0; i < pci_filtered->num_devices; i++)
-      pci_filtered->devices[i] = pci->devices[devices_to_get[i]];
-  }
-
-  return pci_filtered;
-}
-
 // Return a list of PCI devices that could be used to infer the SoC.
 // The criteria to determine which devices are suitable for this task
 // is decided in filter_pci_devices.
@@ -174,5 +129,5 @@ struct pci_devices * get_pci_devices(void) {
 
   populate_pci_devices(pci);  
 
-  return filter_pci_devices(pci);
+  return pci;
 }

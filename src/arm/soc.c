@@ -909,9 +909,10 @@ struct system_on_chip* guess_soc_from_pci(struct system_on_chip* soc, struct cpu
   } pciToSoC;
 
   pciToSoC socFromPCI[] = {
-    {PCI_VENDOR_NVIDIA, PCI_DEVICE_TEGRA_X1, {SOC_TEGRA_X1, SOC_VENDOR_NVIDIA,  20, "Tegra X1", NULL} },
-    // {PCI_VENDOR_NVIDIA, PCI_DEVICE_GH_200,{SOC_GH_200,   SOC_VENDOR_NVIDIA,  ?, "Grace Hopper", NULL} },
-    {0x0000,            0x0000,              {UNKNOWN,      SOC_VENDOR_UNKNOWN, -1,          "", NULL} }
+    {PCI_VENDOR_NVIDIA, PCI_DEVICE_TEGRA_X1, {SOC_TEGRA_X1,     SOC_VENDOR_NVIDIA,  20, "Tegra X1", NULL} },
+    // {PCI_VENDOR_NVIDIA, PCI_DEVICE_GH_200,{SOC_GH_200,       SOC_VENDOR_NVIDIA,   ?, "Grace Hopper", NULL} },
+    {PCI_VENDOR_AMPERE, PCI_DEVICE_ALTRA,    {SOC_AMPERE_ALTRA, SOC_VENDOR_AMPERE,   7, "Altra",    NULL} }, // https://www.anandtech.com/show/15575/amperes-altra-80-core-n1-soc-for-hyperscalers-against-rome-and-xeon
+    {0x0000,            0x0000,              {UNKNOWN,          SOC_VENDOR_UNKNOWN, -1,      "",    NULL} }
   };
 
   int index = 0;
