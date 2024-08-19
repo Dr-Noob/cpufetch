@@ -448,7 +448,7 @@ char* get_str_topology(struct cpuInfo* cpu, struct topology* topo, bool dual_soc
 
 char* get_str_features(struct cpuInfo* cpu) {
   struct features* feat = cpu->feat;
-  uint32_t max_len = strlen("NEON,SHA1,SHA2,AES,CRC32,SVE,SVE2") + 1;
+  uint32_t max_len = strlen("NEON,SHA1,SHA2,AES,CRC32,SVE,SVE2,") + 1;
   uint32_t len = 0;
   char* string = ecalloc(max_len, sizeof(char));
 

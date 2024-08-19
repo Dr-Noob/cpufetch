@@ -98,9 +98,9 @@ void populate_pci_devices(struct pci_devices * pci) {
     int path_size = strlen(PCI_PATH) + strlen(dev->path) + 2;
 
     // Read vendor_id
-    char *vendor_id_path = emalloc(sizeof(char) * (path_size + strlen("vendor")));
+    char *vendor_id_path = emalloc(sizeof(char) * (path_size + strlen("vendor") + 1));
     sprintf(vendor_id_path, "%s/%s/%s", PCI_PATH, dev->path, "vendor");
-    
+
     if ((buf = read_file(vendor_id_path, &filelen)) == NULL) {
       printWarn("read_file: %s: %s\n", vendor_id_path, strerror(errno));
       dev->vendor_id = 0;
@@ -110,7 +110,7 @@ void populate_pci_devices(struct pci_devices * pci) {
     }
 
     // Read device_id
-    char *device_id_path = emalloc(sizeof(char) * (path_size + strlen("device")));
+    char *device_id_path = emalloc(sizeof(char) * (path_size + strlen("device") + 1));
     sprintf(device_id_path, "%s/%s/%s", PCI_PATH, dev->path, "device");
 
     if ((buf = read_file(device_id_path, &filelen)) == NULL) {
