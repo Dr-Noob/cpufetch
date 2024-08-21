@@ -895,6 +895,39 @@ struct system_on_chip* guess_soc_from_uarch(struct system_on_chip* soc, struct c
   return soc;
 }
 
+bool match_dt(struct system_on_chip* soc, char* dt, char* expected_name, char* soc_name, SOC soc_model, int32_t process) {
+  if (strstr(dt, expected_name) == NULL) {
+    return false;
+  }
+  else {
+    fill_soc(soc, soc_name, soc_model, process);
+    return true;
+  }
+}
+
+#define DT_START if (false) {}
+#define DT_EQ(dt, soc, expected_name, soc_name, soc_model, process) \
+   else if (match_dt(soc, dt, expected_name, soc_name, soc_model, process)) return soc;
+#define DT_END else { return false; }
+
+// TODO: Move this to doc
+// The number of fields seems non-standard, so for now it seems wiser
+// to just get the entire string with all fields and just look for the
+// substring.
+struct system_on_chip* guess_soc_from_devtree(struct system_on_chip* soc) {
+  char* dt = get_devtree_compatible();
+  if (dt == NULL) {
+    return soc;
+  }
+
+  DT_START
+  DT_EQ(dt, soc, "t6000apple", "M1 Pro", SOC_APPLE_M1_PRO, 5)
+  DT_END
+
+  printWarn("guess_soc_from_devtree: No match found");
+  return soc;
+}
+
 struct system_on_chip* guess_soc_from_pci(struct system_on_chip* soc, struct cpuInfo* cpu) {
   struct pci_devices * pci = get_pci_devices();
   if (pci == NULL) {
@@ -1103,6 +1136,10 @@ struct system_on_chip* get_soc(struct cpuInfo* cpu) {
       printWarn("SoC detection failed using Android: Found '%s' string", soc->raw_name);
     }
 #endif // ifdef __ANDROID__
+    // If previous steps failed, try with the device tree
+    if (soc->soc_vendor == SOC_VENDOR_UNKNOWN) {
+      soc = guess_soc_from_devtree(soc);
+    }
     // If previous steps failed, try with nvmem
     if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) {
       soc = guess_soc_from_nvmem(soc);

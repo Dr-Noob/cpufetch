@@ -248,6 +248,8 @@ struct uarch* get_uarch_from_midr(uint32_t midr, struct cpuInfo* cpu) {
 
   CHECK_UARCH(arch, cpu, 'a', 0x022, NA, NA, "Icestorm",              UARCH_ICESTORM,     CPU_VENDOR_APPLE)
   CHECK_UARCH(arch, cpu, 'a', 0x023, NA, NA, "Firestorm",             UARCH_FIRESTORM,    CPU_VENDOR_APPLE)
+  CHECK_UARCH(arch, cpu, 'a', 0x024, NA, NA, "Icestorm",              UARCH_ICESTORM,     CPU_VENDOR_APPLE)     // https://github.com/Dr-Noob/cpufetch/issues/263
+  CHECK_UARCH(arch, cpu, 'a', 0x025, NA, NA, "Firestorm",             UARCH_FIRESTORM,    CPU_VENDOR_APPLE)     // https://github.com/Dr-Noob/cpufetch/issues/263
   CHECK_UARCH(arch, cpu, 'a', 0x030, NA, NA, "Blizzard",              UARCH_BLIZZARD,     CPU_VENDOR_APPLE)
   CHECK_UARCH(arch, cpu, 'a', 0x031, NA, NA, "Avalanche",             UARCH_AVALANCHE,    CPU_VENDOR_APPLE)
   CHECK_UARCH(arch, cpu, 'a', 0x048, NA, NA, "Sawtooth",              UARCH_SAWTOOTH,     CPU_VENDOR_APPLE)

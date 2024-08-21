@@ -1,6 +1,9 @@
+#include "../common/global.h"
 #include "udev.h"
 #include "global.h"
 #include "cpu.h"
+
+#define _PATH_DEVTREE          "/proc/device-tree/compatible"
 
 // https://www.kernel.org/doc/html/latest/core-api/cpu_hotplug.html
 int get_ncores_from_cpuinfo(void) {
@@ -348,4 +351,15 @@ bool is_devtree_compatible(char* str) {
     return false;
   }
   return true;
+}
+
+char* get_devtree_compatible(void) {
+  int filelen;
+  char* buf;
+
+  if ((buf = read_file(_PATH_DEVTREE, &filelen)) == NULL) {
+    printWarn("read_file: %s: %s", _PATH_DEVTREE, strerror(errno));
+  }
+
+  return buf;
 }
