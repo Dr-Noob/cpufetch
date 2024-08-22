@@ -353,11 +353,10 @@ bool is_devtree_compatible(char* str) {
   return true;
 }
 
-char* get_devtree_compatible(void) {
-  int filelen;
+char* get_devtree_compatible(int *filelen) {
   char* buf;
 
-  if ((buf = read_file(_PATH_DEVTREE, &filelen)) == NULL) {
+  if ((buf = read_file(_PATH_DEVTREE, filelen)) == NULL) {
     printWarn("read_file: %s: %s", _PATH_DEVTREE, strerror(errno));
   }
 

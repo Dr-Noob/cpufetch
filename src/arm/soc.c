@@ -895,34 +895,62 @@ struct system_on_chip* guess_soc_from_uarch(struct system_on_chip* soc, struct c
   return soc;
 }
 
-bool match_dt(struct system_on_chip* soc, char* dt, char* expected_name, char* soc_name, SOC soc_model, int32_t process) {
-  if (strstr(dt, expected_name) == NULL) {
-    return false;
+// Return the dt string without the NULL characters.
+char* get_dt_str(char* dt, int filelen) {
+  char* dt_without_null = (char *) malloc(sizeof(char) * filelen);
+  memcpy(dt_without_null, dt, filelen);
+
+  for (int i=0; i < filelen-1; i++) {
+    if (dt_without_null[i] == '\0')
+      dt_without_null[i] = ',';
   }
-  else {
+  return dt_without_null;
+}
+
+bool match_dt(struct system_on_chip* soc, char* dt, int filelen, char* expected_name, char* soc_name, SOC soc_model, int32_t process) {
+  // The /proc/device-tree/compatible file (passed by dt) uses NULL
+  // to separate the strings, so we need to make an special case here
+  // and iterate over the NULL characters, thus iterating over each
+  // individual compatible strings.
+
+  if (strstr(dt, expected_name) != NULL) {
     fill_soc(soc, soc_name, soc_model, process);
     return true;
   }
+
+  char *compatible = dt;
+  char *end_of_dt = dt + filelen;
+
+  while ((compatible = strchr(compatible, '\0')) != end_of_dt) {
+    compatible++;
+    if (strstr(compatible, expected_name) != NULL) {
+      fill_soc(soc, soc_name, soc_model, process);
+      return true;
+    }
+  }
+
+  return false;
 }
 
 #define DT_START if (false) {}
-#define DT_EQ(dt, soc, expected_name, soc_name, soc_model, process) \
-   else if (match_dt(soc, dt, expected_name, soc_name, soc_model, process)) return soc;
-#define DT_END else { printWarn("guess_soc_from_devtree: No match found"); return soc; }
+#define DT_EQ(dt, filelen, soc, expected_name, soc_name, soc_model, process) \
+   else if (match_dt(soc, dt, filelen, expected_name, soc_name, soc_model, process)) return soc;
+#define DT_END(dt, filelen) else { printWarn("guess_soc_from_devtree: No match found for '%s'", get_dt_str(dt, filelen)); return soc; }
 
 // TODO: Move this to doc
 // The number of fields seems non-standard, so for now it seems wiser
 // to just get the entire string with all fields and just look for the
 // substring.
 struct system_on_chip* guess_soc_from_devtree(struct system_on_chip* soc) {
-  char* dt = get_devtree_compatible();
+  int len;
+  char* dt = get_devtree_compatible(&len);
   if (dt == NULL) {
     return soc;
   }
 
   DT_START
-  DT_EQ(dt, soc, "t6000apple", "M1 Pro", SOC_APPLE_M1_PRO, 5)
-  DT_END
+  DT_EQ(dt, len, soc, "apple,t6000", "M1 Pro", SOC_APPLE_M1_PRO, 5)
+  DT_END(dt, len)
 }
 
 struct system_on_chip* guess_soc_from_pci(struct system_on_chip* soc, struct cpuInfo* cpu) {
