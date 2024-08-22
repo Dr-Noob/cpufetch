@@ -908,7 +908,7 @@ bool match_dt(struct system_on_chip* soc, char* dt, char* expected_name, char* s
 #define DT_START if (false) {}
 #define DT_EQ(dt, soc, expected_name, soc_name, soc_model, process) \
    else if (match_dt(soc, dt, expected_name, soc_name, soc_model, process)) return soc;
-#define DT_END else { return false; }
+#define DT_END else { printWarn("guess_soc_from_devtree: No match found"); return soc; }
 
 // TODO: Move this to doc
 // The number of fields seems non-standard, so for now it seems wiser
@@ -923,9 +923,6 @@ struct system_on_chip* guess_soc_from_devtree(struct system_on_chip* soc) {
   DT_START
   DT_EQ(dt, soc, "t6000apple", "M1 Pro", SOC_APPLE_M1_PRO, 5)
   DT_END
-
-  printWarn("guess_soc_from_devtree: No match found");
-  return soc;
 }
 
 struct system_on_chip* guess_soc_from_pci(struct system_on_chip* soc, struct cpuInfo* cpu) {
