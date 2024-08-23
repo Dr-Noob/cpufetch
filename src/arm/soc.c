@@ -941,6 +941,8 @@ bool match_dt(struct system_on_chip* soc, char* dt, int filelen, char* expected_
 // The number of fields seems non-standard, so for now it seems wiser
 // to just get the entire string with all fields and just look for the
 // substring.
+// TODO: Implement this by going trough NULL-separated fields rather than
+// using strstr.
 struct system_on_chip* guess_soc_from_devtree(struct system_on_chip* soc) {
   int len;
   char* dt = get_devtree_compatible(&len);
@@ -948,8 +950,21 @@ struct system_on_chip* guess_soc_from_devtree(struct system_on_chip* soc) {
     return soc;
   }
 
+  // The following are internal codenames of Asahi Linux
+  // https://github.com/AsahiLinux/docs/wiki/Codenames
   DT_START
-  DT_EQ(dt, len, soc, "apple,t6000", "M1 Pro", SOC_APPLE_M1_PRO, 5)
+  DT_EQ(dt, len, soc, "apple,t8103", "M1",       SOC_APPLE_M1,       5)
+  DT_EQ(dt, len, soc, "apple,t6000", "M1 Pro",   SOC_APPLE_M1_PRO,   5)
+  DT_EQ(dt, len, soc, "apple,t6001", "M1 Max",   SOC_APPLE_M1_MAX,   5)
+  DT_EQ(dt, len, soc, "apple,t6002", "M1 Ultra", SOC_APPLE_M1_ULTRA, 5)
+  DT_EQ(dt, len, soc, "apple,t8112", "M2",       SOC_APPLE_M2,       5)
+  DT_EQ(dt, len, soc, "apple,t6020", "M2 Pro",   SOC_APPLE_M2_PRO,   5)
+  DT_EQ(dt, len, soc, "apple,t6021", "M2 Max",   SOC_APPLE_M2_MAX,   5)
+  DT_EQ(dt, len, soc, "apple,t6022", "M2 Ultra", SOC_APPLE_M2_ULTRA, 5)
+  DT_EQ(dt, len, soc, "apple,t8122", "M3",       SOC_APPLE_M3,       3)
+  DT_EQ(dt, len, soc, "apple,t6030", "M3 Pro",   SOC_APPLE_M3_PRO,   3)
+  DT_EQ(dt, len, soc, "apple,t6031", "M3 Max",   SOC_APPLE_M3_MAX,   3)
+  DT_EQ(dt, len, soc, "apple,t6034", "M3 Max",   SOC_APPLE_M3_MAX,   3)
   DT_END(dt, len)
 }
 
