@@ -895,6 +895,79 @@ struct system_on_chip* guess_soc_from_uarch(struct system_on_chip* soc, struct c
   return soc;
 }
 
+// Return the dt string without the NULL characters.
+char* get_dt_str(char* dt, int filelen) {
+  char* dt_without_null = (char *) malloc(sizeof(char) * filelen);
+  memcpy(dt_without_null, dt, filelen);
+
+  for (int i=0; i < filelen-1; i++) {
+    if (dt_without_null[i] == '\0')
+      dt_without_null[i] = ',';
+  }
+  return dt_without_null;
+}
+
+bool match_dt(struct system_on_chip* soc, char* dt, int filelen, char* expected_name, char* soc_name, SOC soc_model, int32_t process) {
+  // The /proc/device-tree/compatible file (passed by dt) uses NULL
+  // to separate the strings, so we need to make an special case here
+  // and iterate over the NULL characters, thus iterating over each
+  // individual compatible strings.
+
+  if (strstr(dt, expected_name) != NULL) {
+    fill_soc(soc, soc_name, soc_model, process);
+    return true;
+  }
+
+  char *compatible = dt;
+  char *end_of_dt = dt + filelen;
+
+  while ((compatible = strchr(compatible, '\0')) != end_of_dt) {
+    compatible++;
+    if (strstr(compatible, expected_name) != NULL) {
+      fill_soc(soc, soc_name, soc_model, process);
+      return true;
+    }
+  }
+
+  return false;
+}
+
+#define DT_START if (false) {}
+#define DT_EQ(dt, filelen, soc, expected_name, soc_name, soc_model, process) \
+   else if (match_dt(soc, dt, filelen, expected_name, soc_name, soc_model, process)) return soc;
+#define DT_END(dt, filelen) else { printWarn("guess_soc_from_devtree: No match found for '%s'", get_dt_str(dt, filelen)); return soc; }
+
+// TODO: Move this to doc
+// The number of fields seems non-standard, so for now it seems wiser
+// to just get the entire string with all fields and just look for the
+// substring.
+// TODO: Implement this by going trough NULL-separated fields rather than
+// using strstr.
+struct system_on_chip* guess_soc_from_devtree(struct system_on_chip* soc) {
+  int len;
+  char* dt = get_devtree_compatible(&len);
+  if (dt == NULL) {
+    return soc;
+  }
+
+  // The following are internal codenames of Asahi Linux
+  // https://github.com/AsahiLinux/docs/wiki/Codenames
+  DT_START
+  DT_EQ(dt, len, soc, "apple,t8103", "M1",       SOC_APPLE_M1,       5)
+  DT_EQ(dt, len, soc, "apple,t6000", "M1 Pro",   SOC_APPLE_M1_PRO,   5)
+  DT_EQ(dt, len, soc, "apple,t6001", "M1 Max",   SOC_APPLE_M1_MAX,   5)
+  DT_EQ(dt, len, soc, "apple,t6002", "M1 Ultra", SOC_APPLE_M1_ULTRA, 5)
+  DT_EQ(dt, len, soc, "apple,t8112", "M2",       SOC_APPLE_M2,       5)
+  DT_EQ(dt, len, soc, "apple,t6020", "M2 Pro",   SOC_APPLE_M2_PRO,   5)
+  DT_EQ(dt, len, soc, "apple,t6021", "M2 Max",   SOC_APPLE_M2_MAX,   5)
+  DT_EQ(dt, len, soc, "apple,t6022", "M2 Ultra", SOC_APPLE_M2_ULTRA, 5)
+  DT_EQ(dt, len, soc, "apple,t8122", "M3",       SOC_APPLE_M3,       3)
+  DT_EQ(dt, len, soc, "apple,t6030", "M3 Pro",   SOC_APPLE_M3_PRO,   3)
+  DT_EQ(dt, len, soc, "apple,t6031", "M3 Max",   SOC_APPLE_M3_MAX,   3)
+  DT_EQ(dt, len, soc, "apple,t6034", "M3 Max",   SOC_APPLE_M3_MAX,   3)
+  DT_END(dt, len)
+}
+
 struct system_on_chip* guess_soc_from_pci(struct system_on_chip* soc, struct cpuInfo* cpu) {
   struct pci_devices * pci = get_pci_devices();
   if (pci == NULL) {
@@ -1103,6 +1176,10 @@ struct system_on_chip* get_soc(struct cpuInfo* cpu) {
       printWarn("SoC detection failed using Android: Found '%s' string", soc->raw_name);
     }
 #endif // ifdef __ANDROID__
+    // If previous steps failed, try with the device tree
+    if (soc->soc_vendor == SOC_VENDOR_UNKNOWN) {
+      soc = guess_soc_from_devtree(soc);
+    }
     // If previous steps failed, try with nvmem
     if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) {
       soc = guess_soc_from_nvmem(soc);
