@@ -84,6 +84,10 @@ struct topology* get_topology_info(struct cache* cach) {
     // fill_package_ids_from_sys failed, use a
     // more sophisticated wat to find the number of sockets
     topo->sockets = get_num_sockets_package_cpus(topo);
+    if (topo->sockets == UNKNOWN_DATA) {
+      printWarn("get_num_sockets_package_cpus failed: assuming 1 socket");
+      topo->sockets = 1;
+    }
   }
   else {
     // fill_package_ids_from_sys succeeded, use the
