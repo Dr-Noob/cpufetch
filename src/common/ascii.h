@@ -413,6 +413,25 @@ $C1  ##           ###                          ###   \
 $C1                                                  \
 $C1                                                  "
 
+#define ASCII_NXP \
+"$C1                                                  \
+$C1                                                  \
+$C1                                                  \
+$C1                                                  \
+$C1                                                  \
+$C1                                                  \
+$C1                                                  \
+$C1                                                  \
+$C1                                                  \
+$C1                                                  \
+$C1                                                  \
+$C1                                                  \
+$C1                                                  \
+$C1                                                  \
+$C1                                                  \
+$C1                                                  \
+$C1                                                  "
+
 // --------------------- LONG LOGOS ------------------------- //
 #define ASCII_AMD_L \
 "$C1                                                              \
@@ -589,6 +608,7 @@ asciiL logo_starfive    = { ASCII_STARFIVE,    33, 17, false, {C_FG_WHITE},     
 asciiL logo_sipeed      = { ASCII_SIPEED,      41, 16, true,  {C_BG_RED, C_BG_WHITE},                         {C_FG_RED,     C_FG_WHITE}   };
 asciiL logo_nvidia      = { ASCII_NVIDIA,      45, 19, false, {C_FG_GREEN, C_FG_WHITE},                       {C_FG_WHITE,   C_FG_GREEN}   };
 asciiL logo_ampere      = { ASCII_AMPERE,      50, 17, false, {C_FG_RED},                                     {C_FG_WHITE,   C_FG_RED}     };
+asciiL logo_nxp         = { ASCII_NXP,         50, 17, false, {C_FG_RED},                                     {C_FG_WHITE,   C_FG_RED}     };
 
 // Long variants          | ----------------------------------------------------------------------------------------------------------------|
 asciiL logo_amd_l       = { ASCII_AMD_L,       62, 19, true,  {C_BG_WHITE, C_BG_GREEN},                       {C_FG_WHITE, C_FG_GREEN}     };

@@ -391,6 +391,8 @@ void choose_ascii_art(struct ascii* art, struct color** cs, struct terminal* ter
     art->art = &logo_rockchip;
   else if(art->vendor == SOC_VENDOR_AMPERE)
     art->art = &logo_ampere;
+  else if(art->vendor == SOC_VENDOR_NXP)
+    art->art = &logo_nxp;
   else if(art->vendor == SOC_VENDOR_NVIDIA)
     art->art = choose_ascii_art_aux(&logo_nvidia_l, &logo_nvidia, term, lf);
   else {

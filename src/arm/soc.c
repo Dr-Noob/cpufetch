@@ -950,9 +950,10 @@ struct system_on_chip* guess_soc_from_devtree(struct system_on_chip* soc) {
     return soc;
   }
 
+  DT_START
   // The following are internal codenames of Asahi Linux
   // https://github.com/AsahiLinux/docs/wiki/Codenames
-  DT_START
+  // https://github.com/Dr-Noob/cpufetch/issues/263
   DT_EQ(dt, len, soc, "apple,t8103", "M1",       SOC_APPLE_M1,       5)
   DT_EQ(dt, len, soc, "apple,t6000", "M1 Pro",   SOC_APPLE_M1_PRO,   5)
   DT_EQ(dt, len, soc, "apple,t6001", "M1 Max",   SOC_APPLE_M1_MAX,   5)
@@ -965,6 +966,9 @@ struct system_on_chip* guess_soc_from_devtree(struct system_on_chip* soc) {
   DT_EQ(dt, len, soc, "apple,t6030", "M3 Pro",   SOC_APPLE_M3_PRO,   3)
   DT_EQ(dt, len, soc, "apple,t6031", "M3 Max",   SOC_APPLE_M3_MAX,   3)
   DT_EQ(dt, len, soc, "apple,t6034", "M3 Max",   SOC_APPLE_M3_MAX,   3)
+  // https://github.com/Dr-Noob/cpufetch/issues/261
+  // https://www.nxp.com/docs/en/fact-sheet/IMX8MPLUSFS.pdf
+  DT_EQ(dt, len, soc, "imx8mp-nitrogen8mp", "i.MX 8M Plus", SOC_NXP_IMX8MP, 14)
   DT_END(dt, len)
 }
 
