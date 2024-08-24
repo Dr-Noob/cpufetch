@@ -18,6 +18,11 @@
 #define min(a,b) (((a)<(b))?(a):(b))
 #define ARRAY_SIZE(arr)     (sizeof(arr) / sizeof((arr)[0]))
 
+#define PROP_MTK_PLATFORM   "ro.mediatek.platform"
+#define PROP_SOC_MODEL      "ro.soc.model"
+#define PROP_PRODUCT_BOARD  "ro.product.board"
+#define PROP_BOARD_PLATFORM "ro.board.platform"
+
 static char* soc_rpi_string[] = {
   "BCM2835",
   "BCM2836",
@@ -745,34 +750,34 @@ struct system_on_chip* guess_soc_from_android(struct system_on_chip* soc) {
   char tmp[100];
   int property_len = 0;
 
-  property_len = android_property_get("ro.mediatek.platform", (char *) &tmp);
+  property_len = android_property_get(ANDROID_PROP_MTK_PLATFORM, (char *) &tmp);
   if(property_len > 0) {
     try_parse_soc_from_string(soc, property_len, tmp);
-    if(soc->vendor == SOC_VENDOR_UNKNOWN) printWarn("SoC detection failed using Android property ro.mediatek.platform: %s", tmp);
+    if(soc->vendor == SOC_VENDOR_UNKNOWN) printWarn("SoC detection failed using Android property %s: %s", PROP_MTK_PLATFORM, tmp);
     else return soc;
   }
 
   // https://github.com/Dr-Noob/cpufetch/issues/253
   // ro.soc.model might be more reliable than ro.product.board or
   // ro.board.platform, so try with it first
-  property_len = android_property_get("ro.soc.model", (char *) &tmp);
+  property_len = android_property_get(PROP_SOC_MODEL, (char *) &tmp);
   if(property_len > 0) {
     try_parse_soc_from_string(soc, property_len, tmp);
-    if(soc->vendor == SOC_VENDOR_UNKNOWN) printWarn("SoC detection failed using Android property ro.soc.model: %s", tmp);
+    if(soc->vendor == SOC_VENDOR_UNKNOWN) printWarn("SoC detection failed using Android property %s: %s", PROP_SOC_MODEL, tmp);
     else return soc;
   }
 
-  property_len = android_property_get("ro.product.board", (char *) &tmp);
+  property_len = android_property_get(PROP_PRODUCT_BOARD, (char *) &tmp);
   if(property_len > 0) {
     try_parse_soc_from_string(soc, property_len, tmp);
-    if(soc->vendor == SOC_VENDOR_UNKNOWN) printWarn("SoC detection failed using Android property ro.product.board: %s", tmp);
+    if(soc->vendor == SOC_VENDOR_UNKNOWN) printWarn("SoC detection failed using Android property %s: %s", PROP_PRODUCT_BOARD, tmp);
     else return soc;
   }
 
-  property_len = android_property_get("ro.board.platform", (char *) &tmp);
+  property_len = android_property_get(PROP_BOARD_PLATFORM, (char *) &tmp);
   if(property_len > 0) {
     try_parse_soc_from_string(soc, property_len, tmp);
-    if(soc->vendor == SOC_VENDOR_UNKNOWN) printWarn("SoC detection failed using Android property ro.board.platform: %s", tmp);
+    if(soc->vendor == SOC_VENDOR_UNKNOWN) printWarn("SoC detection failed using Android property %s: %s", PROP_BOARD_PLATFORM, tmp);
     else return soc;
   }
 
