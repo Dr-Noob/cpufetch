@@ -131,21 +131,21 @@ bool match_broadcom(char* soc_name, struct system_on_chip* soc) {
   soc->soc_vendor = SOC_VENDOR_BROADCOM;
 
   SOC_START
-  SOC_EQ(tmp, "BCM2835",              "2835",              SOC_BCM_2835,   soc, 65)
-  SOC_EQ(tmp, "BCM2836",              "2836",              SOC_BCM_2836,   soc, 40)
-  SOC_EQ(tmp, "BCM2837",              "2837",              SOC_BCM_2837,   soc, 40)
-  SOC_EQ(tmp, "BCM2837B0",            "2837B0",            SOC_BCM_2837B0, soc, 40)
-  SOC_EQ(tmp, "BCM21553",             "21553",             SOC_BCM_21553,  soc, 65)
-  SOC_EQ(tmp, "BCM21553-Thunderbird", "21553 Thunderbird", SOC_BCM_21553T, soc, 65)
-  SOC_EQ(tmp, "BCM21663",             "21663",             SOC_BCM_21663,  soc, 40)
-  SOC_EQ(tmp, "BCM21664",             "21664",             SOC_BCM_21664,  soc, 40)
-  SOC_EQ(tmp, "BCM28155",             "28155",             SOC_BCM_28155,  soc, 40)
-  SOC_EQ(tmp, "BCM23550",             "23550",             SOC_BCM_23550,  soc, 40)
-  SOC_EQ(tmp, "BCM28145",             "28145",             SOC_BCM_28145,  soc, 40)
-  SOC_EQ(tmp, "BCM2157",              "2157",              SOC_BCM_2157,   soc, 65)
-  SOC_EQ(tmp, "BCM21654",             "21654",             SOC_BCM_21654,  soc, 40)
-  SOC_EQ(tmp, "BCM2711",              "2711",              SOC_BCM_2711,   soc, 28)
-  SOC_EQ(tmp, "BCM2712",              "2712",              SOC_BCM_2712,   soc, 16)
+  SOC_EQ(tmp, "BCM2835",              "BCM2835",              SOC_BCM_2835,   soc, 65)
+  SOC_EQ(tmp, "BCM2836",              "BCM2836",              SOC_BCM_2836,   soc, 40)
+  SOC_EQ(tmp, "BCM2837",              "BCM2837",              SOC_BCM_2837,   soc, 40)
+  SOC_EQ(tmp, "BCM2837B0",            "BCM2837B0",            SOC_BCM_2837B0, soc, 40)
+  SOC_EQ(tmp, "BCM21553",             "BCM21553",             SOC_BCM_21553,  soc, 65)
+  SOC_EQ(tmp, "BCM21553-Thunderbird", "BCM21553 Thunderbird", SOC_BCM_21553T, soc, 65)
+  SOC_EQ(tmp, "BCM21663",             "BCM21663",             SOC_BCM_21663,  soc, 40)
+  SOC_EQ(tmp, "BCM21664",             "BCM21664",             SOC_BCM_21664,  soc, 40)
+  SOC_EQ(tmp, "BCM28155",             "BCM28155",             SOC_BCM_28155,  soc, 40)
+  SOC_EQ(tmp, "BCM23550",             "BCM23550",             SOC_BCM_23550,  soc, 40)
+  SOC_EQ(tmp, "BCM28145",             "BCM28145",             SOC_BCM_28145,  soc, 40)
+  SOC_EQ(tmp, "BCM2157",              "BCM2157",              SOC_BCM_2157,   soc, 65)
+  SOC_EQ(tmp, "BCM21654",             "BCM21654",             SOC_BCM_21654,  soc, 40)
+  SOC_EQ(tmp, "BCM2711",              "BCM2711",              SOC_BCM_2711,   soc, 28)
+  SOC_EQ(tmp, "BCM2712",              "BCM2712",              SOC_BCM_2712,   soc, 16)
   SOC_END
 }
 
