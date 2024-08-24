@@ -21,9 +21,12 @@
   #define CPUFAMILY_ARM_AVALANCHE_BLIZZARD 0xDA33D83D
 #endif
 // M3 / A16 / A17
-// https://ratfactor.com/zig/stdlib-browseable2/c/darwin.zig.html
-// https://github.com/Dr-Noob/cpufetch/issues/210
+// M3:   https://ratfactor.com/zig/stdlib-browseable2/c/darwin.zig.html
+// M3_2: https://github.com/Dr-Noob/cpufetch/issues/230
+// PRO:  https://github.com/Dr-Noob/cpufetch/issues/225
+// MAX:  https://github.com/Dr-Noob/cpufetch/issues/210
 #define CPUFAMILY_ARM_EVEREST_SAWTOOTH     0x8765EDEA
+#define CPUFAMILY_ARM_EVEREST_SAWTOOTH_2   0xFA33415E
 #define CPUFAMILY_ARM_EVEREST_SAWTOOTH_PRO 0x5F4DEA93
 #define CPUFAMILY_ARM_EVEREST_SAWTOOTH_MAX 0x72015832
 
