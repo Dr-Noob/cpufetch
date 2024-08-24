@@ -749,7 +749,7 @@ struct system_on_chip* guess_soc_from_android(struct system_on_chip* soc) {
   char tmp[100];
   int property_len = 0;
 
-  property_len = android_property_get(ANDROID_PROP_MTK_PLATFORM, (char *) &tmp);
+  property_len = android_property_get(PROP_MTK_PLATFORM, (char *) &tmp);
   if(property_len > 0) {
     try_parse_soc_from_string(soc, property_len, tmp);
     if(soc->vendor == SOC_VENDOR_UNKNOWN) printWarn("SoC detection failed using Android property %s: %s", PROP_MTK_PLATFORM, tmp);
