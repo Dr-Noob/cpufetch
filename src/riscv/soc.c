@@ -12,7 +12,7 @@ bool match_sifive(char* soc_name, struct system_on_chip* soc) {
   /*if((tmp = strstr(soc_name, "???")) == NULL)
     return false;*/
 
-  //soc->soc_vendor = ???
+  //soc->vendor = ???
 
   SOC_START
   SOC_EQ(tmp, "fu740", "Freedom U740",  SOC_SIFIVE_U740, soc, 40)
@@ -68,12 +68,12 @@ struct system_on_chip* guess_soc_from_devtree(struct system_on_chip* soc) {
 struct system_on_chip* get_soc(struct cpuInfo* cpu) {
   struct system_on_chip* soc = emalloc(sizeof(struct system_on_chip));
   soc->raw_name = NULL;
-  soc->soc_vendor = SOC_VENDOR_UNKNOWN;
-  soc->soc_model = SOC_MODEL_UNKNOWN;
+  soc->vendor = SOC_VENDOR_UNKNOWN;
+  soc->model = SOC_MODEL_UNKNOWN;
   soc->process = UNKNOWN;
 
   soc = guess_soc_from_devtree(soc);
-  if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) {
+  if(soc->vendor == SOC_VENDOR_UNKNOWN) {
     if(soc->raw_name != NULL) {
       printWarn("SoC detection failed using device tree: Found '%s' string", soc->raw_name);
     }
@@ -82,7 +82,7 @@ struct system_on_chip* get_soc(struct cpuInfo* cpu) {
     }
   }
 
-  if(soc->soc_model == SOC_MODEL_UNKNOWN) {
+  if(soc->model == SOC_MODEL_UNKNOWN) {
     // raw_name might not be NULL, but if we were unable to find
     // the exact SoC, just print "Unkwnown"
     soc->raw_name = emalloc(sizeof(char) * (strlen(STRING_UNKNOWN)+1));

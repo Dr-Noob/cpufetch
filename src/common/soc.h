@@ -35,10 +35,10 @@ enum {
 };
 
 struct system_on_chip {
-  SOC soc_model;
-  VENDOR soc_vendor;
+  SOC model;
+  VENDOR vendor;
   int32_t process;
-  char* soc_name;
+  char* name;
   char* raw_name;
 };
 

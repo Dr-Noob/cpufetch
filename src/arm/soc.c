@@ -102,7 +102,7 @@ bool get_sunxisoc_from_sid(struct system_on_chip* soc, char* raw_name, uint32_t 
   int index = 0;
   while(socFromSid[index].sid != 0x0) {
     if(socFromSid[index].sid == sid) {
-      fill_soc(soc, socFromSid[index].soc.soc_name, socFromSid[index].soc.soc_model, socFromSid[index].soc.process);
+      fill_soc(soc, socFromSid[index].soc.name, socFromSid[index].soc.model, socFromSid[index].soc.process);
       return true;
     }
     index++;
@@ -128,7 +128,7 @@ bool match_broadcom(char* soc_name, struct system_on_chip* soc) {
   if((tmp = strstr(soc_name, "BCM")) == NULL)
     return false;
 
-  soc->soc_vendor = SOC_VENDOR_BROADCOM;
+  soc->vendor = SOC_VENDOR_BROADCOM;
 
   SOC_START
   SOC_EQ(tmp, "BCM2835",              "BCM2835",              SOC_BCM_2835,   soc, 65)
@@ -156,7 +156,7 @@ bool match_google(char* soc_name, struct system_on_chip* soc) {
   if((tmp = strstr(soc_name, "gs")) == NULL)
     return false;
 
-  soc->soc_vendor = SOC_VENDOR_GOOGLE;
+  soc->vendor = SOC_VENDOR_GOOGLE;
 
   SOC_START
   SOC_EQ(tmp, "gs101", "Tensor",    SOC_GOOGLE_TENSOR,    soc, 5)
@@ -175,7 +175,7 @@ bool match_hisilicon(char* soc_name, struct system_on_chip* soc) {
   else if((tmp = strstr(soc_name, "kirin")) != NULL);
   else return false;
 
-  soc->soc_vendor = SOC_VENDOR_KIRIN;
+  soc->vendor = SOC_VENDOR_KIRIN;
 
   SOC_START
   SOC_EQ(tmp, "hi3620GFC",  "K3V2",  SOC_HISILICON_3620, soc, 40)
@@ -217,7 +217,7 @@ bool match_exynos(char* soc_name, struct system_on_chip* soc) {
   else if((tmp = strstr(soc_name, "exynos")) != NULL);
   else return false;
 
-  soc->soc_vendor = SOC_VENDOR_EXYNOS;
+  soc->vendor = SOC_VENDOR_EXYNOS;
 
   // Because exynos are recently using "exynosXXXX" instead
   // of "universalXXXX" as codenames, SOC_EXY_EQ will check for
@@ -277,7 +277,7 @@ bool match_mediatek(char* soc_name, struct system_on_chip* soc) {
   if((tmp = strstr(soc_name_upper, "MT")) == NULL)
     return false;
 
-  soc->soc_vendor = SOC_VENDOR_MEDIATEK;
+  soc->vendor = SOC_VENDOR_MEDIATEK;
 
   SOC_START
   // Dimensity //
@@ -460,7 +460,7 @@ bool match_qualcomm(char* soc_name, struct system_on_chip* soc) {
   else if((tmp = strstr(soc_name_upper, "QSD")) != NULL);
   else return false;
 
-  soc->soc_vendor = SOC_VENDOR_SNAPDRAGON;
+  soc->vendor = SOC_VENDOR_SNAPDRAGON;
 
   SOC_START
   // Snapdragon S1 //
@@ -613,7 +613,7 @@ bool match_allwinner(char* soc_name, struct system_on_chip* soc) {
   if((tmp = strstr(soc_name, "sun")) == NULL)
     return false;
 
-  soc->soc_vendor = SOC_VENDOR_ALLWINNER;
+  soc->vendor = SOC_VENDOR_ALLWINNER;
 
   SOC_START
   // SoCs we can detect just with with the name
@@ -737,7 +737,7 @@ void try_parse_soc_from_string(struct system_on_chip* soc, int soc_len, char* so
   soc->raw_name = emalloc(sizeof(char) * (soc_len + 1));
   strncpy(soc->raw_name, soc_str, soc_len + 1);
   soc->raw_name[soc_len] = '\0';
-  soc->soc_vendor = SOC_VENDOR_UNKNOWN;
+  soc->vendor = SOC_VENDOR_UNKNOWN;
   parse_soc_from_string(soc);
 }
 
@@ -748,7 +748,7 @@ struct system_on_chip* guess_soc_from_android(struct system_on_chip* soc) {
   property_len = android_property_get("ro.mediatek.platform", (char *) &tmp);
   if(property_len > 0) {
     try_parse_soc_from_string(soc, property_len, tmp);
-    if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) printWarn("SoC detection failed using Android property ro.mediatek.platform: %s", tmp);
+    if(soc->vendor == SOC_VENDOR_UNKNOWN) printWarn("SoC detection failed using Android property ro.mediatek.platform: %s", tmp);
     else return soc;
   }
 
@@ -758,21 +758,21 @@ struct system_on_chip* guess_soc_from_android(struct system_on_chip* soc) {
   property_len = android_property_get("ro.soc.model", (char *) &tmp);
   if(property_len > 0) {
     try_parse_soc_from_string(soc, property_len, tmp);
-    if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) printWarn("SoC detection failed using Android property ro.soc.model: %s", tmp);
+    if(soc->vendor == SOC_VENDOR_UNKNOWN) printWarn("SoC detection failed using Android property ro.soc.model: %s", tmp);
     else return soc;
   }
 
   property_len = android_property_get("ro.product.board", (char *) &tmp);
   if(property_len > 0) {
     try_parse_soc_from_string(soc, property_len, tmp);
-    if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) printWarn("SoC detection failed using Android property ro.product.board: %s", tmp);
+    if(soc->vendor == SOC_VENDOR_UNKNOWN) printWarn("SoC detection failed using Android property ro.product.board: %s", tmp);
     else return soc;
   }
 
   property_len = android_property_get("ro.board.platform", (char *) &tmp);
   if(property_len > 0) {
     try_parse_soc_from_string(soc, property_len, tmp);
-    if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) printWarn("SoC detection failed using Android property ro.board.platform: %s", tmp);
+    if(soc->vendor == SOC_VENDOR_UNKNOWN) printWarn("SoC detection failed using Android property ro.board.platform: %s", tmp);
     else return soc;
   }
 
@@ -838,7 +838,7 @@ bool get_rk_soc_from_efuse(struct system_on_chip* soc, char* efuse) {
   int index = 0;
   while(socFromRK[index].rk_soc != 0x0) {
     if(socFromRK[index].rk_soc == rk_soc) {
-      fill_soc(soc, socFromRK[index].soc.soc_name, socFromRK[index].soc.soc_model, socFromRK[index].soc.process);
+      fill_soc(soc, socFromRK[index].soc.name, socFromRK[index].soc.model, socFromRK[index].soc.process);
       return true;
     }
     index++;
@@ -885,7 +885,7 @@ struct system_on_chip* guess_soc_from_uarch(struct system_on_chip* soc, struct c
   int index = 0;
   while(socFromUarch[index].u != UARCH_UNKNOWN) {
     if(socFromUarch[index].u == get_uarch(arch)) {
-      fill_soc(soc, socFromUarch[index].soc.soc_name, socFromUarch[index].soc.soc_model, socFromUarch[index].soc.process);
+      fill_soc(soc, socFromUarch[index].soc.name, socFromUarch[index].soc.model, socFromUarch[index].soc.process);
       return soc;
     }
     index++;
@@ -995,7 +995,7 @@ struct system_on_chip* guess_soc_from_pci(struct system_on_chip* soc, struct cpu
 
       if (socFromPCI[index].vendor_id == dev->vendor_id &&
           socFromPCI[index].device_id == dev->device_id) {
-        fill_soc(soc, socFromPCI[index].soc.soc_name, socFromPCI[index].soc.soc_model, socFromPCI[index].soc.process);
+        fill_soc(soc, socFromPCI[index].soc.name, socFromPCI[index].soc.model, socFromPCI[index].soc.process);
         return soc;
       }
     }
@@ -1079,12 +1079,12 @@ struct system_on_chip* guess_soc_apple(struct system_on_chip* soc) {
       }
       else {
         printBug("Found invalid physical cpu number: %d", physicalcpu);
-        soc->soc_vendor = SOC_VENDOR_UNKNOWN;
+        soc->vendor = SOC_VENDOR_UNKNOWN;
       }
     }
     else {
       printBugCheckRelease("Found invalid cpu_subfamily: 0x%.8X", cpu_subfamily);
-      soc->soc_vendor = SOC_VENDOR_UNKNOWN;
+      soc->vendor = SOC_VENDOR_UNKNOWN;
     }
   }
   else if(cpu_family == CPUFAMILY_ARM_AVALANCHE_BLIZZARD) {
@@ -1106,12 +1106,12 @@ struct system_on_chip* guess_soc_apple(struct system_on_chip* soc) {
       }
       else {
         printBug("Found invalid physical cpu number: %d", physicalcpu);
-        soc->soc_vendor = SOC_VENDOR_UNKNOWN;
+        soc->vendor = SOC_VENDOR_UNKNOWN;
       }
     }
     else {
       printBugCheckRelease("Found invalid cpu_subfamily: 0x%.8X", cpu_subfamily);
-      soc->soc_vendor = SOC_VENDOR_UNKNOWN;
+      soc->vendor = SOC_VENDOR_UNKNOWN;
     }
   }
   else if(cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH ||
@@ -1129,12 +1129,12 @@ struct system_on_chip* guess_soc_apple(struct system_on_chip* soc) {
     }
     else {
       printBugCheckRelease("Found invalid cpu_family: 0x%.8X", cpu_family);
-      soc->soc_vendor = SOC_VENDOR_UNKNOWN;
+      soc->vendor = SOC_VENDOR_UNKNOWN;
     }
   }
   else {
     printBugCheckRelease("Found invalid cpu_family: 0x%.8X", cpu_family);
-    soc->soc_vendor = SOC_VENDOR_UNKNOWN;
+    soc->vendor = SOC_VENDOR_UNKNOWN;
   }
   return soc;
 }
@@ -1143,15 +1143,15 @@ struct system_on_chip* guess_soc_apple(struct system_on_chip* soc) {
 struct system_on_chip* get_soc(struct cpuInfo* cpu) {
   struct system_on_chip* soc = emalloc(sizeof(struct system_on_chip));
   soc->raw_name = NULL;
-  soc->soc_vendor = SOC_VENDOR_UNKNOWN;
-  soc->soc_model = SOC_MODEL_UNKNOWN;
+  soc->vendor = SOC_VENDOR_UNKNOWN;
+  soc->model = SOC_MODEL_UNKNOWN;
   soc->process = UNKNOWN;
 
 #ifdef __linux__
   bool isRPi = is_raspberry_pi();
   if(isRPi) {
     soc = guess_soc_raspbery_pi(soc);
-    if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) {
+    if(soc->vendor == SOC_VENDOR_UNKNOWN) {
       printErr("[RPi] SoC detection failed using revision code, falling back to cpuinfo detection");
     }
     else {
@@ -1160,7 +1160,7 @@ struct system_on_chip* get_soc(struct cpuInfo* cpu) {
   }
 
   soc = guess_soc_from_cpuinfo(soc);
-  if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) {
+  if(soc->vendor == SOC_VENDOR_UNKNOWN) {
     if(soc->raw_name != NULL) {
       printWarn("SoC detection failed using /proc/cpuinfo: Found '%s' string", soc->raw_name);
     }
@@ -1172,30 +1172,30 @@ struct system_on_chip* get_soc(struct cpuInfo* cpu) {
     if(soc->raw_name == NULL) {
       printWarn("SoC detection failed using Android: No string found");
     }
-    else if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) {
+    else if(soc->vendor == SOC_VENDOR_UNKNOWN) {
       printWarn("SoC detection failed using Android: Found '%s' string", soc->raw_name);
     }
 #endif // ifdef __ANDROID__
     // If previous steps failed, try with the device tree
-    if (soc->soc_vendor == SOC_VENDOR_UNKNOWN) {
+    if (soc->vendor == SOC_VENDOR_UNKNOWN) {
       soc = guess_soc_from_devtree(soc);
     }
     // If previous steps failed, try with nvmem
-    if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) {
+    if(soc->vendor == SOC_VENDOR_UNKNOWN) {
       soc = guess_soc_from_nvmem(soc);
     }
     // If previous steps failed, try infering it from the microarchitecture
-    if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) {
+    if(soc->vendor == SOC_VENDOR_UNKNOWN) {
       soc = guess_soc_from_uarch(soc, cpu);
     }
     // If previous steps failed, try infering it from the pci device id
-    if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) {
+    if(soc->vendor == SOC_VENDOR_UNKNOWN) {
       soc = guess_soc_from_pci(soc, cpu);
     }
   }
 #elif defined __APPLE__ || __MACH__
   soc = guess_soc_apple(soc);
-  if(soc->soc_vendor == SOC_VENDOR_UNKNOWN) {
+  if(soc->vendor == SOC_VENDOR_UNKNOWN) {
     printWarn("SoC detection failed using cpu_subfamily");
   }
   else {
@@ -1203,7 +1203,7 @@ struct system_on_chip* get_soc(struct cpuInfo* cpu) {
   }
 #endif // ifdef __linux__
 
-  if(soc->soc_model == SOC_MODEL_UNKNOWN) {
+  if(soc->model == SOC_MODEL_UNKNOWN) {
     // raw_name might not be NULL, but if we were unable to find
     // the exact SoC, just print "Unkwnown"
     soc->raw_name = emalloc(sizeof(char) * (strlen(STRING_UNKNOWN)+1));
