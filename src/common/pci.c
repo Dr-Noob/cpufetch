@@ -66,7 +66,7 @@ struct pci_devices * get_pci_paths(void) {
     if ((stbuf.st_mode & S_IFMT) == S_IFDIR) {
       int strLen = min(MAX_LENGTH_PCI_DIR_NAME, strlen(dp->d_name)) + 1;
       pci->devices[i] = emalloc(sizeof(struct pci_device));
-      pci->devices[i]->path = ecalloc(sizeof(char), strLen);
+      pci->devices[i]->path = ecalloc(strLen, sizeof(char));
       strncpy(pci->devices[i]->path, dp->d_name, strLen);
       i++;
     }        

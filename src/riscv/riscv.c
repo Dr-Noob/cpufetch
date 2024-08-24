@@ -100,9 +100,8 @@ struct extensions* get_extensions_from_str(char* str) {
     return ext;
   }
 
-  int len = sizeof(char) * (strlen(str)+1);
-  ext->str = emalloc(sizeof(char) * len);
-  memset(ext->str, 0, len);
+  int len = strlen(str);
+  ext->str = ecalloc(len+1, sizeof(char));
   strncpy(ext->str, str, sizeof(char) * len);
 
   // Code inspired in Linux kernel (riscv_fill_hwcap):

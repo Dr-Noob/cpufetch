@@ -40,8 +40,7 @@ char* get_field_from_devtree(int DEVTREE_FIELD) {
 
   tmp1++;
   int strlen = filelen-(tmp1-buf);
-  char* hardware = emalloc(sizeof(char) * strlen);
-  memset(hardware, 0, sizeof(char) * strlen);
+  char* hardware = ecalloc(strlen, sizeof(char));
   strncpy(hardware, tmp1, strlen-1);
 
   return hardware;
@@ -70,9 +69,8 @@ char* parse_cpuinfo_field(char* field_str) {
   }
 
   int ret_strlen = (end-tmp);
-  char* ret = emalloc(sizeof(char) * (ret_strlen+1));
-  memset(ret, 0, sizeof(char) * (ret_strlen+1));
-  strncpy(ret, tmp, ret_strlen);
+  char* ret = ecalloc(ret_strlen+1, sizeof(char));
+  strncpy(ret, tmp, sizeof(char) * ret_strlen);
 
   return ret;
 }

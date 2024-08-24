@@ -33,8 +33,7 @@ static char* soc_rpi_string[] = {
 
 char* toupperstr(char* str) {
   int len = strlen(str) + 1;
-  char* ret = emalloc(sizeof(char) * len);
-  memset(ret, 0, sizeof(char) * len);
+  char* ret = ecalloc(len, sizeof(char));
 
   for(int i=0; i < len; i++) {
     ret[i] = toupper((unsigned char) str[i]);

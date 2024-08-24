@@ -42,9 +42,9 @@ char* get_str_process(struct system_on_chip* soc) {
     snprintf(str, strlen(STRING_UNKNOWN)+1, STRING_UNKNOWN);
   }
   else {
-    str = emalloc(sizeof(char) * 5);
-    memset(str, 0, sizeof(char) * 5);
-    snprintf(str, 5, "%dnm", soc->process);
+    int max_process_len = 5 + 1;
+    str = ecalloc(max_process_len, sizeof(char));
+    snprintf(str, max_process_len, "%dnm", soc->process);
   }
   return str;
 }
@@ -70,10 +70,8 @@ void fill_soc(struct system_on_chip* soc, char* soc_name, SOC soc_model, int32_t
     snprintf(soc->raw_name, strlen(STRING_UNKNOWN)+1, STRING_UNKNOWN);
   }
   else {
-    soc->process = process;
     int len = strlen(soc_name) + strlen(soc_trademark_string[soc->vendor]) + 1;
     soc->name = emalloc(sizeof(char) * len);
-    memset(soc->name, 0, sizeof(char) * len);
     sprintf(soc->name, "%s%s", soc_trademark_string[soc->vendor], soc_name);
   }
 }

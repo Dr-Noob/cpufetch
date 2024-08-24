@@ -234,14 +234,10 @@ uint32_t max_apic_id_size(uint32_t** cache_id_apic, struct topology* topo) {
 
 bool build_topo_from_apic(uint32_t* apic_pkg, uint32_t* apic_smt, uint32_t** cache_id_apic, struct topology* topo) {
   uint32_t size = max_apic_id_size(cache_id_apic, topo);
-  uint32_t* sockets = emalloc(sizeof(uint32_t) * size);
-  uint32_t* smt = emalloc(sizeof(uint32_t) * size);
-  uint32_t* apic_id = emalloc(sizeof(uint32_t) * size);
+  uint32_t* sockets = ecalloc(size, sizeof(uint32_t));
+  uint32_t* smt = ecalloc(size, sizeof(uint32_t));
+  uint32_t* apic_id = ecalloc(size, sizeof(uint32_t));
   uint32_t num_caches = 0;
-
-  memset(sockets, 0, sizeof(uint32_t) * size);
-  memset(smt, 0, sizeof(uint32_t) * size);  
-  memset(apic_id, 0, sizeof(uint32_t) * size);
 
   // System topology
   for(int i=0; i < topo->total_cores_module; i++) {

@@ -91,8 +91,7 @@ char* get_str_cpu_name_internal(void) {
   uint32_t edx = 0;
   uint32_t c = 0;
 
-  char * name = emalloc(sizeof(char) * CPU_NAME_MAX_LENGTH);
-  memset(name, 0, CPU_NAME_MAX_LENGTH);
+  char * name = ecalloc(CPU_NAME_MAX_LENGTH, sizeof(char));
 
   for(int i=0; i < 3; i++) {
     eax = 0x80000002 + i;
@@ -281,7 +280,7 @@ struct hypervisor* get_hp_info(bool hv_present) {
   }
   else {
     char name[13];
-    memset(name, 0, 13);
+    memset(name, 0, sizeof(char) * 13);
     get_name_cpuid(name, ebx, ecx, edx);
 
     bool found = false;
@@ -471,7 +470,7 @@ struct cpuInfo* get_cpu_info(void) {
 
   //Fill vendor
   char name[13];
-  memset(name,0,13);
+  memset(name, 0, sizeof(char) * 13);
   get_name_cpuid(name, ebx, edx, ecx);
 
   if(strcmp(CPU_VENDOR_INTEL_STRING,name) == 0)

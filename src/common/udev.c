@@ -146,8 +146,7 @@ char* get_field_from_cpuinfo(char* CPUINFO_FIELD) {
   char* tmp2 = strstr(tmp1, "\n");
 
   int strlen = (1 + (tmp2-tmp1));
-  char* hardware = emalloc(sizeof(char) * strlen);
-  memset(hardware, 0, sizeof(char) * strlen);
+  char* hardware = ecalloc(strlen, sizeof(char));
   strncpy(hardware, tmp1, tmp2-tmp1);
 
   return hardware;

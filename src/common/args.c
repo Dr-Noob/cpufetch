@@ -225,8 +225,7 @@ bool parse_color(char* optarg_str, struct color*** cs) {
 char* build_short_options(void) {
   const char *c = args_chr;
   int len = sizeof(args_chr) / sizeof(args_chr[0]);
-  char* str = (char *) emalloc(sizeof(char) * (len*2 + 1));
-  memset(str, 0, sizeof(char) * (len*2 + 1));
+  char* str = (char *) ecalloc(len*2 + 1, sizeof(char));
 
 #ifdef ARCH_X86
   sprintf(str, "%c:%c:%c%c%c%c%c%c%c%c%c%c%c%c",
