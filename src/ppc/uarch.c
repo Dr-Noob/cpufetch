@@ -25,6 +25,7 @@ enum {
   UARCH_PPC603,
   UARCH_PPC440,
   UARCH_PPC470,
+  UARCH_ESPRESSO, // Not exactly an uarch, but the codename of Wii U
   UARCH_PPC970,
   UARCH_PPC970FX,
   UARCH_PPC970MP,
@@ -75,6 +76,7 @@ void fill_uarch(struct uarch* arch, MICROARCH u) {
   FILL_UARCH(arch->uarch, UARCH_PPC603,      "PowerPC 603",   UNK) // varies
   FILL_UARCH(arch->uarch, UARCH_PPC440,      "PowerPC 440",   UNK)
   FILL_UARCH(arch->uarch, UARCH_PPC470,      "PowerPC 470",    45) // strange...
+  FILL_UARCH(arch->uarch, UARCH_ESPRESSO,    "Espresso",       45) // https://en.wikipedia.org/wiki/PowerPC_7xx#Espresso, https://en.wikipedia.org/wiki/Espresso_(processor), https://github.com/Dr-Noob/cpufetch/issues/231
   FILL_UARCH(arch->uarch, UARCH_PPC970,      "PowerPC 970",   130)
   FILL_UARCH(arch->uarch, UARCH_PPC970FX,    "PowerPC 970FX",  90)
   FILL_UARCH(arch->uarch, UARCH_PPC970MP,    "PowerPC 970MP",  90)
@@ -234,6 +236,7 @@ struct uarch* get_uarch_from_pvr(uint32_t pvr) {
   CHECK_UARCH(arch, pvr, 0xffff0000, 0x7ff50000, UARCH_PPC470)
   CHECK_UARCH(arch, pvr, 0xffff0000, 0x00050000, UARCH_PPC470)
   CHECK_UARCH(arch, pvr, 0xffff0000, 0x11a50000, UARCH_PPC470)
+  CHECK_UARCH(arch, pvr, 0xffffffff, 0x70010201, UARCH_ESPRESSO)
   UARCH_END
 
   return arch;
