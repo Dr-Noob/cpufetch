@@ -21,8 +21,11 @@
 #define FREQ_VECTOR_SIZE         1<<16
 
 struct freq_thread {
+  // Inputs
+  struct cpuInfo* cpu;
   bool end;
   bool measure;
+  // Output
   double freq;
 };
 
@@ -48,6 +51,7 @@ void* measure_freq(void *freq_ptr) {
   char* line = NULL;
   size_t len = 0;
   ssize_t read;
+  struct cpuInfo* cpu = freq->cpu;
 
   int v = 0;
   double* freq_vector = malloc(sizeof(double) * FREQ_VECTOR_SIZE);
@@ -76,18 +80,46 @@ void* measure_freq(void *freq_ptr) {
     sleep_ms(500);
   }
 
-  freq->freq = vector_average_harmonic(freq_vector, v);
-  printWarn("AVX2 measured freq=%f\n", freq->freq);
+  if (cpu->hybrid_flag) {
+    // We have an heterogeneous architecture. After measuring the
+    // frequency for all cores, we now need to compute the average
+    // independently for each CPU module.
+    struct cpuInfo* ptr = cpu;
+    double* freq_vector_ptr = freq_vector;
+
+    for (int i=0; i < cpu->num_cpus; ptr = ptr->next_cpu, i++) {
+      double average_freq = vector_average_harmonic(freq_vector_ptr, ptr->topo->total_cores_module);
+
+      ptr->freq->max = (int32_t) average_freq;
+      printWarn("AVX2 measured freq=%d (module %d)", ptr->freq->max, i);
+
+      freq_vector_ptr = freq_vector_ptr + ptr->topo->total_cores_module;
+    }
+  }
+  else {
+    double average_freq = vector_average_harmonic(freq_vector, v);
+
+    cpu->freq->max = (int32_t) average_freq;
+    printWarn("AVX2 measured freq=%d\n", cpu->freq->max);
+  }
 
   return NULL;
 }
 
 int64_t measure_frequency(struct cpuInfo* cpu) {
+  if (cpu->hybrid_flag && cpu->first_core_id > 0) {
+    // We have a hybrid architecture and we have already
+    // measured the frequency for this module in a previous
+    // call to this function, so now just return it.
+    return get_freq(cpu->freq);
+  }
+
   int ret;
   int num_spaces;
   struct freq_thread* freq_struct = malloc(sizeof(struct freq_thread));
   freq_struct->end = false;
   freq_struct->measure = false;
+  freq_struct->cpu = cpu;
 
   void* (*compute_function)(void*);
 
@@ -159,5 +191,5 @@ int64_t measure_frequency(struct cpuInfo* cpu) {
   }
 
   printf("\r%*c", num_spaces, ' ');
-  return freq_struct->freq;
+  return cpu->freq->max;
 }
