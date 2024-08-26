@@ -1115,10 +1115,12 @@ struct system_on_chip* guess_soc_apple(struct system_on_chip* soc) {
     }
   }
   else if(cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH ||
+          cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH_2   ||
           cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH_PRO ||
           cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH_MAX) {
     // Check M3 version
-    if(cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH) {
+    if(cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH ||
+       cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH_2) {
       fill_soc(soc, "M3", SOC_APPLE_M3, 3);
     }
     else if(cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH_PRO) {
