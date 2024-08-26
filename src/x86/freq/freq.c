@@ -116,8 +116,25 @@ int64_t measure_frequency(struct cpuInfo* cpu) {
   }
 
   pthread_t* compute_th = malloc(sizeof(pthread_t) * cpu->topo->total_cores);
+  cpu_set_t cpus;
+  pthread_attr_t attr;
+  if ((ret = pthread_attr_init(&attr)) != 0) {
+    printErr("pthread_attr_init: %s", strerror(ret));
+    return -1;
+  }
+
   for(int i=0; i < cpu->topo->total_cores; i++) {
-    ret = pthread_create(&compute_th[i], NULL, compute_function, NULL);
+    // We might have called bind_to_cpu previously, binding the threads
+    // to a specific core, so now we must make sure we run the new thread
+    // on the correct core.
+    CPU_ZERO(&cpus);
+    CPU_SET(i, &cpus);
+    if ((ret = pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpus)) != 0) {
+      printErr("pthread_attr_setaffinity_np: %s", strerror(ret));
+      return -1;
+    }
+
+    ret = pthread_create(&compute_th[i], &attr, compute_function, NULL);
 
     if(ret != 0) {
       fprintf(stderr, "Error creating thread\n");
