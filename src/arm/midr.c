@@ -176,7 +176,9 @@ struct features* get_features_info(void) {
       printWarn("Unable to retrieve AT_HWCAP2 using getauxval");
     }
     else {
-      feat->SVE2 = hwcaps & HWCAP2_SVE2;
+      #ifdef HWCAP2_SVE2
+        feat->SVE2 = hwcaps & HWCAP2_SVE2;
+      #endif
     }
   }
 #else
