@@ -120,9 +120,9 @@ clean:
 install: $(OUTPUT)
 	install -Dm755 "cpufetch"   "$(DESTDIR)$(PREFIX)/bin/cpufetch"
 	install -Dm644 "LICENSE"    "$(DESTDIR)$(PREFIX)/share/licenses/cpufetch-git/LICENSE"
-	install -Dm644 "cpufetch.1" "$(DESTDIR)$(PREFIX)/share/man/man1/cpufetch.1.gz"
+	install -Dm644 "cpufetch.1" "$(DESTDIR)$(PREFIX)/share/man/man1/cpufetch.1"
 
 uninstall:
 	rm -f "$(DESTDIR)$(PREFIX)/bin/cpufetch"
 	rm -f "$(DESTDIR)$(PREFIX)/share/licenses/cpufetch-git/LICENSE"
-	rm -f "$(DESTDIR)$(PREFIX)/share/man/man1/cpufetch.1.gz"
+	rm -f "$(DESTDIR)$(PREFIX)/share/man/man1/cpufetch.1"
