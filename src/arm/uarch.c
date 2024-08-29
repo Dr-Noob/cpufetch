@@ -33,6 +33,7 @@ enum {
   ISA_ARMv8_3_A,
   ISA_ARMv8_4_A,
   ISA_ARMv8_5_A,
+  ISA_ARMv8_6_A,
   ISA_ARMv9_A
 };
 
@@ -93,8 +94,10 @@ static const ISA isas_uarch[] = {
   [UARCH_EXYNOS_M5]    = ISA_ARMv8_2_A,
   [UARCH_ICESTORM]     = ISA_ARMv8_5_A, // https://github.com/llvm/llvm-project/blob/main/llvm/include/llvm/Support/AArch64TargetParser.def
   [UARCH_FIRESTORM]    = ISA_ARMv8_5_A,
-  [UARCH_BLIZZARD]     = ISA_ARMv8_5_A, // Not confirmed
-  [UARCH_AVALANCHE]    = ISA_ARMv8_5_A,
+  [UARCH_BLIZZARD]     = ISA_ARMv8_6_A, // https://github.com/llvm/llvm-project/blob/main/llvm/unittests/TargetParser/TargetParserTest.cpp
+  [UARCH_AVALANCHE]    = ISA_ARMv8_6_A, // https://github.com/llvm/llvm-project/blob/main/llvm/unittests/TargetParser/TargetParserTest.cpp
+  [UARCH_SAWTOOTH]     = ISA_ARMv8_6_A, // https://github.com/llvm/llvm-project/blob/main/llvm/unittests/TargetParser/TargetParserTest.cpp
+  [UARCH_EVEREST]      = ISA_ARMv8_6_A, // https://github.com/llvm/llvm-project/blob/main/llvm/unittests/TargetParser/TargetParserTest.cpp
   [UARCH_PJ4]          = ISA_ARMv7_A,
   [UARCH_XIAOMI]       = ISA_ARMv8_A,
 };
@@ -112,6 +115,7 @@ static char* isas_string[] = {
   [ISA_ARMv8_3_A] = "ARMv8.3",
   [ISA_ARMv8_4_A] = "ARMv8.4",
   [ISA_ARMv8_5_A] = "ARMv8.5",
+  [ISA_ARMv8_6_A] = "ARMv8.6",
   [ISA_ARMv9_A] = "ARMv9"
 };
 
@@ -271,6 +275,7 @@ bool is_ARMv8_or_newer(struct cpuInfo* cpu) {
          cpu->arch->isa == ISA_ARMv8_3_A       ||
          cpu->arch->isa == ISA_ARMv8_4_A       ||
          cpu->arch->isa == ISA_ARMv8_5_A       ||
+         cpu->arch->isa == ISA_ARMv8_6_A       ||
          cpu->arch->isa == ISA_ARMv9_A;
 }
 
