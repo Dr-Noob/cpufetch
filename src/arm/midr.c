@@ -431,6 +431,8 @@ struct cpuInfo* get_cpu_info(void) {
   struct cpuInfo* cpu = malloc(sizeof(struct cpuInfo));
   init_cpu_info(cpu);
 
+  test_thread_siblings_list();
+
   #ifdef __linux__
     return get_cpu_info_linux(cpu);
   #elif defined __APPLE__ || __MACH__

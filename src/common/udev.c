@@ -315,6 +315,24 @@ int get_num_caches_by_level(struct cpuInfo* cpu, uint32_t level) {
   return ret;
 }
 
+// Just to check what is going on with missing thread_siblings_list
+void test_thread_siblings_list(void) {
+  int num_cores = 12;
+  int filelen;
+  char* buf = NULL;
+
+  for(int i=0; i < num_cores; i++) {
+    char* path = ecalloc(500, sizeof(char));
+    sprintf(path, "/sys/devices/system/cpu/cpu%d/topology/thread_siblings_list", i);
+
+    if((buf = read_file(path, &filelen)) == NULL) {
+      printf("Could not open '%s'", path);      
+    }
+
+    printf("%s: %s\n", path, buf);
+  }
+}
+
 int get_num_sockets_package_cpus(struct topology* topo) {
   // Get number of sockets using
   // /sys/devices/system/cpu/cpu*/topology/package_cpus

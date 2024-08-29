@@ -43,5 +43,6 @@ int get_num_sockets_package_cpus(struct topology* topo);
 int get_ncores_from_cpuinfo(void);
 char* get_field_from_cpuinfo(char* CPUINFO_FIELD);
 bool is_devtree_compatible(char* str);
+void test_thread_siblings_list(void);
 
 #endif
