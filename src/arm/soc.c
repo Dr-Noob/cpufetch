@@ -947,6 +947,7 @@ bool match_dt(struct system_on_chip* soc, char* dt, int filelen, char* expected_
 // substring.
 // TODO: Implement this by going trough NULL-separated fields rather than
 // using strstr.
+// https://trac.gateworks.com/wiki/linux/devicetree
 struct system_on_chip* guess_soc_from_devtree(struct system_on_chip* soc) {
   int len;
   char* dt = get_devtree_compatible(&len);
@@ -970,10 +971,16 @@ struct system_on_chip* guess_soc_from_devtree(struct system_on_chip* soc) {
   DT_EQ(dt, len, soc, "apple,t6030", "M3 Pro",   SOC_APPLE_M3_PRO,   3)
   DT_EQ(dt, len, soc, "apple,t6031", "M3 Max",   SOC_APPLE_M3_MAX,   3)
   DT_EQ(dt, len, soc, "apple,t6034", "M3 Max",   SOC_APPLE_M3_MAX,   3)
-  // TODO: Add more NXP SoCs: https://elixir.bootlin.com/linux/v6.10.6/source/arch/arm64/boot/dts/freescale
-  // https://github.com/Dr-Noob/cpufetch/issues/261
-  // https://www.nxp.com/docs/en/fact-sheet/IMX8MPLUSFS.pdf
-  DT_EQ(dt, len, soc, "imx8mp-nitrogen8mp", "i.MX 8M Plus", SOC_NXP_IMX8MP, 14)
+  // grep -oR -h --color -E '"fsl,.*' *.dtsi | sort | uniq | cut -d ',' -f1-2 | grep -v '-'
+  // https://elixir.bootlin.com/linux/v6.10.6/source/arch/arm64/boot/dts/freescale    
+  DT_EQ(dt, len, soc, "fsl,imx8qm",  "i.MX 8QuadMax",   SOC_NXP_IMX8QM,  28) // https://www.nxp.com/docs/en/fact-sheet/IMX8FAMFS.pdf  
+  DT_EQ(dt, len, soc, "fsl,imx8qp",  "i.MX 8QuadPlus",  SOC_NXP_IMX8QP,  28) // Actually not in dtsi, compatible string is just a guess
+  DT_EQ(dt, len, soc, "fsl,imx8mp",  "i.MX 8M Plus",    SOC_NXP_IMX8MP,  14) // https://www.nxp.com/docs/en/fact-sheet/IMX8MPLUSFS.pdf https://github.com/Dr-Noob/cpufetch/issues/261
+  DT_EQ(dt, len, soc, "fsl,imx8mn",  "i.MX 8M Nano",    SOC_NXP_IMX8MN,  NA)
+  DT_EQ(dt, len, soc, "fsl,imx8mm",  "i.MX 8M Mini",    SOC_NXP_IMX8MM,  NA) // https://www.nxp.com/docs/en/fact-sheet/IMX8MMINIFS.pdf
+  DT_EQ(dt, len, soc, "fsl,imx8dxp", "i.MX 8DualXPlus", SOC_NXP_IMX8DXP, NA)
+  DT_EQ(dt, len, soc, "fsl,imx8qxp", "i.MX 8QuadXPlus", SOC_NXP_IMX8QXP, NA)
+  DT_EQ(dt, len, soc, "fsl,imx93",   "i.MX 93",         SOC_NXP_IMX93,   NA)  
   // TODO: Add more Amlogic SoCs: https://elixir.bootlin.com/linux/v6.10.6/source/arch/arm64/boot/dts/amlogic
   // https://github.com/Dr-Noob/cpufetch/issues/268
   // https://www.amlogic.com/#Products/393/index.html

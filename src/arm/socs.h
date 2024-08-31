@@ -383,7 +383,14 @@ enum {
   // ALTRA
   SOC_AMPERE_ALTRA,
   // NXP
+  SOC_NXP_IMX8QM,
+  SOC_NXP_IMX8QP,
   SOC_NXP_IMX8MP,
+  SOC_NXP_IMX8MN,
+  SOC_NXP_IMX8MM,
+  SOC_NXP_IMX8DXP,
+  SOC_NXP_IMX8QXP,
+  SOC_NXP_IMX93,
   // AMLOGIC
   SOC_AMLOGIC_A311D,
   // UNKNOWN
@@ -403,7 +410,7 @@ inline static VENDOR get_soc_vendor_from_soc(SOC soc) {
   else if(soc >= SOC_GOOGLE_TENSOR && soc <= SOC_GOOGLE_TENSOR_G3) return SOC_VENDOR_GOOGLE;
   else if(soc >= SOC_TEGRA_X1 && soc <= SOC_TEGRA_X1) return SOC_VENDOR_NVIDIA;
   else if(soc >= SOC_AMPERE_ALTRA && soc <= SOC_AMPERE_ALTRA) return SOC_VENDOR_AMPERE;
-  else if(soc >= SOC_NXP_IMX8MP && soc <= SOC_NXP_IMX8MP) return SOC_VENDOR_NXP;
+  else if(soc >= SOC_NXP_IMX8QM && soc <= SOC_NXP_IMX93) return SOC_VENDOR_NXP;
   else if(soc >= SOC_AMLOGIC_A311D && soc <= SOC_AMLOGIC_A311D) return SOC_VENDOR_AMLOGIC;
   return SOC_VENDOR_UNKNOWN;
 }
