@@ -384,6 +384,8 @@ enum {
   SOC_AMPERE_ALTRA,
   // NXP
   SOC_NXP_IMX8MP,
+  // AMLOGIC
+  SOC_AMLOGIC_A311D,
   // UNKNOWN
   SOC_MODEL_UNKNOWN
 };
@@ -402,6 +404,7 @@ inline static VENDOR get_soc_vendor_from_soc(SOC soc) {
   else if(soc >= SOC_TEGRA_X1 && soc <= SOC_TEGRA_X1) return SOC_VENDOR_NVIDIA;
   else if(soc >= SOC_AMPERE_ALTRA && soc <= SOC_AMPERE_ALTRA) return SOC_VENDOR_AMPERE;
   else if(soc >= SOC_NXP_IMX8MP && soc <= SOC_NXP_IMX8MP) return SOC_VENDOR_NXP;
+  else if(soc >= SOC_AMLOGIC_A311D && soc <= SOC_AMLOGIC_A311D) return SOC_VENDOR_AMLOGIC;
   return SOC_VENDOR_UNKNOWN;
 }
 

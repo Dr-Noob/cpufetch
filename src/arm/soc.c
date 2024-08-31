@@ -970,9 +970,15 @@ struct system_on_chip* guess_soc_from_devtree(struct system_on_chip* soc) {
   DT_EQ(dt, len, soc, "apple,t6030", "M3 Pro",   SOC_APPLE_M3_PRO,   3)
   DT_EQ(dt, len, soc, "apple,t6031", "M3 Max",   SOC_APPLE_M3_MAX,   3)
   DT_EQ(dt, len, soc, "apple,t6034", "M3 Max",   SOC_APPLE_M3_MAX,   3)
+  // TODO: Add more NXP SoCs: https://elixir.bootlin.com/linux/v6.10.6/source/arch/arm64/boot/dts/freescale
   // https://github.com/Dr-Noob/cpufetch/issues/261
   // https://www.nxp.com/docs/en/fact-sheet/IMX8MPLUSFS.pdf
   DT_EQ(dt, len, soc, "imx8mp-nitrogen8mp", "i.MX 8M Plus", SOC_NXP_IMX8MP, 14)
+  // TODO: Add more Amlogic SoCs: https://elixir.bootlin.com/linux/v6.10.6/source/arch/arm64/boot/dts/amlogic
+  // https://github.com/Dr-Noob/cpufetch/issues/268
+  // https://www.amlogic.com/#Products/393/index.html
+  // https://wikimovel.com/index.php/Amlogic_A311D
+  DT_EQ(dt, len, soc, "amlogic,a311d", "A311D", SOC_AMLOGIC_A311D, 12)
   DT_END(dt, len)
 }
 

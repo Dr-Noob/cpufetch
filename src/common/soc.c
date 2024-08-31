@@ -23,6 +23,7 @@ static char* soc_trademark_string[] = {
   [SOC_VENDOR_NVIDIA]     = "NVIDIA ",
   [SOC_VENDOR_AMPERE]     = "Ampere ",
   [SOC_VENDOR_NXP]        = "NXP ",
+  [SOC_VENDOR_AMLOGIC]    = "Amlogic ",
   // RISC-V
   [SOC_VENDOR_SIFIVE]     = "SiFive ",
   [SOC_VENDOR_STARFIVE]   = "StarFive ",
