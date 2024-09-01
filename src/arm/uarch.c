@@ -34,7 +34,8 @@ enum {
   ISA_ARMv8_4_A,
   ISA_ARMv8_5_A,
   ISA_ARMv8_6_A,
-  ISA_ARMv9_A
+  ISA_ARMv9_A,
+  ISA_ARMv9_2_A
 };
 
 static const ISA isas_uarch[] = {
@@ -62,15 +63,26 @@ static const ISA isas_uarch[] = {
   [UARCH_CORTEX_A76]   = ISA_ARMv8_2_A,
   [UARCH_CORTEX_A77]   = ISA_ARMv8_2_A,
   [UARCH_CORTEX_A78]   = ISA_ARMv8_2_A,
+  [UARCH_CORTEX_A78C]  = ISA_ARMv8_2_A,
+  [UARCH_CORTEX_A78AE] = ISA_ARMv8_2_A,
   [UARCH_CORTEX_A510]   = ISA_ARMv9_A,
+  [UARCH_CORTEX_A520]  = ISA_ARMv9_2_A,
   [UARCH_CORTEX_A710]   = ISA_ARMv9_A,
   [UARCH_CORTEX_A715]  = ISA_ARMv9_A,
+  [UARCH_CORTEX_A720]  = ISA_ARMv9_2_A,
+  [UARCH_CORTEX_A725]  = ISA_ARMv9_2_A,
   [UARCH_CORTEX_X1]    = ISA_ARMv8_2_A,
+  [UARCH_CORTEX_X1C]   = ISA_ARMv8_2_A, // Assuming same as X1
   [UARCH_CORTEX_X2]    = ISA_ARMv9_A,
   [UARCH_CORTEX_X3]    = ISA_ARMv9_A,
+  [UARCH_CORTEX_X4]    = ISA_ARMv9_2_A,
+  [UARCH_CORTEX_X925]  = ISA_ARMv9_2_A,
   [UARCH_NEOVERSE_N1]  = ISA_ARMv8_2_A,
+  [UARCH_NEOVERSE_N2]  = ISA_ARMv9_A,
   [UARCH_NEOVERSE_E1]  = ISA_ARMv8_2_A,
   [UARCH_NEOVERSE_V1]  = ISA_ARMv8_4_A,
+  [UARCH_NEOVERSE_V2]  = ISA_ARMv9_A,
+  [UARCH_NEOVERSE_V3]  = ISA_ARMv9_2_A,
   [UARCH_BRAHMA_B15]   = ISA_ARMv7_A,   // Same as Cortex-A15
   [UARCH_BRAHMA_B53]   = ISA_ARMv8_A,   // Same as Cortex-A53
   [UARCH_THUNDERX]     = ISA_ARMv8_A,
@@ -116,7 +128,8 @@ static char* isas_string[] = {
   [ISA_ARMv8_4_A] = "ARMv8.4",
   [ISA_ARMv8_5_A] = "ARMv8.5",
   [ISA_ARMv8_6_A] = "ARMv8.6",
-  [ISA_ARMv9_A] = "ARMv9"
+  [ISA_ARMv9_A] = "ARMv9",
+  [ISA_ARMv9_2_A] = "ARMv9.2",
 };
 
 #define UARCH_START if (false) {}
@@ -188,13 +201,24 @@ struct uarch* get_uarch_from_midr(uint32_t midr, struct cpuInfo* cpu) {
   CHECK_UARCH(arch, cpu, 'A', 0xD0E, NA, NA, "Cortex-A76",            UARCH_CORTEX_A76,   CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD40, NA, NA, "Neoverse V1",           UARCH_NEOVERSE_V1,  CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD41, NA, NA, "Cortex-A78",            UARCH_CORTEX_A78,   CPU_VENDOR_ARM)
+  CHECK_UARCH(arch, cpu, 'A', 0xD42, NA, NA, "Cortex-A78AE",          UARCH_CORTEX_A78AE, CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD44, NA, NA, "Cortex-X1",             UARCH_CORTEX_X1,    CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD46, NA, NA, "Cortex‑A510",           UARCH_CORTEX_A510,  CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD47, NA, NA, "Cortex‑A710",           UARCH_CORTEX_A710,  CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD48, NA, NA, "Cortex-X2",             UARCH_CORTEX_X2,    CPU_VENDOR_ARM)
+  CHECK_UARCH(arch, cpu, 'A', 0xD49, NA, NA, "Neoverse N2",           UARCH_NEOVERSE_N2,  CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD4A, NA, NA, "Neoverse E1",           UARCH_NEOVERSE_E1,  CPU_VENDOR_ARM)
+  CHECK_UARCH(arch, cpu, 'A', 0xD4B, NA, NA, "Cortex-A78C",           UARCH_CORTEX_A78C,  CPU_VENDOR_ARM)
+  CHECK_UARCH(arch, cpu, 'A', 0xD4C, NA, NA, "Cortex-X1C",            UARCH_CORTEX_X1C,   CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD4D, NA, NA, "Cortex-A715",           UARCH_CORTEX_A715,  CPU_VENDOR_ARM)
   CHECK_UARCH(arch, cpu, 'A', 0xD4E, NA, NA, "Cortex-X3",             UARCH_CORTEX_X3,    CPU_VENDOR_ARM)
+  CHECK_UARCH(arch, cpu, 'A', 0xD4F, NA, NA, "Neoverse V2",           UARCH_NEOVERSE_V2,  CPU_VENDOR_ARM)
+  CHECK_UARCH(arch, cpu, 'A', 0xD80, NA, NA, "Cortex-A520",           UARCH_CORTEX_A520,  CPU_VENDOR_ARM)
+  CHECK_UARCH(arch, cpu, 'A', 0xD81, NA, NA, "Cortex-A720",           UARCH_CORTEX_A720,  CPU_VENDOR_ARM)
+  CHECK_UARCH(arch, cpu, 'A', 0xD82, NA, NA, "Cortex-X4",             UARCH_CORTEX_X4,    CPU_VENDOR_ARM)
+  CHECK_UARCH(arch, cpu, 'A', 0xD84, NA, NA, "Neoverse V3",           UARCH_NEOVERSE_V3,  CPU_VENDOR_ARM)
+  CHECK_UARCH(arch, cpu, 'A', 0xD85, NA, NA, "Cortex-X925",           UARCH_CORTEX_X925,  CPU_VENDOR_ARM)
+  CHECK_UARCH(arch, cpu, 'A', 0xD87, NA, NA, "Cortex-A725",           UARCH_CORTEX_A725,  CPU_VENDOR_ARM)
 
   CHECK_UARCH(arch, cpu, 'B', 0x00F, NA, NA, "Brahma B15",            UARCH_BRAHMA_B15,   CPU_VENDOR_BROADCOM)
   CHECK_UARCH(arch, cpu, 'B', 0x100, NA, NA, "Brahma B53",            UARCH_BRAHMA_B53,   CPU_VENDOR_BROADCOM)
@@ -276,7 +300,8 @@ bool is_ARMv8_or_newer(struct cpuInfo* cpu) {
          cpu->arch->isa == ISA_ARMv8_4_A       ||
          cpu->arch->isa == ISA_ARMv8_5_A       ||
          cpu->arch->isa == ISA_ARMv8_6_A       ||
-         cpu->arch->isa == ISA_ARMv9_A;
+         cpu->arch->isa == ISA_ARMv9_A         ||
+         cpu->arch->isa == ISA_ARMv9_2_A;
 }
 
 bool has_fma_support(struct cpuInfo* cpu) {
@@ -322,13 +347,19 @@ int get_number_of_vpus(struct cpuInfo* cpu) {
   MICROARCH ua = cpu->arch->uarch;
 
   switch(ua) {
+    case UARCH_CORTEX_X925: // [https://www.anandtech.com/show/21399/arm-unveils-2024-cpu-core-designs-cortex-x925-a725-and-a520-arm-v9-2-redefined-for-3nm-/2]
+      return 6;
     case UARCH_EVEREST:     // Just a guess, needs confirmation.
     case UARCH_FIRESTORM:   // [https://dougallj.github.io/applecpu/firestorm-simd.html]
     case UARCH_AVALANCHE:   // [https://en.wikipedia.org/wiki/Comparison_of_ARM_processors]
     case UARCH_CORTEX_X1:   // [https://www.anandtech.com/show/15813/arm-cortex-a78-cortex-x1-cpu-ip-diverging/3]
+    case UARCH_CORTEX_X1C:  // Assuming same as X1
     case UARCH_CORTEX_X2:   // [https://www.anandtech.com/show/16693/arm-announces-mobile-armv9-cpu-microarchitectures-cortexx2-cortexa710-cortexa510/2]
     case UARCH_CORTEX_X3:   // [https://www.hwcooling.net/en/cortex-x3-the-new-fastest-arm-core-architecture-analysis: "The FPU and SIMD unit of the core still has four pipelines"]
+    case UARCH_CORTEX_X4:   // [https://www.anandtech.com/show/18871/arm-unveils-armv92-mobile-architecture-cortex-x4-a720-and-a520-64bit-exclusive/2]: "Cortex-X4: Out-of-Order Core"
     case UARCH_NEOVERSE_V1: // [https://en.wikichip.org/wiki/arm_holdings/microarchitectures/neoverse_v1]
+    case UARCH_NEOVERSE_V2: // [https://chipsandcheese.com/2023/09/11/hot-chips-2023-arms-neoverse-v2/]
+    case UARCH_NEOVERSE_V3: // Assuming same as V2
       return 4;
     case UARCH_SAWTOOTH:    // Needs confirmation, rn this is the best we know: https://mastodon.social/@dougall/111118317031041336
     case UARCH_EXYNOS_M3:   // [https://www.anandtech.com/show/12361/samsung-exynos-m3-architecture]
@@ -347,16 +378,22 @@ int get_number_of_vpus(struct cpuInfo* cpu) {
     case UARCH_CORTEX_A76:  // [https://www.anandtech.com/show/12785/arm-cortex-a76-cpu-unveiled-7nm-powerhouse/3]
     case UARCH_CORTEX_A77:  // [https://fuse.wikichip.org/news/2339/arm-unveils-cortex-a77-emphasizes-single-thread-performance]
     case UARCH_CORTEX_A78:  // [https://fuse.wikichip.org/news/3536/arm-unveils-the-cortex-a78-when-less-is-more]
+    case UARCH_CORTEX_A78C: // Assuming same as A78
+    case UARCH_CORTEX_A78AE:// Assuming same as A78
     case UARCH_EXYNOS_M1:   // [https://www.anandtech.com/show/12361/samsung-exynos-m3-architecture]
     case UARCH_EXYNOS_M2:   // [https://www.anandtech.com/show/12361/samsung-exynos-m3-architecture]
     case UARCH_NEOVERSE_N1: // [https://en.wikichip.org/wiki/arm_holdings/microarchitectures/neoverse_n1#Individual_Core]
+    case UARCH_NEOVERSE_N2: // [https://chipsandcheese.com/2023/08/18/arms-neoverse-n2-cortex-a710-for-servers/]
     case UARCH_CORTEX_A710: // [https://chipsandcheese.com/2023/08/11/arms-cortex-a710-winning-by-default/]: Fig in Core Overview. Table in Instruction Scheduling and Execution
     case UARCH_CORTEX_A715: // [https://www.hwcooling.net/en/arm-introduces-new-cortex-a715-core-architecture-analysis/]: "the numbers of ALU and FPU execution units themselves >
+    case UARCH_CORTEX_A720: // Assuming same as A715: https://www.anandtech.com/show/18871/arm-unveils-armv92-mobile-architecture-cortex-x4-a720-and-a520-64bit-exclusive/3
+    case UARCH_CORTEX_A725: // Assuming same as A720
       return 2;
     case UARCH_NEOVERSE_E1: // [https://www.anandtech.com/show/13959/arm-announces-neoverse-n1-platform/5]
     // A510 is integrated as part of a Complex. Normally, each complex would incorporate two Cortex-A510 cores.
     // Each complex incorporates a single VPU with 2 ports, so for each A510 there is theoretically 1 port.
     case UARCH_CORTEX_A510: // [https://en.wikichip.org/wiki/arm_holdings/microarchitectures/cortex-a510#Vector_Processing_Unit_.28VPU.29]
+    case UARCH_CORTEX_A520: // Assuming same as A50: https://www.anandtech.com/show/18871/arm-unveils-armv92-mobile-architecture-cortex-x4-a720-and-a520-64bit-exclusive/4
       return 1;
     default:
       // ARMv6
