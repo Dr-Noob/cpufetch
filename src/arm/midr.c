@@ -506,7 +506,7 @@ struct cpuInfo* get_cpu_info_windows(struct cpuInfo* cpu) {
   for(int i=0; i < ncores; i++) {
     // Cast from 64 to 32 bit to be able to re-use the pre-existing
     // functions such as fill_ids_from_midr and cores_are_equal
-    uint64_t midr_64;
+    long midr_64;
     if(!get_win32_core_info_64(i, "CP 4000", &midr_64)) {
       return NULL;
     }
