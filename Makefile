@@ -70,12 +70,27 @@ $(error Aborting compilation)
 
 	OUTPUT=cpufetch
 else
-	# Assume x86_64
+	arch := $(shell cc -dumpmachine)
+	arch := $(firstword $(subst -, ,$(arch)))
+
+	ifeq ($(arch), $(filter $(arch), x86_64 amd64 i386 i486 i586 i686))
+		SRC_DIR=src/x86/
+		SOURCE += $(COMMON_SRC) $(SRC_DIR)cpuid.c $(SRC_DIR)apic.c $(SRC_DIR)cpuid_asm.c $(SRC_DIR)uarch.c
+		HEADERS += $(COMMON_HDR) $(SRC_DIR)cpuid.h $(SRC_DIR)apic.h $(SRC_DIR)cpuid_asm.h $(SRC_DIR)uarch.h
+		CFLAGS += -DARCH_X86 -std=c99
+	else ifeq ($(arch), $(filter $(arch), arm aarch64_be aarch64 arm64 armv8b armv8l armv7l armv6l))
+		SRC_DIR=src/arm/
+		SOURCE += $(COMMON_SRC) $(SRC_DIR)midr.c $(SRC_DIR)uarch.c $(SRC_COMMON)soc.c $(SRC_DIR)soc.c $(SRC_COMMON)pci.c $(SRC_DIR)udev.c sve.o
+		HEADERS += $(COMMON_HDR) $(SRC_DIR)midr.h $(SRC_DIR)uarch.h  $(SRC_COMMON)soc.h $(SRC_DIR)soc.h $(SRC_COMMON)pci.h $(SRC_DIR)udev.c $(SRC_DIR)socs.h
+		CFLAGS += -DARCH_ARM -std=c99
+	else
+		# Error lines should not be tabulated because Makefile complains about it
+$(warning Unsupported arch detected: $(arch). See https://github.com/Dr-Noob/cpufetch#1-support)
+$(warning If your architecture is supported but the compilation fails, please open an issue in https://github.com/Dr-Noob/cpufetch/issues)
+$(error Aborting compilation)
+	endif
+
 	GIT_VERSION := ""
-	SRC_DIR=src/x86/
-	SOURCE += $(COMMON_SRC) $(SRC_DIR)cpuid.c $(SRC_DIR)apic.c $(SRC_DIR)cpuid_asm.c $(SRC_DIR)uarch.c
-	HEADERS += $(COMMON_HDR) $(SRC_DIR)cpuid.h $(SRC_DIR)apic.h $(SRC_DIR)cpuid_asm.h $(SRC_DIR)uarch.h
-	CFLAGS += -DARCH_X86 -std=c99
 	SANITY_FLAGS += -Wno-pedantic-ms-format
 	OUTPUT=cpufetch.exe
 endif
