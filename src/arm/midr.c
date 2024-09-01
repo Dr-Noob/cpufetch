@@ -272,6 +272,22 @@ struct features* get_features_info(void) {
   feat->NEON = true;
   feat->SVE = false;
   feat->SVE2 = false;
+#elif defined _WIN32
+  // CP 4030 maps to the ID_AA64ISAR0_EL1 register on Windows
+  // https://developer.arm.com/documentation/100798/0300/register-descriptions/aarch64-system-registers/id-aa64isar0-el1--aarch64-instruction-set-attribute-register-0--el1
+  long isar0 = 0;
+  if(!get_win32_core_info_64(0, "CP 4030", &isar0)) {
+    printWarn("Unable to retrieve ISAR0 via registry");
+  }
+  else {
+    feat->AES = (isar0 >> 4) & 0xF ? true : false;
+    feat->CRC32 = (isar0 >> 16) & 0xF ? true : false;
+    feat->SHA1 = (isar0 >> 8) & 0xF ? true : false;
+    feat->SHA2 = (isar0 >> 12) & 0xF ? true : false;
+  }
+  feat->NEON = true;
+  feat->SVE = false;
+  feat->SVE2 = false;
 #endif  // ifdef __linux__
 
   if (feat->SVE || feat->SVE2) {
