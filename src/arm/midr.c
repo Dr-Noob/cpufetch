@@ -52,15 +52,15 @@
 // CP 403A: ID_AA64MMFR2_EL1
 
 bool read_registry_hklm_32(char* subkey, char* name, int* value) {
-  DWORD value_len = sizeof(value);
+  DWORD value_len = sizeof(int);
   if(RegGetValueA(HKEY_LOCAL_MACHINE, subkey, name, RRF_RT_REG_DWORD, NULL, value, &value_len) != ERROR_SUCCESS) {
     printBug("Error reading registry entry \"%s\\%s\"", subkey, name);
     return false;
   }
   return true;
 }
-bool read_registry_hklm_64(char* subkey, char* name, long* value) {
-  DWORD value_len = sizeof(value);
+bool read_registry_hklm_64(char* subkey, char* name, long long* value) {
+  DWORD value_len = sizeof(long long);
   if(RegGetValueA(HKEY_LOCAL_MACHINE, subkey, name, RRF_RT_REG_QWORD, NULL, value, &value_len) != ERROR_SUCCESS) {
     printBug("Error reading registry entry \"%s\\%s\"", subkey, name);
     return false;
@@ -76,7 +76,7 @@ bool get_win32_core_info_32(uint32_t core_index, char* name, int* value) {
   return read_registry_hklm_32(path, name, value);
 }
 
-bool get_win32_core_info_64(uint32_t core_index, char* name, long* value) {
+bool get_win32_core_info_64(uint32_t core_index, char* name, long long* value) {
   // path + digits
   uint32_t max_path_size = 45+3+1;
   char* path = emalloc(sizeof(char) * max_path_size);
@@ -522,7 +522,7 @@ struct cpuInfo* get_cpu_info_windows(struct cpuInfo* cpu) {
   for(int i=0; i < ncores; i++) {
     // Cast from 64 to 32 bit to be able to re-use the pre-existing
     // functions such as fill_ids_from_midr and cores_are_equal
-    long midr_64;
+    long long midr_64;
     if(!get_win32_core_info_64(i, "CP 4000", &midr_64)) {
       return NULL;
     }
