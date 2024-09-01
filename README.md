@@ -63,7 +63,7 @@ cpufetch is a command-line tool written in C that displays the CPU information i
 | OS          | x86_64 / x86       | ARM                | RISC-V             | PowerPC            |
 |:-----------:|:------------------:|:------------------:|:------------------:|:------------------:|
 | GNU / Linux | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
-| Windows     | :heavy_check_mark: | :x:                | :x:                | :x:                |
+| Windows     | :heavy_check_mark: | :heavy_check_mark: | :x:                | :x:                |
 | Android     | :heavy_check_mark: | :heavy_check_mark: | :x:                | :x:                |
 | macOS       | :heavy_check_mark: | :heavy_check_mark: | :x:                | :heavy_check_mark: |
 | FreeBSD     | :heavy_check_mark: | :x:                | :x:                | :x:                |
