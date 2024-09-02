@@ -314,32 +314,26 @@ int get_vpus_width(struct cpuInfo* cpu) {
   // If the CPU has NEON, width can be 64 or 128 [1].
   // In >= ARMv8, NEON are 128 bits width [2]
   // If the CPU has SVE/SVE2, width can be between 128-2048 [3],
-  // so we must check the exact width depending on
-  // the exact chip (Neoverse V1 uses 256b implementations.)
+  // so we get the exact value from cntb [4]
   //
   // [1] https://en.wikipedia.org/wiki/ARM_architecture_family#Advanced_SIMD_(Neon)
   // [2] https://developer.arm.com/documentation/102474/0100/Fundamentals-of-Armv8-Neon-technology
   // [3] https://www.anandtech.com/show/16640/arm-announces-neoverse-v1-n2-platforms-cpus-cmn700-mesh/5
+  // [4] https://developer.arm.com/documentation/ddi0596/2020-12/SVE-Instructions/CNTB--CNTD--CNTH--CNTW--Set-scalar-to-multiple-of-predicate-constraint-element-count-
 
-  MICROARCH ua = cpu->arch->uarch;
-  switch(ua) {
-    case UARCH_NEOVERSE_V1:
-      return 256;
-    default:
-      if (cpu->feat->SVE && cpu->feat->cntb > 0) {
-        return cpu->feat->cntb * 8;
-      }
-      else if (cpu->feat->NEON) {
-        if(is_ARMv8_or_newer(cpu)) {
-          return 128;
-        }
-        else {
-          return 64;
-        }
-      }
-      else {
-        return 32;
-      }
+  if (cpu->feat->SVE && cpu->feat->cntb > 0) {
+    return cpu->feat->cntb * 8;
+  }
+  else if (cpu->feat->NEON) {
+    if(is_ARMv8_or_newer(cpu)) {
+      return 128;
+    }
+    else {
+      return 64;
+    }
+  }
+  else {
+    return 32;
   }
 }
 
