@@ -59,8 +59,8 @@ bool read_registry_hklm_32(char* subkey, char* name, int* value) {
   }
   return true;
 }
-bool read_registry_hklm_64(char* subkey, char* name, long long* value) {
-  DWORD value_len = sizeof(long long);
+bool read_registry_hklm_64(char* subkey, char* name, int64_t* value) {
+  DWORD value_len = sizeof(int64_t);
   if(RegGetValueA(HKEY_LOCAL_MACHINE, subkey, name, RRF_RT_REG_QWORD, NULL, value, &value_len) != ERROR_SUCCESS) {
     printBug("Error reading registry entry \"%s\\%s\"", subkey, name);
     return false;
@@ -76,7 +76,7 @@ bool get_win32_core_info_32(uint32_t core_index, char* name, int* value) {
   return read_registry_hklm_32(path, name, value);
 }
 
-bool get_win32_core_info_64(uint32_t core_index, char* name, long long* value) {
+bool get_win32_core_info_64(uint32_t core_index, char* name, int64_t* value) {
   // path + digits
   uint32_t max_path_size = 45+3+1;
   char* path = emalloc(sizeof(char) * max_path_size);
@@ -275,7 +275,7 @@ struct features* get_features_info(void) {
 #elif defined _WIN32
   // CP 4030 maps to the ID_AA64ISAR0_EL1 register on Windows
   // https://developer.arm.com/documentation/100798/0300/register-descriptions/aarch64-system-registers/id-aa64isar0-el1--aarch64-instruction-set-attribute-register-0--el1
-  long isar0 = 0;
+  int64_t isar0 = 0;
   if(!get_win32_core_info_64(0, "CP 4030", &isar0)) {
     printWarn("Unable to retrieve ISAR0 via registry");
   }
@@ -522,7 +522,7 @@ struct cpuInfo* get_cpu_info_windows(struct cpuInfo* cpu) {
   for(int i=0; i < ncores; i++) {
     // Cast from 64 to 32 bit to be able to re-use the pre-existing
     // functions such as fill_ids_from_midr and cores_are_equal
-    long long midr_64;
+    int64_t midr_64;
     if(!get_win32_core_info_64(i, "CP 4000", &midr_64)) {
       return NULL;
     }
