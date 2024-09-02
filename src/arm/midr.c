@@ -273,21 +273,53 @@ struct features* get_features_info(void) {
   feat->SVE = false;
   feat->SVE2 = false;
 #elif defined _WIN32
+
+  // CP 4020 maps to the ID_AA64PFR0_EL1 register on Windows
+  // https://developer.arm.com/documentation/ddi0601/2024-06/AArch64-Registers/ID-AA64PFR0-EL1--AArch64-Processor-Feature-Register-0
+  int64_t pfr0 = 0;
+  if(!get_win32_core_info_64(0, "CP 4020", &pfr0)) {
+    printWarn("Unable to retrieve PFR0 via registry");
+  }
+  else {
+
+	// FP and AdvSimd are signed. "-1" is the only value that indicates
+	// the feature is not available
+
+	// FP[19:16]
+	// 0: Float support
+	// 1: Float support + FP16
+	int8_t fp = ((int64_t)(pfr0 << (60 - 16)) >> 60);
+
+	// AdvSimd[23:20]
+	// 0: AdvSimd support
+	// 1: AdvSimd support + FP16
+	int8_t adv_simd = ((int64_t)(pfr0 << (60 - 20)) >> 60);
+    feat->NEON = (adv_simd >= 0) && (fp >= 0);
+
+	// SVE[35:32]
+  	feat->SVE = (pfr0 >> 32) & 0xF ? true : false;
+  }
+
+	// Windoes does not expose a registry entry for the ID_AA64ZFR0_EL1 register
+	// this would have mapped to "CP 4024".
+	feat->SVE2 = false;
+
   // CP 4030 maps to the ID_AA64ISAR0_EL1 register on Windows
-  // https://developer.arm.com/documentation/100798/0300/register-descriptions/aarch64-system-registers/id-aa64isar0-el1--aarch64-instruction-set-attribute-register-0--el1
+  // https://developer.arm.com/documentation/ddi0601/2024-06/AArch64-Registers/ID-AA64ISAR0-EL1--AArch64-Instruction-Set-Attribute-Register-0
   int64_t isar0 = 0;
   if(!get_win32_core_info_64(0, "CP 4030", &isar0)) {
     printWarn("Unable to retrieve ISAR0 via registry");
   }
   else {
-    feat->AES = (isar0 >> 4) & 0xF ? true : false;
-    feat->CRC32 = (isar0 >> 16) & 0xF ? true : false;
-    feat->SHA1 = (isar0 >> 8) & 0xF ? true : false;
-    feat->SHA2 = (isar0 >> 12) & 0xF ? true : false;
+    // AES[7:4]
+	feat->AES = (isar0 >> 4) & 0xF ? true : false;
+    // SHA1[11:8]
+	feat->SHA1 = (isar0 >> 8) & 0xF ? true : false;
+    // SHA2[15:12]
+	feat->SHA2 = (isar0 >> 12) & 0xF ? true : false;
+    // CRC32[19:16]
+	feat->CRC32 = (isar0 >> 16) & 0xF ? true : false;
   }
-  feat->NEON = true;
-  feat->SVE = false;
-  feat->SVE2 = false;
 #endif  // ifdef __linux__
 
   if (feat->SVE || feat->SVE2) {
