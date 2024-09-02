@@ -292,16 +292,7 @@ struct uarch* get_uarch_from_midr(uint32_t midr, struct cpuInfo* cpu) {
 }
 
 bool is_ARMv8_or_newer(struct cpuInfo* cpu) {
-  return cpu->arch->isa == ISA_ARMv8_A         ||
-         cpu->arch->isa == ISA_ARMv8_A_AArch32 ||
-         cpu->arch->isa == ISA_ARMv8_1_A       ||
-         cpu->arch->isa == ISA_ARMv8_2_A       ||
-         cpu->arch->isa == ISA_ARMv8_3_A       ||
-         cpu->arch->isa == ISA_ARMv8_4_A       ||
-         cpu->arch->isa == ISA_ARMv8_5_A       ||
-         cpu->arch->isa == ISA_ARMv8_6_A       ||
-         cpu->arch->isa == ISA_ARMv9_A         ||
-         cpu->arch->isa == ISA_ARMv9_2_A;
+  return cpu->arch->isa >= ISA_ARMv8_A;
 }
 
 bool has_fma_support(struct cpuInfo* cpu) {
