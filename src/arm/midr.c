@@ -29,8 +29,8 @@
 #if defined _WIN32
 // Windows stores processor information in registery at:
 // "HKEY_LOCAL_MACHINE\HARDWARE\DESCRIPTION\System\CentralProcessor"
-// Within this directory, there each core will get its own folder as well with
-// registery entries that map to system registers on ARM in the `CP ####` registry entries
+// Within this directory, each core will get its own folder with
+// registery entries named `CP ####` that map to ARM system registers.
 // Ex. the MIDR register for core 0 is the `REG_QWORD` at:
 // "HKEY_LOCAL_MACHINE\HARDWARE\DESCRIPTION\System\CentralProcessor\0\CP 4000"
 // The name of these `CP ####`-registers follow their register ID encoding in hexadecimal
