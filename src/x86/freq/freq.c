@@ -88,19 +88,15 @@ void* measure_freq(void *freq_ptr) {
     double* freq_vector_ptr = freq_vector;
 
     for (int i=0; i < cpu->num_cpus; ptr = ptr->next_cpu, i++) {
-      double average_freq = vector_average_harmonic(freq_vector_ptr, ptr->topo->total_cores_module);
-
-      ptr->freq->max = (int32_t) average_freq;
-      printWarn("AVX2 measured freq=%d (module %d)", ptr->freq->max, i);
+      ptr->freq->max_pp = vector_average_harmonic(freq_vector_ptr, ptr->topo->total_cores_module);
+      printWarn("AVX2 measured freq=%d (module %d)", ptr->freq->max_pp, i);
 
       freq_vector_ptr = freq_vector_ptr + ptr->topo->total_cores_module;
     }
   }
   else {
-    double average_freq = vector_average_harmonic(freq_vector, v);
-
-    cpu->freq->max = (int32_t) average_freq;
-    printWarn("AVX2 measured freq=%d\n", cpu->freq->max);
+    cpu->freq->max_pp = vector_average_harmonic(freq_vector, v);
+    printWarn("AVX2 measured freq=%d\n", cpu->freq->max_pp);
   }
 
   return NULL;
@@ -111,7 +107,7 @@ int64_t measure_frequency(struct cpuInfo* cpu) {
     // We have a hybrid architecture and we have already
     // measured the frequency for this module in a previous
     // call to this function, so now just return it.
-    return get_freq(cpu->freq);
+    return get_freq_pp(cpu->freq);
   }
 
   int ret;
