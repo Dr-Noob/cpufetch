@@ -119,7 +119,9 @@ enum {
   UARCH_ZEN3,
   UARCH_ZEN3_PLUS,
   UARCH_ZEN4,
-  UARCH_ZEN4C
+  UARCH_ZEN4C,
+  UARCH_ZEN5,
+  UARCH_ZEN5C,
 };
 
 struct uarch {
@@ -410,6 +412,12 @@ struct uarch* get_uarch_from_cpuid_amd(uint32_t ef, uint32_t f, uint32_t em, uin
   CHECK_UARCH(arch, 10, 15,  8, NA, NA, "Zen 4",       UARCH_ZEN4,         5) // instlatx64 (AMD MI300C)
   CHECK_UARCH(arch, 10, 15,  9, NA, NA, "Zen 4",       UARCH_ZEN4,         5) // instlatx64 (AMD MI300A)
   CHECK_UARCH(arch, 10, 15, 10, NA, NA, "Zen 4c",      UARCH_ZEN4C,        5) // instlatx64
+  CHECK_UARCH(arch, 11, 15,  0, NA, NA, "Zen 5",       UARCH_ZEN5,         4) // Turin/EPYC (instlatx64)
+  CHECK_UARCH(arch, 11, 15,  1, NA, NA, "Zen 5c",      UARCH_ZEN5C,        3) // Zen5c EPYC (instlatx64, https://en.wikipedia.org/wiki/Zen_5#cite_note-10)
+  CHECK_UARCH(arch, 11, 15,  2, NA, NA, "Zen 5",       UARCH_ZEN5,         4) // Strix Point (instlatx64)
+  CHECK_UARCH(arch, 11, 15,  4, NA, NA, "Zen 5",       UARCH_ZEN5,         4) // Granite Ridge (instlatx64)
+  CHECK_UARCH(arch, 11, 15,  6, NA, NA, "Zen 5",       UARCH_ZEN5,         4) // Krackan Point (instlatx64)
+  CHECK_UARCH(arch, 11, 15,  7, NA, NA, "Zen 5",       UARCH_ZEN5,         4) // Strix Halo (instlatx64)
   UARCH_END
 
   return arch;
@@ -552,6 +560,8 @@ char* infer_cpu_name_from_uarch(struct uarch* arch) {
 }
 
 bool vpus_are_AVX512(struct cpuInfo* cpu) {
+  // Zen5 actually has 2 x AVX512 units
+  // https://www.anandtech.com/show/21469/amd-details-ryzen-ai-300-series-for-mobile-strix-point-with-rdna-35-igpu-xdna-2-npu
   return cpu->arch->uarch != UARCH_ICE_LAKE &&
          cpu->arch->uarch != UARCH_TIGER_LAKE &&
          cpu->arch->uarch != UARCH_ZEN4 &&
@@ -592,6 +602,8 @@ int get_number_of_vpus(struct cpuInfo* cpu) {
       case UARCH_ZEN3_PLUS:
       case UARCH_ZEN4:
       case UARCH_ZEN4C:
+      case UARCH_ZEN5:
+      case UARCH_ZEN5C:
         return 2;
       default:
         return 1;
