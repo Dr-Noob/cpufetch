@@ -51,37 +51,31 @@
 // CP 4039: ID_AA64MMFR1_EL1
 // CP 403A: ID_AA64MMFR2_EL1
 
-bool read_registry_hklm_32(char* subkey, char* name, int* value) {
-  DWORD value_len = sizeof(int);
-  if(RegGetValueA(HKEY_LOCAL_MACHINE, subkey, name, RRF_RT_REG_DWORD, NULL, value, &value_len) != ERROR_SUCCESS) {
-    printBug("Error reading registry entry \"%s\\%s\"", subkey, name);
-    return false;
+bool read_registry_hklm_int(char* path, char* name, void* value, bool is64) {  
+  DWORD value_len;
+  int reg_type;
+  if (is64) {
+	value_len = sizeof(int64_t);
+	reg_type = RRF_RT_REG_QWORD;
   }
-  return true;
-}
-bool read_registry_hklm_64(char* subkey, char* name, int64_t* value) {
-  DWORD value_len = sizeof(int64_t);
-  if(RegGetValueA(HKEY_LOCAL_MACHINE, subkey, name, RRF_RT_REG_QWORD, NULL, value, &value_len) != ERROR_SUCCESS) {
-    printBug("Error reading registry entry \"%s\\%s\"", subkey, name);
+  else {
+	value_len = sizeof(int32_t);
+	reg_type = RRF_RT_REG_DWORD;
+  }
+
+  if(RegGetValueA(HKEY_LOCAL_MACHINE, path, name, reg_type, NULL, value, &value_len) != ERROR_SUCCESS) {
+    printBug("Error reading registry entry \"%s\\%s\"", path, name);
     return false;
   }
   return true;
 }
 
-bool get_win32_core_info_32(uint32_t core_index, char* name, int* value) {
+bool get_win32_core_info_int(uint32_t core_index, char* name, void* value, bool is64) {
   // path + digits
   uint32_t max_path_size = 45+3+1;
   char* path = emalloc(sizeof(char) * max_path_size);
   snprintf(path, max_path_size, "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\%u", core_index);
-  return read_registry_hklm_32(path, name, value);
-}
-
-bool get_win32_core_info_64(uint32_t core_index, char* name, int64_t* value) {
-  // path + digits
-  uint32_t max_path_size = 45+3+1;
-  char* path = emalloc(sizeof(char) * max_path_size);
-  snprintf(path, max_path_size, "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\%u", core_index);
-  return read_registry_hklm_64(path, name, value);
+  return read_registry_hklm_int(path, name, value, is64);
 }
 #endif
 
@@ -277,7 +271,7 @@ struct features* get_features_info(void) {
   // CP 4020 maps to the ID_AA64PFR0_EL1 register on Windows
   // https://developer.arm.com/documentation/ddi0601/2024-06/AArch64-Registers/ID-AA64PFR0-EL1--AArch64-Processor-Feature-Register-0
   int64_t pfr0 = 0;
-  if(!get_win32_core_info_64(0, "CP 4020", &pfr0)) {
+  if(!get_win32_core_info_int(0, "CP 4020", &pfr0, true)) {
     printWarn("Unable to retrieve PFR0 via registry");
   }
   else {
@@ -307,7 +301,7 @@ struct features* get_features_info(void) {
   // CP 4030 maps to the ID_AA64ISAR0_EL1 register on Windows
   // https://developer.arm.com/documentation/ddi0601/2024-06/AArch64-Registers/ID-AA64ISAR0-EL1--AArch64-Instruction-Set-Attribute-Register-0
   int64_t isar0 = 0;
-  if(!get_win32_core_info_64(0, "CP 4030", &isar0)) {
+  if(!get_win32_core_info_int(0, "CP 4030", &isar0, true)) {
     printWarn("Unable to retrieve ISAR0 via registry");
   }
   else {
@@ -555,11 +549,11 @@ struct cpuInfo* get_cpu_info_windows(struct cpuInfo* cpu) {
     // Cast from 64 to 32 bit to be able to re-use the pre-existing
     // functions such as fill_ids_from_midr and cores_are_equal
     int64_t midr_64;
-    if(!get_win32_core_info_64(i, "CP 4000", &midr_64)) {
+    if(!get_win32_core_info_int(i, "CP 4000", &midr_64, true)) {
       return NULL;
     }
     midr_array[i] = midr_64;
-    if(!get_win32_core_info_32(i, "~MHz", &freq_array[i])) {
+    if(!get_win32_core_info_int(i, "~MHz", &freq_array[i], false)) {
       return NULL;
     }
   }
