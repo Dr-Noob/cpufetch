@@ -1241,7 +1241,9 @@ struct system_on_chip* get_soc(struct cpuInfo* cpu) {
   else {
     return soc;
   }
-#elif defined _WIN32
+#endif
+
+#if defined _WIN32
   // Use the first core to determine the SoC
   char* processor_name_string = NULL;
   unsigned long processor_name_string_len = 0;
@@ -1250,13 +1252,13 @@ struct system_on_chip* get_soc(struct cpuInfo* cpu) {
     return soc;
   }
 
+  soc->name = processor_name_string;
   soc->raw_name = processor_name_string;
-  parse_soc_from_string(soc);
+  soc->vendor = try_match_soc_trademark_name(processor_name_string);
+  soc->model = SOC_MODEL_UNKNOWN;
+  soc->process = UNKNOWN;
 
-  if(soc->vendor == SOC_VENDOR_UNKNOWN) {
-    printWarn("SoC detection failed using ProcessorNameString: \"%s\"", processor_name_string);
-  }
-#endif // ifdef __linux__
+#else
 
   if(soc->model == SOC_MODEL_UNKNOWN) {
     // raw_name might not be NULL, but if we were unable to find
@@ -1264,6 +1266,8 @@ struct system_on_chip* get_soc(struct cpuInfo* cpu) {
     soc->raw_name = emalloc(sizeof(char) * (strlen(STRING_UNKNOWN)+1));
     snprintf(soc->raw_name, strlen(STRING_UNKNOWN)+1, STRING_UNKNOWN);
   }
+
+#endif 
 
   return soc;
 }
