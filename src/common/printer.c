@@ -887,6 +887,7 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
   setAttribute(art, ATTRIBUTE_SOC, soc_name);
 
   // Currently no reliable way to identify the specific SoC on Windows
+  // https://github.com/Dr-Noob/cpufetch/pull/273
   // Hide manufacturing process
 #if !defined(_WIN32)
   setAttribute(art, ATTRIBUTE_TECHNOLOGY, manufacturing_process);

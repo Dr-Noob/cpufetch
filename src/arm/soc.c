@@ -19,11 +19,16 @@
   #define NOMINMAX
   #include <windows.h>
 
+// Gets a RRF_RT_REG_SZ-entry from the Windows registry, returning a newly allocated
+// string and its length
 bool read_registry_hklm_sz(char* path, char* value, char** string, LPDWORD length) {
+	// First call to RegGetValueA gets the length of the string and determines how much
+  // memory should be allocated for the new string
   if(RegGetValueA(HKEY_LOCAL_MACHINE, path, value, RRF_RT_REG_SZ, NULL, NULL, length) != ERROR_SUCCESS) {
     return false;
   }
-  *string = emalloc(*length);
+  *string = ecalloc(*length, sizeof(char));
+  // Second call actually writes the string data
   if(RegGetValueA(HKEY_LOCAL_MACHINE, path, value, RRF_RT_REG_SZ, NULL, *string, length) != ERROR_SUCCESS) {
     return false;
   }

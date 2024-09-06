@@ -73,7 +73,7 @@ bool read_registry_hklm_int(char* path, char* name, void* value, bool is64) {
 bool get_win32_core_info_int(uint32_t core_index, char* name, void* value, bool is64) {
   // path + digits
   uint32_t max_path_size = 45+3+1;
-  char* path = emalloc(sizeof(char) * max_path_size);
+  char* path = ecalloc(sizeof(char) * max_path_size, sizeof(char));
   snprintf(path, max_path_size, "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\%u", core_index);
   return read_registry_hklm_int(path, name, value, is64);
 }
@@ -275,20 +275,12 @@ struct features* get_features_info(void) {
     printWarn("Unable to retrieve PFR0 via registry");
   }
   else {
-
-    // FP and AdvSimd are signed. "-1" is the only value that indicates
-    // the feature is not available
-
-    // FP[19:16]
-    // 0: Float support
-    // 1: Float support + FP16
-    int8_t fp = ((int64_t)(pfr0 << (60 - 16)) >> 60);
-
     // AdvSimd[23:20]
-    // 0: AdvSimd support
-    // 1: AdvSimd support + FP16
+    // -1: Not available
+    //  0: AdvSimd support
+    //  1: AdvSimd support + FP16
     int8_t adv_simd = ((int64_t)(pfr0 << (60 - 20)) >> 60);
-    feat->NEON = (adv_simd >= 0) && (fp >= 0);
+    feat->NEON = (adv_simd >= 0);
 
     // SVE[35:32]
     feat->SVE = (pfr0 >> 32) & 0xF ? true : false;
