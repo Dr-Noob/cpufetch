@@ -1254,7 +1254,7 @@ struct system_on_chip* get_soc(struct cpuInfo* cpu) {
 
   soc->name = processor_name_string;
   soc->raw_name = processor_name_string;
-  soc->vendor = try_match_soc_trademark_name(processor_name_string);
+  soc->vendor = try_match_soc_vendor_name(processor_name_string);
   soc->model = SOC_MODEL_UNKNOWN;
   soc->process = UNKNOWN;
 

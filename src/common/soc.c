@@ -78,6 +78,17 @@ void fill_soc(struct system_on_chip* soc, char* soc_name, SOC soc_model, int32_t
   }
 }
 
+VENDOR try_match_soc_vendor_name(char* vendor_name)
+{
+  for(size_t i=0; i < sizeof(soc_trademark_string)/sizeof(soc_trademark_string[0]); i++)
+  {
+    if(soc_trademark_string[i] && strstr(vendor_name, soc_trademark_string[i]) != NULL) {
+      return i;
+    }
+  }
+	return SOC_VENDOR_UNKNOWN;
+}
+
 bool match_soc(struct system_on_chip* soc, char* raw_name, char* expected_name, char* soc_name, SOC soc_model, int32_t process) {
   int len1 = strlen(raw_name);
   int len2 = strlen(expected_name);
