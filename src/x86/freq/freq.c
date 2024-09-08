@@ -26,7 +26,7 @@ struct freq_thread {
   bool end;
   bool measure;
   // Output
-  double freq;
+  int32_t *max_pp;
 };
 
 double vector_average_harmonic(double* v, int len) {
@@ -88,27 +88,29 @@ void* measure_freq(void *freq_ptr) {
     double* freq_vector_ptr = freq_vector;
 
     for (int i=0; i < cpu->num_cpus; ptr = ptr->next_cpu, i++) {
-      ptr->freq->max_pp = vector_average_harmonic(freq_vector_ptr, ptr->topo->total_cores_module);
-      printWarn("AVX2 measured freq=%d (module %d)", ptr->freq->max_pp, i);
+      freq->max_pp[i] = vector_average_harmonic(freq_vector_ptr, ptr->topo->total_cores_module);
+      printWarn("AVX2 measured freq=%d (module %d)", freq->max_pp[i], i);
 
       freq_vector_ptr = freq_vector_ptr + ptr->topo->total_cores_module;
     }
   }
   else {
-    cpu->freq->max_pp = vector_average_harmonic(freq_vector, v);
-    printWarn("AVX2 measured freq=%d\n", cpu->freq->max_pp);
+    freq->max_pp[0] = vector_average_harmonic(freq_vector, v);
+    printWarn("AVX2 measured freq=%d\n", freq->max_pp[0]);
   }
 
   return NULL;
 }
 
-int64_t measure_frequency(struct cpuInfo* cpu) {
-  if (cpu->hybrid_flag && cpu->first_core_id > 0) {
+int64_t measure_frequency(struct cpuInfo* cpu, int32_t *max_freq_pp_vec) {
+  if (cpu->hybrid_flag && cpu->module_id > 0) {
     // We have a hybrid architecture and we have already
     // measured the frequency for this module in a previous
     // call to this function, so now just return it.
-    return get_freq_pp(cpu->freq);
+    return max_freq_pp_vec[cpu->module_id];
   }
+
+  max_freq_pp_vec = malloc(sizeof(int32_t) * cpu->num_cpus);
 
   int ret;
   int num_spaces;
@@ -116,6 +118,7 @@ int64_t measure_frequency(struct cpuInfo* cpu) {
   freq_struct->end = false;
   freq_struct->measure = false;
   freq_struct->cpu = cpu;
+  freq_struct->max_pp = max_freq_pp_vec;
 
   void* (*compute_function)(void*);
 
@@ -187,5 +190,5 @@ int64_t measure_frequency(struct cpuInfo* cpu) {
   }
 
   printf("\r%*c", num_spaces, ' ');
-  return cpu->freq->max;
+  return max_freq_pp_vec[0];
 }

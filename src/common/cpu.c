@@ -34,6 +34,12 @@ int64_t get_freq(struct frequency* freq) {
   return freq->max;
 }
 
+#ifdef ARCH_X86
+int64_t get_freq_pp(struct frequency* freq) {
+  return freq->max_pp;
+}
+#endif
+
 #if defined(ARCH_X86) || defined(ARCH_PPC)
 char* get_str_cpu_name(struct cpuInfo* cpu, bool fcpuname) {
   #ifdef ARCH_X86

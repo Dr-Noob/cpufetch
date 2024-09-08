@@ -210,18 +210,14 @@ int64_t get_peak_performance(struct cpuInfo* cpu, bool accurate_pp) {
 
   for(int i=0; i < cpu->num_cpus; ptr = ptr->next_cpu, i++) {
     struct topology* topo = ptr->topo;
-    int64_t max_freq = get_freq(ptr->freq);
+    int64_t freq = get_freq(ptr->freq);
 
-    int64_t freq;
   #ifdef __linux__
     if(accurate_pp)
-      freq = measure_frequency(ptr);
-    else
-      freq = max_freq;
+      freq = get_freq_pp(ptr->freq);
   #else
     // Silence compiler warning
     (void)(accurate_pp);
-    freq = max_freq;
   #endif
 
     //First, check we have consistent data
@@ -518,6 +514,7 @@ struct cpuInfo* get_cpu_info(void) {
 
   if(cpu->hybrid_flag) cpu->num_cpus = 2;
 
+  int32_t *max_freq_pp_vec = NULL;
   struct cpuInfo* ptr = cpu;
   for(uint32_t i=0; i < cpu->num_cpus; i++) {
     int32_t first_core;
@@ -546,10 +543,14 @@ struct cpuInfo* get_cpu_info(void) {
       ptr->core_type = get_core_type();
     }
     ptr->first_core_id = first_core;
+    ptr->module_id = i;
     ptr->feat = get_features_info(ptr);
 
     ptr->arch = get_cpu_uarch(ptr);
-    ptr->freq = get_frequency_info(ptr);
+    // If accurate_pp is requested, we need to get the frequency
+    // after fetching the topology. Otherwise we can do it now.
+    if (!accurate_pp())
+      ptr->freq = get_frequency_info(ptr, accurate_pp(), max_freq_pp_vec);
 
     if (cpu->cpu_name == NULL && ptr == cpu) {
       // If we couldnt read CPU name from cpuid, infer it now
@@ -568,6 +569,11 @@ struct cpuInfo* get_cpu_info(void) {
     // If topo is NULL, return early, as get_peak_performance
     // requries non-NULL topology.
     if(ptr->topo == NULL) return cpu;
+
+    // If accurate_pp is requested, we need to get the frequency
+    // after fetching the topology
+    if (accurate_pp())
+      ptr->freq = get_frequency_info(ptr, accurate_pp(), max_freq_pp_vec);
   }
 
   cpu->peak_performance = get_peak_performance(cpu, accurate_pp());
@@ -935,7 +941,7 @@ struct cache* get_cache_info(struct cpuInfo* cpu) {
   return cach;
 }
 
-struct frequency* get_frequency_info(struct cpuInfo* cpu) {
+struct frequency* get_frequency_info(struct cpuInfo* cpu, bool accurate_pp, int32_t *max_freq_pp_vec) {
   struct frequency* freq = emalloc(sizeof(struct frequency));
   freq->measured = false;
 
@@ -1003,6 +1009,15 @@ struct frequency* get_frequency_info(struct cpuInfo* cpu) {
       freq->max = measure_max_frequency(cpu->first_core_id);
       freq->measured = true;
     }
+  #endif
+
+  freq->max_pp = UNKNOWN_DATA;
+  #ifdef __linux__
+    if(accurate_pp)
+      freq->max_pp = measure_frequency(cpu, max_freq_pp_vec);
+  #else
+    // Silence compiler warning
+    (void)(accurate_pp);
   #endif
 
   return freq;

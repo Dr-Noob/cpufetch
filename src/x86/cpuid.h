@@ -5,7 +5,7 @@
 
 struct cpuInfo* get_cpu_info(void);
 struct cache* get_cache_info(struct cpuInfo* cpu);
-struct frequency* get_frequency_info(struct cpuInfo* cpu);
+struct frequency* get_frequency_info(struct cpuInfo* cpu, bool accurate_pp, int32_t *max_freq_pp_vec);
 struct topology* get_topology_info(struct cpuInfo* cpu, struct cache* cach, int module);
 
 char* get_str_avx(struct cpuInfo* cpu);

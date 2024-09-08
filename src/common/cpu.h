@@ -60,6 +60,11 @@ struct frequency {
   int32_t max;
   // Indicates if max frequency was measured
   bool measured;
+#ifdef ARCH_X86
+  // Max frequency when running vectorized code.
+  // Used only for peak performance computation.
+  int32_t max_pp;
+#endif
 };
 
 struct hypervisor {
@@ -188,6 +193,8 @@ struct cpuInfo {
 #ifdef ARCH_X86
   // The index of the first core in the module
   uint32_t first_core_id;
+  // The index of this module
+  uint32_t module_id;
 #endif
 #endif
 };
@@ -200,6 +207,9 @@ uint32_t get_nsockets(struct topology* topo);
 
 VENDOR get_cpu_vendor(struct cpuInfo* cpu);
 int64_t get_freq(struct frequency* freq);
+#ifdef ARCH_X86
+int64_t get_freq_pp(struct frequency* freq);
+#endif
 
 char* get_str_aes(struct cpuInfo* cpu);
 char* get_str_sha(struct cpuInfo* cpu);
