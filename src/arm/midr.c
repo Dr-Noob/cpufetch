@@ -573,8 +573,8 @@ struct cpuInfo* get_cpu_info_windows(struct cpuInfo* cpu) {
     
     ptr->freq = emalloc(sizeof(struct frequency));
     ptr->freq->measured = false;
-    ptr->freq->base = UNKNOWN_DATA;
-    ptr->freq->max = freq_array[midr_idx];
+    ptr->freq->base = freq_array[midr_idx];
+    ptr->freq->max = UNKNOWN_DATA;
 
     ptr->cach = get_cache_info(ptr);
     ptr->topo = get_topology_info(ptr, ptr->cach, midr_array, freq_array, i, ncores);
