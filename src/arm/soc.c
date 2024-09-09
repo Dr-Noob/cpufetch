@@ -971,6 +971,8 @@ struct system_on_chip* guess_soc_from_devtree(struct system_on_chip* soc) {
   DT_EQ(dt, len, soc, "apple,t6030", "M3 Pro",   SOC_APPLE_M3_PRO,   3)
   DT_EQ(dt, len, soc, "apple,t6031", "M3 Max",   SOC_APPLE_M3_MAX,   3)
   DT_EQ(dt, len, soc, "apple,t6034", "M3 Max",   SOC_APPLE_M3_MAX,   3)
+  // NVIDIA
+  DT_EQ(dt, len, soc, "nvidia,tegra234", "Tegra Orin", SOC_TEGRA_ORIN, 8) // https://www.phoronix.com/news/NVIDIA-Orin-Tegra234-Audio, https://github.com/Dr-Noob/cpufetch/issues/275, https://en.wikipedia.org/wiki/Tegra#Orin
   // Qualcomm now also in devtree...
   // TODO: Integrate this with SOC_EQ
   DT_EQ(dt, len, soc, "qcom,sc8280", "8cx Gen 3", SOC_SNAPD_SC8280XP, 5)
