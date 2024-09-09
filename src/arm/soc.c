@@ -971,6 +971,9 @@ struct system_on_chip* guess_soc_from_devtree(struct system_on_chip* soc) {
   DT_EQ(dt, len, soc, "apple,t6030", "M3 Pro",   SOC_APPLE_M3_PRO,   3)
   DT_EQ(dt, len, soc, "apple,t6031", "M3 Max",   SOC_APPLE_M3_MAX,   3)
   DT_EQ(dt, len, soc, "apple,t6034", "M3 Max",   SOC_APPLE_M3_MAX,   3)
+  // Qualcomm now also in devtree...
+  // TODO: Integrate this with SOC_EQ
+  DT_EQ(dt, len, soc, "qcom,sc8280", "8cx Gen 3", SOC_SNAPD_SC8280XP, 5)
   // grep -oR -h --color -E '"fsl,.*' *.dtsi | sort | uniq | cut -d ',' -f1-2 | grep -v '-'
   // https://elixir.bootlin.com/linux/v6.10.6/source/arch/arm64/boot/dts/freescale    
   DT_EQ(dt, len, soc, "fsl,imx8qm",  "i.MX 8QuadMax",   SOC_NXP_IMX8QM,  28) // https://www.nxp.com/docs/en/fact-sheet/IMX8FAMFS.pdf  
