@@ -395,6 +395,8 @@ enum {
   SOC_NXP_IMX93,
   // AMLOGIC
   SOC_AMLOGIC_A311D,
+  // MARVELL
+  SOC_MARVELL_A3700,
   // UNKNOWN
   SOC_MODEL_UNKNOWN
 };
@@ -414,6 +416,7 @@ inline static VENDOR get_soc_vendor_from_soc(SOC soc) {
   else if(soc >= SOC_AMPERE_ALTRA && soc <= SOC_AMPERE_ALTRA) return SOC_VENDOR_AMPERE;
   else if(soc >= SOC_NXP_IMX8QM && soc <= SOC_NXP_IMX93) return SOC_VENDOR_NXP;
   else if(soc >= SOC_AMLOGIC_A311D && soc <= SOC_AMLOGIC_A311D) return SOC_VENDOR_AMLOGIC;
+  else if(soc >= SOC_MARVELL_A3700 && soc <= SOC_MARVELL_A3700) return SOC_VENDOR_MARVELL;
   return SOC_VENDOR_UNKNOWN;
 }
 

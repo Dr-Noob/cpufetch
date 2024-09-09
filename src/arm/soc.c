@@ -991,6 +991,8 @@ struct system_on_chip* guess_soc_from_devtree(struct system_on_chip* soc) {
   // https://www.amlogic.com/#Products/393/index.html
   // https://wikimovel.com/index.php/Amlogic_A311D
   DT_EQ(dt, len, soc, "amlogic,a311d", "A311D", SOC_AMLOGIC_A311D, 12)
+  // Marvell
+  DT_EQ(dt, len, soc, "marvell,armada3700", "Armada 3700", SOC_MARVELL_A3700, 28) // http://wiki.espressobin.net/tiki-index.php?page=Armada+3700 (pdf), https://github.com/Dr-Noob/cpufetch/issues/279
   DT_END(dt, len)
 }
 
