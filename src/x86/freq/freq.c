@@ -102,7 +102,8 @@ void* measure_freq(void *freq_ptr) {
   return NULL;
 }
 
-int64_t measure_frequency(struct cpuInfo* cpu, int32_t *max_freq_pp_vec) {
+int32_t measure_frequency(struct cpuInfo* cpu, int32_t **max_freq_pp_vec_ptr) {
+  int32_t *max_freq_pp_vec = *max_freq_pp_vec_ptr;
   if (cpu->hybrid_flag && cpu->module_id > 0) {
     // We have a hybrid architecture and we have already
     // measured the frequency for this module in a previous
@@ -110,7 +111,7 @@ int64_t measure_frequency(struct cpuInfo* cpu, int32_t *max_freq_pp_vec) {
     return max_freq_pp_vec[cpu->module_id];
   }
 
-  max_freq_pp_vec = malloc(sizeof(int32_t) * cpu->num_cpus);
+  *max_freq_pp_vec_ptr = malloc(sizeof(int32_t) * cpu->num_cpus);
 
   int ret;
   int num_spaces;
