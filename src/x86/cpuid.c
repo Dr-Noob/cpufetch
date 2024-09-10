@@ -457,7 +457,7 @@ void fill_frequency_info_pp(struct cpuInfo* cpu) {
   for (uint32_t i=0; i < cpu->num_cpus; i++) {
     set_cpu_module(i, cpu->num_cpus, &unused);
 
-    cpu->freq->max_pp = measure_frequency(cpu, max_freq_pp_vec);
+    ptr->freq->max_pp = measure_frequency(ptr, max_freq_pp_vec);
     ptr = ptr->next_cpu;
   }
 }
