@@ -93,6 +93,7 @@ enum {
   UARCH_CEDAR_MILL,
   UARCH_ITANIUM2,
   UARCH_ICE_LAKE,
+  UARCH_SAPPHIRE_RAPIDS,
   UARCH_TIGER_LAKE,
   UARCH_ALDER_LAKE,
   UARCH_RAPTOR_LAKE,
@@ -255,6 +256,7 @@ struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, u
   // CHECK_UARCH(arch, 0,  6,  8, 14, 10, ...) It is not possible to determine uarch only from CPUID dump (can be Kaby Lake R or Coffee Lake U)
   CHECK_UARCH(arch, 0,  6,  8, 14, 11, "Whiskey Lake",      UARCH_WHISKEY_LAKE,     14) // wikichip
   CHECK_UARCH(arch, 0,  6,  8, 14, 12, "Comet Lake",        UARCH_COMET_LAKE,       14) // wikichip
+  CHECK_UARCH(arch, 0,  6,  8, 15,  8, "Sapphire Rapids",   UARCH_SAPPHIRE_RAPIDS,   7) // wikichip
   CHECK_UARCH(arch, 0,  6,  9,  6, NA, "Tremont",           UARCH_TREMONT,          10) // LX*
   CHECK_UARCH(arch, 0,  6,  9,  7, NA, "Alder Lake",        UARCH_ALDER_LAKE,       10) // instlatx64 (Alder Lake-S)
   CHECK_UARCH(arch, 0,  6,  9, 10, NA, "Alder Lake",        UARCH_ALDER_LAKE,       10) // instlatx64 (Alder Lake-P)
@@ -591,6 +593,7 @@ int get_number_of_vpus(struct cpuInfo* cpu) {
       case UARCH_KNIGHTS_LANDING:
       case UARCH_KNIGHTS_MILL:
 
+      case UARCH_SAPPHIRE_RAPIDS:
       case UARCH_ICE_LAKE:
       case UARCH_TIGER_LAKE:
       case UARCH_ALDER_LAKE:
