@@ -51,6 +51,9 @@ VENDOR get_soc_vendor(struct system_on_chip* soc);
 bool match_soc(struct system_on_chip* soc, char* raw_name, char* expected_name, char* soc_name, SOC soc_model, int32_t process);
 char* get_str_process(struct system_on_chip* soc);
 void fill_soc(struct system_on_chip* soc, char* soc_name, SOC soc_model, int32_t process);
+#ifdef _WIN32
+VENDOR try_match_soc_vendor_name(char* vendor_name);
+#endif
 
 #define SOC_START if (false) {}
 #define SOC_EQ(raw_name, expected_name, soc_name, soc_model, soc, process) \

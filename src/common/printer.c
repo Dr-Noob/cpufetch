@@ -887,7 +887,13 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
   char* soc_name = get_soc_name(cpu->soc);
   char* features = get_str_features(cpu);
   setAttribute(art, ATTRIBUTE_SOC, soc_name);
+
+  // Currently no reliable way to identify the specific SoC on Windows
+  // https://github.com/Dr-Noob/cpufetch/pull/273
+  // Hide manufacturing process
+#if !defined(_WIN32)
   setAttribute(art, ATTRIBUTE_TECHNOLOGY, manufacturing_process);
+#endif
 
   if(cpu->num_cpus == 1) {
     char* uarch = get_str_uarch(cpu);

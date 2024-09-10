@@ -11,6 +11,10 @@
   #include "../common/freq.h"
 #elif defined __APPLE__ || __MACH__
   #include "../common/sysctl.h"
+#elif defined _WIN32
+  #define WIN32_LEAN_AND_MEAN
+  #define NOMINMAX
+  #include <windows.h>
 #endif
 
 #include "../common/global.h"
@@ -20,6 +24,60 @@
 #include "midr.h"
 #include "uarch.h"
 #include "sve.h"
+
+
+#if defined _WIN32
+// Windows stores processor information in registery at:
+// "HKEY_LOCAL_MACHINE\HARDWARE\DESCRIPTION\System\CentralProcessor"
+// Within this directory, each core will get its own folder with
+// registery entries named `CP ####` that map to ARM system registers.
+// Ex. the MIDR register for core 0 is the `REG_QWORD` at:
+// "HKEY_LOCAL_MACHINE\HARDWARE\DESCRIPTION\System\CentralProcessor\0\CP 4000"
+// The name of these `CP ####`-registers follow their register ID encoding in hexadecimal
+// (op0&1):op1:crn:crm:op2.
+// More registers can be found here:
+// https://developer.arm.com/documentation/ddi0601/2024-06/AArch64-Registers
+// Some important ones:
+// CP 4000: MIDR_EL1
+// CP 4020: ID_AA64PFR0_EL1
+// CP 4021: ID_AA64PFR1_EL1
+// CP 4028: ID_AA64DFR0_EL1
+// CP 4029: ID_AA64DFR1_EL1
+// CP 402C: ID_AA64AFR0_EL1
+// CP 402D: ID_AA64AFR1_EL1
+// CP 4030: ID_AA64ISAR0_EL1
+// CP 4031: ID_AA64ISAR1_EL1
+// CP 4038: ID_AA64MMFR0_EL1
+// CP 4039: ID_AA64MMFR1_EL1
+// CP 403A: ID_AA64MMFR2_EL1
+
+bool read_registry_hklm_int(char* path, char* name, void* value, bool is64) {  
+  DWORD value_len;
+  int reg_type;
+  if (is64) {
+    value_len = sizeof(int64_t);
+    reg_type = RRF_RT_REG_QWORD;
+  }
+  else {
+    value_len = sizeof(int32_t);
+    reg_type = RRF_RT_REG_DWORD;
+  }
+
+  if(RegGetValueA(HKEY_LOCAL_MACHINE, path, name, reg_type, NULL, value, &value_len) != ERROR_SUCCESS) {
+    printBug("Error reading registry entry \"%s\\%s\"", path, name);
+    return false;
+  }
+  return true;
+}
+
+bool get_win32_core_info_int(uint32_t core_index, char* name, void* value, bool is64) {
+  // path + digits
+  uint32_t max_path_size = 45+3+1;
+  char* path = ecalloc(sizeof(char) * max_path_size, sizeof(char));
+  snprintf(path, max_path_size, "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\%u", core_index);
+  return read_registry_hklm_int(path, name, value, is64);
+}
+#endif
 
 bool cores_are_equal(int c1pos, int c2pos, uint32_t* midr_array, int32_t* freq_array) {
   return midr_array[c1pos] == midr_array[c2pos] && freq_array[c1pos] == freq_array[c2pos];
@@ -208,6 +266,46 @@ struct features* get_features_info(void) {
   feat->NEON = true;
   feat->SVE = false;
   feat->SVE2 = false;
+#elif defined _WIN32
+
+  // CP 4020 maps to the ID_AA64PFR0_EL1 register on Windows
+  // https://developer.arm.com/documentation/ddi0601/2024-06/AArch64-Registers/ID-AA64PFR0-EL1--AArch64-Processor-Feature-Register-0
+  int64_t pfr0 = 0;
+  if(!get_win32_core_info_int(0, "CP 4020", &pfr0, true)) {
+    printWarn("Unable to retrieve PFR0 via registry");
+  }
+  else {
+    // AdvSimd[23:20]
+    // -1: Not available
+    //  0: AdvSimd support
+    //  1: AdvSimd support + FP16
+    int8_t adv_simd = ((int64_t)(pfr0 << (60 - 20)) >> 60);
+    feat->NEON = (adv_simd >= 0);
+
+    // SVE[35:32]
+    feat->SVE = (pfr0 >> 32) & 0xF ? true : false;
+  }
+
+  // Windoes does not expose a registry entry for the ID_AA64ZFR0_EL1 register
+  // this would have mapped to "CP 4024".
+  feat->SVE2 = false;
+
+  // CP 4030 maps to the ID_AA64ISAR0_EL1 register on Windows
+  // https://developer.arm.com/documentation/ddi0601/2024-06/AArch64-Registers/ID-AA64ISAR0-EL1--AArch64-Instruction-Set-Attribute-Register-0
+  int64_t isar0 = 0;
+  if(!get_win32_core_info_int(0, "CP 4030", &isar0, true)) {
+    printWarn("Unable to retrieve ISAR0 via registry");
+  }
+  else {
+    // AES[7:4]
+    feat->AES = (isar0 >> 4) & 0xF ? true : false;
+    // SHA1[11:8]
+    feat->SHA1 = (isar0 >> 8) & 0xF ? true : false;
+    // SHA2[15:12]
+    feat->SHA2 = (isar0 >> 12) & 0xF ? true : false;
+    // CRC32[19:16]
+    feat->CRC32 = (isar0 >> 16) & 0xF ? true : false;
+  }
 #endif  // ifdef __linux__
 
   if (feat->SVE || feat->SVE2) {
@@ -428,6 +526,68 @@ struct cpuInfo* get_cpu_info_mach(struct cpuInfo* cpu) {
 
   return cpu;
 }
+#elif defined _WIN32
+struct cpuInfo* get_cpu_info_windows(struct cpuInfo* cpu) {
+  init_cpu_info(cpu);
+
+  SYSTEM_INFO sys_info;
+  GetSystemInfo(&sys_info);
+  int ncores = sys_info.dwNumberOfProcessors;
+
+  uint32_t* midr_array = emalloc(sizeof(uint32_t) * ncores);
+  int32_t* freq_array = emalloc(sizeof(uint32_t) * ncores);
+  uint32_t* ids_array = emalloc(sizeof(uint32_t) * ncores);
+  for(int i=0; i < ncores; i++) {
+    // Cast from 64 to 32 bit to be able to re-use the pre-existing
+    // functions such as fill_ids_from_midr and cores_are_equal
+    int64_t midr_64;
+    if(!get_win32_core_info_int(i, "CP 4000", &midr_64, true)) {
+      return NULL;
+    }
+    midr_array[i] = midr_64;
+    if(!get_win32_core_info_int(i, "~MHz", &freq_array[i], false)) {
+      return NULL;
+    }
+  }
+
+  uint32_t sockets = fill_ids_from_midr(midr_array, freq_array, ids_array, ncores);
+
+  struct cpuInfo* ptr = cpu;
+  int midr_idx = 0;
+  int tmp_midr_idx = 0;
+  for(uint32_t i=0; i < sockets; i++) {
+    if(i > 0) {
+      ptr->next_cpu = emalloc(sizeof(struct cpuInfo));
+      ptr = ptr->next_cpu;
+      init_cpu_info(ptr);
+
+      tmp_midr_idx = midr_idx;
+      while(cores_are_equal(midr_idx, tmp_midr_idx, midr_array, freq_array)) tmp_midr_idx++;
+      midr_idx = tmp_midr_idx;
+    }
+
+    ptr->midr = midr_array[midr_idx];
+    ptr->arch = get_uarch_from_midr(ptr->midr, ptr);
+
+    ptr->feat = get_features_info();
+    
+    ptr->freq = emalloc(sizeof(struct frequency));
+    ptr->freq->measured = false;
+    ptr->freq->base = freq_array[midr_idx];
+    ptr->freq->max = UNKNOWN_DATA;
+
+    ptr->cach = get_cache_info(ptr);
+    ptr->topo = get_topology_info(ptr, ptr->cach, midr_array, freq_array, i, ncores);
+  }
+
+  cpu->num_cpus = sockets;
+  cpu->hv = emalloc(sizeof(struct hypervisor));
+  cpu->hv->present = false;
+  cpu->soc = get_soc(cpu);
+  cpu->peak_performance = get_peak_performance(cpu);
+
+  return cpu;
+}
 #endif
 
 struct cpuInfo* get_cpu_info(void) {
@@ -438,6 +598,8 @@ struct cpuInfo* get_cpu_info(void) {
     return get_cpu_info_linux(cpu);
   #elif defined __APPLE__ || __MACH__
     return get_cpu_info_mach(cpu);
+  #elif defined _WIN32
+    return get_cpu_info_windows(cpu);
   #endif
 }
 

@@ -14,6 +14,28 @@
   #include "../common/sysctl.h"
 #endif
 
+#if defined(_WIN32)
+  #define WIN32_LEAN_AND_MEAN
+  #define NOMINMAX
+  #include <windows.h>
+
+// Gets a RRF_RT_REG_SZ-entry from the Windows registry, returning a newly allocated
+// string and its length
+bool read_registry_hklm_sz(char* path, char* value, char** string, LPDWORD length) {
+	// First call to RegGetValueA gets the length of the string and determines how much
+  // memory should be allocated for the new string
+  if(RegGetValueA(HKEY_LOCAL_MACHINE, path, value, RRF_RT_REG_SZ, NULL, NULL, length) != ERROR_SUCCESS) {
+    return false;
+  }
+  *string = ecalloc(*length, sizeof(char));
+  // Second call actually writes the string data
+  if(RegGetValueA(HKEY_LOCAL_MACHINE, path, value, RRF_RT_REG_SZ, NULL, *string, length) != ERROR_SUCCESS) {
+    return false;
+  }
+  return true;
+}
+#endif
+
 #define NA -1
 #define min(a,b) (((a)<(b))?(a):(b))
 #define ARRAY_SIZE(arr)     (sizeof(arr) / sizeof((arr)[0]))
@@ -1231,7 +1253,24 @@ struct system_on_chip* get_soc(struct cpuInfo* cpu) {
   else {
     return soc;
   }
-#endif // ifdef __linux__
+#endif
+
+#if defined _WIN32
+  // Use the first core to determine the SoC
+  char* processor_name_string = NULL;
+  unsigned long processor_name_string_len = 0;
+  if(!read_registry_hklm_sz("HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0", "ProcessorNameString", &processor_name_string, &processor_name_string_len)) {
+    printWarn("Failed to aquire SoC name from registery");
+    return soc;
+  }
+
+  soc->name = processor_name_string;
+  soc->raw_name = processor_name_string;
+  soc->vendor = try_match_soc_vendor_name(processor_name_string);
+  soc->model = SOC_MODEL_UNKNOWN;
+  soc->process = UNKNOWN;
+
+#else
 
   if(soc->model == SOC_MODEL_UNKNOWN) {
     // raw_name might not be NULL, but if we were unable to find
@@ -1239,6 +1278,8 @@ struct system_on_chip* get_soc(struct cpuInfo* cpu) {
     soc->raw_name = emalloc(sizeof(char) * (strlen(STRING_UNKNOWN)+1));
     snprintf(soc->raw_name, strlen(STRING_UNKNOWN)+1, STRING_UNKNOWN);
   }
+
+#endif 
 
   return soc;
 }
