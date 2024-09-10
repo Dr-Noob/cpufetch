@@ -573,10 +573,13 @@ struct cpuInfo* get_cpu_info(void) {
   // after fetching the topology for all CPU modules (this information
   // is required by get_frequency_info)
   if (accurate_pp()) {
+    int32_t unused;
     int32_t *max_freq_pp_vec = NULL;
     ptr = cpu;
 
     for (uint32_t i=0; i < cpu->num_cpus; i++) {
+      set_cpu_module(i, cpu->num_cpus, &unused);
+
       ptr->freq = get_frequency_info(ptr, accurate_pp(), &max_freq_pp_vec);
       ptr = ptr->next_cpu;
     }
