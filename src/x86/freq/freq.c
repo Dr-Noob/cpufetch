@@ -188,5 +188,5 @@ int32_t measure_frequency(struct cpuInfo* cpu, int32_t *max_freq_pp_vec) {
   }
 
   printf("\r%*c", num_spaces, ' ');
-  return max_freq_pp_vec[cpu->module_id];
+  return max_freq_pp_vec[0];
 }
