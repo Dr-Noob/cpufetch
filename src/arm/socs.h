@@ -395,6 +395,11 @@ enum {
   SOC_NXP_IMX93,
   // AMLOGIC
   SOC_AMLOGIC_A311D,
+  SOC_AMLOGIC_A311D2,
+  SOC_AMLOGIC_S905W,
+  SOC_AMLOGIC_S905D,
+  SOC_AMLOGIC_S905X,
+  SOC_AMLOGIC_S805X,
   // MARVELL
   SOC_MARVELL_A3700,
   // UNKNOWN
@@ -415,7 +420,7 @@ inline static VENDOR get_soc_vendor_from_soc(SOC soc) {
   else if(soc >= SOC_TEGRA_X1 && soc <= SOC_TEGRA_ORIN) return SOC_VENDOR_NVIDIA;
   else if(soc >= SOC_AMPERE_ALTRA && soc <= SOC_AMPERE_ALTRA) return SOC_VENDOR_AMPERE;
   else if(soc >= SOC_NXP_IMX8QM && soc <= SOC_NXP_IMX93) return SOC_VENDOR_NXP;
-  else if(soc >= SOC_AMLOGIC_A311D && soc <= SOC_AMLOGIC_A311D) return SOC_VENDOR_AMLOGIC;
+  else if(soc >= SOC_AMLOGIC_A311D && soc <= SOC_AMLOGIC_S805X) return SOC_VENDOR_AMLOGIC;
   else if(soc >= SOC_MARVELL_A3700 && soc <= SOC_MARVELL_A3700) return SOC_VENDOR_MARVELL;
   return SOC_VENDOR_UNKNOWN;
 }

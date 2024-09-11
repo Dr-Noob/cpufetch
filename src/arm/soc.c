@@ -1008,11 +1008,17 @@ struct system_on_chip* guess_soc_from_devtree(struct system_on_chip* soc) {
   DT_EQ(dt, len, soc, "fsl,imx8dxp", "i.MX 8DualXPlus", SOC_NXP_IMX8DXP, NA)
   DT_EQ(dt, len, soc, "fsl,imx8qxp", "i.MX 8QuadXPlus", SOC_NXP_IMX8QXP, NA)
   DT_EQ(dt, len, soc, "fsl,imx93",   "i.MX 93",         SOC_NXP_IMX93,   NA)  
-  // TODO: Add more Amlogic SoCs: https://elixir.bootlin.com/linux/v6.10.6/source/arch/arm64/boot/dts/amlogic
-  // https://github.com/Dr-Noob/cpufetch/issues/268
-  // https://www.amlogic.com/#Products/393/index.html
-  // https://wikimovel.com/index.php/Amlogic_A311D
-  DT_EQ(dt, len, soc, "amlogic,a311d", "A311D", SOC_AMLOGIC_A311D, 12)
+  // [1] https://elixir.bootlin.com/linux/v6.10.6/source/arch/arm64/boot/dts/amlogic
+  // [2] https://github.com/Dr-Noob/cpufetch/issues/268
+  // [3] https://www.amlogic.com/#Products/393/index.html
+  // [4] https://wikimovel.com
+  // [5] https://wiki.postmarketos.org/wiki/Amlogic_S905W/S905D/S905X/S905L/S805X/S805Y/S905Z
+  DT_EQ(dt, len, soc, "amlogic,a311d",  "A311D",  SOC_AMLOGIC_A311D,  12) // [1,2,3,4]
+  DT_EQ(dt, len, soc, "amlogic,a311d2", "A311D2", SOC_AMLOGIC_A311D2, 12) // [1,4]
+  DT_EQ(dt, len, soc, "amlogic,s905w",  "S905W",  SOC_AMLOGIC_S905W,  28) // [1,5]
+  DT_EQ(dt, len, soc, "amlogic,s905d",  "S905D",  SOC_AMLOGIC_S905D,  28) // [1,5]
+  DT_EQ(dt, len, soc, "amlogic,s905x",  "S905X",  SOC_AMLOGIC_S905X,  28) // [1,4,5]
+  DT_EQ(dt, len, soc, "amlogic,s805x",  "S805X",  SOC_AMLOGIC_S805X,  28) // [1,5]
   // Marvell
   DT_EQ(dt, len, soc, "marvell,armada3700", "Armada 3700", SOC_MARVELL_A3700, 28) // http://wiki.espressobin.net/tiki-index.php?page=Armada+3700 (pdf), https://github.com/Dr-Noob/cpufetch/issues/279
   DT_END(dt, len)
