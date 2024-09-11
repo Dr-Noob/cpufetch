@@ -23,6 +23,7 @@ enum riscv_isa_ext_id {
   RISCV_ISA_EXT_ZICBOM,
   RISCV_ISA_EXT_ZIHINTPAUSE,
   RISCV_ISA_EXT_SVNAPOT,
+  RISCV_ISA_EXT_ZICBOP,
   RISCV_ISA_EXT_ZICBOZ,
   RISCV_ISA_EXT_SMAIA,
   RISCV_ISA_EXT_SSAIA,
@@ -37,6 +38,7 @@ enum riscv_isa_ext_id {
 
 // https://five-embeddev.com/riscv-isa-manual/latest/preface.html#preface
 // https://en.wikichip.org/wiki/risc-v/standard_extensions
+// (Zicbop) https://github.com/riscv/riscv-CMOs/blob/master/cmobase/Zicbop.adoc
 // Included all except for G
 static const struct extension extension_list[] = {
   { 'i' - 'a', "(I) Integer Instruction Set" },
@@ -64,6 +66,7 @@ static const struct extension extension_list[] = {
   { RISCV_ISA_EXT_ZIHINTPAUSE, "(Zihintpause) Pause Hint" },
   { RISCV_ISA_EXT_SVNAPOT,     "(Svnapot) Naturally Aligned Power of Two Pages" },
   { RISCV_ISA_EXT_ZICBOZ,      "(Zicboz) Cache Block Zero Operations" },
+  { RISCV_ISA_EXT_ZICBOP,      "(Zicbop) Cache Block Prefetch Operations" },
   { RISCV_ISA_EXT_SMAIA,       "(Smaia) Advanced Interrupt Architecture" },
   { RISCV_ISA_EXT_SSAIA,       "(Ssaia) Advanced Interrupt Architecture" },
   { RISCV_ISA_EXT_ZBA,         "(Zba) Address Generation" },
