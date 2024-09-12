@@ -1020,7 +1020,17 @@ struct system_on_chip* guess_soc_from_devtree(struct system_on_chip* soc) {
   DT_EQ(dt, len, soc, "amlogic,s905x",  "S905X",  SOC_AMLOGIC_S905X,  28) // [1,4,5]
   DT_EQ(dt, len, soc, "amlogic,s805x",  "S805X",  SOC_AMLOGIC_S805X,  28) // [1,5]
   // Marvell
-  DT_EQ(dt, len, soc, "marvell,armada3700", "Armada 3700", SOC_MARVELL_A3700, 28) // http://wiki.espressobin.net/tiki-index.php?page=Armada+3700 (pdf), https://github.com/Dr-Noob/cpufetch/issues/279
+  // https://elixir.bootlin.com/linux/v6.10.6/source/arch/arm64/boot/dts/marvell
+  DT_EQ(dt, len, soc, "marvell,armada3700", "Armada 3700", SOC_MARVELL_A3700,  28) // http://wiki.espressobin.net/tiki-index.php?page=Armada+3700 (pdf), https://github.com/Dr-Noob/cpufetch/issues/279
+  DT_EQ(dt, len, soc, "marvell,armada3710", "Armada 3710", SOC_MARVELL_A3710,  28) // https://gzhls.at/blob/ldb/2/7/4/2/6eacf9661c5a2d20c4d7cd3328ffba47bfd6.pdf
+  DT_EQ(dt, len, soc, "marvell,armada3720", "Armada 3720", SOC_MARVELL_A3720,  28) // https://gzhls.at/blob/ldb/2/7/4/2/6eacf9661c5a2d20c4d7cd3328ffba47bfd6.pdf
+  DT_EQ(dt, len, soc, "marvell,armada7200", "Armada 7200", SOC_MARVELL_A7200,  28) // Assuming same manufacturing process as 7400
+  DT_EQ(dt, len, soc, "marvell,armada7400", "Armada 7400", SOC_MARVELL_A7400,  28) // https://www.marvell.com/content/dam/marvell/en/public-collateral/embedded-processors/marvell-embedded-processors-armada-7040-product-brief-2017-12.pdf
+  DT_EQ(dt, len, soc, "marvell,armada8020", "Armada 8020", SOC_MARVELL_A8020,  28) // https://datasheet.datasheetarchive.com/originals/crawler/marvell.com/da7b6a997e49e9e93fa4b1f4cfbed71b.pdf
+  DT_EQ(dt, len, soc, "marvell,armada8040", "Armada 8040", SOC_MARVELL_A8040,  28) // https://www.verical.com/datasheet/marvell-technology-group-application-processors-and-soc-88f8040-a2-bvp4i160-6331367.pdf
+  DT_EQ(dt, len, soc, "marvell,cn9130",     "CN9130",      SOC_MARVELL_CN9130, NA) // https://www.marvell.com/content/dam/marvell/en/public-collateral/embedded-processors/marvell-infrastructure-processors-octeon-tx2-cn913x-product-brief.pdf
+  DT_EQ(dt, len, soc, "marvell,cn9131",     "CN9131",      SOC_MARVELL_CN9131, NA) // https://www.marvell.com/content/dam/marvell/en/public-collateral/embedded-processors/marvell-infrastructure-processors-octeon-tx2-cn913x-product-brief.pdf
+  DT_EQ(dt, len, soc, "marvell,cn9132",     "CN9132",      SOC_MARVELL_CN9132, NA) // https://www.marvell.com/content/dam/marvell/en/public-collateral/embedded-processors/marvell-infrastructure-processors-octeon-tx2-cn913x-product-brief.pdf
   DT_END(dt, len)
 }
 
