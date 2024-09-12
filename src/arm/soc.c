@@ -994,7 +994,17 @@ struct system_on_chip* guess_soc_from_devtree(struct system_on_chip* soc) {
   DT_EQ(dt, len, soc, "apple,t6031", "M3 Max",   SOC_APPLE_M3_MAX,   3)
   DT_EQ(dt, len, soc, "apple,t6034", "M3 Max",   SOC_APPLE_M3_MAX,   3)
   // NVIDIA
-  DT_EQ(dt, len, soc, "nvidia,tegra234", "Tegra Orin", SOC_TEGRA_ORIN, 8) // https://www.phoronix.com/news/NVIDIA-Orin-Tegra234-Audio, https://github.com/Dr-Noob/cpufetch/issues/275, https://en.wikipedia.org/wiki/Tegra#Orin
+  // https://elixir.bootlin.com/linux/v6.10.6/source/arch/arm64/boot/dts/nvidia
+  // https://elixir.bootlin.com/linux/v6.10.6/source/arch/arm/boot/dts/nvidia
+  DT_EQ(dt, len, soc, "nvidia,tegra20",  "Tegra 2",      SOC_TEGRA_2,      40) // https://en.wikipedia.org/wiki/Tegra#Tegra_2
+  DT_EQ(dt, len, soc, "nvidia,tegra30",  "Tegra 3",      SOC_TEGRA_3,      40) // https://en.wikipedia.org/wiki/Tegra#Tegra_3
+  DT_EQ(dt, len, soc, "nvidia,tegra114", "Tegra 4",      SOC_TEGRA_4,      28) // https://en.wikipedia.org/wiki/Tegra#Tegra_4
+  DT_EQ(dt, len, soc, "nvidia,tegra124", "Tegra K1",     SOC_TEGRA_K1,     28) // https://en.wikipedia.org/wiki/Tegra#Tegra_K1
+  DT_EQ(dt, len, soc, "nvidia,tegra132", "Tegra K1",     SOC_TEGRA_K1,     28) // https://en.wikipedia.org/wiki/Tegra#Tegra_K1
+  DT_EQ(dt, len, soc, "nvidia,tegra210", "Tegra X1",     SOC_TEGRA_X1,     20) // https://en.wikipedia.org/wiki/Tegra#Tegra_X1
+  DT_EQ(dt, len, soc, "nvidia,tegra186", "Tegra X2",     SOC_TEGRA_X2,     16) // https://en.wikipedia.org/wiki/Tegra#Tegra_X2
+  DT_EQ(dt, len, soc, "nvidia,tegra194", "Tegra Xavier", SOC_TEGRA_XAVIER, 12) // https://en.wikipedia.org/wiki/Tegra#Xavier
+  DT_EQ(dt, len, soc, "nvidia,tegra234", "Tegra Orin",   SOC_TEGRA_ORIN,    8) // https://www.phoronix.com/news/NVIDIA-Orin-Tegra234-Audio, https://github.com/Dr-Noob/cpufetch/issues/275, https://en.wikipedia.org/wiki/Tegra#Orin
   // Qualcomm now also in devtree...
   // TODO: Integrate this with SOC_EQ
   DT_EQ(dt, len, soc, "qcom,sc8280", "8cx Gen 3", SOC_SNAPD_SC8280XP, 5)
