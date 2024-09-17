@@ -361,3 +361,49 @@ char* get_devtree_compatible(int *filelen) {
 
   return buf;
 }
+
+// TODO:
+// Returns a list of strings containing the vendors of the compatible
+// file from the device tree. In this context, vendor refers to the first
+// string of every entry. For instance, given a compatible file with:
+// "str1,foo1.str2,foo2" (where . denotes the NULL byte, i.e., the separator),
+// then this function will return a list with str1,str2.
+struct devtree** get_devtree_compatible_struct(int *num_vendors_ptr) {
+  int len;
+  char* dt = get_devtree_compatible(&len);
+  if (dt == NULL) {
+    return NULL;
+  }
+
+  int num_vendors = 0;
+  char* ptr = dt;
+
+  for (int ptrpos = 0; ptrpos < len; ptrpos = (ptr-dt)) {
+    ptr = memchr(ptr, '\0', len)+1;
+    num_vendors++;
+  }
+
+  struct devtree** vendors = emalloc(sizeof(struct devtree *) * num_vendors);
+  ptr = dt;
+
+  for (int ptrpos = 0, i = 0; ptrpos < len; ptrpos = (ptr-dt), i++) {
+    char* comma_ptr = strstr(ptr, ",")-1;
+    char* end_ptr = memchr(comma_ptr, '\0', ptrpos - len);
+
+    // TODO check NULL
+    int vendor_str_len = (comma_ptr-ptr)+1;
+    int model_str_len = (end_ptr-comma_ptr)+1;
+
+    vendors[i] = emalloc(struct devtree);
+    vendors[i]->vendor = ecalloc(vendor_str_len, sizeof(char));
+    vendors[i]->model = ecalloc(model_str_len, sizeof(char));
+
+    strncpy(vendors[i]->vendor, ptr, vendor_str_len);
+    strncpy(vendors[i]->model, comma_ptr, model_str_len);
+
+    ptr = memchr(ptr, '\0', len)+1;
+  }
+
+  *num_vendors_ptr = num_vendors;
+  return vendors;
+}
