@@ -394,7 +394,7 @@ struct devtree** get_devtree_compatible_struct(int *num_vendors_ptr) {
     int vendor_str_len = (comma_ptr-ptr)+1;
     int model_str_len = (end_ptr-comma_ptr)+1;
 
-    vendors[i] = emalloc(struct devtree);
+    vendors[i] = emalloc(sizeof(struct devtree));
     vendors[i]->vendor = ecalloc(vendor_str_len, sizeof(char));
     vendors[i]->model = ecalloc(model_str_len, sizeof(char));
 

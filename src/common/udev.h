@@ -34,7 +34,7 @@
 struct devtree {
   char* vendor;
   char* model;
-}
+};
 
 char* read_file(char* path, int* len);
 long get_max_freq_from_file(uint32_t core);

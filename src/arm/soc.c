@@ -1056,7 +1056,7 @@ struct system_on_chip* guess_soc_from_devtree(struct system_on_chip* soc) {
 // come directly from the device tree, meaning that it will likely be less precise.
 struct system_on_chip* guess_raw_soc_from_devtree(struct system_on_chip* soc) {
   int num_vendors;
-  struct devtree** dt_vendors = get_devtree_compatible_vendors(&num_vendors);
+  struct devtree** dt_vendors = get_devtree_compatible_struct(&num_vendors);
   if (dt_vendors == NULL) {
     return soc;
   }

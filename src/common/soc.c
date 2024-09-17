@@ -82,7 +82,7 @@ void fill_soc(struct system_on_chip* soc, char* soc_name, SOC soc_model, int32_t
 void fill_soc_raw(struct system_on_chip* soc, char* soc_name, VENDOR vendor) {
   soc->model = SOC_MODEL_UNKNOWN;
   soc->vendor = vendor;
-  soc->process = UNK;
+  soc->process = UNKNOWN;
 
   int len = strlen(soc_name) + strlen(soc_trademark_string[soc->vendor]) + 1;
   soc->name = emalloc(sizeof(char) * len);
