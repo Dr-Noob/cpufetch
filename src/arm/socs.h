@@ -192,6 +192,14 @@ enum {
   SOC_MTK_MT9950,
   SOC_MTK_MT9972,
   SOC_MTK_MT9982,
+  SOC_MTK_MT6983Z,
+  SOC_MTK_MT8798ZC,
+  SOC_MTK_MT6983W,
+  SOC_MTK_MT8798ZT,
+  SOC_MTK_MT6985W,
+  SOC_MTK_MT6985,
+  SOC_MTK_MT6989,
+  SOC_MTK_MT8796,
   // Snapdragon //
   SOC_SNAPD_QSD8650,
   SOC_SNAPD_QSD8250,
@@ -427,7 +435,7 @@ inline static VENDOR get_soc_vendor_from_soc(SOC soc) {
   else if(soc >= SOC_HISILICON_3620 && soc <= SOC_HISILICON_9000S) return SOC_VENDOR_KIRIN;
   else if(soc >= SOC_KUNPENG_920 && soc <= SOC_KUNPENG_930) return SOC_VENDOR_KUNPENG;
   else if(soc >= SOC_EXYNOS_3475 && soc <= SOC_EXYNOS_880) return SOC_VENDOR_EXYNOS;
-  else if(soc >= SOC_MTK_MT6893 && soc <= SOC_MTK_MT8783) return SOC_VENDOR_MEDIATEK;
+  else if(soc >= SOC_MTK_MT6893 && soc <= SOC_MTK_MT8796) return SOC_VENDOR_MEDIATEK;
   else if(soc >= SOC_SNAPD_QSD8650 && soc <= SOC_SNAPD_SC8280XP) return SOC_VENDOR_SNAPDRAGON;
   else if(soc >= SOC_APPLE_M1 && soc <= SOC_APPLE_M3_MAX) return SOC_VENDOR_APPLE;
   else if(soc >= SOC_ALLWINNER_A10 && soc <= SOC_ALLWINNER_R328) return SOC_VENDOR_ALLWINNER;

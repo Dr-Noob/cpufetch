@@ -306,6 +306,15 @@ bool match_mediatek(char* soc_name, struct system_on_chip* soc) {
   soc->vendor = SOC_VENDOR_MEDIATEK;
 
   SOC_START
+  // Dimensity 9000 Series //
+  SOC_EQ(tmp, "MT6983Z",  "Dimensity 9000",  SOC_MTK_MT6983Z,  soc, 4)
+  SOC_EQ(tmp, "MT8798Z/C","Dimensity 9000",  SOC_MTK_MT8798ZC, soc, 4)
+  SOC_EQ(tmp, "MT6983W",  "Dimensity 9000+", SOC_MTK_MT6983W,  soc, 4)
+  SOC_EQ(tmp, "MT8798Z/T","Dimensity 9000+", SOC_MTK_MT8798ZT, soc, 4)
+  SOC_EQ(tmp, "MT6985W",  "Dimensity 9200+", SOC_MTK_MT6985W,  soc, 4)
+  SOC_EQ(tmp, "MT6985",   "Dimensity 9200",  SOC_MTK_MT6985,   soc, 4)
+  SOC_EQ(tmp, "MT6989",   "Dimensity 9300",  SOC_MTK_MT6989,   soc, 4)
+  SOC_EQ(tmp, "MT8796",   "Dimensity 9300",  SOC_MTK_MT8796,   soc, 4)
   // Dimensity //
   SOC_EQ(tmp, "MT6893Z",  "Dimensity 1300",  SOC_MTK_MT6893Z,  soc, 6)
   SOC_EQ(tmp, "MT6893",   "Dimensity 1200",  SOC_MTK_MT6893,   soc, 6)
