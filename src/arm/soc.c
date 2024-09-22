@@ -1044,6 +1044,64 @@ struct system_on_chip* guess_soc_from_devtree(struct system_on_chip* soc) {
   DT_END(dt, len)
 }
 
+// This function is different from the rest guess_soc_from_xxx, which try infering
+// the exact SoC model by matching some string against a list of known values.
+// On the other hand, this function will just try to infer the SoC vendor first by
+// matching the device tree vendor name (i.e., the first value, before the comma).
+// If that is successfull, then it also fills in the SoC name using the string from
+// the device tree.
+// The critical difference is that this function does not need a LUT to fill in the
+// SoC, it just needs to find a known vendor. On the other hand, the detection is
+// less powerful since we cannot get the manufacturing process, and the SoC name will
+// come directly from the device tree, meaning that it will likely be less precise.
+struct system_on_chip* guess_raw_soc_from_devtree(struct system_on_chip* soc) {
+  int num_vendors;
+  struct devtree** dt_vendors = get_devtree_compatible_struct(&num_vendors);
+  if (dt_vendors == NULL) {
+    return soc;
+  }
+
+  typedef struct {
+    char* compatible;
+    VENDOR soc_vendor;
+  } devtreeToVendor;
+
+  // https://elixir.bootlin.com/linux/v6.10.6/source/arch/arm64/boot/dts
+  // grep -oR --color -E 'compatible = ".*"' <soc_vendor> | cut -d '=' -f2 | cut -d ',' -f1 | tr -d '"' | sort | uniq -c | sort
+  // - The following vendors are not included because they dont seem to be present in dts:
+  // SOC_VENDOR_(KIRIN, KUNPENG, GOOGLE, AMPERE).
+  // - The commented vendors are not included intentionally, because I prefer updating its LUT manually.
+  devtreeToVendor socFromDevtree[] = {
+    // {"qcom",       SOC_VENDOR_SNAPDRAGON},
+    // {"samsung",    SOC_VENDOR_EXYNOS},
+    // {"brcm",       SOC_VENDOR_BROADCOM},
+    // {"apple",      SOC_VENDOR_APPLE},
+    // {"rockchip",   SOC_VENDOR_ROCKCHIP},
+    // {"nvidia",     SOC_VENDOR_NVIDIA},
+    {"mediatek",   SOC_VENDOR_MEDIATEK},
+    {"fsl",        SOC_VENDOR_NXP     },
+    {"nxp",        SOC_VENDOR_NXP     },
+    {"amlogic",    SOC_VENDOR_AMLOGIC },
+    {"marvell",    SOC_VENDOR_MARVELL },
+    {NULL,         SOC_VENDOR_UNKNOWN }
+  };
+
+  int index = 0;
+  while (socFromDevtree[index].compatible != 0x0) {
+    for (int i=0; i < num_vendors; i++) {
+      if (strcmp(socFromDevtree[index].compatible, dt_vendors[i]->vendor) == 0) {
+        fill_soc_raw(soc, dt_vendors[i]->model, socFromDevtree[index].soc_vendor);
+        printWarn("Your SoC is unsupported by cpufetch but could still be detected successfully. If you want to help improve the project, please paste the output of 'cpufetch --verbose' on https://github.com/Dr-Noob/cpufetch/issues");
+        return soc;
+      }
+    }
+    index++;
+  }
+
+  printWarn("guess_raw_soc_from_devtree: No device matched the list");
+  return soc;
+}
+
 struct system_on_chip* guess_soc_from_pci(struct system_on_chip* soc, struct cpuInfo* cpu) {
   struct pci_devices * pci = get_pci_devices();
   if (pci == NULL) {
@@ -1270,6 +1328,11 @@ struct system_on_chip* get_soc(struct cpuInfo* cpu) {
     if(soc->vendor == SOC_VENDOR_UNKNOWN) {
       soc = guess_soc_from_pci(soc, cpu);
     }
+    if (soc->vendor == SOC_VENDOR_UNKNOWN) {
+      // If we fall here it means all previous functions failed to detect the SoC.
+      // In such case, try with our last resort. If it also fails, we will just give up
+      soc = guess_raw_soc_from_devtree(soc);
+    }
   }
 #elif defined __APPLE__ || __MACH__
   soc = guess_soc_apple(soc);
@@ -1295,16 +1358,13 @@ struct system_on_chip* get_soc(struct cpuInfo* cpu) {
   soc->vendor = try_match_soc_vendor_name(processor_name_string);
   soc->model = SOC_MODEL_UNKNOWN;
   soc->process = UNKNOWN;
-
 #else
-
-  if(soc->model == SOC_MODEL_UNKNOWN) {
-    // raw_name might not be NULL, but if we were unable to find
-    // the exact SoC, just print "Unkwnown"
+  if(soc->raw_name == NULL) {
+    // We were unable to find the SoC, so just initialize raw_name
+    // with the unknown string
     soc->raw_name = emalloc(sizeof(char) * (strlen(STRING_UNKNOWN)+1));
     snprintf(soc->raw_name, strlen(STRING_UNKNOWN)+1, STRING_UNKNOWN);
   }
-
 #endif 
 
   return soc;

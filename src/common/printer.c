@@ -20,6 +20,7 @@
   #include "../arm/uarch.h"
   #include "../arm/midr.h"
   #include "../arm/soc.h"
+  #include "../arm/socs.h"
   #include "../common/soc.h"
 #elif ARCH_RISCV
   #include "../riscv/riscv.h"
@@ -892,6 +893,11 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
   // https://github.com/Dr-Noob/cpufetch/pull/273
   // Hide manufacturing process
 #if !defined(_WIN32)
+  // In the case that the model is unknown but the vendor isn't (this is, when
+  // guess_raw_soc_from_devtree succeeded), do not show the manufacturing process
+  // (as it will be unknown)
+  if (cpu->soc->model != SOC_MODEL_UNKNOWN ||
+    (cpu->soc->model == SOC_MODEL_UNKNOWN && cpu->soc->vendor == SOC_VENDOR_UNKNOWN))
   setAttribute(art, ATTRIBUTE_TECHNOLOGY, manufacturing_process);
 #endif
 

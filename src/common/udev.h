@@ -31,6 +31,11 @@
 #define _PATH_CACHE_MAX_LEN     200
 #define _PATH_PACKAGE_MAX_LEN   200
 
+struct devtree {
+  char* vendor;
+  char* model;
+};
+
 char* read_file(char* path, int* len);
 long get_max_freq_from_file(uint32_t core);
 long get_min_freq_from_file(uint32_t core);
@@ -44,5 +49,6 @@ int get_ncores_from_cpuinfo(void);
 char* get_field_from_cpuinfo(char* CPUINFO_FIELD);
 bool is_devtree_compatible(char* str);
 char* get_devtree_compatible(int *filelen);
+struct devtree** get_devtree_compatible_struct(int *num_vendors);
 
 #endif
