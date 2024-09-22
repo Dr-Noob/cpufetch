@@ -398,6 +398,8 @@ void choose_ascii_art(struct ascii* art, struct color** cs, struct terminal* ter
     art->art = &logo_amlogic;
   else if(art->vendor == SOC_VENDOR_MARVELL)
     art->art = &logo_marvell;
+  else if(art->vendor == SOC_VENDOR_SPACEMIT)
+    art->art = &logo_spacemit;
   else if(art->vendor == SOC_VENDOR_NVIDIA)
     art->art = choose_ascii_art_aux(&logo_nvidia_l, &logo_nvidia, term, lf);
   else {
