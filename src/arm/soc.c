@@ -306,6 +306,11 @@ bool match_mediatek(char* soc_name, struct system_on_chip* soc) {
   soc->vendor = SOC_VENDOR_MEDIATEK;
 
   SOC_START
+  // TODO
+  // Dimensity 6000 Series //
+  // Dimensity 7000 Series //
+  // Dimensity 8000 Series //
+  // END TODO
   // Dimensity 9000 Series //
   SOC_EQ(tmp, "MT6983Z",  "Dimensity 9000",  SOC_MTK_MT6983Z,  soc, 4)
   SOC_EQ(tmp, "MT8798Z/C","Dimensity 9000",  SOC_MTK_MT8798ZC, soc, 4)
@@ -315,7 +320,7 @@ bool match_mediatek(char* soc_name, struct system_on_chip* soc) {
   SOC_EQ(tmp, "MT6985",   "Dimensity 9200",  SOC_MTK_MT6985,   soc, 4)
   SOC_EQ(tmp, "MT6989",   "Dimensity 9300",  SOC_MTK_MT6989,   soc, 4)
   SOC_EQ(tmp, "MT8796",   "Dimensity 9300",  SOC_MTK_MT8796,   soc, 4)
-  // Dimensity //
+  // Dimensity 1000 //
   SOC_EQ(tmp, "MT6893Z",  "Dimensity 1300",  SOC_MTK_MT6893Z,  soc, 6)
   SOC_EQ(tmp, "MT6893",   "Dimensity 1200",  SOC_MTK_MT6893,   soc, 6)
   SOC_EQ(tmp, "MT6891",   "Dimensity 1100",  SOC_MTK_MT6891,   soc, 6)
@@ -325,12 +330,21 @@ bool match_mediatek(char* soc_name, struct system_on_chip* soc) {
   SOC_EQ(tmp, "MT6885Z",  "Dimensity 1000L", SOC_MTK_MT6885Z,  soc, 7)
   SOC_EQ(tmp, "MT6889Z",  "Dimensity 1000+", SOC_MTK_MT6889Z,  soc, 7)
   SOC_EQ(tmp, "MT6883Z",  "Dimensity 1000C", SOC_MTK_MT6883Z,  soc, 7)
-  SOC_EQ(tmp, "MT6833",   "Dimensity 700",   SOC_MTK_MT6833,   soc, 7)
-  SOC_EQ(tmp, "MT6853",   "Dimensity 720",   SOC_MTK_MT6853,   soc, 7)
+  // Dimensity 900
+  SOC_EQ(tmp, "MT6877V/Z","Dimensity 900",   SOC_MTK_MT6877VZ, soc, 6)
+  SOC_EQ(tmp, "MT6877T"  ,"Dimensity 920",   SOC_MTK_MT6877T,  soc, 6)
+  SOC_EQ(tmp, "MT6855"   ,"Dimensity 930",   SOC_MTK_MT6855,   soc, 6)
+  // Dimensity 800
   SOC_EQ(tmp, "MT6873",   "Dimensity 800",   SOC_MTK_MT6873,   soc, 7)
-  SOC_EQ(tmp, "MT6853V",  "Dimensity 800U",  SOC_MTK_MT6853V,  soc, 7)
-  SOC_EQ(tmp, "MT6833",   "Dimensity 810",   SOC_MTK_MT6833,   soc, 6)
+  SOC_EQ(tmp, "MT6853V/T","Dimensity 800U",  SOC_MTK_MT6853VT, soc, 7)
+  SOC_EQ(tmp, "MT6853T",  "Dimensity 800U",  SOC_MTK_MT6853T,  soc, 7)
+  SOC_EQ(tmp, "MT6833P",  "Dimensity 810",   SOC_MTK_MT6833P,  soc, 6)
+  SOC_EQ(tmp, "MT6833GP", "Dimensity 810",   SOC_MTK_MT6833GP, soc, 6)
+  SOC_EQ(tmp, "MT6833V",  "Dimensity 810",   SOC_MTK_MT6833V,  soc, 6)
   SOC_EQ(tmp, "MT6875",   "Dimensity 820",   SOC_MTK_MT6875,   soc, 7)
+  // Dimensity 700
+  SOC_EQ(tmp, "MT6833",   "Dimensity 700",   SOC_MTK_MT6833,   soc, 7)
+  SOC_EQ(tmp, "MT6853V",  "Dimensity 720",   SOC_MTK_MT6853,   soc, 7)
   // Helio //
   SOC_EQ(tmp, "MT6761D",  "Helio A20",       SOC_MTK_MT6761D,  soc, 12)
   SOC_EQ(tmp, "MT6761",   "Helio A22",       SOC_MTK_MT6761,   soc, 12)
