@@ -40,7 +40,7 @@ bool match_sipeed(char* soc_name, struct system_on_chip* soc) {
 
 bool match_spacemit(char* soc_name, struct system_on_chip* soc) {
   SOC_START
-  SOC_EQ(soc_name, "k1-x", "X60", SOC_SPACEMIT_X60, soc, 22) // https://github.com/Dr-Noob/cpufetch/issues/286 https://www.spacemit.com/en/spacemit-x60-core/
+  SOC_EQ(soc_name, "k1-x", "K1", SOC_SPACEMIT_K1, soc, 22) // https://github.com/Dr-Noob/cpufetch/issues/286 https://www.spacemit.com/en/spacemit-x60-core/
   SOC_END
 }
 

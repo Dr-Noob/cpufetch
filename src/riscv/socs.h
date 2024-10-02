@@ -14,7 +14,7 @@ enum {
   // SIPEED
   SOC_SIPEED_LICHEEPI4A,
   // SPACEMIT
-  SOC_SPACEMIT_X60,
+  SOC_SPACEMIT_K1,
   // UNKNOWN
   SOC_MODEL_UNKNOWN
 };
@@ -24,7 +24,7 @@ inline static VENDOR get_soc_vendor_from_soc(SOC soc) {
   if(soc >= SOC_STARFIVE_VF2 && soc <= SOC_STARFIVE_VF2) return SOC_VENDOR_STARFIVE;
   if(soc >= SOC_ALLWINNER_D1H && soc <= SOC_ALLWINNER_D1H) return SOC_VENDOR_ALLWINNER;
   if(soc >= SOC_SIPEED_LICHEEPI4A && soc <= SOC_SIPEED_LICHEEPI4A) return SOC_VENDOR_SIPEED;
-  if(soc >= SOC_SPACEMIT_X60 && soc <= SOC_SPACEMIT_X60) return SOC_VENDOR_SPACEMIT;
+  if(soc >= SOC_SPACEMIT_K1 && soc <= SOC_SPACEMIT_K1) return SOC_VENDOR_SPACEMIT;
   return SOC_VENDOR_UNKNOWN;
 }
 
