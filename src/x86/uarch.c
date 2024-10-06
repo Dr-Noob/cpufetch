@@ -255,7 +255,7 @@ struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, u
   // CHECK_UARCH(arch, 0,  6,  8, 14,  9, ...) It is not possible to determine uarch only from CPUID dump (can be Kaby Lake or Amber Lake)
   // CHECK_UARCH(arch, 0,  6,  8, 14, 10, ...) It is not possible to determine uarch only from CPUID dump (can be Kaby Lake R or Coffee Lake U)
   CHECK_UARCH(arch, 0,  6,  8, 14, 11, "Whiskey Lake",      UARCH_WHISKEY_LAKE,     14) // wikichip
-  CHECK_UARCH(arch, 0,  6,  8, 14, 12, "Comet Lake",        UARCH_COMET_LAKE,       14) // wikichip
+  CHECK_UARCH(arch, 0,  6,  8, 14, 12, "Whiskey Lake",      UARCH_COMET_LAKE,       14) // wikichip
   CHECK_UARCH(arch, 0,  6,  8, 15,  8, "Sapphire Rapids",   UARCH_SAPPHIRE_RAPIDS,   7) // wikichip
   CHECK_UARCH(arch, 0,  6,  9,  6, NA, "Tremont",           UARCH_TREMONT,          10) // LX*
   CHECK_UARCH(arch, 0,  6,  9,  7, NA, "Alder Lake",        UARCH_ALDER_LAKE,       10) // instlatx64 (Alder Lake-S)
