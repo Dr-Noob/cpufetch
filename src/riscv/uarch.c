@@ -73,11 +73,11 @@ struct uarch* get_uarch_from_cpuinfo_str(char* cpuinfo_str, struct cpuInfo* cpu,
   return arch;
 }
 
-// TODO: Doc
+// Use marchid to get the microarchitecture
 struct uarch* get_uarch_from_riscv_cpuinfo(struct cpuInfo* cpu, struct uarch* arch) {
 
   ARCHID_START
-  CHECK_ARCHID(arch, 0x8000000058000001, "X60", UARCH_X60, CPU_VENDOR_SPACEMIT)
+  CHECK_ARCHID(arch, 0x8000000058000001, "X60", UARCH_X60, CPU_VENDOR_SPACEMIT) // https://github.com/Dr-Noob/cpufetch/issues/286
   ARCHID_END
 
   return arch;
