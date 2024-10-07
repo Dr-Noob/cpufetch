@@ -255,7 +255,7 @@ struct uarch* get_uarch_from_cpuid_intel(uint32_t ef, uint32_t f, uint32_t em, u
   // CHECK_UARCH(arch, 0,  6,  8, 14,  9, ...) It is not possible to determine uarch only from CPUID dump (can be Kaby Lake or Amber Lake)
   // CHECK_UARCH(arch, 0,  6,  8, 14, 10, ...) It is not possible to determine uarch only from CPUID dump (can be Kaby Lake R or Coffee Lake U)
   CHECK_UARCH(arch, 0,  6,  8, 14, 11, "Whiskey Lake",      UARCH_WHISKEY_LAKE,     14) // wikichip
-  CHECK_UARCH(arch, 0,  6,  8, 14, 12, "Comet Lake",        UARCH_COMET_LAKE,       14) // wikichip
+  // CHECK_UARCH(arch, 0,  6,  8, 14, 12, ...) It is not possible to determine uarch only from CPUID dump (can be Comet Lake U or Whiskey Lake U)
   CHECK_UARCH(arch, 0,  6,  8, 15,  8, "Sapphire Rapids",   UARCH_SAPPHIRE_RAPIDS,   7) // wikichip
   CHECK_UARCH(arch, 0,  6,  9,  6, NA, "Tremont",           UARCH_TREMONT,          10) // LX*
   CHECK_UARCH(arch, 0,  6,  9,  7, NA, "Alder Lake",        UARCH_ALDER_LAKE,       10) // instlatx64 (Alder Lake-S)
@@ -447,6 +447,7 @@ struct uarch* get_uarch_from_cpuid_hygon(uint32_t ef, uint32_t f, uint32_t em, u
 struct uarch* get_uarch_from_cpuid(struct cpuInfo* cpu, uint32_t dump, uint32_t ef, uint32_t f, uint32_t em, uint32_t m, int s) {
   if(cpu->cpu_vendor == CPU_VENDOR_INTEL) {
     struct uarch* arch = emalloc(sizeof(struct uarch));
+    // TODO: Refactor these 3 checks in a common function.
     if(dump == 0x000806E9) {
       if (cpu->cpu_name == NULL) {
         printErr("Unable to find uarch without CPU name");
@@ -482,6 +483,30 @@ struct uarch* get_uarch_from_cpuid(struct cpuInfo* cpu, uint32_t dump, uint32_t 
       }
       else {
         fill_uarch(arch, "Coffee Lake", UARCH_COFFEE_LAKE, 14);
+      }
+
+      return arch;
+    }
+    else if (dump == 0x000806EC) {
+      if (cpu->cpu_name == NULL) {
+        printErr("Unable to find uarch without CPU name");
+        fill_uarch(arch, STRING_UNKNOWN, UARCH_UNKNOWN, UNK);
+        return arch;
+      }
+
+      // It is not possible to determine uarch only from CPUID dump (can be Comet Lake U or Whiskey Lake U)
+      // https://github.com/Dr-Noob/cpufetch/issues/298
+      if (strstr(cpu->cpu_name, "i3-8145U") != NULL ||
+          strstr(cpu->cpu_name, "i5-8265U") != NULL ||
+          strstr(cpu->cpu_name, "i5-8365U") != NULL ||
+          strstr(cpu->cpu_name, "i7-8565U") != NULL ||
+          strstr(cpu->cpu_name, "i7-8665U") != NULL ||
+          strstr(cpu->cpu_name, "5405U")    != NULL ||
+          strstr(cpu->cpu_name, "4205U")    != NULL) {
+        fill_uarch(arch, "Whiskey Lake", UARCH_WHISKEY_LAKE, 14);
+      }
+      else {
+        fill_uarch(arch, "Comet Lake", UARCH_COMET_LAKE, 14);
       }
 
       return arch;
