@@ -93,8 +93,8 @@ struct uarch* get_uarch(struct cpuInfo* cpu) {
     printWarn("get_uarch_from_cpuinfo: Unable to detect microarchitecture using uarch: cpuinfo_str is NULL");
     arch->ci = get_riscv_cpuinfo();
 
-    if (arch->ci == NULL)
-      printWarn("get_riscv_cpuinfo: Unable to get cpuinfo from udev");
+    if (arch->ci == NULL || arch->ci->marchid == 0)
+      printWarn("get_riscv_cpuinfo: Unable to get marchid from udev");
     else
       arch = get_uarch_from_riscv_cpuinfo(cpu, arch);
   }

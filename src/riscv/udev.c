@@ -92,9 +92,9 @@ unsigned long parse_cpuinfo_field_uint64(char* field_str) {
 
   char* end;
   errno = 0;
-  long ret = strtol(tmp, &end, 16);
-  if(errno != 0) {
-    printWarn("strtol: %s:\n", strerror(errno));
+  unsigned long ret = strtoul(tmp, &end, 16);
+  if (errno != 0) {
+    printWarn("strtoul: %s: %s", strerror(errno), tmp);
     return 0;
   }
   
