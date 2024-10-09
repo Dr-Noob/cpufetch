@@ -333,6 +333,15 @@ struct features* get_features_info(struct cpuInfo* cpu) {
     bool hv_present = (ecx & (1U << 31)) != 0;
     if((cpu->hv = get_hp_info(hv_present)) == NULL)
       return NULL;
+    if(cpu->hv->present) {
+      // Hypervisor will likely mess up something and users will think that
+      // there is something wrong with cpufetch whereas actually cpufetch has
+      // nothing to do with it.
+      // https://github.com/Dr-Noob/cpufetch/issues/96
+      // https://github.com/Dr-Noob/cpufetch/issues/267
+      // https://github.com/Dr-Noob/cpufetch/issues/293
+      printWarn("You are running an hypervisor. Please note that it will likely tamper your results, so do not post an issue if you find anything incorrect");
+    }
   }
   else {
     printWarn("Can't read features information from cpuid (needed level is 0x%.8X, max is 0x%.8X)", 0x00000001, cpu->maxLevels);
