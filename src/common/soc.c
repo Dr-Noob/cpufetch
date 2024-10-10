@@ -29,6 +29,7 @@ static char* soc_trademark_string[] = {
   [SOC_VENDOR_SIFIVE]     = "SiFive ",
   [SOC_VENDOR_STARFIVE]   = "StarFive ",
   [SOC_VENDOR_SIPEED]     = "Sipeed ",
+  [SOC_VENDOR_SPACEMIT]   = "SpacemiT ",
   // ARM & RISC-V
   [SOC_VENDOR_ALLWINNER]  = "Allwinner "
 };
