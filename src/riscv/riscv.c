@@ -101,8 +101,8 @@ struct extensions* get_extensions_from_str(char* str) {
     return ext;
   }
 
-  int len = strlen(str);
-  ext->str = ecalloc(len+1, sizeof(char));
+  int len = strlen(str)+1;
+  ext->str = emalloc(len * sizeof(char));
   strncpy(ext->str, str, sizeof(char) * len);
 
   // Code inspired in Linux kernel (riscv_fill_hwcap):
@@ -157,13 +157,12 @@ struct cpuInfo* get_cpu_info(void) {
   topo->cach = NULL;
   cpu->topo = topo;
 
-  char* cpuinfo_str = get_uarch_from_cpuinfo();
   char* ext_str = get_extensions_from_cpuinfo();
   cpu->hv = emalloc(sizeof(struct hypervisor));
   cpu->hv->present = false;
   cpu->ext = get_extensions_from_str(ext_str);
   if(cpu->ext->str != NULL && cpu->ext->mask == 0) return NULL;
-  cpu->arch = get_uarch_from_cpuinfo_str(cpuinfo_str, cpu);
+  cpu->arch = get_uarch(cpu);
   cpu->soc = get_soc(cpu);
   cpu->freq = get_frequency_info(0);
   cpu->peak_performance = get_peak_performance(cpu);

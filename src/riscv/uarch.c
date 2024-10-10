@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "uarch.h"
+#include "udev.h"
 #include "../common/global.h"
 
 typedef uint32_t MICROARCH;
@@ -12,6 +13,7 @@ struct uarch {
   MICROARCH uarch;
   char* uarch_str;
   char* cpuinfo_str;
+  struct riscv_cpuinfo* ci;
 };
 
 enum {
@@ -21,13 +23,20 @@ enum {
   UARCH_U74,
   // THEAD
   UARCH_C906,
-  UARCH_C910
+  UARCH_C910,
+  // SPACEMIT
+  UARCH_X60
 };
 
 #define UARCH_START if (false) {}
 #define CHECK_UARCH(arch, cpu, cpuinfo_str, uarch_str, str, uarch, vendor) \
    else if (strcmp(cpuinfo_str, uarch_str) == 0) fill_uarch(arch, cpu, str, uarch, vendor);
-#define UARCH_END else { printBug("Unknown microarchitecture detected: uarch='%s'", cpuinfo_str); fill_uarch(arch, cpu, "Unknown", UARCH_UNKNOWN, CPU_VENDOR_UNKNOWN); }
+#define UARCH_END else { printWarn("Unknown microarchitecture detected: uarch='%s'", cpuinfo_str); fill_uarch(arch, cpu, "Unknown", UARCH_UNKNOWN, CPU_VENDOR_UNKNOWN); }
+
+#define ARCHID_START if (false) {}
+#define CHECK_ARCHID(arch, marchid_val, str, uarch, vendor) \
+  else if (arch->ci->marchid == (unsigned long) marchid_val) fill_uarch(arch, cpu, str, uarch, vendor);
+#define ARCHID_END else { printWarn("Unknown microarchitecture detected: marchid=0x%.8X", arch->ci->marchid); fill_uarch(arch, cpu, "Unknown", UARCH_UNKNOWN, CPU_VENDOR_UNKNOWN); }
 
 void fill_uarch(struct uarch* arch, struct cpuInfo* cpu, char* str, MICROARCH u, VENDOR vendor) {
   arch->uarch = u;
@@ -39,14 +48,8 @@ void fill_uarch(struct uarch* arch, struct cpuInfo* cpu, char* str, MICROARCH u,
 // https://elixir.bootlin.com/linux/latest/source/Documentation/devicetree/bindings/riscv/cpus.yaml
 // SiFive: https://www.sifive.com/risc-v-core-ip
 // T-Head: https://www.t-head.cn/product/c906
-struct uarch* get_uarch_from_cpuinfo_str(char* cpuinfo_str, struct cpuInfo* cpu) {
-  struct uarch* arch = emalloc(sizeof(struct uarch));
+struct uarch* get_uarch_from_cpuinfo_str(char* cpuinfo_str, struct cpuInfo* cpu, struct uarch* arch) {
   arch->cpuinfo_str = cpuinfo_str;
-  if(cpuinfo_str == NULL) {
-    printWarn("get_uarch_from_cpuinfo: Unable to detect microarchitecture, cpuinfo_str is NULL");
-    fill_uarch(arch, cpu, "Unknown", UARCH_UNKNOWN, CPU_VENDOR_UNKNOWN);
-    return arch;
-  }
 
   // U74/U74-MC:
   // SiFive says that U74-MC is "Multicore: four U74 cores and one S76 core" while
@@ -66,6 +69,41 @@ struct uarch* get_uarch_from_cpuinfo_str(char* cpuinfo_str, struct cpuInfo* cpu)
   CHECK_UARCH(arch, cpu, cpuinfo_str, "thead,c906",     "T-Head C906", UARCH_C906, CPU_VENDOR_THEAD)
   CHECK_UARCH(arch, cpu, cpuinfo_str, "thead,c910",     "T-Head C910", UARCH_C910, CPU_VENDOR_THEAD)
   UARCH_END
+
+  return arch;
+}
+
+// Use marchid to get the microarchitecture
+struct uarch* get_uarch_from_riscv_cpuinfo(struct cpuInfo* cpu, struct uarch* arch) {
+
+  ARCHID_START
+  CHECK_ARCHID(arch, 0x8000000058000001, "X60", UARCH_X60, CPU_VENDOR_SPACEMIT) // https://github.com/Dr-Noob/cpufetch/issues/286
+  ARCHID_END
+
+  return arch;
+}
+
+struct uarch* get_uarch(struct cpuInfo* cpu) {
+  char* cpuinfo_str = get_uarch_from_cpuinfo();
+  struct uarch* arch = emalloc(sizeof(struct uarch));
+  arch->uarch = UARCH_UNKNOWN;
+  arch->ci = NULL;
+
+  if (cpuinfo_str == NULL) {
+    printWarn("get_uarch_from_cpuinfo: Unable to detect microarchitecture using uarch: cpuinfo_str is NULL");
+    arch->ci = get_riscv_cpuinfo();
+
+    if (arch->ci == NULL || arch->ci->marchid == 0)
+      printWarn("get_riscv_cpuinfo: Unable to get marchid from udev");
+    else
+      arch = get_uarch_from_riscv_cpuinfo(cpu, arch);
+  }
+  else {
+    arch = get_uarch_from_cpuinfo_str(cpuinfo_str, cpu, arch);
+  }
+
+  if (arch->uarch == UARCH_UNKNOWN)
+    fill_uarch(arch, cpu, "Unknown", UARCH_UNKNOWN, CPU_VENDOR_UNKNOWN);
 
   return arch;
 }
