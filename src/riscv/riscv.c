@@ -72,6 +72,8 @@ int parse_multi_letter_extension(struct extensions* ext, char* e) {
   SET_ISA_EXT_MAP("zicsr",       RISCV_ISA_EXT_ZICSR)
   SET_ISA_EXT_MAP("zifencei",    RISCV_ISA_EXT_ZIFENCEI)
   SET_ISA_EXT_MAP("zihpm",       RISCV_ISA_EXT_ZIHPM)
+  SET_ISA_EXT_MAP("zca",         RISCV_ISA_EXT_ZCA)
+  SET_ISA_EXT_MAP("zcd",         RISCV_ISA_EXT_ZCD)
   if(!maskset) {
     printBug("parse_multi_letter_extension: Unknown multi-letter extension: %s", multi_letter_extension);
     return -1;

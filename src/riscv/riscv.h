@@ -33,6 +33,8 @@ enum riscv_isa_ext_id {
   RISCV_ISA_EXT_ZICSR,
   RISCV_ISA_EXT_ZIFENCEI,
   RISCV_ISA_EXT_ZIHPM,
+  RISCV_ISA_EXT_ZCA,
+  RISCV_ISA_EXT_ZCD,
   RISCV_ISA_EXT_ID_MAX
 };
 
@@ -74,7 +76,9 @@ static const struct extension extension_list[] = {
   { RISCV_ISA_EXT_ZICNTR,      "(Zicntr) Base Counters and Timers" },
   { RISCV_ISA_EXT_ZICSR,       "(Zicsr) Control and Status Register" },
   { RISCV_ISA_EXT_ZIFENCEI,    "(Zifencei) Instruction-Fetch Fence" },
-  { RISCV_ISA_EXT_ZIHPM,       "(Zihpm) Hardware Performance Counters" }
+  { RISCV_ISA_EXT_ZIHPM,       "(Zihpm) Hardware Performance Counters" },
+  { RISCV_ISA_EXT_ZCA,         "(Zca) Integer Compressed Instructions" },
+  { RISCV_ISA_EXT_ZCD,         "(Zcd) Double FP Compressed Instructions" }
 };
 
 struct cpuInfo* get_cpu_info(void);
