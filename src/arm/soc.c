@@ -1291,6 +1291,9 @@ struct system_on_chip* guess_soc_apple(struct system_on_chip* soc) {
       soc->vendor = SOC_VENDOR_UNKNOWN;
     }
   }
+  else if(cpu_family==CPUFAMILY_ARM_M4_TEMP){
+    fill_soc(soc, "M4", SOC_APPLE_M4,1);
+  }
   else {
     printBugCheckRelease("Found invalid cpu_family: 0x%.8X", cpu_family);
     soc->vendor = SOC_VENDOR_UNKNOWN;

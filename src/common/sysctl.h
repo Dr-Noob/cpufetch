@@ -29,7 +29,7 @@
 #define CPUFAMILY_ARM_EVEREST_SAWTOOTH_2   0xFA33415E
 #define CPUFAMILY_ARM_EVEREST_SAWTOOTH_PRO 0x5F4DEA93
 #define CPUFAMILY_ARM_EVEREST_SAWTOOTH_MAX 0x72015832
-
+#define CPUFAMILY_ARM_M4_TEMP 0x6F5129AC
 // For detecting different M1 types
 // NOTE: Could also be achieved detecting different
 // MIDR values (e.g., APPLE_CPU_PART_M1_ICESTORM_PRO)

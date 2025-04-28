@@ -514,7 +514,7 @@ struct cpuInfo* get_cpu_info_mach(struct cpuInfo* cpu) {
   else if(cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH ||
           cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH_2   ||
           cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH_PRO ||
-          cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH_MAX) {
+          cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH_MAX||cpu_family==CPUFAMILY_ARM_M4_TEMP) {
     fill_cpu_info_everest_sawtooth(cpu, pcores, ecores);
     cpu->soc = get_soc(cpu);
     cpu->peak_performance = get_peak_performance(cpu);

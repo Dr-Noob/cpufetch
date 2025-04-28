@@ -347,6 +347,10 @@ enum {
   SOC_APPLE_M3,
   SOC_APPLE_M3_PRO,
   SOC_APPLE_M3_MAX,
+  SOC_APPLE_M3_ULTRA,
+  SOC_APPLE_M4,
+  SOC_APPLE_M4_PRO,
+  SOC_APPLE_M4_MAX,
   // ALLWINNER
   SOC_ALLWINNER_A10,
   SOC_ALLWINNER_A13,
@@ -445,7 +449,7 @@ inline static VENDOR get_soc_vendor_from_soc(SOC soc) {
   else if(soc >= SOC_EXYNOS_3475 && soc <= SOC_EXYNOS_880) return SOC_VENDOR_EXYNOS;
   else if(soc >= SOC_MTK_MT5327 && soc <= SOC_MTK_MT6833V) return SOC_VENDOR_MEDIATEK;
   else if(soc >= SOC_SNAPD_QSD8650 && soc <= SOC_SNAPD_SC8280XP) return SOC_VENDOR_SNAPDRAGON;
-  else if(soc >= SOC_APPLE_M1 && soc <= SOC_APPLE_M3_MAX) return SOC_VENDOR_APPLE;
+  else if(soc >= SOC_APPLE_M1 && soc <= SOC_APPLE_M4_PRO) return SOC_VENDOR_APPLE;
   else if(soc >= SOC_ALLWINNER_A10 && soc <= SOC_ALLWINNER_R328) return SOC_VENDOR_ALLWINNER;
   else if(soc >= SOC_ROCKCHIP_3288 && soc <= SOC_ROCKCHIP_3588) return SOC_VENDOR_ROCKCHIP;
   else if(soc >= SOC_GOOGLE_TENSOR && soc <= SOC_GOOGLE_TENSOR_G3) return SOC_VENDOR_GOOGLE;
