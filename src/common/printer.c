@@ -981,7 +981,21 @@ uint64_t number_of_bits(uint64_t i) {
   return (((i + (i >> 4)) & 0xF0F0F0F0F0F0F0F) * 0x101010101010101) >> 56;
 }
 
-void print_ascii_riscv(struct ascii* art, uint32_t la, int32_t termw, const char** attribute_fields, uint64_t extensions_mask) {
+// 128-bit version of number_of_bits
+uint64_t number_of_bits_128(uint128_t mask) {
+  return number_of_bits(mask.low) + number_of_bits(mask.high);
+}
+
+// Check if a specific bit is set in 128-bit mask
+bool uint128_test_bit(uint128_t mask, int bit) {
+  if (bit < 64) {
+    return (mask.low >> bit) & 1;
+  } else {
+    return (mask.high >> (bit - 64)) & 1;
+  }
+}
+
+void print_ascii_riscv(struct ascii* art, uint32_t la, int32_t termw, const char** attribute_fields, uint128_t extensions_mask) {
   struct ascii_logo* logo = art->art;
   int attr_to_print = 0;
   int attr_type;
@@ -991,7 +1005,7 @@ void print_ascii_riscv(struct ascii* art, uint32_t la, int32_t termw, const char
   int32_t ext_list_size = sizeof(extension_list)/sizeof(extension_list[0]);
   int32_t ext_num = 0;
   int32_t ext_to_print = 0;
-  int32_t num_extensions = number_of_bits(extensions_mask);
+  int32_t num_extensions = number_of_bits_128(extensions_mask);
   int32_t space_up = ((int)logo->height - (int)(art->n_attributes_set + num_extensions))/2;
   int32_t space_down = (int)logo->height - (int)(art->n_attributes_set + num_extensions) - (int)space_up;
   uint32_t logo_pos = 0;
@@ -1037,7 +1051,7 @@ void print_ascii_riscv(struct ascii* art, uint32_t la, int32_t termw, const char
       // Print extension
       if(attr_to_print > 0 && art->attributes[attr_to_print-1]->type == ATTRIBUTE_EXTENSIONS && ext_num != num_extensions) {
         // Search for the extension to print
-        while(ext_to_print < ext_list_size && !((extensions_mask >> extension_list[ext_to_print].id) & 1U)) ext_to_print++;
+        while(ext_to_print < ext_list_size && !uint128_test_bit(extensions_mask, extension_list[ext_to_print].id)) ext_to_print++;
         if(ext_to_print == ext_list_size) {
           printBug("print_ascii_riscv: Unable to find the extension to print");
         }

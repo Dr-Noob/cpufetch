@@ -136,9 +136,15 @@ struct features {
 #endif  
 };
 
+// Custom 128-bit type using two 64-bit values
+typedef struct {
+  uint64_t low;
+  uint64_t high;
+} uint128_t;
+
 struct extensions {
   char* str;
-  uint64_t mask;
+  uint128_t mask;
 };
 
 struct cpuInfo {

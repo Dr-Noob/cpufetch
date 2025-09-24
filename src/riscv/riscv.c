@@ -9,10 +9,23 @@
 #include "uarch.h"
 #include "soc.h"
 
+// Helper functions for 128-bit operations
+static inline void uint128_set_bit(uint128_t* mask, int bit) {
+  if (bit < 64) {
+    mask->low |= 1ULL << bit;
+  } else {
+    mask->high |= 1ULL << (bit - 64);
+  }
+}
+
+static inline bool uint128_is_zero(uint128_t mask) {
+  return mask.low == 0 && mask.high == 0;
+}
+
 #define SET_ISA_EXT_MAP(name, bit)          \
   if(strncmp(multi_letter_extension, name,  \
         multi_letter_extension_len) == 0) { \
-    ext->mask |= 1UL << bit;                \
+    uint128_set_bit(&ext->mask, bit);       \
     maskset = true;                         \
   }                                         \
 
@@ -137,7 +150,8 @@ bool valid_extension(char ext) {
 
 struct extensions* get_extensions_from_str(char* str) {
   struct extensions* ext = emalloc(sizeof(struct extensions));
-  ext->mask = 0;
+  ext->mask.low = 0;
+  ext->mask.high = 0;
   ext->str = NULL;
 
   if(str == NULL) {
@@ -181,7 +195,7 @@ struct extensions* get_extensions_from_str(char* str) {
       // adding it to the mask
       if(valid_extension(*e)) {
         int n = *e - 'a';
-        ext->mask |= 1UL << n;
+        uint128_set_bit(&ext->mask, n);
       }
       else {
         printBug("get_extensions_from_str: Invalid extension: '%c'", *e);
@@ -204,7 +218,7 @@ struct cpuInfo* get_cpu_info(void) {
   cpu->hv = emalloc(sizeof(struct hypervisor));
   cpu->hv->present = false;
   cpu->ext = get_extensions_from_str(ext_str);
-  if(cpu->ext->str != NULL && cpu->ext->mask == 0) return NULL;
+  if(cpu->ext->str != NULL && uint128_is_zero(cpu->ext->mask)) return NULL;
   cpu->arch = get_uarch(cpu);
   cpu->soc = get_soc(cpu);
   cpu->freq = get_frequency_info(0);
