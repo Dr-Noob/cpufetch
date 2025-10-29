@@ -45,9 +45,17 @@
 #define MAX_ATTRIBUTES      100
 #define MAX_TERM_SIZE       1024
 
+typedef struct {
+  int id;
+  const char *name;
+  const char *shortname;
+} AttributeField;
+
 enum {
-#if defined(ARCH_X86) || defined(ARCH_PPC)
+#if defined(ARCH_X86)
   ATTRIBUTE_NAME,
+#elif defined(ARCH_PPC)
+  ATTRIBUTE_PART_NUMBER,
 #elif defined(ARCH_ARM) || defined(ARCH_RISCV)
   ATTRIBUTE_SOC,
 #endif
@@ -79,76 +87,40 @@ enum {
   ATTRIBUTE_PEAK
 };
 
-static const char* ATTRIBUTE_FIELDS [] = {
-#ifdef ARCH_X86
-  "Name:",
-#elif ARCH_PPC
-  "Part Number:",
-#elif defined(ARCH_ARM) || defined(ARCH_RISCV)
-  "SoC:",
-#endif
-#if defined(ARCH_X86) || defined(ARCH_ARM)
-  "",
-#endif
-  "Hypervisor:",
-  "Microarchitecture:",
-  "Technology:",
-  "Max Frequency:",
-  "Sockets:",
-  "Cores:",
-  "Cores (Total):",
-#ifdef ARCH_X86
-  "SSE:",
-  "AVX:",
-  "FMA:",
-#elif ARCH_PPC
-  "Altivec: ",
-#elif defined(ARCH_ARM)
-  "Features: ",
-#elif defined(ARCH_RISCV)
-  "Extensions: ",
-#endif
-  "L1i Size:",
-  "L1d Size:",
-  "L2 Size:",
-  "L3 Size:",
-  "Peak Performance:",
-};
-
-static const char* ATTRIBUTE_FIELDS_SHORT [] = {
+static const AttributeField ATTRIBUTE_INFO[] = {
 #if defined(ARCH_X86)
-  "Name:",
-#elif ARCH_PPC
-  "P/N:",
-#elif ARCH_ARM
-  "SoC:",
+  { ATTRIBUTE_NAME,        "Name:",              "Name:"          },
+#elif defined(ARCH_PPC)
+  { ATTRIBUTE_PART_NUMBER, "Part Number:",       "P/N:"           },
+#elif defined(ARCH_ARM) || defined(ARCH_RISCV)
+  { ATTRIBUTE_SOC,         "SoC:",               "SoC:"           },
 #endif
 #if defined(ARCH_X86) || defined(ARCH_ARM)
-  "",
+  { ATTRIBUTE_CPU_NUM,     "",                   ""               },     
 #endif
-  "Hypervisor:",
-  "uArch:",
-  "Technology:",
-  "Max Freq:",
-  "Sockets:",
-  "Cores:",
-  "Cores (Total):",
+  { ATTRIBUTE_HYPERVISOR,  "Hypervisor:",        "Hypervisor:"    },
+  { ATTRIBUTE_UARCH,       "Microarchitecture:", "uArch:"         },
+  { ATTRIBUTE_TECHNOLOGY,  "Technology:",        "Technology:"    },
+  { ATTRIBUTE_FREQUENCY,   "Max Frequency:",     "Max Freq:"      },
+  { ATTRIBUTE_SOCKETS,     "Sockets:",           "Sockets:"       },
+  { ATTRIBUTE_NCORES,      "Cores:",             "Cores:"         },
+  { ATTRIBUTE_NCORES_DUAL, "Cores (Total):",     "Cores (Total):" },
 #ifdef ARCH_X86
-  "SSE:",
-  "AVX:",
-  "FMA:",
+  { ATTRIBUTE_SSE,         "SSE:",               "SSE:"           },
+  { ATTRIBUTE_AVX,         "AVX:",               "AVX:"           },
+  { ATTRIBUTE_FMA,         "FMA:",               "FMA:"           },
 #elif ARCH_PPC
-  "Altivec: ",
-#elif defined(ARCH_ARM)
-  "Features: ",
-#elif defined(ARCH_RISCV)
-  "Extensions: ",
+  { ATTRIBUTE_ALTIVEC,     "Altivec: ",          "Altivec: "      },
+#elif ARCH_ARM
+  { ATTRIBUTE_FEATURES,    "Features: ",         "Features: "     },
+#elif ARCH_RISCV
+  { ATTRIBUTE_EXTENSIONS,  "Extensions: ",       "Extensions: "   },
 #endif
-  "L1i Size:",
-  "L1d Size:",
-  "L2 Size:",
-  "L3 Size:",
-  "Peak Perf.:",
+  { ATTRIBUTE_L1i,         "L1i Size:",          "L1i Size:"      },
+  { ATTRIBUTE_L1d,         "L1d Size:",          "L1d Size:"      },
+  { ATTRIBUTE_L2,          "L2 Size:",           "L2 Size:"       },
+  { ATTRIBUTE_L3,          "L3 Size:",           "L3 Size:"       },
+  { ATTRIBUTE_PEAK,        "Peak Performance:",  "Peak Perf.:"    },
 };
 
 struct terminal {
@@ -454,13 +426,14 @@ void choose_ascii_art(struct ascii* art, struct color** cs, struct terminal* ter
   }
 }
 
-uint32_t longest_attribute_length(struct ascii* art, const char** attribute_fields) {
+uint32_t longest_attribute_length(struct ascii* art, bool use_short) {
   uint32_t max = 0;
   uint64_t len = 0;
 
   for(uint32_t i=0; i < art->n_attributes_set; i++) {
     if(art->attributes[i]->value != NULL) {
-      len = strlen(attribute_fields[art->attributes[i]->type]);
+      const char* str = use_short ? ATTRIBUTE_INFO[art->attributes[i]->type].shortname : ATTRIBUTE_INFO[art->attributes[i]->type].name;
+      len = strlen(str);
       if(len > max) max = len;
     }
   }
@@ -485,7 +458,7 @@ uint32_t longest_field_length(struct ascii* art, int la) {
 }
 
 #if defined(ARCH_X86) || defined(ARCH_PPC)
-void print_ascii_generic(struct ascii* art, uint32_t la, int32_t termw, const char** attribute_fields, bool hybrid_architecture) {
+void print_ascii_generic(struct ascii* art, uint32_t la, int32_t termw, bool use_short, bool hybrid_architecture) {
   struct ascii_logo* logo = art->art;
   int attr_to_print = 0;
   int attr_type;
@@ -547,14 +520,15 @@ void print_ascii_generic(struct ascii* art, uint32_t la, int32_t termw, const ch
       else {
 #endif
         beg_space = 0;
-        space_right = 2 + 1 + (la - strlen(attribute_fields[attr_type]));
+        const char* attr_str = use_short ? ATTRIBUTE_INFO[attr_type].shortname : ATTRIBUTE_INFO[attr_type].name;
+        space_right = 2 + 1 + (la - strlen(attr_str));
         if(hybrid_architecture && add_space) {
           beg_space = 2;
           space_right -= 2;
         }
 
-        printOut(lbuf, beg_space + strlen(attribute_fields[attr_type]) + space_right + strlen(attr_value),
-                 "%*s%s%s%s%*s%s%s%s", beg_space, "", logo->color_text[0], attribute_fields[attr_type], art->reset, space_right, "", logo->color_text[1], attr_value, art->reset);
+        printOut(lbuf, beg_space + strlen(attr_str) + space_right + strlen(attr_value),
+                 "%*s%s%s%s%*s%s%s%s", beg_space, "", logo->color_text[0], attr_str, art->reset, space_right, "", logo->color_text[1], attr_value, art->reset);
 #ifdef ARCH_X86
       }
 #endif
@@ -663,19 +637,19 @@ bool print_cpufetch_x86(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
   setAttribute(art, ATTRIBUTE_PEAK, pp);
 
   // Step 3. Print output
-  const char** attribute_fields = ATTRIBUTE_FIELDS;
-  uint32_t longest_attribute = longest_attribute_length(art, attribute_fields);
+  bool use_short = false;
+  uint32_t longest_attribute = longest_attribute_length(art, use_short);
   uint32_t longest_field = longest_field_length(art, longest_attribute);
   choose_ascii_art(art, cs, term, longest_field);
 
   if(!ascii_fits_screen(term->w, *art->art, longest_field)) {
     // Despite of choosing the smallest logo, the output does not fit
     // Choose the shorter field names and recalculate the longest attr
-    attribute_fields = ATTRIBUTE_FIELDS_SHORT;
-    longest_attribute = longest_attribute_length(art, attribute_fields);
+    use_short = true;
+    longest_attribute = longest_attribute_length(art, use_short);
   }
 
-  print_ascii_generic(art, longest_attribute, term->w, attribute_fields, hybrid_architecture);
+  print_ascii_generic(art, longest_attribute, term->w, use_short, hybrid_architecture);
 
   free(manufacturing_process);
   free(sockets);
@@ -724,7 +698,7 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
 
   // Step 2. Set attributes
   if(cpu_name != NULL) {
-    setAttribute(art, ATTRIBUTE_NAME, cpu_name);
+    setAttribute(art, ATTRIBUTE_PART_NUMBER, cpu_name);
   }
   setAttribute(art, ATTRIBUTE_UARCH, uarch);
   if(cpu->hv->present) {
@@ -751,19 +725,19 @@ bool print_cpufetch_ppc(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
   setAttribute(art, ATTRIBUTE_PEAK, pp);
 
   // Step 3. Print output
-  const char** attribute_fields = ATTRIBUTE_FIELDS;
-  uint32_t longest_attribute = longest_attribute_length(art, attribute_fields);
+  bool use_short = false;
+  uint32_t longest_attribute = longest_attribute_length(art, use_short);
   uint32_t longest_field = longest_field_length(art, longest_attribute);
   choose_ascii_art(art, cs, term, longest_field);
 
   if(!ascii_fits_screen(term->w, *art->art, longest_field)) {
     // Despite of choosing the smallest logo, the output does not fit
     // Choose the shorter field names and recalculate the longest attr
-    attribute_fields = ATTRIBUTE_FIELDS_SHORT;
-    longest_attribute = longest_attribute_length(art, attribute_fields);
+    use_short = true;
+    longest_attribute = longest_attribute_length(art, use_short);
   }
 
-  print_ascii_generic(art, longest_attribute, term->w, attribute_fields, false);
+  print_ascii_generic(art, longest_attribute, term->w, use_short, false);
 
   return true;
 }
@@ -791,7 +765,7 @@ uint32_t longest_field_length_arm(struct ascii* art, int la) {
   return max;
 }
 
-void print_ascii_arm(struct ascii* art, uint32_t la, int32_t termw, const char** attribute_fields) {
+void print_ascii_arm(struct ascii* art, uint32_t la, int32_t termw, bool use_short) {
   struct ascii_logo* logo = art->art;
   int attr_to_print = 0;
   int attr_type;
@@ -862,14 +836,15 @@ void print_ascii_arm(struct ascii* art, uint32_t la, int32_t termw, const char**
       }
       else {
         beg_space = 0;
-        space_right = 2 + 1 + (la - strlen(attribute_fields[attr_type]));
+        const char* attr_str = use_short ? ATTRIBUTE_INFO[attr_type].shortname : ATTRIBUTE_INFO[attr_type].name;
+        space_right = 2 + 1 + (la - strlen(attr_str));
         if(add_space) {
           beg_space = 2;
           space_right -= 2;
         }
 
-        printOut(lbuf, beg_space + strlen(attribute_fields[attr_type]) + space_right + strlen(attr_value),
-               "%*s%s%s%s%*s%s%s%s", beg_space, "", logo->color_text[0], attribute_fields[attr_type], art->reset, space_right, "", logo->color_text[1], attr_value, art->reset);
+        printOut(lbuf, beg_space + strlen(attr_str) + space_right + strlen(attr_value),
+               "%*s%s%s%s%*s%s%s%s", beg_space, "", logo->color_text[0], attr_str, art->reset, space_right, "", logo->color_text[1], attr_value, art->reset);
       }
     }
     printOutLine(lbuf, art, termw);
@@ -939,8 +914,8 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
     setAttribute(art, ATTRIBUTE_HYPERVISOR, cpu->hv->hv_name);
   }
 
-  const char** attribute_fields = ATTRIBUTE_FIELDS;
-  uint32_t longest_attribute = longest_attribute_length(art, attribute_fields);
+  bool use_short = false;
+  uint32_t longest_attribute = longest_attribute_length(art, use_short);
   uint32_t longest_field = longest_field_length_arm(art, longest_attribute);
   choose_ascii_art(art, cs, term, longest_field);
 
@@ -952,11 +927,11 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
   if(!ascii_fits_screen(term->w, *art->art, longest_field)) {
     // Despite of choosing the smallest logo, the output does not fit
     // Choose the shorter field names and recalculate the longest attr
-    attribute_fields = ATTRIBUTE_FIELDS_SHORT;
-    longest_attribute = longest_attribute_length(art, attribute_fields);
+    use_short = true;
+    longest_attribute = longest_attribute_length(art, use_short);
   }
 
-  print_ascii_arm(art, longest_attribute, term->w, attribute_fields);
+  print_ascii_arm(art, longest_attribute, term->w, use_short);
 
   free(manufacturing_process);
   free(pp);
@@ -981,7 +956,7 @@ uint64_t number_of_bits(uint64_t i) {
   return (((i + (i >> 4)) & 0xF0F0F0F0F0F0F0F) * 0x101010101010101) >> 56;
 }
 
-void print_ascii_riscv(struct ascii* art, uint32_t la, int32_t termw, const char** attribute_fields, uint64_t extensions_mask) {
+void print_ascii_riscv(struct ascii* art, uint32_t la, int32_t termw, bool use_short, uint64_t extensions_mask) {
   struct ascii_logo* logo = art->art;
   int attr_to_print = 0;
   int attr_type;
@@ -1049,10 +1024,11 @@ void print_ascii_riscv(struct ascii* art, uint32_t la, int32_t termw, const char
       else {
         attr_to_print++;
         beg_space = 0;
-        space_right = 2 + 1 + (la - strlen(attribute_fields[attr_type]));
+        const char* attr_str = use_short ? ATTRIBUTE_INFO[attr_type].shortname : ATTRIBUTE_INFO[attr_type].name;
+        space_right = 2 + 1 + (la - strlen(attr_str));
 
-        printOut(lbuf, beg_space + strlen(attribute_fields[attr_type]) + space_right + strlen(attr_value),
-                 "%*s%s%s%s%*s%s%s%s", beg_space, "", logo->color_text[0], attribute_fields[attr_type], art->reset, space_right, "", logo->color_text[1], attr_value, art->reset);
+        printOut(lbuf, beg_space + strlen(attr_str) + space_right + strlen(attr_value),
+                 "%*s%s%s%s%*s%s%s%s", beg_space, "", logo->color_text[0], attr_str, art->reset, space_right, "", logo->color_text[1], attr_value, art->reset);
       }
     }
     printOutLine(lbuf, art, termw);
@@ -1090,19 +1066,19 @@ bool print_cpufetch_riscv(struct cpuInfo* cpu, STYLE s, struct color** cs, struc
   setAttribute(art, ATTRIBUTE_PEAK, pp);
 
   // Step 3. Print output
-  const char** attribute_fields = ATTRIBUTE_FIELDS;
-  uint32_t longest_attribute = longest_attribute_length(art, attribute_fields);
+  bool use_short = false;
+  uint32_t longest_attribute = longest_attribute_length(art, use_short);
   uint32_t longest_field = longest_field_length(art, longest_attribute);
   choose_ascii_art(art, cs, term, longest_field);
 
   if(!ascii_fits_screen(term->w, *art->art, longest_field)) {
     // Despite of choosing the smallest logo, the output does not fit
     // Choose the shorter field names and recalculate the longest attr
-    attribute_fields = ATTRIBUTE_FIELDS_SHORT;
-    longest_attribute = longest_attribute_length(art, attribute_fields);
+    use_short = true;
+    longest_attribute = longest_attribute_length(art, use_short);
   }
 
-  print_ascii_riscv(art, longest_attribute, term->w, attribute_fields, cpu->ext->mask);
+  print_ascii_riscv(art, longest_attribute, term->w, use_short, cpu->ext->mask);
 
   return true;
 }
