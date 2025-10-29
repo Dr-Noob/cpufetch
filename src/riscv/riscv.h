@@ -189,6 +189,7 @@ static const struct extension extension_list[] = {
   { RISCV_ISA_EXT_ZAAMO,       "(zaamo) " },
   { RISCV_ISA_EXT_ZALRSC,      "(zalrsc) " },
   { RISCV_ISA_EXT_ZICBOP,      "(zicbop) " },
+  { RISCV_ISA_EXT_IME,         "(ime) Integrated Matrix Extension" },
 };
 
 struct cpuInfo* get_cpu_info(void);
