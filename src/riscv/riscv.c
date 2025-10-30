@@ -16,7 +16,7 @@
     maskset = true;                         \
   }                                         \
 
-struct frequency* get_frequency_info(uint32_t_t core) {
+struct frequency* get_frequency_info(uint32_t core) {
   struct frequency* freq = emalloc(sizeof(struct frequency));
 
   freq->measured = false;
@@ -244,7 +244,7 @@ struct cpuInfo* get_cpu_info(void) {
 
 //TODO: Might be worth refactoring with other archs
 char* get_str_topology(struct cpuInfo* cpu, struct topology* topo) {
-  uint32_t_t size = 3+7+1;
+  uint32_t size = 3+7+1;
   char* string = emalloc(sizeof(char)*size);
   snprintf(string, size, "%d cores", topo->total_cores);
 
