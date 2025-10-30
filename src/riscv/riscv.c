@@ -62,7 +62,6 @@ int parse_multi_letter_extension(struct extensions* ext, char* e) {
   SET_ISA_EXT_MAP("zicbom",      RISCV_ISA_EXT_ZICBOM)
   SET_ISA_EXT_MAP("zihintpause", RISCV_ISA_EXT_ZIHINTPAUSE)
   SET_ISA_EXT_MAP("svnapot",     RISCV_ISA_EXT_SVNAPOT)
-  SET_ISA_EXT_MAP("zicbop",      RISCV_ISA_EXT_ZICBOP)
   SET_ISA_EXT_MAP("zicboz",      RISCV_ISA_EXT_ZICBOZ)
   SET_ISA_EXT_MAP("smaia",       RISCV_ISA_EXT_SMAIA)
   SET_ISA_EXT_MAP("ssaia",       RISCV_ISA_EXT_SSAIA)
