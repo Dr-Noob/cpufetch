@@ -16,7 +16,7 @@
     maskset = true;                         \
   }                                         \
 
-struct frequency* get_frequency_info(uint32_t core) {
+struct frequency* get_frequency_info(uint32_t_t core) {
   struct frequency* freq = emalloc(sizeof(struct frequency));
 
   freq->measured = false;
@@ -152,7 +152,7 @@ bool valid_extension(char ext) {
 
 struct extensions* get_extensions_from_str(char* str) {
   struct extensions* ext = emalloc(sizeof(struct extensions));
-  ext->mask = ecalloc((RISCV_ISA_EXT_ID_MAX-1) * sizeof(bool));
+  ext->mask = ecalloc(RISCV_ISA_EXT_ID_MAX-1, sizeof(bool));
   ext->str = NULL;
 
   if(str == NULL) {
@@ -209,8 +209,8 @@ struct extensions* get_extensions_from_str(char* str) {
   return ext;
 }
 
-uint32 get_num_extensions(bool* mask) {
-  uint32 num = 0;
+uint32_t get_num_extensions(bool* mask) {
+  uint32_t num = 0;
   for (int i=0; i < RISCV_ISA_EXT_ID_MAX-1; i++) {
     if (mask[i]) num++;
   }
@@ -244,7 +244,7 @@ struct cpuInfo* get_cpu_info(void) {
 
 //TODO: Might be worth refactoring with other archs
 char* get_str_topology(struct cpuInfo* cpu, struct topology* topo) {
-  uint32_t size = 3+7+1;
+  uint32_t_t size = 3+7+1;
   char* string = emalloc(sizeof(char)*size);
   snprintf(string, size, "%d cores", topo->total_cores);
 
