@@ -1005,10 +1005,10 @@ void print_ascii_riscv(struct ascii* art, uint32_t la, int32_t termw, bool use_s
       // Print extension
       if(attr_to_print > 0 && art->attributes[attr_to_print-1]->type == ATTRIBUTE_EXTENSIONS && ext_num != num_extensions) {
         // Search for the extension to print
-        printf("ext_to_print: %d\n", ext_to_print);
-
         while (ext_to_print < ext_list_size && !((extensions_mask[extension_list[ext_to_print].id])))
           ext_to_print++;
+
+        printf("There are %d ext. This is ext nº%d with id %d\n", num_extensions, ext_num, ext_to_print);
 
         if(ext_to_print == ext_list_size) {
           printBug("print_ascii_riscv: Unable to find the extension to print");

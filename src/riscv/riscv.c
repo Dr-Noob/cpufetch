@@ -152,7 +152,7 @@ bool valid_extension(char ext) {
 
 struct extensions* get_extensions_from_str(char* str) {
   struct extensions* ext = emalloc(sizeof(struct extensions));
-  ext->mask = ecalloc(RISCV_ISA_EXT_ID_MAX-1, sizeof(bool));
+  ext->mask = ecalloc(RISCV_ISA_EXT_ID_MAX, sizeof(bool));
   ext->str = NULL;
 
   if(str == NULL) {
@@ -211,7 +211,7 @@ struct extensions* get_extensions_from_str(char* str) {
 
 uint32_t get_num_extensions(bool* mask) {
   uint32_t num = 0;
-  for (int i=0; i < RISCV_ISA_EXT_ID_MAX-1; i++) {
+  for (int i=0; i < RISCV_ISA_EXT_ID_MAX; i++) {
     if (mask[i]) num++;
   }
   return num;
