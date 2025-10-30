@@ -138,7 +138,7 @@ struct features {
 
 struct extensions {
   char* str;
-  uint64_t mask;
+  bool* mask; // allocated at runtime with size RISCV_ISA_EXT_ID_MAX-1
 };
 
 struct cpuInfo {

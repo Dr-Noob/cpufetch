@@ -12,7 +12,7 @@
 #define SET_ISA_EXT_MAP(name, bit)          \
   if(strncmp(multi_letter_extension, name,  \
         multi_letter_extension_len) == 0) { \
-    ext->mask |= 1UL << bit;                \
+    ext->mask[bit] = true;                  \
     maskset = true;                         \
   }                                         \
 
@@ -152,7 +152,7 @@ bool valid_extension(char ext) {
 
 struct extensions* get_extensions_from_str(char* str) {
   struct extensions* ext = emalloc(sizeof(struct extensions));
-  ext->mask = 0;
+  ext->mask = ecalloc((RISCV_ISA_EXT_ID_MAX-1) * sizeof(bool));
   ext->str = NULL;
 
   if(str == NULL) {
@@ -165,6 +165,8 @@ struct extensions* get_extensions_from_str(char* str) {
 
   // Code inspired in Linux kernel (riscv_fill_hwcap):
   // https://elixir.bootlin.com/linux/v6.2.10/source/arch/riscv/kernel/cpufeature.c
+  // Now it seems to be here in riscv_parse_isa_string:
+  // https://elixir.bootlin.com/linux/v6.16/source/arch/riscv/kernel/cpufeature.c
   char* isa = str;
   if (!strncmp(isa, "rv32", 4))
     isa += 4;
@@ -196,7 +198,7 @@ struct extensions* get_extensions_from_str(char* str) {
       // adding it to the mask
       if(valid_extension(*e)) {
         int n = *e - 'a';
-        ext->mask |= 1UL << n;
+        ext->mask[n] = true;
       }
       else {
         printBug("get_extensions_from_str: Invalid extension: '%c'", *e);
@@ -205,6 +207,18 @@ struct extensions* get_extensions_from_str(char* str) {
   }
 
   return ext;
+}
+
+uint32 get_num_extensions(bool* mask) {
+  uint32 num = 0;
+  for (int i=0; i < RISCV_ISA_EXT_ID_MAX-1; i++) {
+    if (mask[i]) num++;
+  }
+  return num;
+}
+
+bool is_mask_empty(bool* mask) {
+  return get_num_extensions(mask) == 0;
 }
 
 struct cpuInfo* get_cpu_info(void) {
@@ -219,7 +233,7 @@ struct cpuInfo* get_cpu_info(void) {
   cpu->hv = emalloc(sizeof(struct hypervisor));
   cpu->hv->present = false;
   cpu->ext = get_extensions_from_str(ext_str);
-  if(cpu->ext->str != NULL && cpu->ext->mask == 0) return NULL;
+  if(cpu->ext->str != NULL && is_mask_empty(cpu->ext->mask)) return NULL;
   cpu->arch = get_uarch(cpu);
   cpu->soc = get_soc(cpu);
   cpu->freq = get_frequency_info(0);

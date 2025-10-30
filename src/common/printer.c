@@ -949,14 +949,7 @@ bool print_cpufetch_arm(struct cpuInfo* cpu, STYLE s, struct color** cs, struct 
 #endif
 
 #ifdef ARCH_RISCV
-// https://stackoverflow.com/a/2709523
-uint64_t number_of_bits(uint64_t i) {
-  i = i - ((i >> 1) & 0x5555555555555555);
-  i = (i & 0x3333333333333333) + ((i >> 2) & 0x3333333333333333);
-  return (((i + (i >> 4)) & 0xF0F0F0F0F0F0F0F) * 0x101010101010101) >> 56;
-}
-
-void print_ascii_riscv(struct ascii* art, uint32_t la, int32_t termw, bool use_short, uint64_t extensions_mask) {
+void print_ascii_riscv(struct ascii* art, uint32_t la, int32_t termw, bool use_short, bool* extensions_mask) {
   struct ascii_logo* logo = art->art;
   int attr_to_print = 0;
   int attr_type;
@@ -966,7 +959,7 @@ void print_ascii_riscv(struct ascii* art, uint32_t la, int32_t termw, bool use_s
   int32_t ext_list_size = sizeof(extension_list)/sizeof(extension_list[0]);
   int32_t ext_num = 0;
   int32_t ext_to_print = 0;
-  int32_t num_extensions = number_of_bits(extensions_mask);
+  int32_t num_extensions = get_num_extensions(extensions_mask);
   int32_t space_up = ((int)logo->height - (int)(art->n_attributes_set + num_extensions))/2;
   int32_t space_down = (int)logo->height - (int)(art->n_attributes_set + num_extensions) - (int)space_up;
   uint32_t logo_pos = 0;
@@ -1012,7 +1005,11 @@ void print_ascii_riscv(struct ascii* art, uint32_t la, int32_t termw, bool use_s
       // Print extension
       if(attr_to_print > 0 && art->attributes[attr_to_print-1]->type == ATTRIBUTE_EXTENSIONS && ext_num != num_extensions) {
         // Search for the extension to print
-        while(ext_to_print < ext_list_size && !((extensions_mask >> extension_list[ext_to_print].id) & 1U)) ext_to_print++;
+        printf("ext_to_print: %d\n", ext_to_print);
+
+        while (ext_to_print < ext_list_size && !((extensions_mask[extension_list[ext_to_print].id])))
+          ext_to_print++;
+
         if(ext_to_print == ext_list_size) {
           printBug("print_ascii_riscv: Unable to find the extension to print");
         }
