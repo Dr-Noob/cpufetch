@@ -12,7 +12,7 @@
 #define SET_ISA_EXT_MAP(name, bit)          \
   if(strncmp(multi_letter_extension, name,  \
         multi_letter_extension_len) == 0) { \
-    ext->mask |= 1UL << bit;                \
+    ext->mask[bit] = true;                  \
     maskset = true;                         \
   }                                         \
 
@@ -62,7 +62,6 @@ int parse_multi_letter_extension(struct extensions* ext, char* e) {
   SET_ISA_EXT_MAP("zicbom",      RISCV_ISA_EXT_ZICBOM)
   SET_ISA_EXT_MAP("zihintpause", RISCV_ISA_EXT_ZIHINTPAUSE)
   SET_ISA_EXT_MAP("svnapot",     RISCV_ISA_EXT_SVNAPOT)
-  SET_ISA_EXT_MAP("zicbop",      RISCV_ISA_EXT_ZICBOP)
   SET_ISA_EXT_MAP("zicboz",      RISCV_ISA_EXT_ZICBOZ)
   SET_ISA_EXT_MAP("smaia",       RISCV_ISA_EXT_SMAIA)
   SET_ISA_EXT_MAP("ssaia",       RISCV_ISA_EXT_SSAIA)
@@ -72,6 +71,65 @@ int parse_multi_letter_extension(struct extensions* ext, char* e) {
   SET_ISA_EXT_MAP("zicsr",       RISCV_ISA_EXT_ZICSR)
   SET_ISA_EXT_MAP("zifencei",    RISCV_ISA_EXT_ZIFENCEI)
   SET_ISA_EXT_MAP("zihpm",       RISCV_ISA_EXT_ZIHPM)
+  SET_ISA_EXT_MAP("smstateen",   RISCV_ISA_EXT_SMSTATEEN)
+  SET_ISA_EXT_MAP("zicond",      RISCV_ISA_EXT_ZICOND)
+  SET_ISA_EXT_MAP("zbc",         RISCV_ISA_EXT_ZBC)
+  SET_ISA_EXT_MAP("zbkb",        RISCV_ISA_EXT_ZBKB)
+  SET_ISA_EXT_MAP("zbkc",        RISCV_ISA_EXT_ZBKC)
+  SET_ISA_EXT_MAP("zbkx",        RISCV_ISA_EXT_ZBKX)
+  SET_ISA_EXT_MAP("zknd",        RISCV_ISA_EXT_ZKND)
+  SET_ISA_EXT_MAP("zkne",        RISCV_ISA_EXT_ZKNE)
+  SET_ISA_EXT_MAP("zknh",        RISCV_ISA_EXT_ZKNH)
+  SET_ISA_EXT_MAP("zkr",         RISCV_ISA_EXT_ZKR)
+  SET_ISA_EXT_MAP("zksed",       RISCV_ISA_EXT_ZKSED)
+  SET_ISA_EXT_MAP("zksh",        RISCV_ISA_EXT_ZKSH)
+  SET_ISA_EXT_MAP("zkt",         RISCV_ISA_EXT_ZKT)
+  SET_ISA_EXT_MAP("zvbb",        RISCV_ISA_EXT_ZVBB)
+  SET_ISA_EXT_MAP("zvbc",        RISCV_ISA_EXT_ZVBC)
+  SET_ISA_EXT_MAP("zvkb",        RISCV_ISA_EXT_ZVKB)
+  SET_ISA_EXT_MAP("zvkg",        RISCV_ISA_EXT_ZVKG)
+  SET_ISA_EXT_MAP("zvkned",      RISCV_ISA_EXT_ZVKNED)
+  SET_ISA_EXT_MAP("zvknha",      RISCV_ISA_EXT_ZVKNHA)
+  SET_ISA_EXT_MAP("zvknhb",      RISCV_ISA_EXT_ZVKNHB)
+  SET_ISA_EXT_MAP("zvksed",      RISCV_ISA_EXT_ZVKSED)
+  SET_ISA_EXT_MAP("zvksh",       RISCV_ISA_EXT_ZVKSH)
+  SET_ISA_EXT_MAP("zvkt",        RISCV_ISA_EXT_ZVKT)
+  SET_ISA_EXT_MAP("zfh",         RISCV_ISA_EXT_ZFH)
+  SET_ISA_EXT_MAP("zfhmin",      RISCV_ISA_EXT_ZFHMIN)
+  SET_ISA_EXT_MAP("zihintntl",   RISCV_ISA_EXT_ZIHINTNTL)
+  SET_ISA_EXT_MAP("zvfh",        RISCV_ISA_EXT_ZVFH)
+  SET_ISA_EXT_MAP("zvfhmin",     RISCV_ISA_EXT_ZVFHMIN)
+  SET_ISA_EXT_MAP("zfa",         RISCV_ISA_EXT_ZFA)
+  SET_ISA_EXT_MAP("ztso",        RISCV_ISA_EXT_ZTSO)
+  SET_ISA_EXT_MAP("zacas",       RISCV_ISA_EXT_ZACAS)
+  SET_ISA_EXT_MAP("zve32x",      RISCV_ISA_EXT_ZVE32X)
+  SET_ISA_EXT_MAP("zve32f",      RISCV_ISA_EXT_ZVE32F)
+  SET_ISA_EXT_MAP("zve64x",      RISCV_ISA_EXT_ZVE64X)
+  SET_ISA_EXT_MAP("zve64f",      RISCV_ISA_EXT_ZVE64F)
+  SET_ISA_EXT_MAP("zve64d",      RISCV_ISA_EXT_ZVE64D)
+  SET_ISA_EXT_MAP("zimop",       RISCV_ISA_EXT_ZIMOP)
+  SET_ISA_EXT_MAP("zca",         RISCV_ISA_EXT_ZCA)
+  SET_ISA_EXT_MAP("zcb",         RISCV_ISA_EXT_ZCB)
+  SET_ISA_EXT_MAP("zcd",         RISCV_ISA_EXT_ZCD)
+  SET_ISA_EXT_MAP("zcf",         RISCV_ISA_EXT_ZCF)
+  SET_ISA_EXT_MAP("zcmop",       RISCV_ISA_EXT_ZCMOP)
+  SET_ISA_EXT_MAP("zawrs",       RISCV_ISA_EXT_ZAWRS)
+  SET_ISA_EXT_MAP("svvptc",      RISCV_ISA_EXT_SVVPTC)
+  SET_ISA_EXT_MAP("smmpm",       RISCV_ISA_EXT_SMMPM)
+  SET_ISA_EXT_MAP("smnpm",       RISCV_ISA_EXT_SMNPM)
+  SET_ISA_EXT_MAP("ssnpm",       RISCV_ISA_EXT_SSNPM)
+  SET_ISA_EXT_MAP("zabha",       RISCV_ISA_EXT_ZABHA)
+  SET_ISA_EXT_MAP("ziccrse",     RISCV_ISA_EXT_ZICCRSE)
+  SET_ISA_EXT_MAP("svade",       RISCV_ISA_EXT_SVADE)
+  SET_ISA_EXT_MAP("svadu",       RISCV_ISA_EXT_SVADU)
+  SET_ISA_EXT_MAP("zfbfmin",     RISCV_ISA_EXT_ZFBFMIN)
+  SET_ISA_EXT_MAP("zvfbfmin",    RISCV_ISA_EXT_ZVFBFMIN)
+  SET_ISA_EXT_MAP("zvfbfwma",    RISCV_ISA_EXT_ZVFBFWMA)
+  SET_ISA_EXT_MAP("zaamo",       RISCV_ISA_EXT_ZAAMO)
+  SET_ISA_EXT_MAP("zalrsc",      RISCV_ISA_EXT_ZALRSC)
+  SET_ISA_EXT_MAP("zicbop",      RISCV_ISA_EXT_ZICBOP)
+  SET_ISA_EXT_MAP("ime",         RISCV_ISA_EXT_IME)
+
   if(!maskset) {
     printBug("parse_multi_letter_extension: Unknown multi-letter extension: %s", multi_letter_extension);
     return -1;
@@ -94,7 +152,7 @@ bool valid_extension(char ext) {
 
 struct extensions* get_extensions_from_str(char* str) {
   struct extensions* ext = emalloc(sizeof(struct extensions));
-  ext->mask = 0;
+  ext->mask = ecalloc(RISCV_ISA_EXT_ID_MAX, sizeof(bool));
   ext->str = NULL;
 
   if(str == NULL) {
@@ -107,6 +165,8 @@ struct extensions* get_extensions_from_str(char* str) {
 
   // Code inspired in Linux kernel (riscv_fill_hwcap):
   // https://elixir.bootlin.com/linux/v6.2.10/source/arch/riscv/kernel/cpufeature.c
+  // Now it seems to be here in riscv_parse_isa_string:
+  // https://elixir.bootlin.com/linux/v6.16/source/arch/riscv/kernel/cpufeature.c
   char* isa = str;
   if (!strncmp(isa, "rv32", 4))
     isa += 4;
@@ -138,7 +198,7 @@ struct extensions* get_extensions_from_str(char* str) {
       // adding it to the mask
       if(valid_extension(*e)) {
         int n = *e - 'a';
-        ext->mask |= 1UL << n;
+        ext->mask[n] = true;
       }
       else {
         printBug("get_extensions_from_str: Invalid extension: '%c'", *e);
@@ -147,6 +207,18 @@ struct extensions* get_extensions_from_str(char* str) {
   }
 
   return ext;
+}
+
+uint32_t get_num_extensions(bool* mask) {
+  uint32_t num = 0;
+  for (int i=0; i < RISCV_ISA_EXT_ID_MAX; i++) {
+    if (mask[i]) num++;
+  }
+  return num;
+}
+
+bool is_mask_empty(bool* mask) {
+  return get_num_extensions(mask) == 0;
 }
 
 struct cpuInfo* get_cpu_info(void) {
@@ -161,7 +233,7 @@ struct cpuInfo* get_cpu_info(void) {
   cpu->hv = emalloc(sizeof(struct hypervisor));
   cpu->hv->present = false;
   cpu->ext = get_extensions_from_str(ext_str);
-  if(cpu->ext->str != NULL && cpu->ext->mask == 0) return NULL;
+  if(cpu->ext->str != NULL && is_mask_empty(cpu->ext->mask)) return NULL;
   cpu->arch = get_uarch(cpu);
   cpu->soc = get_soc(cpu);
   cpu->freq = get_frequency_info(0);
