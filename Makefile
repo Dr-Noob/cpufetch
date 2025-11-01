@@ -30,7 +30,7 @@ ifneq ($(OS),Windows_NT)
 			HEADERS += $(SRC_DIR)freq/freq.h
 			CFLAGS += -pthread
 		endif
-		ifeq ($(os), FreeBSD)
+		ifeq ($(os), $(filter $(os), FreeBSD Darwin))
 			SOURCE += $(SRC_COMMON)sysctl.c
 			HEADERS += $(SRC_COMMON)sysctl.h
 		endif
