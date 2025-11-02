@@ -13,7 +13,7 @@ bool fill_array_from_sys(int *core_ids, int total_cores, char* SYS_PATH) {
   char* buf;
   char* end;
   char path[128];
-  memset(name, 0, sizeof(char) * 128);
+  memset(path, 0, sizeof(char) * 128);
 
   for(int i=0; i < total_cores; i++) {
     sprintf(path, "%s%s/cpu%d/%s", _PATH_SYS_SYSTEM, _PATH_SYS_CPU, i, SYS_PATH);
