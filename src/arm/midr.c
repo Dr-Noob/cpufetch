@@ -478,6 +478,45 @@ void fill_cpu_info_everest_sawtooth(struct cpuInfo* cpu, uint32_t pcores, uint32
   eve->next_cpu = NULL;
 }
 
+void fill_cpu_info_donan_brava(struct cpuInfo* cpu, uint32_t pcores, uint32_t ecores, uint32_t ecore_midr, uint32_t pcore_midr) {
+  // 1. Fill EFFICIENCY CORE CLUSTER
+  struct cpuInfo* e = cpu;
+
+  e->midr = ecore_midr;
+  e->arch = get_uarch_from_midr(e->midr, e);
+  e->cach = get_cache_info(e);
+  e->feat = get_features_info();
+  e->topo = malloc(sizeof(struct topology));
+  e->topo->cach = e->cach;
+  e->topo->total_cores = ecores;
+  e->freq = malloc(sizeof(struct frequency));
+  e->freq->measured = false;
+  e->freq->base = UNKNOWN_DATA;
+  // Based on Apple M4 public clocks (~2.89 GHz for efficiency cores).
+  e->freq->max = 2890;
+  e->hv = malloc(sizeof(struct hypervisor));
+  e->hv->present = false;
+  e->next_cpu = malloc(sizeof(struct cpuInfo));
+
+  // 2. Fill PERFORMANCE CORE CLUSTER
+  struct cpuInfo* p = e->next_cpu;
+  p->midr = pcore_midr;
+  p->arch = get_uarch_from_midr(p->midr, p);
+  p->cach = get_cache_info(p);
+  p->feat = get_features_info();
+  p->topo = malloc(sizeof(struct topology));
+  p->topo->cach = p->cach;
+  p->topo->total_cores = pcores;
+  p->freq = malloc(sizeof(struct frequency));
+  p->freq->measured = false;
+  p->freq->base = UNKNOWN_DATA;
+  // Based on Apple M4 public clocks (~4.46 GHz for performance cores).
+  p->freq->max = 4460;
+  p->hv = malloc(sizeof(struct hypervisor));
+  p->hv->present = false;
+  p->next_cpu = NULL;
+}
+
 struct cpuInfo* get_cpu_info_mach(struct cpuInfo* cpu) {
   // https://developer.apple.com/documentation/kernel/1387446-sysctlbyname/determining_system_capabilities
   uint32_t nperflevels = get_sys_info_by_name("hw.nperflevels");
@@ -499,6 +538,7 @@ struct cpuInfo* get_cpu_info_mach(struct cpuInfo* cpu) {
   }
 
   uint32_t cpu_family = get_sys_info_by_name("hw.cpufamily");
+  uint32_t cpu_subfamily = get_sys_info_by_name("hw.cpusubfamily");
   // Manually fill the cpuInfo assuming that
   // the CPU is an Apple SoC
   if(cpu_family == CPUFAMILY_ARM_FIRESTORM_ICESTORM) {
@@ -516,6 +556,21 @@ struct cpuInfo* get_cpu_info_mach(struct cpuInfo* cpu) {
           cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH_PRO ||
           cpu_family == CPUFAMILY_ARM_EVEREST_SAWTOOTH_MAX) {
     fill_cpu_info_everest_sawtooth(cpu, pcores, ecores);
+    cpu->soc = get_soc(cpu);
+    cpu->peak_performance = get_peak_performance(cpu);
+  }
+  else if(cpu_family == CPUFAMILY_ARM_DONAN) {
+    fill_cpu_info_donan_brava(cpu, pcores, ecores, MIDR_APPLE_M4_DONAN_E, MIDR_APPLE_M4_DONAN_P);
+    cpu->soc = get_soc(cpu);
+    cpu->peak_performance = get_peak_performance(cpu);
+  }
+  else if(cpu_family == CPUFAMILY_ARM_BRAVA) {
+    if(cpu_subfamily == CPUSUBFAMILY_ARM_HC_HD) {
+      fill_cpu_info_donan_brava(cpu, pcores, ecores, MIDR_APPLE_M4_BRAVA_E_2, MIDR_APPLE_M4_BRAVA_P_2);
+    }
+    else {
+      fill_cpu_info_donan_brava(cpu, pcores, ecores, MIDR_APPLE_M4_BRAVA_E, MIDR_APPLE_M4_BRAVA_P);
+    }
     cpu->soc = get_soc(cpu);
     cpu->peak_performance = get_peak_performance(cpu);
   }

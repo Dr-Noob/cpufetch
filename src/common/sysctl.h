@@ -11,6 +11,13 @@
 // https://github.com/AsahiLinux/m1n1/blob/main/src/chickens.c
 #define MIDR_APPLE_M3_SAWTOOTH  0x610F0480
 #define MIDR_APPLE_M3_EVEREST   0x610F0490
+// M4 family values are based on GCC/LLVM Apple core updates.
+#define MIDR_APPLE_M4_DONAN_E   0x610F0520
+#define MIDR_APPLE_M4_DONAN_P   0x610F0530
+#define MIDR_APPLE_M4_BRAVA_E   0x610F0540
+#define MIDR_APPLE_M4_BRAVA_P   0x610F0550
+#define MIDR_APPLE_M4_BRAVA_E_2 0x610F0580
+#define MIDR_APPLE_M4_BRAVA_P_2 0x610F0590
 
 // M1 / A14
 #ifndef CPUFAMILY_ARM_FIRESTORM_ICESTORM
@@ -29,6 +36,11 @@
 #define CPUFAMILY_ARM_EVEREST_SAWTOOTH_2   0xFA33415E
 #define CPUFAMILY_ARM_EVEREST_SAWTOOTH_PRO 0x5F4DEA93
 #define CPUFAMILY_ARM_EVEREST_SAWTOOTH_MAX 0x72015832
+// M4 / A18
+// DONAN: https://github.com/llvm/llvm-project/blob/main/llvm/lib/TargetParser/Host.cpp
+// BRAVA: https://fossies.org/linux/llvm-project/llvm/lib/TargetParser/Host.cpp
+#define CPUFAMILY_ARM_DONAN                0x6F5129AC
+#define CPUFAMILY_ARM_BRAVA                0x17D5B93A
 
 // For detecting different M1 types
 // NOTE: Could also be achieved detecting different

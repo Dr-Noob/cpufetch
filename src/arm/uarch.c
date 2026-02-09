@@ -110,6 +110,10 @@ static const ISA isas_uarch[] = {
   [UARCH_AVALANCHE]    = ISA_ARMv8_6_A, // https://github.com/llvm/llvm-project/blob/main/llvm/unittests/TargetParser/TargetParserTest.cpp
   [UARCH_SAWTOOTH]     = ISA_ARMv8_6_A, // https://github.com/llvm/llvm-project/blob/main/llvm/unittests/TargetParser/TargetParserTest.cpp
   [UARCH_EVEREST]      = ISA_ARMv8_6_A, // https://github.com/llvm/llvm-project/blob/main/llvm/unittests/TargetParser/TargetParserTest.cpp
+  [UARCH_DONAN_E]      = ISA_ARMv9_2_A, // https://gcc.gnu.org/pipermail/gcc-cvs/2025-April/420407.html
+  [UARCH_DONAN_P]      = ISA_ARMv9_2_A, // https://gcc.gnu.org/pipermail/gcc-cvs/2025-April/420407.html
+  [UARCH_BRAVA_E]      = ISA_ARMv9_2_A, // https://gcc.gnu.org/pipermail/gcc-cvs/2025-April/420407.html
+  [UARCH_BRAVA_P]      = ISA_ARMv9_2_A, // https://gcc.gnu.org/pipermail/gcc-cvs/2025-April/420407.html
   [UARCH_PJ4]          = ISA_ARMv7_A,
   [UARCH_XIAOMI]       = ISA_ARMv8_A,
 };
@@ -280,8 +284,18 @@ struct uarch* get_uarch_from_midr(uint32_t midr, struct cpuInfo* cpu) {
   CHECK_UARCH(arch, cpu, 'a', 0x025, NA, NA, "Firestorm",             UARCH_FIRESTORM,    CPU_VENDOR_APPLE)     // https://github.com/Dr-Noob/cpufetch/issues/263
   CHECK_UARCH(arch, cpu, 'a', 0x030, NA, NA, "Blizzard",              UARCH_BLIZZARD,     CPU_VENDOR_APPLE)
   CHECK_UARCH(arch, cpu, 'a', 0x031, NA, NA, "Avalanche",             UARCH_AVALANCHE,    CPU_VENDOR_APPLE)
+  CHECK_UARCH(arch, cpu, 'a', 0x042, NA, NA, "Sawtooth",              UARCH_SAWTOOTH,     CPU_VENDOR_APPLE)
+  CHECK_UARCH(arch, cpu, 'a', 0x043, NA, NA, "Everest",               UARCH_EVEREST,      CPU_VENDOR_APPLE)
+  CHECK_UARCH(arch, cpu, 'a', 0x044, NA, NA, "Sawtooth",              UARCH_SAWTOOTH,     CPU_VENDOR_APPLE)
+  CHECK_UARCH(arch, cpu, 'a', 0x045, NA, NA, "Everest",               UARCH_EVEREST,      CPU_VENDOR_APPLE)
   CHECK_UARCH(arch, cpu, 'a', 0x048, NA, NA, "Sawtooth",              UARCH_SAWTOOTH,     CPU_VENDOR_APPLE)
   CHECK_UARCH(arch, cpu, 'a', 0x049, NA, NA, "Everest",               UARCH_EVEREST,      CPU_VENDOR_APPLE)
+  CHECK_UARCH(arch, cpu, 'a', 0x052, NA, NA, "Donan-E",               UARCH_DONAN_E,      CPU_VENDOR_APPLE)
+  CHECK_UARCH(arch, cpu, 'a', 0x053, NA, NA, "Donan",                 UARCH_DONAN_P,      CPU_VENDOR_APPLE)
+  CHECK_UARCH(arch, cpu, 'a', 0x054, NA, NA, "Brava-E",               UARCH_BRAVA_E,      CPU_VENDOR_APPLE)
+  CHECK_UARCH(arch, cpu, 'a', 0x055, NA, NA, "Brava",                 UARCH_BRAVA_P,      CPU_VENDOR_APPLE)
+  CHECK_UARCH(arch, cpu, 'a', 0x058, NA, NA, "Brava-E",               UARCH_BRAVA_E,      CPU_VENDOR_APPLE)
+  CHECK_UARCH(arch, cpu, 'a', 0x059, NA, NA, "Brava",                 UARCH_BRAVA_P,      CPU_VENDOR_APPLE)
 
   CHECK_UARCH(arch, cpu, 'V', 0x581, NA, NA, "PJ4",                   UARCH_PJ4,          CPU_VENDOR_MARVELL)
   CHECK_UARCH(arch, cpu, 'V', 0x584, NA, NA, "PJ4B-MP",               UARCH_PJ4,          CPU_VENDOR_MARVELL)
@@ -335,6 +349,8 @@ int get_number_of_vpus(struct cpuInfo* cpu) {
     case UARCH_CORTEX_X925: // [https://www.anandtech.com/show/21399/arm-unveils-2024-cpu-core-designs-cortex-x925-a725-and-a520-arm-v9-2-redefined-for-3nm-/2]
       return 6;
     case UARCH_EVEREST:     // Just a guess, needs confirmation.
+    case UARCH_DONAN_P:     // Assuming same SIMD width/throughput as previous Apple big cores.
+    case UARCH_BRAVA_P:     // Assuming same SIMD width/throughput as previous Apple big cores.
     case UARCH_FIRESTORM:   // [https://dougallj.github.io/applecpu/firestorm-simd.html]
     case UARCH_AVALANCHE:   // [https://en.wikipedia.org/wiki/Comparison_of_ARM_processors]
     case UARCH_CORTEX_X1:   // [https://www.anandtech.com/show/15813/arm-cortex-a78-cortex-x1-cpu-ip-diverging/3]
@@ -347,6 +363,8 @@ int get_number_of_vpus(struct cpuInfo* cpu) {
     case UARCH_NEOVERSE_V3: // Assuming same as V2
       return 4;
     case UARCH_SAWTOOTH:    // Needs confirmation, rn this is the best we know: https://mastodon.social/@dougall/111118317031041336
+    case UARCH_DONAN_E:     // Assuming same SIMD width/throughput as previous Apple efficiency cores.
+    case UARCH_BRAVA_E:     // Assuming same SIMD width/throughput as previous Apple efficiency cores.
     case UARCH_EXYNOS_M3:   // [https://www.anandtech.com/show/12361/samsung-exynos-m3-architecture]
     case UARCH_EXYNOS_M4:   // [https://en.wikichip.org/wiki/samsung/microarchitectures/m4#Block_Diagram]
     case UARCH_EXYNOS_M5:   // [https://en.wikichip.org/wiki/samsung/microarchitectures/m5]

@@ -1291,6 +1291,31 @@ struct system_on_chip* guess_soc_apple(struct system_on_chip* soc) {
       soc->vendor = SOC_VENDOR_UNKNOWN;
     }
   }
+  else if(cpu_family == CPUFAMILY_ARM_DONAN || cpu_family == CPUFAMILY_ARM_BRAVA) {
+    // Check M4 version
+    if(cpu_family == CPUFAMILY_ARM_DONAN) {
+      fill_soc(soc, "M4", SOC_APPLE_M4, 3);
+    }
+    else if(cpu_subfamily == CPUSUBFAMILY_ARM_HS) {
+      fill_soc(soc, "M4 Pro", SOC_APPLE_M4_PRO, 3);
+    }
+    else if(cpu_subfamily == CPUSUBFAMILY_ARM_HC_HD) {
+      fill_soc(soc, "M4 Max", SOC_APPLE_M4_MAX, 3);
+    }
+    else {
+      // Fallback for unknown cpu_subfamily values.
+      uint32_t physicalcpu = get_sys_info_by_name("hw.physicalcpu");
+      if(physicalcpu >= 14) {
+        fill_soc(soc, "M4 Max", SOC_APPLE_M4_MAX, 3);
+      }
+      else if(physicalcpu >= 12) {
+        fill_soc(soc, "M4 Pro", SOC_APPLE_M4_PRO, 3);
+      }
+      else {
+        fill_soc(soc, "M4", SOC_APPLE_M4, 3);
+      }
+    }
+  }
   else {
     printBugCheckRelease("Found invalid cpu_family: 0x%.8X", cpu_family);
     soc->vendor = SOC_VENDOR_UNKNOWN;

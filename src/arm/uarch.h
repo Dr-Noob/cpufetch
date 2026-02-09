@@ -86,6 +86,10 @@ enum {
   UARCH_AVALANCHE,  // Apple M2 processor (big cores).
   UARCH_SAWTOOTH,   // Apple M3 processor (little cores).
   UARCH_EVEREST,    // Apple M3 processor (big cores).
+  UARCH_DONAN_E,    // Apple M4 family (efficiency cores).
+  UARCH_DONAN_P,    // Apple M4 family (performance cores).
+  UARCH_BRAVA_E,    // Apple M4 Pro/Max family (efficiency cores).
+  UARCH_BRAVA_P,    // Apple M4 Pro/Max family (performance cores).
   // CAVIUM
   UARCH_THUNDERX,   // Cavium ThunderX
   UARCH_THUNDERX2,  // Cavium ThunderX2 (originally Broadcom Vulkan).
